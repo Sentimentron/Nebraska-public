@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		DE9648C017E89B3300BE46A5 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648BF17E89B3300BE46A5 /* main.cpp */; };
 		DE9648C217E89B3300BE46A5 /* Sentiment.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
+		DE9648CA17E89B9A00BE46A5 /* sentence_loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648C817E89B9A00BE46A5 /* sentence_loader.cpp */; };
+		DE9648CD17E8AEA100BE46A5 /* sentences.csv in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648CB17E8AAFA00BE46A5 /* sentences.csv */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -22,12 +24,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		DE9648CC17E8AE8100BE46A5 /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				DE9648CD17E8AEA100BE46A5 /* sentences.csv in Copy Files */,
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		DE9648BB17E89B3300BE46A5 /* Sentiment */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sentiment; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE9648BF17E89B3300BE46A5 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		DE9648C117E89B3300BE46A5 /* Sentiment.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Sentiment.1; sourceTree = "<group>"; };
+		DE9648C817E89B9A00BE46A5 /* sentence_loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sentence_loader.cpp; sourceTree = "<group>"; };
+		DE9648C917E89B9A00BE46A5 /* sentence_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sentence_loader.h; sourceTree = "<group>"; };
+		DE9648CB17E8AAFA00BE46A5 /* sentences.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sentences.csv; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +60,7 @@
 		DE9648B017E89B3300BE46A5 = {
 			isa = PBXGroup;
 			children = (
+				DE9648CB17E8AAFA00BE46A5 /* sentences.csv */,
 				DE9648BE17E89B3300BE46A5 /* Sentiment */,
 				DE9648BC17E89B3300BE46A5 /* Products */,
 			);
@@ -62,6 +79,8 @@
 			children = (
 				DE9648BF17E89B3300BE46A5 /* main.cpp */,
 				DE9648C117E89B3300BE46A5 /* Sentiment.1 */,
+				DE9648C817E89B9A00BE46A5 /* sentence_loader.cpp */,
+				DE9648C917E89B9A00BE46A5 /* sentence_loader.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";
@@ -76,6 +95,7 @@
 				DE9648B717E89B3300BE46A5 /* Sources */,
 				DE9648B817E89B3300BE46A5 /* Frameworks */,
 				DE9648B917E89B3300BE46A5 /* CopyFiles */,
+				DE9648CC17E8AE8100BE46A5 /* Copy Files */,
 			);
 			buildRules = (
 			);
@@ -118,6 +138,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE9648C017E89B3300BE46A5 /* main.cpp in Sources */,
+				DE9648CA17E89B9A00BE46A5 /* sentence_loader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
