@@ -1,0 +1,215 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DE9648C017E89B3300BE46A5 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648BF17E89B3300BE46A5 /* main.cpp */; };
+		DE9648C217E89B3300BE46A5 /* Sentiment.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DE9648B917E89B3300BE46A5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				DE9648C217E89B3300BE46A5 /* Sentiment.1 in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		DE9648BB17E89B3300BE46A5 /* Sentiment */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sentiment; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE9648BF17E89B3300BE46A5 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		DE9648C117E89B3300BE46A5 /* Sentiment.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Sentiment.1; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DE9648B817E89B3300BE46A5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DE9648B017E89B3300BE46A5 = {
+			isa = PBXGroup;
+			children = (
+				DE9648BE17E89B3300BE46A5 /* Sentiment */,
+				DE9648BC17E89B3300BE46A5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DE9648BC17E89B3300BE46A5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DE9648BB17E89B3300BE46A5 /* Sentiment */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DE9648BE17E89B3300BE46A5 /* Sentiment */ = {
+			isa = PBXGroup;
+			children = (
+				DE9648BF17E89B3300BE46A5 /* main.cpp */,
+				DE9648C117E89B3300BE46A5 /* Sentiment.1 */,
+			);
+			path = Sentiment;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DE9648BA17E89B3300BE46A5 /* Sentiment */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE9648C517E89B3300BE46A5 /* Build configuration list for PBXNativeTarget "Sentiment" */;
+			buildPhases = (
+				DE9648B717E89B3300BE46A5 /* Sources */,
+				DE9648B817E89B3300BE46A5 /* Frameworks */,
+				DE9648B917E89B3300BE46A5 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Sentiment;
+			productName = Sentiment;
+			productReference = DE9648BB17E89B3300BE46A5 /* Sentiment */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DE9648B217E89B3300BE46A5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = "Richard Townsend";
+			};
+			buildConfigurationList = DE9648B517E89B3300BE46A5 /* Build configuration list for PBXProject "Sentiment" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = DE9648B017E89B3300BE46A5;
+			productRefGroup = DE9648BC17E89B3300BE46A5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DE9648BA17E89B3300BE46A5 /* Sentiment */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DE9648B717E89B3300BE46A5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE9648C017E89B3300BE46A5 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		DE9648C317E89B3300BE46A5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		DE9648C417E89B3300BE46A5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		DE9648C617E89B3300BE46A5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		DE9648C717E89B3300BE46A5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DE9648B517E89B3300BE46A5 /* Build configuration list for PBXProject "Sentiment" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE9648C317E89B3300BE46A5 /* Debug */,
+				DE9648C417E89B3300BE46A5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DE9648C517E89B3300BE46A5 /* Build configuration list for PBXNativeTarget "Sentiment" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE9648C617E89B3300BE46A5 /* Debug */,
+				DE9648C717E89B3300BE46A5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DE9648B217E89B3300BE46A5 /* Project object */;
+}
