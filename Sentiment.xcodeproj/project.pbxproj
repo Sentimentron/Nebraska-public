@@ -47,6 +47,7 @@
 		DE9648CB17E8AAFA00BE46A5 /* sentences.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sentences.csv; sourceTree = "<group>"; };
 		DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sentence.cpp; sourceTree = "<group>"; };
 		DE9648CF17E8CCF500BE46A5 /* Sentence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sentence.h; sourceTree = "<group>"; };
+		DE9648D117E8CE9600BE46A5 /* ISentenceSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISentenceSource.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +87,7 @@
 				DE9648C917E89B9A00BE46A5 /* PLSentenceSource.h */,
 				DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */,
 				DE9648CF17E8CCF500BE46A5 /* Sentence.h */,
+				DE9648D117E8CE9600BE46A5 /* ISentenceSource.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";

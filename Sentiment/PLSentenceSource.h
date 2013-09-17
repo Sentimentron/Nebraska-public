@@ -12,7 +12,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "sentence.h"
+#include "ISentenceSource.h"
 
 typedef enum {
     SentenceReadFileError,
@@ -20,12 +20,6 @@ typedef enum {
     SentenceReadAllocationError,
     SentenceReadOk
 } SentenceReadStatus;
-
-class ISentenceSource {
-public:
-    virtual ~ISentenceSource() {}
-    virtual std::vector<Sentence *> GetSentences() = 0;
-};
 
 class PLSentenceSource : public ISentenceSource {
     /* Pang-Lee sentence source */
