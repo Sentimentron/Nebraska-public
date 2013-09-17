@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 Richard Townsend. All rights reserved.
 //
 
-#include "sentence.h"
-#include "sentence_loader.h"
+#include "Sentence.h"
+#include "PLSentenceSource.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

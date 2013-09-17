@@ -7,7 +7,7 @@
 //
 
 #include <iostream>
-#include "sentence_loader.h"
+#include "PLSentenceSource.h"
 
 int main(int argc, const char * argv[])
 {

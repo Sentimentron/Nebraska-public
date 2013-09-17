@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Richard Townsend. All rights reserved.
 //
 
-#include "sentence.h"
+#include "Sentence.h"
 
 //
 // Sentence constructors
