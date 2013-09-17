@@ -11,6 +11,7 @@
 		DE9648C217E89B3300BE46A5 /* Sentiment.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
 		DE9648CA17E89B9A00BE46A5 /* sentence_loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648C817E89B9A00BE46A5 /* sentence_loader.cpp */; };
 		DE9648CD17E8AEA100BE46A5 /* sentences.csv in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648CB17E8AAFA00BE46A5 /* sentences.csv */; };
+		DE9648D017E8CCF500BE46A5 /* sentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648CE17E8CCF500BE46A5 /* sentence.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -44,6 +45,8 @@
 		DE9648C817E89B9A00BE46A5 /* sentence_loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sentence_loader.cpp; sourceTree = "<group>"; };
 		DE9648C917E89B9A00BE46A5 /* sentence_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sentence_loader.h; sourceTree = "<group>"; };
 		DE9648CB17E8AAFA00BE46A5 /* sentences.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sentences.csv; sourceTree = "<group>"; };
+		DE9648CE17E8CCF500BE46A5 /* sentence.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sentence.cpp; sourceTree = "<group>"; };
+		DE9648CF17E8CCF500BE46A5 /* sentence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sentence.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +84,8 @@
 				DE9648C117E89B3300BE46A5 /* Sentiment.1 */,
 				DE9648C817E89B9A00BE46A5 /* sentence_loader.cpp */,
 				DE9648C917E89B9A00BE46A5 /* sentence_loader.h */,
+				DE9648CE17E8CCF500BE46A5 /* sentence.cpp */,
+				DE9648CF17E8CCF500BE46A5 /* sentence.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";
@@ -139,6 +144,7 @@
 			files = (
 				DE9648C017E89B3300BE46A5 /* main.cpp in Sources */,
 				DE9648CA17E89B9A00BE46A5 /* sentence_loader.cpp in Sources */,
+				DE9648D017E8CCF500BE46A5 /* sentence.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

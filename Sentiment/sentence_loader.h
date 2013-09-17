@@ -12,12 +12,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-
-typedef enum {
-    PositiveSentenceLabel,
-    NegativeSentenceLabel,
-    UndefinedSentenceLabel
-} ClassificationLabel;
+#include "sentence.h"
 
 typedef enum {
     SentenceReadFileError,
@@ -25,19 +20,6 @@ typedef enum {
     SentenceReadAllocationError,
     SentenceReadOk
 } SentenceReadStatus;
-
-class Sentence {
-private:
-    char                *text;
-    ClassificationLabel label;
-public:
-    Sentence (ClassificationLabel, char *);
-    Sentence (int, char *);
-    ~Sentence();
-    ClassificationLabel GetClassification();
-    const char* GetClassificationStr();
-    std::string GetText();
-};
 
 class ISentenceSource {
 public:

@@ -6,58 +6,13 @@
 //  Copyright (c) 2013 Richard Townsend. All rights reserved.
 //
 
+#include "sentence.h"
 #include "sentence_loader.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 const char * const S_DEFAULT_PL_PATH = "sentences.csv";
-
-//
-// Sentence constructors
-//
-Sentence::Sentence(ClassificationLabel label, char *text) {
-    this->text  = text;
-    this->label = label;
-}
-
-Sentence::Sentence(int label, char *text) {
-    ClassificationLabel l;
-    if (label == 1) {
-        l = PositiveSentenceLabel;
-    }
-    else if (label == -1) {
-        l = NegativeSentenceLabel;
-    }
-    else {
-        l = UndefinedSentenceLabel;
-    }
-    this->text = text;
-    this->label = l;
-}
-
-Sentence::~Sentence() {
-    free(this->text);
-}
-
-ClassificationLabel Sentence::GetClassification() {
-    return this->label;
-}
-
-const char *Sentence::GetClassificationStr() {
-    switch (this->GetClassification()) {
-        case NegativeSentenceLabel:
-            return "Negative";
-        case PositiveSentenceLabel:
-            return "Positive";
-        default:
-            return "Unknown";
-    }
-}
-
-std::string Sentence::GetText() {
-    return std::string(this->text);
-}
 
 //
 // PLSentence constructors
