@@ -120,13 +120,13 @@ SentenceReadStatus PLSentenceSource::init(char *path) {
         }
         
         // Copy the sentence text
-        len = strlen(buf_contents[1]) - 1;
+        len = strlen(buf_contents[1]) - 3;
         text = (char *)calloc(len, 1);
         if (text == NULL) {
             ret = SentenceReadAllocationError;
             return ret; 
         }
-        strncpy(text, buf_contents[1], len);
+        strncpy(text, buf_contents[1] + 1, len);
         
         // Construct the Sentence object
         s = new Sentence(label, text);
