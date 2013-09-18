@@ -14,6 +14,7 @@
 		DE9648D017E8CCF500BE46A5 /* Sentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */; };
 		DE9648D617E8D07000BE46A5 /* WordToken.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D417E8D07000BE46A5 /* WordToken.cpp */; };
 		DE9648D917E8D19B00BE46A5 /* WhitespaceTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */; };
+		DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -56,6 +57,9 @@
 		DE9648D517E8D07000BE46A5 /* WordToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WordToken.h; sourceTree = "<group>"; };
 		DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhitespaceTokenizer.cpp; sourceTree = "<group>"; };
 		DE9648D817E8D19B00BE46A5 /* WhitespaceTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhitespaceTokenizer.h; sourceTree = "<group>"; };
+		DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IStringEnumerator.h; sourceTree = "<group>"; };
+		DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HMStringEnumerator.cpp; sourceTree = "<group>"; };
+		DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMStringEnumerator.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +94,7 @@
 			isa = PBXGroup;
 			children = (
 				DE9648BF17E89B3300BE46A5 /* main.cpp */,
+				DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */,
 				DE9648C117E89B3300BE46A5 /* Sentiment.1 */,
 				DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */,
 				DE9648C917E89B9A00BE46A5 /* PLSentenceSource.h */,
@@ -102,6 +107,8 @@
 				DE9648D317E8CFF100BE46A5 /* ITokenizer.h */,
 				DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */,
 				DE9648D817E8D19B00BE46A5 /* WhitespaceTokenizer.h */,
+				DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */,
+				DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";
@@ -163,6 +170,7 @@
 				DE9648D017E8CCF500BE46A5 /* Sentence.cpp in Sources */,
 				DE9648D617E8D07000BE46A5 /* WordToken.cpp in Sources */,
 				DE9648D917E8D19B00BE46A5 /* WhitespaceTokenizer.cpp in Sources */,
+				DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -253,6 +261,7 @@
 				DE9648C717E89B3300BE46A5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

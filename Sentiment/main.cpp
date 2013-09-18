@@ -7,6 +7,7 @@
 //
 
 #include <iostream>
+#include "HMStringEnumerator.h"
 #include "PLSentenceSource.h"
 #include "WhitespaceTokenizer.h"
 #include "WordToken.h"
@@ -19,6 +20,8 @@ int main(int argc, const char * argv[])
     WhitespaceTokenizer *wt;
     // PLSentenceSource reads sentences from a CSV file on disk
     PLSentenceSource *p;
+    // HMStringEnumerator enumerates GetKey() values from WordTokens
+    HMStringEnumerator *hms;
     // Allows iteration through Sentence objects
     std::vector<Sentence *> sv;
     // Allows iteration thorugh WordTokens
@@ -26,6 +29,7 @@ int main(int argc, const char * argv[])
     
     // Construct tokenizer
     wt = new WhitespaceTokenizer();
+    hms = new HMStringEnumerator();
     
     // Read sentences from CSV file in the default location
     p = new PLSentenceSource();
@@ -34,6 +38,7 @@ int main(int argc, const char * argv[])
     
     // Loop through each sentence and print 
     for(std::vector<Sentence *>::iterator it = sv.begin(); it != sv.end(); ++it) {
+        unsigned int en;
         Sentence *s = *it;
         // Print the classification label plus sentence text
         std::cout << s->GetClassificationStr() << " " << s->GetText() << "\n";
@@ -42,12 +47,15 @@ int main(int argc, const char * argv[])
         // Print a new line and then the tokenizer units
         for(std::vector<IToken *>::iterator itt = tv.begin(); itt != tv.end(); ++itt) {
             WordToken *wtn = (WordToken *)*itt;
-            std::cout << "\t" << wtn->GetKey() << "\n";
+            std::cout << "\t" << wtn->GetKey();
+            en = hms->Enumerate(wtn->GetKey());
+            std::cout << "\t" << en << "\n";
         }
     }
     
     delete p;
     delete wt;
+    delete hms;
     
     return 0;
 }
