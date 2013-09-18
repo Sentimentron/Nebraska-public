@@ -12,6 +12,8 @@
 		DE9648CA17E89B9A00BE46A5 /* PLSentenceSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */; };
 		DE9648CD17E8AEA100BE46A5 /* sentences.csv in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648CB17E8AAFA00BE46A5 /* sentences.csv */; };
 		DE9648D017E8CCF500BE46A5 /* Sentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */; };
+		DE9648D617E8D07000BE46A5 /* WordToken.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D417E8D07000BE46A5 /* WordToken.cpp */; };
+		DE9648D917E8D19B00BE46A5 /* WhitespaceTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -48,6 +50,12 @@
 		DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sentence.cpp; sourceTree = "<group>"; };
 		DE9648CF17E8CCF500BE46A5 /* Sentence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sentence.h; sourceTree = "<group>"; };
 		DE9648D117E8CE9600BE46A5 /* ISentenceSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISentenceSource.h; sourceTree = "<group>"; };
+		DE9648D217E8CF6D00BE46A5 /* IToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IToken.h; sourceTree = "<group>"; };
+		DE9648D317E8CFF100BE46A5 /* ITokenizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ITokenizer.h; sourceTree = "<group>"; };
+		DE9648D417E8D07000BE46A5 /* WordToken.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WordToken.cpp; sourceTree = "<group>"; };
+		DE9648D517E8D07000BE46A5 /* WordToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WordToken.h; sourceTree = "<group>"; };
+		DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhitespaceTokenizer.cpp; sourceTree = "<group>"; };
+		DE9648D817E8D19B00BE46A5 /* WhitespaceTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhitespaceTokenizer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +96,12 @@
 				DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */,
 				DE9648CF17E8CCF500BE46A5 /* Sentence.h */,
 				DE9648D117E8CE9600BE46A5 /* ISentenceSource.h */,
+				DE9648D217E8CF6D00BE46A5 /* IToken.h */,
+				DE9648D417E8D07000BE46A5 /* WordToken.cpp */,
+				DE9648D517E8D07000BE46A5 /* WordToken.h */,
+				DE9648D317E8CFF100BE46A5 /* ITokenizer.h */,
+				DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */,
+				DE9648D817E8D19B00BE46A5 /* WhitespaceTokenizer.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";
@@ -147,6 +161,8 @@
 				DE9648C017E89B3300BE46A5 /* main.cpp in Sources */,
 				DE9648CA17E89B9A00BE46A5 /* PLSentenceSource.cpp in Sources */,
 				DE9648D017E8CCF500BE46A5 /* Sentence.cpp in Sources */,
+				DE9648D617E8D07000BE46A5 /* WordToken.cpp in Sources */,
+				DE9648D917E8D19B00BE46A5 /* WhitespaceTokenizer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
