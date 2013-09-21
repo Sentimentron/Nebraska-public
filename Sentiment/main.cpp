@@ -26,6 +26,7 @@ int main(int argc, const char * argv[])
     HMStringEnumerator *hms;
     // Allows iteration through Sentence objects
     std::vector<Sentence *> sv;
+    std::vector<TokenizedSentence *>tsv;
     // Allows iteration thorugh WordTokens
     std::vector<IToken *> tv;
     // SentiWordScorer retrieves word scores from SentiWordNet
@@ -42,6 +43,7 @@ int main(int argc, const char * argv[])
     sv = p->GetSentences();
     
     // Create a scoring map from SentiWordNet
+    scoring_map_size = 0;
     scr.CreateScoringMap(hms, &scoring_map_size, &scoring_map);
     scoring_map = (float *)malloc(scoring_map_size * sizeof(float));
     if(scoring_map == NULL) {
@@ -50,13 +52,19 @@ int main(int argc, const char * argv[])
     }
     scr.CreateScoringMap(hms, &scoring_map_size, &scoring_map);
     
+    // Create a vector of tokenized sentences 
+    for(std::vector<Sentence *>::const_iterator it = sv.begin();
+        it != sv.end(); it++) {
+        tsv.push_back(new TokenizedSentence(*it, wt));
+    }
+    
     // Loop through each sentence and print 
-    for(std::vector<Sentence *>::iterator it = sv.begin(); it != sv.end(); ++it) {
+    for(std::vector<TokenizedSentence *>::iterator it = tsv.begin(); it != tsv.end(); ++it) {
         unsigned int en;
-        TokenizedSentence st = TokenizedSentence(*it, (ITokenizer *)wt);
-        std::vector<IToken *> tv = st.GetTokens();
+        TokenizedSentence *st = *it;
+        std::vector<IToken *> tv = st->GetTokens();
         // Print the classification label plus sentence text
-        std::cout << st.GetClassificationStr() << " " << st.GetText() << "\n";
+        std::cout << st->GetClassificationStr() << " " << st->GetText() << "\n";
         // Print a new line and then the tokenizer units
         for(std::vector<IToken *>::iterator itt = tv.begin(); itt != tv.end(); ++itt) {
             WordToken *wtn = (WordToken *)*itt;
