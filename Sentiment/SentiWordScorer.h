@@ -17,6 +17,7 @@
 class SentiWordScorer {
 private:
     void init(std::string);
+    void enumerate(IStringEnumerator *);
     std::unordered_map<std::string, float> scores;
 public:
     SentiWordScorer();

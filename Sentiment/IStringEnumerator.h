@@ -14,7 +14,8 @@
 class IStringEnumerator {
 public:
     virtual ~IStringEnumerator() {}
-    unsigned int Enumerate(std::string);
+    virtual unsigned int Enumerate(std::string) = 0;
+    virtual unsigned int GetSize() = 0;
 };
 
 

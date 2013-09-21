@@ -40,3 +40,7 @@ unsigned int HMStringEnumerator::Enumerate(std::string s) {
     // Increment and return the identifier
     return this->identifier++;
 }
+
+unsigned int HMStringEnumerator::GetSize() {
+    return this->identifier;
+}

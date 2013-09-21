@@ -47,6 +47,7 @@ int main(int argc, const char * argv[])
         std::cerr << "Allocation error";
         return 1;
     }
+    scr.CreateScoringMap(hms, &scoring_map_size, &scoring_map);
     
     // Loop through each sentence and print 
     for(std::vector<Sentence *>::iterator it = sv.begin(); it != sv.end(); ++it) {

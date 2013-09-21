@@ -71,10 +71,37 @@ void SentiWordScorer::init(std::string path) {
         }
         average /= length;
         this->scores[it->first] = average;
-        std::cout << it->first << "\t" << average << "\n";
     }
 }
 
-int SentiWordScorer::CreateScoringMap(IStringEnumerator *e, size_t *s, float **f) {
-    return -1;
+void SentiWordScorer::enumerate(IStringEnumerator *e) {
+    for(std::unordered_map<std::string, float>::const_iterator it = this->scores.begin();
+        it != this->scores.end(); it++) {
+        e->Enumerate(it->first);
+    }
+}
+
+int SentiWordScorer::CreateScoringMap(IStringEnumerator *enumerator, size_t *smap_size, float **smap) {
+    
+    unsigned int required_size;
+    
+    // Make sure everything we have is in the enumerator
+    this->enumerate(enumerator);
+    required_size = enumerator->GetSize();
+    
+    // Check the scoring map is large enough
+    if (*smap_size < required_size) {
+        // If not, return the size and an error code
+        *smap_size = required_size;
+        return 1;
+    }
+    
+    // Insert each score
+    for(std::unordered_map<std::string, float>::const_iterator it = this->scores.begin();
+        it != this->scores.end(); it++) {
+        unsigned int id = enumerator->Enumerate(it->first);
+        *(*smap + id) = it->second;
+    }
+    
+    return 0;
 }

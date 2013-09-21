@@ -26,6 +26,7 @@ public:
     ~HMStringEnumerator();
     HMStringEnumerator();
     unsigned int Enumerate(std::string);
+    unsigned int GetSize();
 };
 
 #endif /* defined(__Sentiment__HMStringEnumerator__) */
