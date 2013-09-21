@@ -11,9 +11,17 @@
 //
 // Sentence constructors
 //
+
+Sentence::Sentence(Sentence *s) {
+    this->text = s->text;
+    this->label = s->label;
+    this->free_text = false;
+}
+
 Sentence::Sentence(ClassificationLabel label, char *text) {
     this->text  = text;
     this->label = label;
+    this->free_text = true;
 }
 
 Sentence::Sentence(int label, char *text) {
@@ -29,12 +37,19 @@ Sentence::Sentence(int label, char *text) {
     }
     this->text = text;
     this->label = l;
+    this->free_text = true;
 }
 
 Sentence::~Sentence() {
-    free(this->text);
+    if(this->free_text) {
+        free(this->text);
+    }
 }
 
+
+//
+// Sentence methods
+//
 ClassificationLabel Sentence::GetClassification() {
     return this->label;
 }

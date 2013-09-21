@@ -17,6 +17,7 @@
 		DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */; };
 		DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */; };
 		DEDD1A3817EDC2F000C83517 /* SentiWordScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */; };
+		DEDD1A3E17EDEEF600C83517 /* TokenizedSentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3C17EDEEF600C83517 /* TokenizedSentence.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -66,6 +67,8 @@
 		DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SentiWordNet_3.0.0_20120510.txt; sourceTree = SOURCE_ROOT; };
 		DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SentiWordScorer.cpp; sourceTree = "<group>"; };
 		DEDD1A3717EDC2EF00C83517 /* SentiWordScorer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentiWordScorer.h; sourceTree = "<group>"; };
+		DEDD1A3C17EDEEF600C83517 /* TokenizedSentence.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TokenizedSentence.cpp; path = ../TokenizedSentence.cpp; sourceTree = "<group>"; };
+		DEDD1A3D17EDEEF600C83517 /* TokenizedSentence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TokenizedSentence.h; path = ../TokenizedSentence.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +108,8 @@
 				DE9648C117E89B3300BE46A5 /* Sentiment.1 */,
 				DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */,
 				DE9648C917E89B9A00BE46A5 /* PLSentenceSource.h */,
+				DEDD1A3C17EDEEF600C83517 /* TokenizedSentence.cpp */,
+				DEDD1A3D17EDEEF600C83517 /* TokenizedSentence.h */,
 				DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */,
 				DE9648CF17E8CCF500BE46A5 /* Sentence.h */,
 				DE9648D117E8CE9600BE46A5 /* ISentenceSource.h */,
@@ -181,6 +186,7 @@
 				DE9648D917E8D19B00BE46A5 /* WhitespaceTokenizer.cpp in Sources */,
 				DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */,
 				DEDD1A3817EDC2F000C83517 /* SentiWordScorer.cpp in Sources */,
+				DEDD1A3E17EDEEF600C83517 /* TokenizedSentence.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

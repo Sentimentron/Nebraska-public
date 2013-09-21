@@ -10,6 +10,7 @@
 #define __Sentiment__Sentence__
 
 #include <iostream>
+#include <vector>
 
 typedef enum {
     PositiveSentenceLabel,
@@ -19,9 +20,12 @@ typedef enum {
 
 class Sentence {
 private:
+    bool                free_text;
     char                *text;
     ClassificationLabel label;
 public:
+    //Sentence(ClassificationLabel, std::string);
+    Sentence (Sentence *);
     Sentence (ClassificationLabel, char *);
     Sentence (int, char *);
     ~Sentence();

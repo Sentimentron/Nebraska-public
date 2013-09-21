@@ -12,6 +12,7 @@
 #include "WhitespaceTokenizer.h"
 #include "WordToken.h"
 #include "SentiWordScorer.h"
+#include "TokenizedSentence.h"
 
 int main(int argc, const char * argv[])
 {
@@ -52,11 +53,10 @@ int main(int argc, const char * argv[])
     // Loop through each sentence and print 
     for(std::vector<Sentence *>::iterator it = sv.begin(); it != sv.end(); ++it) {
         unsigned int en;
-        Sentence *s = *it;
+        TokenizedSentence st = TokenizedSentence(*it, (ITokenizer *)wt);
+        std::vector<IToken *> tv = st.GetTokens();
         // Print the classification label plus sentence text
-        std::cout << s->GetClassificationStr() << " " << s->GetText() << "\n";
-        // Tokenize the sentence
-        tv = wt->Tokenize(s);
+        std::cout << st.GetClassificationStr() << " " << st.GetText() << "\n";
         // Print a new line and then the tokenizer units
         for(std::vector<IToken *>::iterator itt = tv.begin(); itt != tv.end(); ++itt) {
             WordToken *wtn = (WordToken *)*itt;
