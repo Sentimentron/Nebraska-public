@@ -15,6 +15,7 @@
 		DE9648D617E8D07000BE46A5 /* WordToken.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D417E8D07000BE46A5 /* WordToken.cpp */; };
 		DE9648D917E8D19B00BE46A5 /* WhitespaceTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */; };
 		DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */; };
+		DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,6 +35,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
+				DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */,
 				DE9648CD17E8AEA100BE46A5 /* sentences.csv in Copy Files */,
 			);
 			name = "Copy Files";
@@ -60,6 +62,7 @@
 		DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IStringEnumerator.h; sourceTree = "<group>"; };
 		DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HMStringEnumerator.cpp; sourceTree = "<group>"; };
 		DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMStringEnumerator.h; sourceTree = "<group>"; };
+		DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SentiWordNet_3.0.0_20120510.txt; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +96,7 @@
 		DE9648BE17E89B3300BE46A5 /* Sentiment */ = {
 			isa = PBXGroup;
 			children = (
+				DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */,
 				DE9648BF17E89B3300BE46A5 /* main.cpp */,
 				DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */,
 				DE9648C117E89B3300BE46A5 /* Sentiment.1 */,
