@@ -16,6 +16,7 @@
 		DE9648D917E8D19B00BE46A5 /* WhitespaceTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */; };
 		DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */; };
 		DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */; };
+		DEDD1A3817EDC2F000C83517 /* SentiWordScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -63,6 +64,8 @@
 		DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HMStringEnumerator.cpp; sourceTree = "<group>"; };
 		DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMStringEnumerator.h; sourceTree = "<group>"; };
 		DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SentiWordNet_3.0.0_20120510.txt; sourceTree = SOURCE_ROOT; };
+		DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SentiWordScorer.cpp; sourceTree = "<group>"; };
+		DEDD1A3717EDC2EF00C83517 /* SentiWordScorer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentiWordScorer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +116,8 @@
 				DE9648D817E8D19B00BE46A5 /* WhitespaceTokenizer.h */,
 				DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */,
 				DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */,
+				DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */,
+				DEDD1A3717EDC2EF00C83517 /* SentiWordScorer.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";
@@ -175,6 +180,7 @@
 				DE9648D617E8D07000BE46A5 /* WordToken.cpp in Sources */,
 				DE9648D917E8D19B00BE46A5 /* WhitespaceTokenizer.cpp in Sources */,
 				DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */,
+				DEDD1A3817EDC2F000C83517 /* SentiWordScorer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -11,6 +11,7 @@
 #include "PLSentenceSource.h"
 #include "WhitespaceTokenizer.h"
 #include "WordToken.h"
+#include "SentiWordScorer.h"
 
 int main(int argc, const char * argv[])
 {
@@ -26,7 +27,10 @@ int main(int argc, const char * argv[])
     std::vector<Sentence *> sv;
     // Allows iteration thorugh WordTokens
     std::vector<IToken *> tv;
-    
+    // SentiWordScorer retrieves word scores from SentiWordNet
+    SentiWordScorer scr;
+    float *scoring_map;
+    size_t scoring_map_size; 
     // Construct tokenizer
     wt = new WhitespaceTokenizer();
     hms = new HMStringEnumerator();
@@ -35,6 +39,14 @@ int main(int argc, const char * argv[])
     p = new PLSentenceSource();
     // Iterator sv through the sentences
     sv = p->GetSentences();
+    
+    // Create a scoring map from SentiWordNet
+    scr.CreateScoringMap(hms, &scoring_map_size, &scoring_map);
+    scoring_map = (float *)malloc(scoring_map_size * sizeof(float));
+    if(scoring_map == NULL) {
+        std::cerr << "Allocation error";
+        return 1;
+    }
     
     // Loop through each sentence and print 
     for(std::vector<Sentence *>::iterator it = sv.begin(); it != sv.end(); ++it) {
