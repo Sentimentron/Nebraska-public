@@ -10,6 +10,7 @@
 #define __Sentiment__TokenizedSentence__
 
 #include <iostream>
+#include "Sentence.h"
 #include "IToken.h"
 #include "ITokenizer.h"
 

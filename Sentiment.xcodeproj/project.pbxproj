@@ -18,6 +18,8 @@
 		DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */; };
 		DEDD1A3817EDC2F000C83517 /* SentiWordScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */; };
 		DEDD1A3E17EDEEF600C83517 /* TokenizedSentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3C17EDEEF600C83517 /* TokenizedSentence.cpp */; };
+		DEDD1A4417EDF5A100C83517 /* Classifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A4217EDF5A100C83517 /* Classifier.cpp */; };
+		DEDD1A4717EDF6A700C83517 /* EnumeratedSentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A4517EDF6A700C83517 /* EnumeratedSentence.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -69,6 +71,10 @@
 		DEDD1A3717EDC2EF00C83517 /* SentiWordScorer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentiWordScorer.h; sourceTree = "<group>"; };
 		DEDD1A3C17EDEEF600C83517 /* TokenizedSentence.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TokenizedSentence.cpp; path = ../TokenizedSentence.cpp; sourceTree = "<group>"; };
 		DEDD1A3D17EDEEF600C83517 /* TokenizedSentence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TokenizedSentence.h; path = ../TokenizedSentence.h; sourceTree = "<group>"; };
+		DEDD1A4217EDF5A100C83517 /* Classifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Classifier.cpp; sourceTree = "<group>"; };
+		DEDD1A4317EDF5A100C83517 /* Classifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Classifier.h; sourceTree = "<group>"; };
+		DEDD1A4517EDF6A700C83517 /* EnumeratedSentence.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EnumeratedSentence.cpp; sourceTree = "<group>"; };
+		DEDD1A4617EDF6A700C83517 /* EnumeratedSentence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EnumeratedSentence.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,6 +129,10 @@
 				DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */,
 				DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */,
 				DEDD1A3717EDC2EF00C83517 /* SentiWordScorer.h */,
+				DEDD1A4217EDF5A100C83517 /* Classifier.cpp */,
+				DEDD1A4317EDF5A100C83517 /* Classifier.h */,
+				DEDD1A4517EDF6A700C83517 /* EnumeratedSentence.cpp */,
+				DEDD1A4617EDF6A700C83517 /* EnumeratedSentence.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";
@@ -187,6 +197,8 @@
 				DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */,
 				DEDD1A3817EDC2F000C83517 /* SentiWordScorer.cpp in Sources */,
 				DEDD1A3E17EDEEF600C83517 /* TokenizedSentence.cpp in Sources */,
+				DEDD1A4417EDF5A100C83517 /* Classifier.cpp in Sources */,
+				DEDD1A4717EDF6A700C83517 /* EnumeratedSentence.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

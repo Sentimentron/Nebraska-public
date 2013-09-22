@@ -13,6 +13,7 @@
 #include "WordToken.h"
 #include "SentiWordScorer.h"
 #include "TokenizedSentence.h"
+#include "EnumeratedSentence.h"
 
 int main(int argc, const char * argv[])
 {
@@ -27,6 +28,7 @@ int main(int argc, const char * argv[])
     // Allows iteration through Sentence objects
     std::vector<Sentence *> sv;
     std::vector<TokenizedSentence *>tsv;
+    std::vector<EnumeratedSentence *> etsv;
     // Allows iteration thorugh WordTokens
     std::vector<IToken *> tv;
     // SentiWordScorer retrieves word scores from SentiWordNet
@@ -58,11 +60,17 @@ int main(int argc, const char * argv[])
         tsv.push_back(new TokenizedSentence(*it, wt));
     }
     
+    // Create a vector of enumerated sentences
+    for (std::vector<TokenizedSentence *>::const_iterator it = tsv.begin();
+         it != tsv.end(); it++) {
+        etsv.push_back(new EnumeratedSentence(*it, hms));
+    }
+    
     // Loop through each sentence and print 
-    for(std::vector<TokenizedSentence *>::iterator it = tsv.begin(); it != tsv.end(); ++it) {
+    for(std::vector<EnumeratedSentence *>::iterator it = etsv.begin(); it != etsv.end(); ++it) {
         unsigned int en;
-        TokenizedSentence *st = *it;
-        std::vector<IToken *> tv = st->GetTokens();
+        EnumeratedSentence *st = *it;
+        std::vector<IToken *> tv = st->GetParent()->GetTokens();
         // Print the classification label plus sentence text
         std::cout << st->GetClassificationStr() << " " << st->GetText() << "\n";
         // Print a new line and then the tokenizer units
