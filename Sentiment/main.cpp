@@ -14,10 +14,14 @@
 #include "SentiWordScorer.h"
 #include "TokenizedSentence.h"
 #include "EnumeratedSentence.h"
+#include "Classifier.h"
+#include "math.h"
 
 int main(int argc, const char * argv[])
 {
 
+    int positive_correct = 0, positive_counter = 0;
+    int negative_correct = 0, negative_counter = 0;
     // WhitespaceTokenizer splits sentences into scorable parts based on
     // whitespace
     WhitespaceTokenizer *wt;
@@ -25,6 +29,8 @@ int main(int argc, const char * argv[])
     PLSentenceSource *p;
     // HMStringEnumerator enumerates GetKey() values from WordTokens
     HMStringEnumerator *hms;
+    // Classifier decides whether a sentence is positive or negative
+    Classifier c;
     // Allows iteration through Sentence objects
     std::vector<Sentence *> sv;
     std::vector<TokenizedSentence *>tsv;
@@ -44,16 +50,6 @@ int main(int argc, const char * argv[])
     // Iterator sv through the sentences
     sv = p->GetSentences();
     
-    // Create a scoring map from SentiWordNet
-    scoring_map_size = 0;
-    scr.CreateScoringMap(hms, &scoring_map_size, &scoring_map);
-    scoring_map = (float *)malloc(scoring_map_size * sizeof(float));
-    if(scoring_map == NULL) {
-        std::cerr << "Allocation error";
-        return 1;
-    }
-    scr.CreateScoringMap(hms, &scoring_map_size, &scoring_map);
-    
     // Create a vector of tokenized sentences 
     for(std::vector<Sentence *>::const_iterator it = sv.begin();
         it != sv.end(); it++) {
@@ -66,20 +62,48 @@ int main(int argc, const char * argv[])
         etsv.push_back(new EnumeratedSentence(*it, hms));
     }
     
+    // Create a scoring map from SentiWordNet
+    scoring_map_size = 0;
+    scr.CreateScoringMap(hms, &scoring_map_size, &scoring_map);
+    scoring_map = (float *)calloc(scoring_map_size, sizeof(float));
+    if(scoring_map == NULL) {
+        std::cerr << "Allocation error";
+        return 1;
+    }
+    scr.CreateScoringMap(hms, &scoring_map_size, &scoring_map);
+    
+    for (auto it = etsv.begin(); it != etsv.end(); it++) {
+        c.Train(*it, scoring_map);
+    }
+    
     // Loop through each sentence and print 
     for(std::vector<EnumeratedSentence *>::iterator it = etsv.begin(); it != etsv.end(); ++it) {
-        unsigned int en;
-        EnumeratedSentence *st = *it;
-        std::vector<IToken *> tv = st->GetParent()->GetTokens();
-        // Print the classification label plus sentence text
-        std::cout << st->GetClassificationStr() << " " << st->GetText() << "\n";
-        // Print a new line and then the tokenizer units
-        for(std::vector<IToken *>::iterator itt = tv.begin(); itt != tv.end(); ++itt) {
-            WordToken *wtn = (WordToken *)*itt;
-            std::cout << "\t" << wtn->GetKey();
-            en = hms->Enumerate(wtn->GetKey());
-            std::cout << "\t" << en << "\n";
+        EnumeratedSentence *s = *it;
+        ClassificationLabel l = c.Classify(s, scoring_map);
+        ClassificationLabel o = s->GetClassification();
+        std::cout << s->GetText() << "\t";
+        if (o == PositiveSentenceLabel) {
+            positive_counter++;
         }
+        else {
+            negative_counter++;
+        }
+        if (l != o) {
+            std::cout << "Incorrect\t";
+        }
+        else {
+            if (l == PositiveSentenceLabel) {
+                positive_correct++;
+            }
+            else {
+                negative_correct++;
+            }
+            std::cout << "Correct\t";
+        }
+        std::cout << s->GetClassification() << "\t" << l << "\t";
+        std::cout << 100.0 * positive_correct / fmax(positive_counter, 1) << "\t";
+        std::cout << 100.0 * negative_correct / fmax(negative_counter, 1) << "\t";
+        std::cout << "\n";
     }
     
     delete p;

@@ -9,16 +9,18 @@
 #ifndef __Sentiment__Classifier__
 #define __Sentiment__Classifier__
 
+#include <tuple>
 #include <iostream>
-#include "TokenizedSentence.h"
-
+#include "EnumeratedSentence.h"
+#include "FloatingFloatBuffer.h"
 class Classifier {
 private:
-    std::vector<TokenizedSentence *>training;
+    std::vector<std::tuple<EnumeratedSentence*, FloatingFloatBuffer *>>training;
+    FloatingFloatBuffer *CreateSignal(EnumeratedSentence *, float *);
 public:
-    Classifier (std::vector<TokenizedSentence *>training);
-    ClassificationLabel Classify(TokenizedSentence *, float *score_map);
-    //float SelfAssess();
+    Classifier ();
+    ClassificationLabel Classify(EnumeratedSentence *, float *score_map);
+    void Train(EnumeratedSentence *, float *);
 };
 
 #endif /* defined(__Sentiment__Classifier__) */

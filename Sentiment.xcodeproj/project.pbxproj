@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DE6630E417EF459300EFE393 /* FloatingFloatBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */; };
 		DE9648C017E89B3300BE46A5 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648BF17E89B3300BE46A5 /* main.cpp */; };
 		DE9648C217E89B3300BE46A5 /* Sentiment.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
 		DE9648CA17E89B9A00BE46A5 /* PLSentenceSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */; };
@@ -48,6 +49,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FloatingFloatBuffer.cpp; sourceTree = "<group>"; };
+		DE6630E317EF459300EFE393 /* FloatingFloatBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatingFloatBuffer.h; sourceTree = "<group>"; };
 		DE9648BB17E89B3300BE46A5 /* Sentiment */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sentiment; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE9648BF17E89B3300BE46A5 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		DE9648C117E89B3300BE46A5 /* Sentiment.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Sentiment.1; sourceTree = "<group>"; };
@@ -130,6 +133,8 @@
 				DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */,
 				DEDD1A3717EDC2EF00C83517 /* SentiWordScorer.h */,
 				DEDD1A4217EDF5A100C83517 /* Classifier.cpp */,
+				DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */,
+				DE6630E317EF459300EFE393 /* FloatingFloatBuffer.h */,
 				DEDD1A4317EDF5A100C83517 /* Classifier.h */,
 				DEDD1A4517EDF6A700C83517 /* EnumeratedSentence.cpp */,
 				DEDD1A4617EDF6A700C83517 /* EnumeratedSentence.h */,
@@ -199,6 +204,7 @@
 				DEDD1A3E17EDEEF600C83517 /* TokenizedSentence.cpp in Sources */,
 				DEDD1A4417EDF5A100C83517 /* Classifier.cpp in Sources */,
 				DEDD1A4717EDF6A700C83517 /* EnumeratedSentence.cpp in Sources */,
+				DE6630E417EF459300EFE393 /* FloatingFloatBuffer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
