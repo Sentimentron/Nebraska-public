@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
+#include <ctime>
 
 const char * const S_DEFAULT_PL_PATH = "sentences.csv";
 
@@ -44,6 +46,9 @@ SentenceReadStatus PLSentenceSource::init(char *path) {
     size_t  buf_size;
     
     SentenceReadStatus ret;
+    
+    // Seed random return sort
+    std::srand((unsigned int)std::time(0));
     
     // Open the source file
     fp = fopen(path, "r");
@@ -91,6 +96,9 @@ SentenceReadStatus PLSentenceSource::init(char *path) {
         }
         this->sentences.push_back(s);
     }
+    
+    std::random_shuffle(this->sentences.begin(), this->sentences.end());
+    
     free(buf);
     ret = SentenceReadOk;
 cleanup:

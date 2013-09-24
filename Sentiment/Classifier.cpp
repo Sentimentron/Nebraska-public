@@ -53,7 +53,7 @@ float autocorrelation(FloatingFloatBuffer &x, FloatingFloatBuffer &y, int *offse
         max_length = y.GetLength();
         shortest = &x;
     }
-    for (int i = 0; i < max_length >> 1; i++) {
+    for (int i = 0; i < max_length >> 2; i++) {
         float c;
         shortest->SetStartOffset(i);
         c = correlation(x, y, max_length);
@@ -93,6 +93,10 @@ ClassificationLabel Classifier::Classify (EnumeratedSentence *s, float *score_ma
     
     if(!this->training.size()) {
         return UndefinedSentenceLabel;
+    }
+    
+    if (s->GetClassification() == NegativeSentenceLabel) {
+        std::cout << "Classifying something negative!\n";
     }
     
     for (auto it = training_pairs.begin(); it != training_pairs.end(); it++) {
