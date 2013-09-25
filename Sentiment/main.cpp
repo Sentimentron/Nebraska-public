@@ -30,7 +30,7 @@ int main(int argc, const char * argv[])
     // HMStringEnumerator enumerates GetKey() values from WordTokens
     HMStringEnumerator *hms;
     // Classifier decides whether a sentence is positive or negative
-    Classifier c;
+    FFTClassifier c;
     // Allows iteration through Sentence objects
     std::vector<Sentence *> sv;
     std::vector<TokenizedSentence *>tsv;

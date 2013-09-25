@@ -16,12 +16,12 @@
 #include "IClassifier.h"
 
 
-class Classifier : public IClassifier {
+class FFTClassifier : public IClassifier {
 private:
     std::vector<std::tuple<EnumeratedSentence*, FloatingFloatBuffer *>>training;
     FloatingFloatBuffer *CreateSignal(EnumeratedSentence *, float *);
 public:
-    Classifier ();
+    FFTClassifier ();
     ClassificationLabel Classify(EnumeratedSentence *, float *score_map);
     void Train(EnumeratedSentence *, float *);
 };

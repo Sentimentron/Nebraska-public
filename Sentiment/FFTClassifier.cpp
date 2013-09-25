@@ -14,7 +14,7 @@
 // Classifier constructors
 //
 
-Classifier::Classifier() {
+FFTClassifier::FFTClassifier() {
 
 }
 
@@ -68,7 +68,7 @@ float autocorrelation(FloatingFloatBuffer &x, FloatingFloatBuffer &y, int *offse
     return max_correlation;
 }
 
-FloatingFloatBuffer *Classifier::CreateSignal(EnumeratedSentence *s, float *score_map) {
+FloatingFloatBuffer *FFTClassifier::CreateSignal(EnumeratedSentence *s, float *score_map) {
     auto sentence_items = s->GetEnumeratedVector();
     FloatingFloatBuffer *bf = new FloatingFloatBuffer();
     for (auto it = sentence_items.begin();
@@ -78,7 +78,7 @@ FloatingFloatBuffer *Classifier::CreateSignal(EnumeratedSentence *s, float *scor
     return bf;
 }
 
-void Classifier::Train(EnumeratedSentence *s, float *score_map) {
+void FFTClassifier::Train(EnumeratedSentence *s, float *score_map) {
     
     ClassificationLabel r = this->Classify(s, score_map);
     if (r == s->GetClassification()) {
@@ -89,7 +89,7 @@ void Classifier::Train(EnumeratedSentence *s, float *score_map) {
     this->training.push_back(std::make_tuple(s, bf));
 }
 
-ClassificationLabel Classifier::Classify (EnumeratedSentence *s, float *score_map) {
+ClassificationLabel FFTClassifier::Classify (EnumeratedSentence *s, float *score_map) {
     ClassificationLabel ret;
     
     float best_corr = 0.0f;
