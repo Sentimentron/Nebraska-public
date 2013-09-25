@@ -14,7 +14,7 @@
 #include "SentiWordScorer.h"
 #include "TokenizedSentence.h"
 #include "EnumeratedSentence.h"
-#include "Classifier.h"
+#include "FFTClassifier.h"
 #include "math.h"
 
 int main(int argc, const char * argv[])

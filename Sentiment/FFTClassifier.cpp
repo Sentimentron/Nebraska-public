@@ -7,7 +7,7 @@
 //
 
 #include "math.h"
-#include "Classifier.h"
+#include "FFTClassifier.h"
 #include "EnumeratedSentence.h"
 
 //
