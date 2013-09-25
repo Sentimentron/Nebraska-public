@@ -66,6 +66,7 @@
 		DE9648D517E8D07000BE46A5 /* WordToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WordToken.h; sourceTree = "<group>"; };
 		DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhitespaceTokenizer.cpp; sourceTree = "<group>"; };
 		DE9648D817E8D19B00BE46A5 /* WhitespaceTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhitespaceTokenizer.h; sourceTree = "<group>"; };
+		DE9C17CA17F34F2A00418017 /* IClassifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IClassifier.h; sourceTree = "<group>"; };
 		DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IStringEnumerator.h; sourceTree = "<group>"; };
 		DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HMStringEnumerator.cpp; sourceTree = "<group>"; };
 		DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMStringEnumerator.h; sourceTree = "<group>"; };
@@ -111,6 +112,8 @@
 		DE9648BE17E89B3300BE46A5 /* Sentiment */ = {
 			isa = PBXGroup;
 			children = (
+				DEDD1A4217EDF5A100C83517 /* Classifier.cpp */,
+				DEDD1A4317EDF5A100C83517 /* Classifier.h */,
 				DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */,
 				DE9648C917E89B9A00BE46A5 /* PLSentenceSource.h */,
 				DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */,
@@ -132,12 +135,11 @@
 				DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */,
 				DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */,
 				DEDD1A3717EDC2EF00C83517 /* SentiWordScorer.h */,
-				DEDD1A4217EDF5A100C83517 /* Classifier.cpp */,
 				DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */,
 				DE6630E317EF459300EFE393 /* FloatingFloatBuffer.h */,
-				DEDD1A4317EDF5A100C83517 /* Classifier.h */,
 				DEDD1A4517EDF6A700C83517 /* EnumeratedSentence.cpp */,
 				DEDD1A4617EDF6A700C83517 /* EnumeratedSentence.h */,
+				DE9C17CA17F34F2A00418017 /* IClassifier.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";

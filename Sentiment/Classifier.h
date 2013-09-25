@@ -13,7 +13,10 @@
 #include <iostream>
 #include "EnumeratedSentence.h"
 #include "FloatingFloatBuffer.h"
-class Classifier {
+#include "IClassifier.h"
+
+
+class Classifier : public IClassifier {
 private:
     std::vector<std::tuple<EnumeratedSentence*, FloatingFloatBuffer *>>training;
     FloatingFloatBuffer *CreateSignal(EnumeratedSentence *, float *);
