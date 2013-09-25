@@ -79,12 +79,6 @@ FloatingFloatBuffer *FFTClassifier::CreateSignal(EnumeratedSentence *s, float *s
 }
 
 void FFTClassifier::Train(EnumeratedSentence *s, float *score_map) {
-    
-    ClassificationLabel r = this->Classify(s, score_map);
-    if (r == s->GetClassification()) {
-        return; // No need to train!
-    }
-    
     FloatingFloatBuffer *bf = this->CreateSignal(s, score_map);
     this->training.push_back(std::make_tuple(s, bf));
 }

@@ -17,6 +17,10 @@ class FloatingFloatBuffer {
 private:
     std::vector<float> items;
     unsigned int offset;
+    float mean;
+    float variance;
+    bool mean_calculated = false;
+    bool variance_calculated = false; 
 public:
     FloatingFloatBuffer(std::vector<float> t) {
         this->items = t;
@@ -29,6 +33,8 @@ public:
         this->offset = offset;
     }
     void Append(float what) {
+        this->mean_calculated = false;
+        this->variance_calculated = false;
         this->items.push_back(what);
     }
     std::vector<float> GetItems() {
@@ -38,15 +44,19 @@ public:
         return (unsigned int)this->items.size();
     }
     float ComputeMean() {
+        if (this->mean_calculated) return this->mean;
         unsigned int length = this->GetLength();
         float ret = 0.0f;
         for(std::vector<float>::const_iterator it = this->items.begin();
             it != this->items.end(); it++) {
             ret += *it;
         }
-        return ret / length;
+        this->mean_calculated = true;
+        this->mean = ret / length;
+        return this->mean;
     }
     float ComputeVariance() {
+        if (this->variance_calculated) return this->variance; 
         unsigned int length = this->GetLength();
         float mean = this->ComputeMean();
         float ret = 0.0f;
@@ -54,7 +64,9 @@ public:
             it != this->items.end(); it++) {
             ret += (*it - mean)*(*it - mean);
         }
-        return ret / length;
+        this->variance = ret / length;
+        this->variance_calculated = true;
+        return this->variance;
     }
     float operator [] (int offset) {
         int vec_offset;
