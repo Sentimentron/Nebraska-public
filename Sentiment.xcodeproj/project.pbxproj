@@ -15,6 +15,7 @@
 		DE9648D017E8CCF500BE46A5 /* Sentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */; };
 		DE9648D617E8D07000BE46A5 /* WordToken.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D417E8D07000BE46A5 /* WordToken.cpp */; };
 		DE9648D917E8D19B00BE46A5 /* WhitespaceTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */; };
+		DE9C17CD17F380AE00418017 /* SignMetaClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */; };
 		DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */; };
 		DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */; };
 		DEDD1A3817EDC2F000C83517 /* SentiWordScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */; };
@@ -67,6 +68,8 @@
 		DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhitespaceTokenizer.cpp; sourceTree = "<group>"; };
 		DE9648D817E8D19B00BE46A5 /* WhitespaceTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhitespaceTokenizer.h; sourceTree = "<group>"; };
 		DE9C17CA17F34F2A00418017 /* IClassifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IClassifier.h; sourceTree = "<group>"; };
+		DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SignMetaClassifier.cpp; sourceTree = "<group>"; };
+		DE9C17CC17F380AE00418017 /* SignMetaClassifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SignMetaClassifier.h; sourceTree = "<group>"; };
 		DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IStringEnumerator.h; sourceTree = "<group>"; };
 		DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HMStringEnumerator.cpp; sourceTree = "<group>"; };
 		DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMStringEnumerator.h; sourceTree = "<group>"; };
@@ -140,6 +143,8 @@
 				DEDD1A4517EDF6A700C83517 /* EnumeratedSentence.cpp */,
 				DEDD1A4617EDF6A700C83517 /* EnumeratedSentence.h */,
 				DE9C17CA17F34F2A00418017 /* IClassifier.h */,
+				DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */,
+				DE9C17CC17F380AE00418017 /* SignMetaClassifier.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";
@@ -207,6 +212,7 @@
 				DEDD1A4417EDF5A100C83517 /* FFTClassifier.cpp in Sources */,
 				DEDD1A4717EDF6A700C83517 /* EnumeratedSentence.cpp in Sources */,
 				DE6630E417EF459300EFE393 /* FloatingFloatBuffer.cpp in Sources */,
+				DE9C17CD17F380AE00418017 /* SignMetaClassifier.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

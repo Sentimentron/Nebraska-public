@@ -15,6 +15,7 @@
 #include "TokenizedSentence.h"
 #include "EnumeratedSentence.h"
 #include "FFTClassifier.h"
+#include "SignMetaClassifier.h"
 #include "math.h"
 
 int main(int argc, const char * argv[])
@@ -30,7 +31,7 @@ int main(int argc, const char * argv[])
     // HMStringEnumerator enumerates GetKey() values from WordTokens
     HMStringEnumerator *hms;
     // Classifier decides whether a sentence is positive or negative
-    FFTClassifier c;
+    SignMetaClassifier<FFTClassifier> c;
     // Allows iteration through Sentence objects
     std::vector<Sentence *> sv;
     std::vector<TokenizedSentence *>tsv;
