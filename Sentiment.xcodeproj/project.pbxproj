@@ -111,12 +111,12 @@
 		DE9648BE17E89B3300BE46A5 /* Sentiment */ = {
 			isa = PBXGroup;
 			children = (
+				DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */,
+				DE9648C917E89B9A00BE46A5 /* PLSentenceSource.h */,
 				DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */,
 				DE9648BF17E89B3300BE46A5 /* main.cpp */,
 				DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */,
 				DE9648C117E89B3300BE46A5 /* Sentiment.1 */,
-				DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */,
-				DE9648C917E89B9A00BE46A5 /* PLSentenceSource.h */,
 				DEDD1A3C17EDEEF600C83517 /* TokenizedSentence.cpp */,
 				DEDD1A3D17EDEEF600C83517 /* TokenizedSentence.h */,
 				DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */,
