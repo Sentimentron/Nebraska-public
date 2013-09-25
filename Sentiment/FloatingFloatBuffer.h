@@ -68,7 +68,7 @@ public:
         this->variance_calculated = true;
         return this->variance;
     }
-    float operator [] (int offset) {
+    inline float operator [] (int offset) {
         int vec_offset;
         // Case 1: something before the start of the offset
         if(offset < this->offset) {
