@@ -15,41 +15,31 @@
 
 class FloatingFloatBuffer {
 private:
-    std::vector<float> items;
-    unsigned int offset;
+    float *items;
+    unsigned int length;
+    unsigned int offset = 0;
     float mean;
     float variance;
     bool mean_calculated = false;
     bool variance_calculated = false; 
 public:
-    FloatingFloatBuffer(std::vector<float> t) {
-        this->items = t;
-        this->offset = 0;
-    }
-    FloatingFloatBuffer() {
+    FloatingFloatBuffer(float *data, unsigned int length) {
+        this->items = data;
+        this->length = length;
         this->offset = 0;
     }
     void SetStartOffset(unsigned int offset) {
         this->offset = offset;
     }
-    void Append(float what) {
-        this->mean_calculated = false;
-        this->variance_calculated = false;
-        this->items.push_back(what);
-    }
-    std::vector<float> GetItems() {
-        return this->items;
-    }
     unsigned int GetLength() {
-        return (unsigned int)this->items.size();
+        return this->length;
     }
     float ComputeMean() {
         if (this->mean_calculated) return this->mean;
         unsigned int length = this->GetLength();
         float ret = 0.0f;
-        for(std::vector<float>::const_iterator it = this->items.begin();
-            it != this->items.end(); it++) {
-            ret += *it;
+        for (int i = 0; i < this->length; i++) {
+            ret += *(this->items + i);
         }
         this->mean_calculated = true;
         this->mean = ret / length;
@@ -60,9 +50,10 @@ public:
         unsigned int length = this->GetLength();
         float mean = this->ComputeMean();
         float ret = 0.0f;
-        for(std::vector<float>::const_iterator it = this->items.begin();
-            it != this->items.end(); it++) {
-            ret += (*it - mean)*(*it - mean);
+        for (int i = 0; i < this->length; i++) {
+            float cur = *(this->items + i);
+            cur -= mean;
+            ret += cur * cur;
         }
         this->variance = ret / length;
         this->variance_calculated = true;
@@ -75,7 +66,7 @@ public:
             return 0.0f;
         }
         // Case 2: something after the signal
-        if(offset >= this->offset + this->items.size()) {
+        if(offset >= this->offset + this->length) {
             return 0.0f;
         }
         // Case 3: Have to compute true offset

@@ -22,7 +22,7 @@ FFTClassifier::FFTClassifier() {
 // Classifier misc methods
 //
 
-float correlation(FloatingFloatBuffer &x, FloatingFloatBuffer &y, unsigned int length) {
+float correlation(FloatingFloatBuffer &x, FloatingFloatBuffer &y, unsigned int length, unsigned short offset) {
     // Use pearson's correlation c.f.
     float mean_x, mean_y;
     float var_x, var_y;
@@ -55,8 +55,7 @@ float autocorrelation(FloatingFloatBuffer &x, FloatingFloatBuffer &y, int *offse
     }
     for (int i = 0; i < max_length >> 2; i++) {
         float c;
-        shortest->SetStartOffset(i);
-        c = correlation(x, y, max_length);
+        c = correlation(x, y, max_length, i);
         if (c > max_correlation) {
             max_correlation = c;
             max_offset = i;
@@ -70,12 +69,13 @@ float autocorrelation(FloatingFloatBuffer &x, FloatingFloatBuffer &y, int *offse
 
 FloatingFloatBuffer *FFTClassifier::CreateSignal(EnumeratedSentence *s, float *score_map) {
     auto sentence_items = s->GetEnumeratedVector();
-    FloatingFloatBuffer *bf = new FloatingFloatBuffer();
+    float *ret = (float *)malloc(sentence_items.size() * sizeof(float));
+    int c = 0;
     for (auto it = sentence_items.begin();
          it != sentence_items.end(); it++) {
-        bf->Append(*(score_map + *it));
+        *(ret + c++) = *(score_map + *it);
     }
-    return bf;
+    return new FloatingFloatBuffer(ret, (unsigned int)sentence_items.size());
 }
 
 void FFTClassifier::Train(EnumeratedSentence *s, float *score_map) {
