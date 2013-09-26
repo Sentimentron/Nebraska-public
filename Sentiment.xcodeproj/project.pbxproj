@@ -71,6 +71,7 @@
 		DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SignMetaClassifier.cpp; sourceTree = "<group>"; };
 		DE9C17CC17F380AE00418017 /* SignMetaClassifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SignMetaClassifier.h; sourceTree = "<group>"; };
 		DE9C17CE17F447A700418017 /* IMetaClassifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMetaClassifier.h; sourceTree = "<group>"; };
+		DE9C17CF17F449B800418017 /* LengthMetaClassifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LengthMetaClassifier.h; sourceTree = "<group>"; };
 		DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IStringEnumerator.h; sourceTree = "<group>"; };
 		DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HMStringEnumerator.cpp; sourceTree = "<group>"; };
 		DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMStringEnumerator.h; sourceTree = "<group>"; };
@@ -147,6 +148,7 @@
 				DE9C17CA17F34F2A00418017 /* IClassifier.h */,
 				DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */,
 				DE9C17CC17F380AE00418017 /* SignMetaClassifier.h */,
+				DE9C17CF17F449B800418017 /* LengthMetaClassifier.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";
