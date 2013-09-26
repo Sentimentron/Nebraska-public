@@ -22,9 +22,6 @@
 
 int main(int argc, const char * argv[])
 {
-
-    int positive_correct = 0, positive_counter = 0;
-    int negative_correct = 0, negative_counter = 0;
     // WhitespaceTokenizer splits sentences into scorable parts based on
     // whitespace
     WhitespaceTokenizer *wt;
@@ -81,10 +78,7 @@ int main(int argc, const char * argv[])
     EvaluationResult s = sef.Evaluate(&c, scoring_map, &etsv);
     
     // Print some statistics
-    std::cout << "Tested: " << s.TotalSentencesTested() << "\n";
-    std::cout << "Correct: "<< s.TotalSentencesCorrect() << "\n";
-    std::cout << "Positive:" << s.TotalCorrectByLabel(PositiveSentenceLabel) << "\n";
-    std::cout << "Negative:" << s.TotalCorrectByLabel(NegativeSentenceLabel) << "\n";
+    s.ExportResultsToStream(std::cout);
     
     delete p;
     delete wt;
