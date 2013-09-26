@@ -81,6 +81,10 @@ void FFTClassifier::Train(EnumeratedSentence *s, float *score_map) {
     this->training.push_back(std::make_tuple(s, bf));
 }
 
+void FFTClassifier::Detrain() {
+    this->training.clear();
+}
+
 ClassificationLabel FFTClassifier::Classify (EnumeratedSentence *s, float *score_map) {
     ClassificationLabel ret = UndefinedSentenceLabel;
     

@@ -38,6 +38,12 @@ public:
         this->CreateOrReturnClassifier(id);
         return this->classifier_map[id]->Train(s, score_map);
     }
+    void Detrain() {
+        for (auto it = this->classifier_map.begin(); it != this->classifier_map.end(); it++) {
+            auto cls = it->second;
+            cls->Detrain();
+        }
+    }
 };
 
 #endif

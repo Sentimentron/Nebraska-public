@@ -26,6 +26,7 @@ public:
     FFTClassifier ();
     ClassificationLabel Classify(EnumeratedSentence *, float *score_map);
     void Train(EnumeratedSentence *, float *);
+    void Detrain();
 };
 
 #endif /* defined(__Sentiment__Classifier__) */
