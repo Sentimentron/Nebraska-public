@@ -17,6 +17,7 @@
 #include "FFTClassifier.h"
 #include "SignMetaClassifier.h"
 #include "LengthMetaClassifier.h"
+#include "SelfEvaluationFramework.h"
 #include "math.h"
 
 int main(int argc, const char * argv[])
@@ -33,6 +34,8 @@ int main(int argc, const char * argv[])
     HMStringEnumerator *hms;
     // Classifier decides whether a sentence is positive or negative
     LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 2> c;
+    // SelfEvaluationFramework evaluates the classifier
+    SelfEvaluationFramework sef; 
     // Allows iteration through Sentence objects
     std::vector<Sentence *> sv;
     std::vector<TokenizedSentence *>tsv;
@@ -74,39 +77,14 @@ int main(int argc, const char * argv[])
     }
     scr.CreateScoringMap(hms, &scoring_map_size, &scoring_map);
     
-    for (auto it = etsv.begin(); it != etsv.end(); it++) {
-        c.Train(*it, scoring_map);
-    }
+    // Evaluate the classifier 
+    EvaluationResult s = sef.Evaluate(&c, scoring_map, &etsv);
     
-    // Loop through each sentence and print 
-    for(std::vector<EnumeratedSentence *>::iterator it = etsv.begin(); it != etsv.end(); ++it) {
-        EnumeratedSentence *s = *it;
-        ClassificationLabel l = c.Classify(s, scoring_map);
-        ClassificationLabel o = s->GetClassification();
-        std::cout << s->GetText() << "\t";
-        if (o == PositiveSentenceLabel) {
-            positive_counter++;
-        }
-        else {
-            negative_counter++;
-        }
-        if (l != o) {
-            std::cout << "Incorrect\t";
-        }
-        else {
-            if (l == PositiveSentenceLabel) {
-                positive_correct++;
-            }
-            else {
-                negative_correct++;
-            }
-            std::cout << "Correct\t";
-        }
-        std::cout << s->GetClassification() << "\t" << l << "\t";
-        std::cout << 100.0 * positive_correct / fmax(positive_counter, 1) << "\t";
-        std::cout << 100.0 * negative_correct / fmax(negative_counter, 1) << "\t";
-        std::cout << "\n";
-    }
+    // Print some statistics
+    std::cout << "Tested: " << s.TotalSentencesTested() << "\n";
+    std::cout << "Correct: "<< s.TotalSentencesCorrect() << "\n";
+    std::cout << "Positive:" << s.TotalCorrectByLabel(PositiveSentenceLabel) << "\n";
+    std::cout << "Negative:" << s.TotalCorrectByLabel(NegativeSentenceLabel) << "\n";
     
     delete p;
     delete wt;
