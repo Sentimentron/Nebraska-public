@@ -17,6 +17,9 @@ TokenizedSentence::TokenizedSentence(Sentence *parent, ITokenizer *tok) : Senten
 }
 
 TokenizedSentence::~TokenizedSentence() {
+    for (auto it = this->tokens.begin(); it != this->tokens.end(); it++) {
+        delete *it;
+    }
 }
 
 //

@@ -41,10 +41,8 @@ float autocorrelation(FloatingFloatBuffer &x, FloatingFloatBuffer &y, int *offse
     float max_correlation = 0.0f;
     int max_offset = 0;
     int max_length = x.GetLength();
-    FloatingFloatBuffer *shortest = &y;
     if (y.GetLength() > max_length) {
         max_length = y.GetLength();
-        shortest = &x;
     }
     float mean_x = x.ComputeMean();
     float mean_y = y.ComputeMean();
@@ -82,7 +80,7 @@ void FFTClassifier::Train(EnumeratedSentence *s, float *score_map) {
 }
 
 ClassificationLabel FFTClassifier::Classify (EnumeratedSentence *s, float *score_map) {
-    ClassificationLabel ret;
+    ClassificationLabel ret = UndefinedSentenceLabel;
     
     float best_corr = 0.0f;
     

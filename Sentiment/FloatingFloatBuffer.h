@@ -28,6 +28,9 @@ public:
         this->length = length;
         this->offset = 0;
     }
+    ~FloatingFloatBuffer() {
+        free(this->items);
+    }
     void SetStartOffset(unsigned int offset) {
         this->offset = offset;
     }
