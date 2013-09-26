@@ -76,6 +76,8 @@ FloatingFloatBuffer *FFTClassifier::CreateSignal(EnumeratedSentence *s, float *s
 
 void FFTClassifier::Train(EnumeratedSentence *s, float *score_map) {
     FloatingFloatBuffer *bf = this->CreateSignal(s, score_map);
+    this->negative_seen |= s->GetClassification() == NegativeSentenceLabel;
+    this->positive_seen |= s->GetClassification() == PositiveSentenceLabel;
     this->training.push_back(std::make_tuple(s, bf));
 }
 
@@ -83,7 +85,9 @@ ClassificationLabel FFTClassifier::Classify (EnumeratedSentence *s, float *score
     ClassificationLabel ret = UndefinedSentenceLabel;
     
     float best_corr = 0.0f;
-    
+    if (!this->negative_seen || !this->positive_seen) {
+        return UndefinedSentenceLabel;
+    }
     auto training_pairs = this->training;
     auto classify_signal = this->CreateSignal(s, score_map);
     

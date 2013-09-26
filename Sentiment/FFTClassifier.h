@@ -18,6 +18,8 @@
 
 class FFTClassifier : public IClassifier {
 private:
+    bool negative_seen = false;
+    bool positive_seen = false;
     std::vector<std::tuple<EnumeratedSentence*, FloatingFloatBuffer *>>training;
     FloatingFloatBuffer *CreateSignal(EnumeratedSentence *, float *);
 public:
