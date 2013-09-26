@@ -22,18 +22,11 @@ FFTClassifier::FFTClassifier() {
 // Classifier misc methods
 //
 
-float correlation(FloatingFloatBuffer &x, FloatingFloatBuffer &y, unsigned int length, unsigned short offset) {
+float correlation(FloatingFloatBuffer &x, FloatingFloatBuffer &y, unsigned int length, unsigned short offset,
+                  float mean_x, float mean_y, float var_x, float var_y) {
     // Use pearson's correlation c.f.
-    float mean_x, mean_y;
-    float var_x, var_y;
     float ret = 0.0f;
     float var_div_x = 0.0f, var_div_y = 0.0f;
-    
-    mean_x = x.ComputeMean();
-    mean_y = y.ComputeMean();
-    
-    var_x = x.ComputeVariance();
-    var_y = y.ComputeVariance();
     
     for(int i = 0; i < length; i++) {
         ret += (x[i] - mean_x) * (y[i] - mean_y);
@@ -53,9 +46,14 @@ float autocorrelation(FloatingFloatBuffer &x, FloatingFloatBuffer &y, int *offse
         max_length = y.GetLength();
         shortest = &x;
     }
+    float mean_x = x.ComputeMean();
+    float mean_y = y.ComputeMean();
+    float var_x = x.ComputeVariance();
+    float var_y = y.ComputeVariance();
+    
     for (int i = 0; i < max_length >> 2; i++) {
         float c;
-        c = correlation(x, y, max_length, i);
+        c = correlation(x, y, max_length, i, mean_x, mean_y, var_x, var_y);
         if (c > max_correlation) {
             max_correlation = c;
             max_offset = i;
@@ -93,10 +91,6 @@ ClassificationLabel FFTClassifier::Classify (EnumeratedSentence *s, float *score
     
     if(!this->training.size()) {
         return UndefinedSentenceLabel;
-    }
-    
-    if (s->GetClassification() == NegativeSentenceLabel) {
-        std::cout << "Classifying something negative!\n";
     }
     
     for (auto it = training_pairs.begin(); it != training_pairs.end(); it++) {

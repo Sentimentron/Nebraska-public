@@ -31,6 +31,9 @@ public:
     void SetStartOffset(unsigned int offset) {
         this->offset = offset;
     }
+    float *GetUnderlying() {
+        return this->items;
+    }
     unsigned int GetLength() {
         return this->length;
     }
