@@ -87,6 +87,7 @@ void FFTClassifier::Detrain() {
 
 ClassificationLabel FFTClassifier::Classify (EnumeratedSentence *s, float *score_map) {
     ClassificationLabel ret = UndefinedSentenceLabel;
+    EnumeratedSentence *best_match;
     
     float best_corr = 0.0f;
     if (!this->negative_seen || !this->positive_seen) {
@@ -106,8 +107,11 @@ ClassificationLabel FFTClassifier::Classify (EnumeratedSentence *s, float *score
         if (corr > best_corr) {
             best_corr = corr;
             ret = std::get<0>(t)->GetClassification();
+            best_match = std::get<0>(t);
         }
     }
+    
+    if (fabs(best_corr) < 0.20) return UndefinedSentenceLabel;
     
     return ret;
 }

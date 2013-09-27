@@ -14,16 +14,21 @@
 #include <string>
 #include "IClassifier.h"
 #include "EnumeratedSentence.h"
+#include <exception>
 #include <iostream>
 
 class EvaluationResult {
 private:
     std::map<EnumeratedSentence *, ClassificationLabel> results;
     float Percent(unsigned int num, unsigned int div) {
+        if (!div) {div = 1; num = 0;}
         return 100.0f * num / div;
     }
 public:
     void PushResult(EnumeratedSentence *s, ClassificationLabel l) {
+        for (auto it = this->results.find(s); it != this->results.end(); it++) {
+            throw new std::exception();
+        }
         this->results[s] = l;
     }
     unsigned int TotalSentencesTrained;
@@ -53,8 +58,8 @@ public:
     unsigned int TotalByLabel(ClassificationLabel l) {
         unsigned int ret = 0;
         for (auto it = this->results.begin(); it != this->results.end(); it++) {
-            auto sentence = it->first;
-            if (sentence->GetClassification() == l) ret++;
+            auto label = it->second;
+            if (label == l) ret++;
         }
         return ret;
     }

@@ -34,7 +34,7 @@ int main(int argc, const char * argv[])
     LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 2> c;
     // SelfEvaluationFramework evaluates the classifier
     SelfEvaluationFramework sef;
-    KCrossEvaluator kef(20);
+    KCrossEvaluator kef(3);
     // Allows iteration through Sentence objects
     std::vector<Sentence *> sv;
     std::vector<TokenizedSentence *>tsv;
@@ -82,7 +82,9 @@ int main(int argc, const char * argv[])
     s.ExportResultsToStream(std::cout);
     std::cout << "\nk-fold validation (k = 3):\n";
     // Evaluate the classifier using cross-fold
-    EvaluationResult k = kef.Evaluate(&c, scoring_map, &etsv);
+    while(1) {
+        EvaluationResult k = kef.Evaluate(&c, scoring_map, &etsv);
+    }
     
     delete p;
     delete wt;

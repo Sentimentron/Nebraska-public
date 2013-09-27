@@ -51,6 +51,7 @@ EvaluationResult KCrossEvaluator::Evaluate(IClassifier *c, float *smap) {
     std::vector<std::vector<EnumeratedSentence *>> training;
     std::vector<EnumeratedSentence *> testing;
     std::vector<EvaluationResult> results;
+    std::srand((unsigned int)std::time(0));
     for (int i = 0; i < this->number_of_folds; i++) {
         // Empty everything so far
         training.clear();
