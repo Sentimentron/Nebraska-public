@@ -36,7 +36,6 @@ int main(int argc, const char * argv[])
     // SelfEvaluationFramework evaluates the classifier
     SelfEvaluationFramework sef;
     SentiwordNetReader swr;
-    KCrossEvaluator kef(3);
     // Allows iteration through Sentence objects
     std::vector<Sentence *> sv;
     std::vector<TokenizedSentence *>tsv;
@@ -80,11 +79,36 @@ int main(int argc, const char * argv[])
     
     // Evaluate the classifier
     std::cout << "Self evaluation: \n";
-    EvaluationResult s = sef.Evaluate(&c, scoring_map, &etsv);
-    s.ExportResultsToStream(std::cout);
+    float s = sef.Evaluate(&c, scoring_map, &etsv);
+    std::cout << s;
     std::cout << "\nk-fold validation (k = 3):\n";
+    int run_count = 0, best_run = 0;
+    float best_accuracy = 0;
     // Evaluate the classifier using cross-fold
-    EvaluationResult k = kef.Evaluate(&c, scoring_map, &etsv);
+    float *smap = (float *)malloc(scoring_map_size * sizeof(float));
+    if (smap == NULL) {
+        std::cerr << "Allocation failure!\n";
+        return 1;
+    }
+    while(1) {
+        run_count++;
+        KCrossEvaluator kef(10);
+        memcpy(smap, scoring_map, scoring_map_size * sizeof(float));
+        for(int i = 0; i < scoring_map_size; i++) {
+            float *cur = (smap + i);
+            //if (fabs(*cur) > 0.005) continue;
+            *cur = -1.0f + (float)rand()/((float)RAND_MAX/(2.0f));
+        }
+        float result = kef.Evaluate(&c, smap, &etsv);
+        std::cout << "#(" << run_count << ") Current fitness: " << result << "\n";
+        std::cout << "Best fitness: " << best_accuracy << "(Run #" << best_run << ")\n";
+        if(result > best_accuracy) {
+            best_run = run_count;
+            best_accuracy = result;
+            std::cout << "Press enter: ";
+            std::cin.ignore();
+        }
+    }
     
     delete p;
     delete wt;
@@ -95,7 +119,7 @@ int main(int argc, const char * argv[])
     }
     
     free(scoring_map);
-    
+    free(smap);
     return 0;
 }
 

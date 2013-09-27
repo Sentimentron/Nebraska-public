@@ -39,11 +39,11 @@ public:
     KCrossEvaluator(std::vector<EnumeratedSentence *> *s, unsigned int folds) {
         this->number_of_folds = folds;
     }
-    EvaluationResult Evaluate(IClassifier *c, float *smap, std::vector<EnumeratedSentence *> *s) {
+    float Evaluate(IClassifier *c, float *smap, std::vector<EnumeratedSentence *> *s) {
         this->GenerateRandomizedFolds(s);
         return this->Evaluate(c, smap);
     }
-    EvaluationResult Evaluate(IClassifier *, float*);
+    float Evaluate(IClassifier *, float*);
 };
 
 #endif /* defined(__Sentiment__KCrossEvaluator__) */

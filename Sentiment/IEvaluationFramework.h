@@ -26,14 +26,14 @@ private:
     }
 public:
     void PushResult(EnumeratedSentence *s, ClassificationLabel l) {
-        for (auto it = this->results.find(s); it != this->results.end(); it++) {
-            throw new std::exception();
-        }
         this->results[s] = l;
     }
     unsigned int TotalSentencesTrained;
     unsigned int TotalSentencesTested() {
         return (unsigned int)results.size();
+    }
+    float ComputeFitness() {
+        return this->TotalCorrectByLabel(PositiveSentenceLabel) + this->TotalCorrectByLabel(NegativeSentenceLabel);
     }
     unsigned int TotalSentencesCorrect() {
         unsigned int ret = 0;
@@ -88,8 +88,8 @@ public:
     IEvaluationFramework() {}
     IEvaluationFramework(std::vector<EnumeratedSentence *> *)  {}
     virtual ~IEvaluationFramework() {}
-    virtual EvaluationResult Evaluate(IClassifier *c, float *smap, std::vector<EnumeratedSentence *> *s) = 0;
-    virtual EvaluationResult Evaluate(IClassifier *, float*) = 0;
+    virtual float Evaluate(IClassifier *c, float *smap, std::vector<EnumeratedSentence *> *s) = 0;
+    virtual float Evaluate(IClassifier *, float*) = 0;
 };
 
 #endif

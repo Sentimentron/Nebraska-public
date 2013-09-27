@@ -47,7 +47,7 @@ EvaluationResult KCrossEvaluator::EvaluateConfiguration(IClassifier *c, float *s
     return ret;
 }
 
-EvaluationResult KCrossEvaluator::Evaluate(IClassifier *c, float *smap) {
+float KCrossEvaluator::Evaluate(IClassifier *c, float *smap) {
     std::vector<std::vector<EnumeratedSentence *>> training;
     std::vector<EnumeratedSentence *> testing;
     std::vector<EvaluationResult> results;
@@ -64,9 +64,11 @@ EvaluationResult KCrossEvaluator::Evaluate(IClassifier *c, float *smap) {
         }
         results.push_back(this->EvaluateConfiguration(c, smap, training, testing));
     }
+    float ret = 0.0f;
     for (auto it = results.begin(); it != results.end(); it++) {
         it->ExportResultsToStream(std::cout);
+        ret += it->ComputeFitness();
     }
-    return results[0];
+    return ret /= results.size();
 }
 

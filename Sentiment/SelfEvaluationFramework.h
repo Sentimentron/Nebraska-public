@@ -21,11 +21,11 @@ public:
     SelfEvaluationFramework(std::vector<EnumeratedSentence *> *s) {
         this->sentences = s;
     }
-    EvaluationResult Evaluate(IClassifier *c, float *smap, std::vector<EnumeratedSentence *> *s) {
+    float Evaluate(IClassifier *c, float *smap, std::vector<EnumeratedSentence *> *s) {
         this->sentences = s;
         return this->Evaluate(c, smap);
     }
-    EvaluationResult Evaluate(IClassifier *c, float *smap) {
+    float Evaluate(IClassifier *c, float *smap) {
         EvaluationResult ret;
         // Train the classifier
         for (auto it = this->sentences->begin(); it != this->sentences->end(); it++) {
@@ -35,7 +35,8 @@ public:
         for (auto it = this->sentences->begin(); it != this->sentences->end(); it++) {
             ret.PushResult(*it, c->Classify(*it, smap));
         }
-        return ret;
+        ret.ExportResultsToStream(std::cout);
+        return ret.ComputeFitness();
     }
 };
 
