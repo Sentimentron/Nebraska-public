@@ -20,6 +20,7 @@
 #include "KCrossEvaluator.h"
 #include "SentiWordTokenizer.h"
 #include "SentiWordNetReader.h"
+#include "Evolver.h"
 #include "math.h"
 
 int main(int argc, const char * argv[])
@@ -90,24 +91,24 @@ int main(int argc, const char * argv[])
         std::cerr << "Allocation failure!\n";
         return 1;
     }
+    
+    // Create the Evolution environment
+    KCrossEvaluator kef(10);
+    float result = kef.Evaluate(&c, scoring_map, &etsv);
+    Evolver evlv(scoring_map, result, scoring_map_size, 10);
+    
     while(1) {
         run_count++;
         KCrossEvaluator kef(10);
-        memcpy(smap, scoring_map, scoring_map_size * sizeof(float));
-        for(int i = 0; i < scoring_map_size; i++) {
-            float *cur = (smap + i);
-            //if (fabs(*cur) > 0.005) continue;
-            *cur = -1.0f + (float)rand()/((float)RAND_MAX/(2.0f));
-        }
+        evlv.BreedGenome(smap);
         float result = kef.Evaluate(&c, smap, &etsv);
         std::cout << "#(" << run_count << ") Current fitness: " << result << "\n";
         std::cout << "Best fitness: " << best_accuracy << "(Run #" << best_run << ")\n";
         if(result > best_accuracy) {
             best_run = run_count;
             best_accuracy = result;
-            std::cout << "Press enter: ";
-            std::cin.ignore();
         }
+        evlv.PushGenomeFitness(smap, result);
     }
     
     delete p;

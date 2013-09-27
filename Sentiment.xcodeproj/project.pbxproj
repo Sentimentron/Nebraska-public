@@ -19,6 +19,7 @@
 		DE9AAA4D17F59B1E00531FCE /* SentiWordTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4B17F59B1D00531FCE /* SentiWordTokenizer.cpp */; };
 		DE9AAA5017F5A7AC00531FCE /* SentiWordNetReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4E17F5A7AB00531FCE /* SentiWordNetReader.cpp */; };
 		DE9C17CD17F380AE00418017 /* SignMetaClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */; };
+		DEAC8AEB17F5E364009888C6 /* Evolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8AE917F5E364009888C6 /* Evolver.cpp */; };
 		DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */; };
 		DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */; };
 		DEDD1A3817EDC2F000C83517 /* SentiWordScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */; };
@@ -83,6 +84,8 @@
 		DE9C17CF17F449B800418017 /* LengthMetaClassifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LengthMetaClassifier.h; sourceTree = "<group>"; };
 		DE9C17D017F44B7400418017 /* IEvaluationFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IEvaluationFramework.h; sourceTree = "<group>"; };
 		DE9C17D117F44E2F00418017 /* SelfEvaluationFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SelfEvaluationFramework.h; sourceTree = "<group>"; };
+		DEAC8AE917F5E364009888C6 /* Evolver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Evolver.cpp; sourceTree = "<group>"; };
+		DEAC8AEA17F5E364009888C6 /* Evolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Evolver.h; sourceTree = "<group>"; };
 		DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IStringEnumerator.h; sourceTree = "<group>"; };
 		DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HMStringEnumerator.cpp; sourceTree = "<group>"; };
 		DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMStringEnumerator.h; sourceTree = "<group>"; };
@@ -168,6 +171,8 @@
 				DE9AAA4C17F59B1D00531FCE /* SentiWordTokenizer.h */,
 				DE9AAA4E17F5A7AB00531FCE /* SentiWordNetReader.cpp */,
 				DE9AAA4F17F5A7AC00531FCE /* SentiWordNetReader.h */,
+				DEAC8AE917F5E364009888C6 /* Evolver.cpp */,
+				DEAC8AEA17F5E364009888C6 /* Evolver.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";
@@ -239,6 +244,7 @@
 				DE9AAA4A17F4DB5200531FCE /* KCrossEvaluator.cpp in Sources */,
 				DE9AAA4D17F59B1E00531FCE /* SentiWordTokenizer.cpp in Sources */,
 				DE9AAA5017F5A7AC00531FCE /* SentiWordNetReader.cpp in Sources */,
+				DEAC8AEB17F5E364009888C6 /* Evolver.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
