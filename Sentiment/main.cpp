@@ -19,6 +19,7 @@
 #include "SelfEvaluationFramework.h"
 #include "KCrossEvaluator.h"
 #include "SentiWordTokenizer.h"
+#include "SentiWordNetReader.h"
 #include "math.h"
 
 int main(int argc, const char * argv[])
@@ -34,6 +35,7 @@ int main(int argc, const char * argv[])
     LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 2> c;
     // SelfEvaluationFramework evaluates the classifier
     SelfEvaluationFramework sef;
+    SentiwordNetReader swr;
     KCrossEvaluator kef(3);
     // Allows iteration through Sentence objects
     std::vector<Sentence *> sv;
@@ -42,11 +44,11 @@ int main(int argc, const char * argv[])
     // Allows iteration thorugh WordTokens
     std::vector<IToken *> tv;
     // SentiWordScorer retrieves word scores from SentiWordNet
-    SentiWordScorer scr;
+    SentiWordScorer scr(swr);
     float *scoring_map;
     size_t scoring_map_size; 
     // Construct tokenizer
-    wt = new SentiWordTokenizer();
+    wt = new SentiWordTokenizer(swr);
     hms = new HMStringEnumerator();
     
     // Read sentences from CSV file in the default location

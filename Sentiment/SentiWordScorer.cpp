@@ -12,18 +12,19 @@
 #include <vector>
 #include <map>
 #include <string.h>
-#include "SentiWordNetReader.h"
 
 //
 // Constructors / destructors
 //
 SentiWordScorer::SentiWordScorer() {
     std::string default_path = std::string(S_DEFAULT_SENTIWORDNET_PATH);
-    this->init(default_path);
+    SentiwordNetReader swr(default_path);
+    this->init(swr);
 }
 
 SentiWordScorer::SentiWordScorer(std::string path) {
-    this->init(path);
+    SentiwordNetReader swr;
+    this->init(swr);
 }
 
 SentiWordScorer::~SentiWordScorer() {
@@ -33,13 +34,12 @@ SentiWordScorer::~SentiWordScorer() {
 //
 // Misc functions
 //
-void SentiWordScorer::init(std::string path) {
+void SentiWordScorer::init(SentiwordNetReader &swr) {
     float       good, bad;
     std::string word, junk, line;
     std::ifstream input;
     std::map<std::string, std::vector<float>> intermediate_scores;
     
-    SentiwordNetReader swr(path);
     auto contents = swr.GetContents();
     
     for (auto it = contents.begin(); it != contents.end(); it++) {

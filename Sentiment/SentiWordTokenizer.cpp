@@ -33,8 +33,7 @@ int setContainsString (const std::string& member, const std::set<std::string> &i
     return 1;
 }
 
-void SentiWordTokenizer::init(std::string path) {
-    SentiwordNetReader swr(path);
+void SentiWordTokenizer::init(SentiwordNetReader &swr) {
     auto contents = swr.GetContents();
     
     for (auto it = contents.begin(); it != contents.end(); it++) {
