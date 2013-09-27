@@ -18,6 +18,13 @@ FFTClassifier::FFTClassifier() {
 
 }
 
+FFTClassifier::~FFTClassifier() {
+    for (auto it = this->training.begin(); it != this->training.end(); it++) {
+        auto sig = std::get<1>(*it);
+        delete sig;
+    }
+}
+
 //
 // Classifier misc methods
 //
@@ -82,6 +89,10 @@ void FFTClassifier::Train(EnumeratedSentence *s, float *score_map) {
 }
 
 void FFTClassifier::Detrain() {
+    for (auto it = this->training.begin(); it != this->training.end(); it++) {
+        auto sig = std::get<1>(*it);
+        delete sig;
+    }
     this->training.clear();
 }
 
@@ -97,6 +108,7 @@ ClassificationLabel FFTClassifier::Classify (EnumeratedSentence *s, float *score
     auto classify_signal = this->CreateSignal(s, score_map);
     
     if(!this->training.size()) {
+        delete classify_signal;
         return UndefinedSentenceLabel;
     }
     
@@ -110,6 +122,8 @@ ClassificationLabel FFTClassifier::Classify (EnumeratedSentence *s, float *score
             best_match = std::get<0>(t);
         }
     }
+    
+    delete classify_signal;
     
     if (fabs(best_corr) < 0.20) return UndefinedSentenceLabel;
     

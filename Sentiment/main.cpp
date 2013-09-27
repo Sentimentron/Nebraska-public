@@ -82,13 +82,17 @@ int main(int argc, const char * argv[])
     s.ExportResultsToStream(std::cout);
     std::cout << "\nk-fold validation (k = 3):\n";
     // Evaluate the classifier using cross-fold
-    while(1) {
-        EvaluationResult k = kef.Evaluate(&c, scoring_map, &etsv);
-    }
+    EvaluationResult k = kef.Evaluate(&c, scoring_map, &etsv);
     
     delete p;
     delete wt;
     delete hms;
+    
+    for (auto it = etsv.begin(); it != etsv.end(); it++) {
+        delete *it;
+    }
+    
+    free(scoring_map);
     
     return 0;
 }

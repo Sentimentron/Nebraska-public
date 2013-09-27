@@ -17,6 +17,7 @@
 class TokenizedSentence : public Sentence {
 private:
     std::vector<IToken *> tokens;
+    Sentence *parent;
 public:
     TokenizedSentence (Sentence *, ITokenizer *);
     ~TokenizedSentence();

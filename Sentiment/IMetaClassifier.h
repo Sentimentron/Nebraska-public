@@ -25,6 +25,13 @@ private:
     }
     virtual unsigned int ComputeClassifierId (EnumeratedSentence *, float *) = 0;
 public:
+    ~IMetaClassifier() {
+        for (auto it = this->classifier_map.begin(); it != this->classifier_map.end(); it++) {
+            auto cls = it->second;
+            delete cls;
+        }
+        this->classifier_map.clear();
+    }
     void AddToMap(unsigned int id, T *it) {
         this->classifier_map[id] = it;
     }

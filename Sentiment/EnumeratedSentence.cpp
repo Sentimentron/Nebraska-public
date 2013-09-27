@@ -12,6 +12,10 @@
 // Constructors
 //
 
+EnumeratedSentence::~EnumeratedSentence() {
+    delete this->parent;
+}
+
 EnumeratedSentence::EnumeratedSentence(TokenizedSentence *s, IStringEnumerator *e) : Sentence(s) {
     std::vector<IToken *> tokens = s->GetTokens();
     for (std::vector<IToken *>::const_iterator it = tokens.begin();

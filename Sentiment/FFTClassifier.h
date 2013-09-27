@@ -24,6 +24,7 @@ private:
     FloatingFloatBuffer *CreateSignal(EnumeratedSentence *, float *);
 public:
     FFTClassifier ();
+    ~FFTClassifier();
     ClassificationLabel Classify(EnumeratedSentence *, float *score_map);
     void Train(EnumeratedSentence *, float *);
     void Detrain();
