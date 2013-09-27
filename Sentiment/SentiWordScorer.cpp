@@ -12,8 +12,7 @@
 #include <vector>
 #include <map>
 #include <string.h>
-
-const char * const S_DEFAULT_SENTIWORDNET_PATH = "SentiWordNet_3.0.0_20120510.txt";
+#include "SentiWordNetReader.h"
 
 //
 // Constructors / destructors
@@ -39,26 +38,24 @@ void SentiWordScorer::init(std::string path) {
     std::string word, junk, line;
     std::ifstream input;
     std::map<std::string, std::vector<float>> intermediate_scores;
-    // Open the input file
-    input.open(path);
-    while (getline(input, line)) {
-        std::stringstream s;
+    
+    SentiwordNetReader swr(path);
+    auto contents = swr.GetContents();
+    
+    for (auto it = contents.begin(); it != contents.end(); it++) {
         std::string stp_word;
         std::vector<float> *map_entry;
-        if(line[0] == '#') continue;
-        s << line;
-        // Extract the relevant parts
-        s >> junk >> junk >> good >> bad >> word;
-        if (fabs(good) < 0.005 && fabs(bad) < 0.005) {
-            // There's no point in wasting space if there's no score
-            continue; 
+        auto entry = *it;
+        // Convert good and bad scores
+        good = ::atof(entry[2].c_str());
+        bad =  ::atof(entry[3].c_str());
+        for (int i = 4; i < entry.size()-1; i++) {
+            stp_word = entry[i].substr(0, entry[i].find("#"));
+            map_entry = &(intermediate_scores[stp_word]);
+            map_entry->push_back(good-bad);
         }
-        // Now need to remove the sense tag
-        stp_word = word.substr(0, word.find("#"));
-        // Insert score into intermediate map
-        map_entry = &(intermediate_scores[stp_word]);
-        map_entry->push_back(good - bad);
     }
+    
     // Go through each intermediate score and average it
     for(std::map<std::string, std::vector<float>>::const_iterator it = intermediate_scores.begin();
         it != intermediate_scores.end(); it++) {

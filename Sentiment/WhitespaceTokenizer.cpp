@@ -29,7 +29,7 @@ WhitespaceTokenizer::~WhitespaceTokenizer() {
 // Other stuff
 //
 
-bool is_considered_whitespace(char c) {
+bool WhitespaceTokenizer::IsConsideredWhitespace(char c) {
     // Helper function, takes a character and determines whether
     // it's whitespace or not. When something is whitespace, that's
     // used to split the input Sentence
@@ -50,7 +50,7 @@ std::vector<IToken *> WhitespaceTokenizer::Tokenize(Sentence *s) {
     std::string buf; 
     std::string text = s->GetText();
     for (int i = 0; i < text.length(); i++) {
-        bool is_space = is_considered_whitespace(text[i]);
+        bool is_space = this->IsConsideredWhitespace(text[i]);
         if (is_space) {
             if(!buf.length()) continue;
             WordToken *w = new WordToken(buf);

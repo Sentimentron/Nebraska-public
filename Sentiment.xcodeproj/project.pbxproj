@@ -16,6 +16,8 @@
 		DE9648D617E8D07000BE46A5 /* WordToken.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D417E8D07000BE46A5 /* WordToken.cpp */; };
 		DE9648D917E8D19B00BE46A5 /* WhitespaceTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */; };
 		DE9AAA4A17F4DB5200531FCE /* KCrossEvaluator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4817F4DB5100531FCE /* KCrossEvaluator.cpp */; };
+		DE9AAA4D17F59B1E00531FCE /* SentiWordTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4B17F59B1D00531FCE /* SentiWordTokenizer.cpp */; };
+		DE9AAA5017F5A7AC00531FCE /* SentiWordNetReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4E17F5A7AB00531FCE /* SentiWordNetReader.cpp */; };
 		DE9C17CD17F380AE00418017 /* SignMetaClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */; };
 		DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */; };
 		DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */; };
@@ -70,6 +72,10 @@
 		DE9648D817E8D19B00BE46A5 /* WhitespaceTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhitespaceTokenizer.h; sourceTree = "<group>"; };
 		DE9AAA4817F4DB5100531FCE /* KCrossEvaluator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KCrossEvaluator.cpp; sourceTree = "<group>"; };
 		DE9AAA4917F4DB5100531FCE /* KCrossEvaluator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KCrossEvaluator.h; sourceTree = "<group>"; };
+		DE9AAA4B17F59B1D00531FCE /* SentiWordTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SentiWordTokenizer.cpp; sourceTree = "<group>"; };
+		DE9AAA4C17F59B1D00531FCE /* SentiWordTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentiWordTokenizer.h; sourceTree = "<group>"; };
+		DE9AAA4E17F5A7AB00531FCE /* SentiWordNetReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SentiWordNetReader.cpp; sourceTree = "<group>"; };
+		DE9AAA4F17F5A7AC00531FCE /* SentiWordNetReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentiWordNetReader.h; sourceTree = "<group>"; };
 		DE9C17CA17F34F2A00418017 /* IClassifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IClassifier.h; sourceTree = "<group>"; };
 		DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SignMetaClassifier.cpp; sourceTree = "<group>"; };
 		DE9C17CC17F380AE00418017 /* SignMetaClassifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SignMetaClassifier.h; sourceTree = "<group>"; };
@@ -158,6 +164,10 @@
 				DE9648D817E8D19B00BE46A5 /* WhitespaceTokenizer.h */,
 				DE9648D417E8D07000BE46A5 /* WordToken.cpp */,
 				DE9648D517E8D07000BE46A5 /* WordToken.h */,
+				DE9AAA4B17F59B1D00531FCE /* SentiWordTokenizer.cpp */,
+				DE9AAA4C17F59B1D00531FCE /* SentiWordTokenizer.h */,
+				DE9AAA4E17F5A7AB00531FCE /* SentiWordNetReader.cpp */,
+				DE9AAA4F17F5A7AC00531FCE /* SentiWordNetReader.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";
@@ -227,6 +237,8 @@
 				DE6630E417EF459300EFE393 /* FloatingFloatBuffer.cpp in Sources */,
 				DE9C17CD17F380AE00418017 /* SignMetaClassifier.cpp in Sources */,
 				DE9AAA4A17F4DB5200531FCE /* KCrossEvaluator.cpp in Sources */,
+				DE9AAA4D17F59B1E00531FCE /* SentiWordTokenizer.cpp in Sources */,
+				DE9AAA5017F5A7AC00531FCE /* SentiWordNetReader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -250,7 +262,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -285,7 +297,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;

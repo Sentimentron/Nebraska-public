@@ -18,6 +18,7 @@
 
 class WhitespaceTokenizer : public ITokenizer {
 public:
+    bool IsConsideredWhitespace(char c);
     WhitespaceTokenizer();
     ~WhitespaceTokenizer();
     virtual std::vector<IToken *> Tokenize(Sentence*);

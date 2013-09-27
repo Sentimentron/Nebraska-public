@@ -9,7 +9,6 @@
 #include <iostream>
 #include "HMStringEnumerator.h"
 #include "PLSentenceSource.h"
-#include "WhitespaceTokenizer.h"
 #include "WordToken.h"
 #include "SentiWordScorer.h"
 #include "TokenizedSentence.h"
@@ -19,13 +18,14 @@
 #include "LengthMetaClassifier.h"
 #include "SelfEvaluationFramework.h"
 #include "KCrossEvaluator.h"
+#include "SentiWordTokenizer.h"
 #include "math.h"
 
 int main(int argc, const char * argv[])
 {
     // WhitespaceTokenizer splits sentences into scorable parts based on
     // whitespace
-    WhitespaceTokenizer *wt;
+    SentiWordTokenizer *wt;
     // PLSentenceSource reads sentences from a CSV file on disk
     PLSentenceSource *p;
     // HMStringEnumerator enumerates GetKey() values from WordTokens
@@ -46,7 +46,7 @@ int main(int argc, const char * argv[])
     float *scoring_map;
     size_t scoring_map_size; 
     // Construct tokenizer
-    wt = new WhitespaceTokenizer();
+    wt = new SentiWordTokenizer();
     hms = new HMStringEnumerator();
     
     // Read sentences from CSV file in the default location
