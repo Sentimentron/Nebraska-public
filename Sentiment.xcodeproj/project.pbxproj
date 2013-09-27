@@ -15,6 +15,7 @@
 		DE9648D017E8CCF500BE46A5 /* Sentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */; };
 		DE9648D617E8D07000BE46A5 /* WordToken.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D417E8D07000BE46A5 /* WordToken.cpp */; };
 		DE9648D917E8D19B00BE46A5 /* WhitespaceTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */; };
+		DE9AAA4A17F4DB5200531FCE /* KCrossEvaluator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4817F4DB5100531FCE /* KCrossEvaluator.cpp */; };
 		DE9C17CD17F380AE00418017 /* SignMetaClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */; };
 		DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */; };
 		DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */; };
@@ -67,6 +68,8 @@
 		DE9648D517E8D07000BE46A5 /* WordToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WordToken.h; sourceTree = "<group>"; };
 		DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhitespaceTokenizer.cpp; sourceTree = "<group>"; };
 		DE9648D817E8D19B00BE46A5 /* WhitespaceTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhitespaceTokenizer.h; sourceTree = "<group>"; };
+		DE9AAA4817F4DB5100531FCE /* KCrossEvaluator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KCrossEvaluator.cpp; sourceTree = "<group>"; };
+		DE9AAA4917F4DB5100531FCE /* KCrossEvaluator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KCrossEvaluator.h; sourceTree = "<group>"; };
 		DE9C17CA17F34F2A00418017 /* IClassifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IClassifier.h; sourceTree = "<group>"; };
 		DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SignMetaClassifier.cpp; sourceTree = "<group>"; };
 		DE9C17CC17F380AE00418017 /* SignMetaClassifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SignMetaClassifier.h; sourceTree = "<group>"; };
@@ -119,40 +122,42 @@
 		DE9648BE17E89B3300BE46A5 /* Sentiment */ = {
 			isa = PBXGroup;
 			children = (
-				DE9C17CE17F447A700418017 /* IMetaClassifier.h */,
-				DEDD1A4217EDF5A100C83517 /* FFTClassifier.cpp */,
-				DEDD1A4317EDF5A100C83517 /* FFTClassifier.h */,
-				DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */,
-				DE9648C917E89B9A00BE46A5 /* PLSentenceSource.h */,
-				DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */,
-				DE9648BF17E89B3300BE46A5 /* main.cpp */,
-				DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */,
-				DE9648C117E89B3300BE46A5 /* Sentiment.1 */,
-				DEDD1A3C17EDEEF600C83517 /* TokenizedSentence.cpp */,
-				DEDD1A3D17EDEEF600C83517 /* TokenizedSentence.h */,
-				DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */,
-				DE9648CF17E8CCF500BE46A5 /* Sentence.h */,
-				DE9648D117E8CE9600BE46A5 /* ISentenceSource.h */,
-				DE9648D217E8CF6D00BE46A5 /* IToken.h */,
-				DE9648D417E8D07000BE46A5 /* WordToken.cpp */,
-				DE9648D517E8D07000BE46A5 /* WordToken.h */,
-				DE9648D317E8CFF100BE46A5 /* ITokenizer.h */,
-				DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */,
-				DE9648D817E8D19B00BE46A5 /* WhitespaceTokenizer.h */,
-				DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */,
-				DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */,
-				DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */,
-				DEDD1A3717EDC2EF00C83517 /* SentiWordScorer.h */,
-				DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */,
-				DE6630E317EF459300EFE393 /* FloatingFloatBuffer.h */,
 				DEDD1A4517EDF6A700C83517 /* EnumeratedSentence.cpp */,
 				DEDD1A4617EDF6A700C83517 /* EnumeratedSentence.h */,
+				DEDD1A4217EDF5A100C83517 /* FFTClassifier.cpp */,
+				DEDD1A4317EDF5A100C83517 /* FFTClassifier.h */,
+				DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */,
+				DE6630E317EF459300EFE393 /* FloatingFloatBuffer.h */,
+				DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */,
+				DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */,
 				DE9C17CA17F34F2A00418017 /* IClassifier.h */,
+				DE9C17D017F44B7400418017 /* IEvaluationFramework.h */,
+				DE9C17CE17F447A700418017 /* IMetaClassifier.h */,
+				DE9648D117E8CE9600BE46A5 /* ISentenceSource.h */,
+				DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */,
+				DE9648D217E8CF6D00BE46A5 /* IToken.h */,
+				DE9648D317E8CFF100BE46A5 /* ITokenizer.h */,
+				DE9AAA4817F4DB5100531FCE /* KCrossEvaluator.cpp */,
+				DE9AAA4917F4DB5100531FCE /* KCrossEvaluator.h */,
+				DE9C17CF17F449B800418017 /* LengthMetaClassifier.h */,
+				DE9648BF17E89B3300BE46A5 /* main.cpp */,
+				DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */,
+				DE9648C917E89B9A00BE46A5 /* PLSentenceSource.h */,
+				DE9C17D117F44E2F00418017 /* SelfEvaluationFramework.h */,
+				DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */,
+				DE9648CF17E8CCF500BE46A5 /* Sentence.h */,
+				DE9648C117E89B3300BE46A5 /* Sentiment.1 */,
+				DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */,
+				DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */,
+				DEDD1A3717EDC2EF00C83517 /* SentiWordScorer.h */,
 				DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */,
 				DE9C17CC17F380AE00418017 /* SignMetaClassifier.h */,
-				DE9C17CF17F449B800418017 /* LengthMetaClassifier.h */,
-				DE9C17D017F44B7400418017 /* IEvaluationFramework.h */,
-				DE9C17D117F44E2F00418017 /* SelfEvaluationFramework.h */,
+				DEDD1A3C17EDEEF600C83517 /* TokenizedSentence.cpp */,
+				DEDD1A3D17EDEEF600C83517 /* TokenizedSentence.h */,
+				DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */,
+				DE9648D817E8D19B00BE46A5 /* WhitespaceTokenizer.h */,
+				DE9648D417E8D07000BE46A5 /* WordToken.cpp */,
+				DE9648D517E8D07000BE46A5 /* WordToken.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";
@@ -221,6 +226,7 @@
 				DEDD1A4717EDF6A700C83517 /* EnumeratedSentence.cpp in Sources */,
 				DE6630E417EF459300EFE393 /* FloatingFloatBuffer.cpp in Sources */,
 				DE9C17CD17F380AE00418017 /* SignMetaClassifier.cpp in Sources */,
+				DE9AAA4A17F4DB5200531FCE /* KCrossEvaluator.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -244,7 +250,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",

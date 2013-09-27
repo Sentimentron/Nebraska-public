@@ -83,6 +83,7 @@ public:
     IEvaluationFramework() {}
     IEvaluationFramework(std::vector<EnumeratedSentence *> *)  {}
     virtual ~IEvaluationFramework() {}
+    virtual EvaluationResult Evaluate(IClassifier *c, float *smap, std::vector<EnumeratedSentence *> *s) = 0;
     virtual EvaluationResult Evaluate(IClassifier *, float*) = 0;
 };
 

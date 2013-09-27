@@ -18,6 +18,7 @@
 #include "SignMetaClassifier.h"
 #include "LengthMetaClassifier.h"
 #include "SelfEvaluationFramework.h"
+#include "KCrossEvaluator.h"
 #include "math.h"
 
 int main(int argc, const char * argv[])
@@ -32,7 +33,8 @@ int main(int argc, const char * argv[])
     // Classifier decides whether a sentence is positive or negative
     LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 2> c;
     // SelfEvaluationFramework evaluates the classifier
-    SelfEvaluationFramework sef; 
+    SelfEvaluationFramework sef;
+    KCrossEvaluator kef(20);
     // Allows iteration through Sentence objects
     std::vector<Sentence *> sv;
     std::vector<TokenizedSentence *>tsv;
@@ -74,11 +76,13 @@ int main(int argc, const char * argv[])
     }
     scr.CreateScoringMap(hms, &scoring_map_size, &scoring_map);
     
-    // Evaluate the classifier 
+    // Evaluate the classifier
+    std::cout << "Self evaluation: \n";
     EvaluationResult s = sef.Evaluate(&c, scoring_map, &etsv);
-    
-    // Print some statistics
     s.ExportResultsToStream(std::cout);
+    std::cout << "\nk-fold validation (k = 3):\n";
+    // Evaluate the classifier using cross-fold
+    EvaluationResult k = kef.Evaluate(&c, scoring_map, &etsv);
     
     delete p;
     delete wt;
