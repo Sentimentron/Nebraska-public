@@ -36,7 +36,9 @@ public:
     Evolver(float *init, float fitness, size_t size, unsigned int count) {
         this->genome_size = size;
         this->count = count;
-        this->PushGenomeFitness(init, fitness);
+        for (int i = 0; i < count; i++) {
+            this->PushGenomeFitness(init, fitness);   
+        }
     }
 };
 

@@ -77,6 +77,7 @@ std::vector<IToken *> SentiWordTokenizer::Tokenize(Sentence *s) {
     // Phase 2: peek ahead largest_no_dashes for each token
     // and see if a more complex SentiWordNet token can be created
     for (int i = 0; i < split_wbuf.size(); i++) {
+        if(!split_wbuf[i].length()) continue;
         buf = "" + split_wbuf[i];
         std::stack<std::string> candidates;
         candidates.push(split_wbuf[i]);

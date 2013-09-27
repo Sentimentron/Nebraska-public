@@ -33,7 +33,8 @@ public:
         return (unsigned int)results.size();
     }
     float ComputeFitness() {
-        return this->TotalCorrectByLabel(PositiveSentenceLabel) + this->TotalCorrectByLabel(NegativeSentenceLabel);
+        // return this->TotalCorrectByLabel(PositiveSentenceLabel) + this->TotalCorrectByLabel(NegativeSentenceLabel);
+        return this->TotalSentencesCorrect() * 100.0f / this->TotalDefined();
     }
     unsigned int TotalSentencesCorrect() {
         unsigned int ret = 0;

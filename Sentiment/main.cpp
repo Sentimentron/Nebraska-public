@@ -80,8 +80,8 @@ int main(int argc, const char * argv[])
     
     // Evaluate the classifier
     std::cout << "Self evaluation: \n";
-    float s = sef.Evaluate(&c, scoring_map, &etsv);
-    std::cout << s;
+    //float s = sef.Evaluate(&c, scoring_map, &etsv);
+    //std::cout << s;
     std::cout << "\nk-fold validation (k = 3):\n";
     int run_count = 0, best_run = 0;
     float best_accuracy = 0;
@@ -95,13 +95,14 @@ int main(int argc, const char * argv[])
     // Create the Evolution environment
     KCrossEvaluator kef(10);
     float result = kef.Evaluate(&c, scoring_map, &etsv);
-    Evolver evlv(scoring_map, result, scoring_map_size, 10);
+    Evolver evlv(scoring_map, result, scoring_map_size, 5);
     
     while(1) {
         run_count++;
-        KCrossEvaluator kef(10);
+        KCrossEvaluator kef2(3);
+        LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 2> *c2 = new LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 2>();
         evlv.BreedGenome(smap);
-        float result = kef.Evaluate(&c, smap, &etsv);
+        float result = kef2.Evaluate(c2, smap, &etsv);
         std::cout << "#(" << run_count << ") Current fitness: " << result << "\n";
         std::cout << "Best fitness: " << best_accuracy << "(Run #" << best_run << ")\n";
         if(result > best_accuracy) {
@@ -109,6 +110,7 @@ int main(int argc, const char * argv[])
             best_accuracy = result;
         }
         evlv.PushGenomeFitness(smap, result);
+        delete c2;
     }
     
     delete p;

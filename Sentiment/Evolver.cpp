@@ -9,7 +9,7 @@
 #include <cfloat>
 #include "Evolver.h"
 
-const float MUTATION_RATE = 0.10f;
+const float MUTATION_RATE = 0.25f;
 
 Evolver::~Evolver() {
     for (auto it = this->fitness_map.begin(); it != this->fitness_map.end(); it++) {
@@ -21,7 +21,7 @@ Evolver::~Evolver() {
 int Evolver::PushGenomeFitness(float *genome, float fitness) {
     float *worst = this->GetLeastFitGenome();
     float worst_fitness = this->fitness_map[worst];
-    //if (worst_fitness >= fitness) return 0;
+    if (worst_fitness >= fitness) return 0;
     
     // Allocate space for the genome
     float *genome_buf = (float *)malloc(this->genome_size * sizeof(float));
@@ -47,6 +47,7 @@ void Evolver::RemoveGenome(float *genome) {
     if(!this->fitness_map.erase(genome)) {
         std::cerr << "genome delete failure\n";
     }
+    free(genome);
     if (this->cur) this->cur--;
 }
 
@@ -68,7 +69,7 @@ void Evolver::RandomGenome(float *out) {
     for(int i = 0; i < this->genome_size; i++) {
         float *cur = (out + i);
         //if (fabs(*cur) > 0.005) continue;
-        *cur = -1.0f + (float)rand()/((float)RAND_MAX/(2.0f));
+        *cur = -0.1f + (float)rand()/((float)RAND_MAX/(0.2f));
     }
 }
 
@@ -77,7 +78,7 @@ void Evolver::BreedGenome(float *out) {
     
     if (this->cur < this->count) {
         // Breed a random genome
-        return this->RandomGenome(out);
+        // return this->RandomGenome(out);
     }
     
     // Compute total fitness
@@ -114,17 +115,22 @@ void Evolver::BreedGenome(float *out) {
     for (int i = 0; i < this->genome_size; i++) {
         float *cur = out + i;
         float rnd = (float)rand()/((float)RAND_MAX);
-        if (rnd < MUTATION_RATE) {
-            // Mutation time!
-            *cur += -0.1f + (float)rand()/((float)RAND_MAX/(0.2f));
-        }
-        else if (rnd < (1.0f + MUTATION_RATE)/2) {
+        float rnd2 = (float)rand()/((float)RAND_MAX);
+        if (rnd <= 0.5f) {
             // Luke, I am your father!
             *cur = *(father + i);
+            if (rnd2 < 0.05f) {
+                // Mutation time!
+                *cur += -0.01f + (float)rand()/((float)RAND_MAX/(0.02f));
+            }
         }
         else {
             // Leia, I am not your father!
             *cur = *(mother + i);
+            if (rnd2 < 0.05f) {
+                // Mutation time!
+                *cur += -0.01f + (float)rand()/((float)RAND_MAX/(0.02f));
+            }
         }
     }
 }
