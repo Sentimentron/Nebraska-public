@@ -46,7 +46,7 @@ private:
     unsigned int run = 0;
     bool output = false;
     int _PushGenomeFitness(const float *, float);
-    float mutation_rate = 0.0025f;
+    float mutation_rate = 0.05f;
     float mutation_amount = 0.0025f;
     float fitness_pref = 3.5f;
     inline float Random(const float min, const float max) {
