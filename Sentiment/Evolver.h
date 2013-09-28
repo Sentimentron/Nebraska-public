@@ -40,11 +40,12 @@ private:
     pthread_mutex_t maplock;
     unsigned int run = 0;
     bool output = false;
+    int _PushGenomeFitness(const float *, float);
 public:
     // Breeds a new genome, places the result in float
     void BreedGenome(float *);
     // Copies the first argument, stores fitness value
-    int PushGenomeFitness(float *, float);
+    int PushGenomeFitness(const float *, float);
     ~Evolver();
     Evolver(float *init, float fitness, size_t size, unsigned int count) {
         this->genome_size = size;
@@ -52,7 +53,7 @@ public:
         pthread_mutex_init(&this->runlock, NULL);
         pthread_mutex_init(&this->maplock, NULL);
         for (int i = 0; i < count; i++) {
-            this->PushGenomeFitness(init, fitness);   
+            this->_PushGenomeFitness(init, fitness);
         }
         this->run = 0;
         this->output = true;

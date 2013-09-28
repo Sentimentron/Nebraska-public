@@ -20,7 +20,7 @@ Evolver::~Evolver() {
     }
 }
 
-int Evolver::PushGenomeFitness(float *genome, float fitness) {
+int Evolver::PushGenomeFitness(const float *genome, float fitness) {
     
     pthread_mutex_lock(&this->runlock);
     this->run++;
@@ -32,6 +32,10 @@ int Evolver::PushGenomeFitness(float *genome, float fitness) {
     
     pthread_mutex_lock(&this->maplock);
     float *worst = this->GetLeastFitGenome();
+    if (worst == NULL) {
+        std::cerr << "Failed to find the worst genome!\n";
+        exit(1);
+    }
     float worst_fitness = this->fitness_map[worst];
     if (worst_fitness >= fitness) {
         pthread_mutex_unlock(&this->maplock);
@@ -44,6 +48,13 @@ int Evolver::PushGenomeFitness(float *genome, float fitness) {
     if (this->output) {
         std::cout << "(Accepted)\n";
     }
+    pthread_mutex_unlock(&this->runlock);
+    int ret = this->_PushGenomeFitness(genome, fitness);
+    pthread_mutex_unlock(&this->maplock);
+    return ret;
+}
+
+int Evolver::_PushGenomeFitness(const float *genome, float fitness) {
     
     // Allocate space for the genome
     float *genome_buf = (float *)malloc(this->genome_size * sizeof(float));
@@ -58,7 +69,10 @@ int Evolver::PushGenomeFitness(float *genome, float fitness) {
     // Remove the least fit genomes
     for (int i = this->cur; i > this->count; i--) {
         float *cur = this->GetLeastFitGenome();
-        if (cur == NULL) break;
+        if (cur == NULL) {
+            std::cerr << "Failed to find the worst genome!\n";
+            exit(1);
+        }
         RemoveGenome(cur);
     }
     // Insert the genome into the fitness map
@@ -68,8 +82,6 @@ int Evolver::PushGenomeFitness(float *genome, float fitness) {
         this->best_fitness = fitness;
     }
     this->ComputeStats();
-    pthread_mutex_unlock(&this->maplock);
-    pthread_mutex_unlock(&this->runlock);
     return 0;
 }
 
@@ -87,6 +99,7 @@ void Evolver::ComputeStats() {
 void Evolver::RemoveGenome(float *genome) {
     if(!this->fitness_map.erase(genome)) {
         std::cerr << "genome delete failure\n";
+        exit(1);
     }
     free(genome);
     if (this->cur) this->cur--;

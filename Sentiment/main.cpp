@@ -114,7 +114,7 @@ int main(int argc, const char * argv[])
     // Create the Evolution environment
     KCrossEvaluator kef(&etsv, 5);
     float result = kef.Evaluate(&c, scoring_map);
-    Evolver evlv(scoring_map, result, scoring_map_size, 200);
+    Evolver evlv(scoring_map, result, scoring_map_size, 20);
     
     // Get the number of cores in the machine
     unsigned int threads = std::thread::hardware_concurrency();

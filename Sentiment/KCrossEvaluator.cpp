@@ -50,9 +50,10 @@ const EvaluationResult KCrossEvaluator::EvaluateConfiguration(IClassifier *c, fl
 const float KCrossEvaluator::Evaluate(IClassifier *c, float *smap) const {
     std::vector<std::vector<const EnumeratedSentence *>> training;
     std::vector<const EnumeratedSentence *> testing;
-    std::vector<EvaluationResult> results;
     std::map<unsigned int, std::vector<const EnumeratedSentence *>> folds = this->GetFolds();
     std::srand((unsigned int)std::time(0));
+    unsigned int result_counter = 0;
+    float result_total = 0.0f;
     for (int i = 0; i < this->number_of_folds; i++) {
         // Empty everything so far
         training.clear();
@@ -63,13 +64,10 @@ const float KCrossEvaluator::Evaluate(IClassifier *c, float *smap) const {
             if (i == j) continue;
             training.push_back(folds[j]);
         }
-        results.push_back(this->EvaluateConfiguration(c, smap, training, testing));
+        EvaluationResult r = this->EvaluateConfiguration(c, smap, training, testing);
+        result_total += r.ComputeFitness();
+        result_counter++;
     }
-    float ret = 0.0f;
-    for (auto it = results.begin(); it != results.end(); it++) {
-        // it->ExportResultsToStream(std::cout);
-        ret += it->ComputeFitness();
-    }
-    return ret /= results.size();
+    return result_total / result_counter;
 }
 

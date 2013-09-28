@@ -19,10 +19,7 @@ FFTClassifier::FFTClassifier() {
 }
 
 FFTClassifier::~FFTClassifier() {
-    for (auto it = this->training.begin(); it != this->training.end(); it++) {
-        auto sig = std::get<1>(*it);
-        delete sig;
-    }
+    this->Detrain();
 }
 
 //
