@@ -9,10 +9,6 @@
 #include <cfloat>
 #include "Evolver.h"
 
-const float MUTATION_RATE = 0.0025f;
-const float MUTATION_AMOUNT = 0.0025f;
-const float FITNESS_PREF = 3.5f;
-
 Evolver::~Evolver() {
     for (auto it = this->fitness_map.begin(); it != this->fitness_map.end(); it++) {
         auto first = it->first;
@@ -136,7 +132,7 @@ float Evolver::GetTotalFitness() {
     float total = 0.0f;
     for (auto it = this->fitness_map.begin(); it != this->fitness_map.end(); it++) {
         auto fitness = it->second;
-        total += powf(fitness, FITNESS_PREF);
+        total += powf(fitness, this->fitness_pref);
     }
     return total;
 }
@@ -146,7 +142,7 @@ float * Evolver::ChooseParentFromFitnessMap(float input) {
     float *ret = NULL;
     for (auto it = this->fitness_map.begin(); it != this->fitness_map.end(); it++) {
         auto fitness = it->second;
-        total += powf(fitness, FITNESS_PREF);
+        total += powf(fitness, this->fitness_pref);
         ret = it->first;
         if (total > input) {
             break;
@@ -189,17 +185,17 @@ void Evolver::BreedGenome(float *out) {
         if (rnd <= 0.5f) {
             // Luke, I am your father!
             *cur = *(father + i);
-            if (rnd2 < 0.05f) {
+            if (rnd2 < this->mutation_rate) {
                 // Mutation time!
-                *cur += this->Random(-MUTATION_AMOUNT, +MUTATION_AMOUNT);
+                *cur += this->Random(-this->mutation_amount, +this->mutation_amount);
             }
         }
         else {
             // Leia, I am not your father!
             *cur = *(mother + i);
-            if (rnd2 < 0.05f) {
+            if (rnd2 <  this->mutation_rate) {
                 // Mutation time!
-                *cur += this->Random(-MUTATION_AMOUNT, +MUTATION_AMOUNT);
+                *cur += this->Random(-this->mutation_amount, +this->mutation_amount);
             }
         }
     }

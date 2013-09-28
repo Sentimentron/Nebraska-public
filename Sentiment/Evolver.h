@@ -15,6 +15,10 @@
 #include <vector>
 #include "sfmt.h"
 
+/*const float MUTATION_RATE = 0.0025f;
+ const float MUTATION_AMOUNT = 0.0025f;
+ const float FITNESS_PREF = 3.5f;*/
+
 class Evolver {
 private:
     // Associates each genome with a fitness value
@@ -42,6 +46,9 @@ private:
     unsigned int run = 0;
     bool output = false;
     int _PushGenomeFitness(const float *, float);
+    float mutation_rate = 0.0025f;
+    float mutation_amount = 0.0025f;
+    float fitness_pref = 3.5f;
     inline float Random(const float min, const float max) {
         double rnd = this->smft.Random();
         rnd *= (max-min);
