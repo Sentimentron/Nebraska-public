@@ -67,7 +67,7 @@ const float KCrossEvaluator::Evaluate(IClassifier *c, float *smap) const {
     }
     float ret = 0.0f;
     for (auto it = results.begin(); it != results.end(); it++) {
-        it->ExportResultsToStream(std::cout);
+        // it->ExportResultsToStream(std::cout);
         ret += it->ComputeFitness();
     }
     return ret /= results.size();

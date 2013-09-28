@@ -9,6 +9,7 @@
 #ifndef __Sentiment__Evolver__
 #define __Sentiment__Evolver__
 
+#include <pthread.h>
 #include <iostream>
 #include <map>
 #include <vector>
@@ -27,10 +28,18 @@ private:
     // Returns the least-fit genome
     float *GetLeastFitGenome();
     void RandomGenome(float *);
+    void ComputeStats();
     float GetTotalFitness();
     float *ChooseParentFromFitnessMap(float);
     float *ChooseRandomParent(float);
+    float best_fitness;
+    unsigned int best_run;
+    float average_fitness;
     std::pair<float *, float *> ChooseParents();
+    pthread_mutex_t runlock;
+    pthread_mutex_t maplock;
+    unsigned int run = 0;
+    bool output = false;
 public:
     // Breeds a new genome, places the result in float
     void BreedGenome(float *);
@@ -40,9 +49,13 @@ public:
     Evolver(float *init, float fitness, size_t size, unsigned int count) {
         this->genome_size = size;
         this->count = count;
+        pthread_mutex_init(&this->runlock, NULL);
+        pthread_mutex_init(&this->maplock, NULL);
         for (int i = 0; i < count; i++) {
             this->PushGenomeFitness(init, fitness);   
         }
+        this->run = 0;
+        this->output = true;
     }
 };
 

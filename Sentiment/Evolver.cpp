@@ -21,14 +21,34 @@ Evolver::~Evolver() {
 }
 
 int Evolver::PushGenomeFitness(float *genome, float fitness) {
-    //float *worst = this->GetLeastFitGenome();
-    //float worst_fitness = this->fitness_map[worst];
-    //if (worst_fitness >= fitness) return 0;
+    
+    pthread_mutex_lock(&this->runlock);
+    this->run++;
+    if (this->output) {
+        std::cout << "#(" << this->run << ") Current fitness: " << fitness << "\t";
+        std::cout << "Best fitness: " << this->best_fitness << " (Run # " << this->best_run << ")\t";
+        std::cout << "Average: " << this->average_fitness << "\t";
+    }
+    pthread_mutex_unlock(&this->runlock);
+    
+    pthread_mutex_lock(&this->maplock);
+    float *worst = this->GetLeastFitGenome();
+    float worst_fitness = this->fitness_map[worst];
+    if (worst_fitness >= fitness) {
+        pthread_mutex_unlock(&this->maplock);
+        if (this->output) {
+            std::cout << "(Rejected)\n";
+        }
+    }
+    if (this->output) {
+        std::cout << "(Accepted)\n";
+    }
     
     // Allocate space for the genome
     float *genome_buf = (float *)malloc(this->genome_size * sizeof(float));
     if (genome_buf == NULL) {
-        return 1;
+        std::cerr << "Allocation error\n";
+        exit(1);
     }
     // Copy over the genome data
     memcpy(genome_buf, genome, this->genome_size * sizeof(float));
@@ -42,7 +62,24 @@ int Evolver::PushGenomeFitness(float *genome, float fitness) {
     }
     // Insert the genome into the fitness map
     this->fitness_map[genome_buf] = fitness;
+    if (fitness > this->best_fitness) {
+        this->best_run = this->run++;
+        this->best_fitness = fitness;
+    }
+    this->ComputeStats();
+    pthread_mutex_unlock(&this->maplock);
     return 0;
+}
+
+void Evolver::ComputeStats() {
+    float total = 0.0f;
+    unsigned int count = 0;
+    for (auto it = this->fitness_map.begin(); it != this->fitness_map.end(); it++) {
+        auto fitness = it->second;
+        total += fitness;
+        count++;
+    }
+    this->average_fitness = total / count;
 }
 
 void Evolver::RemoveGenome(float *genome) {
@@ -118,6 +155,8 @@ void Evolver::BreedGenome(float *out) {
     float *father, *mother;
     std::pair<float *, float *> parents;
     
+    pthread_mutex_lock(&this->maplock);
+    
     parents = this->ChooseParents();
     mother = parents.first;
     father = parents.second;
@@ -144,5 +183,7 @@ void Evolver::BreedGenome(float *out) {
             }
         }
     }
+    
+    pthread_mutex_unlock(&this->maplock);
 }
 
