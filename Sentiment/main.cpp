@@ -23,6 +23,26 @@
 #include "Evolver.h"
 #include "math.h"
 
+int exiting = 0;
+
+void WorkerThread(const KCrossEvaluator &kef, const std::vector<const EnumeratedSentence *> &etsv,
+                  Evolver &evlv, size_t genome_size) {
+    float *genome = (float *)malloc(genome_size * sizeof(float));
+    if (genome == NULL) {
+        std::cerr << "Allocation error!\n";
+        return;
+    }
+    
+    while (!exiting) {
+        LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 1> c;
+        evlv.BreedGenome(genome);
+        float result = kef.Evaluate(&c, genome);
+        evlv.PushGenomeFitness(genome, result);
+    }
+    
+    free(genome);
+}
+
 int main(int argc, const char * argv[])
 {
     // WhitespaceTokenizer splits sentences into scorable parts based on
@@ -35,12 +55,12 @@ int main(int argc, const char * argv[])
     // Classifier decides whether a sentence is positive or negative
     LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 2> c;
     // SelfEvaluationFramework evaluates the classifier
-    SelfEvaluationFramework sef;
+    //  SelfEvaluationFramework sef;
     SentiwordNetReader swr;
     // Allows iteration through Sentence objects
     std::vector<Sentence *> sv;
     std::vector<TokenizedSentence *>tsv;
-    std::vector<EnumeratedSentence *> etsv;
+    std::vector<const EnumeratedSentence *> etsv;
     // Allows iteration thorugh WordTokens
     std::vector<IToken *> tv;
     // SentiWordScorer retrieves word scores from SentiWordNet
@@ -96,6 +116,8 @@ int main(int argc, const char * argv[])
     KCrossEvaluator kef(&etsv, 5);
     float result = kef.Evaluate(&c, scoring_map);
     Evolver evlv(scoring_map, result, scoring_map_size, 200);
+    
+    WorkerThread(kef, etsv, evlv, scoring_map_size);
     
     while(1) {
         run_count++;

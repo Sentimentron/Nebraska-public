@@ -15,7 +15,7 @@
 template <class T, unsigned int D>
 class LengthMetaClassifier : public IMetaClassifier<T> {
 private:
-    unsigned int ComputeClassifierId(EnumeratedSentence *s, float *score_map) {
+    unsigned int ComputeClassifierId(const EnumeratedSentence *s, float *score_map) {
         unsigned int sen_length = (unsigned int)s->GetEnumeratedVector().size();
         return sen_length / D;
     }

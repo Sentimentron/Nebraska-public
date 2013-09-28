@@ -70,7 +70,7 @@ float autocorrelation(FloatingFloatBuffer &x, FloatingFloatBuffer &y, int *offse
     return max_correlation;
 }
 
-FloatingFloatBuffer *FFTClassifier::CreateSignal(EnumeratedSentence *s, float *score_map) {
+FloatingFloatBuffer *FFTClassifier::CreateSignal(const EnumeratedSentence *s, float *score_map) {
     auto sentence_items = s->GetEnumeratedVector();
     float *ret = (float *)malloc(sentence_items.size() * sizeof(float));
     int c = 0;
@@ -81,7 +81,7 @@ FloatingFloatBuffer *FFTClassifier::CreateSignal(EnumeratedSentence *s, float *s
     return new FloatingFloatBuffer(ret, (unsigned int)sentence_items.size());
 }
 
-void FFTClassifier::Train(EnumeratedSentence *s, float *score_map) {
+void FFTClassifier::Train(const EnumeratedSentence *s, float *score_map) {
     FloatingFloatBuffer *bf = this->CreateSignal(s, score_map);
     this->negative_seen |= s->GetClassification() == NegativeSentenceLabel;
     this->positive_seen |= s->GetClassification() == PositiveSentenceLabel;
@@ -96,9 +96,9 @@ void FFTClassifier::Detrain() {
     this->training.clear();
 }
 
-ClassificationLabel FFTClassifier::Classify (EnumeratedSentence *s, float *score_map) {
+ClassificationLabel FFTClassifier::Classify (const EnumeratedSentence *s, float *score_map) {
     ClassificationLabel ret = UndefinedSentenceLabel;
-    EnumeratedSentence *best_match;
+    const EnumeratedSentence *best_match;
     
     float best_corr = 0.0f;
     if (!this->negative_seen || !this->positive_seen) {

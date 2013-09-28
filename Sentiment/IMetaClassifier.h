@@ -23,7 +23,7 @@ private:
         }
         return this->classifier_map[id];
     }
-    virtual unsigned int ComputeClassifierId (EnumeratedSentence *, float *) = 0;
+    virtual unsigned int ComputeClassifierId (const EnumeratedSentence *, float *) = 0;
 public:
     ~IMetaClassifier() {
         for (auto it = this->classifier_map.begin(); it != this->classifier_map.end(); it++) {
@@ -35,12 +35,12 @@ public:
     void AddToMap(unsigned int id, T *it) {
         this->classifier_map[id] = it;
     }
-    ClassificationLabel Classify(EnumeratedSentence *s, float *score_map) {
+    ClassificationLabel Classify(const EnumeratedSentence *s, float *score_map) {
         unsigned int id = this->ComputeClassifierId(s, score_map);
         this->CreateOrReturnClassifier(id);
         return this->classifier_map[id]->Classify(s, score_map);
     }
-    void Train(EnumeratedSentence *s, float *score_map) {
+    void Train(const EnumeratedSentence *s, float *score_map) {
         unsigned int id = this->ComputeClassifierId(s, score_map);
         this->CreateOrReturnClassifier(id);
         return this->classifier_map[id]->Train(s, score_map);

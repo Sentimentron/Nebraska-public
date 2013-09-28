@@ -20,7 +20,7 @@ private:
     std::vector<unsigned int> mapping;
     TokenizedSentence *parent;
 public:
-    std::vector<unsigned int> GetEnumeratedVector() {
+    const std::vector<unsigned int> GetEnumeratedVector() const {
         return this->mapping;
     };
     TokenizedSentence *GetParent() {

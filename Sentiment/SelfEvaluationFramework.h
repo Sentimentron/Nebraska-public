@@ -25,7 +25,7 @@ public:
         this->sentences = s;
         return this->Evaluate(c, smap);
     }
-    float Evaluate(IClassifier *c, float *smap) {
+    const float Evaluate(IClassifier *c, float *smap) {
         EvaluationResult ret;
         // Train the classifier
         for (auto it = this->sentences->begin(); it != this->sentences->end(); it++) {

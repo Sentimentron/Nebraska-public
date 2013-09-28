@@ -19,13 +19,13 @@
 
 class EvaluationResult {
 private:
-    std::map<EnumeratedSentence *, ClassificationLabel> results;
+    std::map<const EnumeratedSentence *, ClassificationLabel> results;
     float Percent(unsigned int num, unsigned int div) {
         if (!div) {div = 1; num = 0;}
         return 100.0f * num / div;
     }
 public:
-    void PushResult(EnumeratedSentence *s, ClassificationLabel l) {
+    void PushResult(const EnumeratedSentence *s, ClassificationLabel l) {
         this->results[s] = l;
     }
     unsigned int TotalSentencesTrained;
@@ -87,10 +87,10 @@ public:
 class IEvaluationFramework {
 public:
     IEvaluationFramework() {}
-    IEvaluationFramework(std::vector<EnumeratedSentence *> *)  {}
+    IEvaluationFramework(std::vector<const EnumeratedSentence *> *)  {}
     virtual ~IEvaluationFramework() {}
-    virtual float Evaluate(IClassifier *c, float *smap, std::vector<EnumeratedSentence *> *s) = 0;
-    virtual float Evaluate(IClassifier *, float*) = 0;
+    virtual float Evaluate(IClassifier *c, float *smap, std::vector<const EnumeratedSentence *> *s) = 0;
+    const virtual float Evaluate(IClassifier *, float*) const = 0;
 };
 
 #endif

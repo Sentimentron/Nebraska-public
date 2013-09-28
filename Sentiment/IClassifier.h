@@ -14,8 +14,8 @@
 class IClassifier {
 public:
     virtual ~IClassifier() {}
-    virtual ClassificationLabel Classify(EnumeratedSentence *, float *) = 0;
-    virtual void Train(EnumeratedSentence *, float *) = 0;
+    virtual ClassificationLabel Classify(const EnumeratedSentence *, float *) = 0;
+    virtual void Train(const EnumeratedSentence *, float *) = 0;
     virtual void Detrain() = 0;
 };
 

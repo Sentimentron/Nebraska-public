@@ -13,12 +13,12 @@
 #include "IMetaClassifier.h"
 #include <map>
 
-int sign_count(EnumeratedSentence *s, float *smap);
+int sign_count(const EnumeratedSentence *s, float *smap);
 
 template <class T>
 class SignMetaClassifier : public IMetaClassifier<T> {
 private:
-    unsigned int ComputeClassifierId(EnumeratedSentence *s, float *score_map) {
+    unsigned int ComputeClassifierId(const EnumeratedSentence *s, float *score_map) {
         return sign_count(s, score_map);
     }
 public:

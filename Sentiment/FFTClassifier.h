@@ -20,13 +20,13 @@ class FFTClassifier : public IClassifier {
 private:
     bool negative_seen = false;
     bool positive_seen = false;
-    std::vector<std::tuple<EnumeratedSentence*, FloatingFloatBuffer *>>training;
-    FloatingFloatBuffer *CreateSignal(EnumeratedSentence *, float *);
+    std::vector<std::tuple<const EnumeratedSentence*, FloatingFloatBuffer *>>training;
+    FloatingFloatBuffer *CreateSignal(const EnumeratedSentence *, float *);
 public:
     FFTClassifier ();
     ~FFTClassifier();
-    ClassificationLabel Classify(EnumeratedSentence *, float *score_map);
-    void Train(EnumeratedSentence *, float *);
+    ClassificationLabel Classify(const EnumeratedSentence *, float *score_map);
+    void Train(const EnumeratedSentence *, float *);
     void Detrain();
 };
 

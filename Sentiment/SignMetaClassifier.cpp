@@ -10,7 +10,7 @@
 #include "SignMetaClassifier.h"
 #include "math.h"
 #include "inttypes.h"
-int sign_count(EnumeratedSentence *s, float *smap) {
+int sign_count(const EnumeratedSentence *s, float *smap) {
     auto vec = s->GetEnumeratedVector();
     bool last = 0.0f;
     int ret = 0;

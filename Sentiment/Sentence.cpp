@@ -50,7 +50,7 @@ Sentence::~Sentence() {
 //
 // Sentence methods
 //
-ClassificationLabel Sentence::GetClassification() {
+const ClassificationLabel Sentence::GetClassification() const {
     return this->label;
 }
 

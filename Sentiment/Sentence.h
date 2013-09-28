@@ -29,7 +29,7 @@ public:
     Sentence (ClassificationLabel, char *);
     Sentence (int, char *);
     ~Sentence();
-    ClassificationLabel GetClassification();
+    const ClassificationLabel GetClassification() const;
     const char* GetClassificationStr();
     std::string GetText();
 };

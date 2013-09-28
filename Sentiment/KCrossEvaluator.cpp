@@ -10,8 +10,8 @@
 #include <random>
 #include <algorithm>
 
-void KCrossEvaluator::GenerateRandomizedFolds(std::vector<EnumeratedSentence *> *s) {
-    std::vector<EnumeratedSentence *> tmp;
+void KCrossEvaluator::GenerateRandomizedFolds(std::vector<const EnumeratedSentence *> *s) {
+    std::vector<const EnumeratedSentence *> tmp;
     // Copy the source vector into tmp
     for (auto it = s->begin(); it != s->end(); it++) tmp.push_back(*it);
     // Randomize tmp
@@ -26,10 +26,10 @@ void KCrossEvaluator::GenerateRandomizedFolds(std::vector<EnumeratedSentence *> 
     }
 }
 
-EvaluationResult KCrossEvaluator::EvaluateConfiguration(IClassifier *c, float *smap,
-                                                           std::vector<std::vector<EnumeratedSentence *>> training,
-                                                           std::vector<EnumeratedSentence *> testing
-                                                           ) {
+const EvaluationResult KCrossEvaluator::EvaluateConfiguration(IClassifier *c, float *smap,
+                                                           std::vector<std::vector<const EnumeratedSentence *>> training,
+                                                           std::vector<const EnumeratedSentence *> testing
+                                                           ) const {
     EvaluationResult ret; 
     // Detrain the classifier
     c->Detrain();
@@ -47,20 +47,21 @@ EvaluationResult KCrossEvaluator::EvaluateConfiguration(IClassifier *c, float *s
     return ret;
 }
 
-float KCrossEvaluator::Evaluate(IClassifier *c, float *smap) {
-    std::vector<std::vector<EnumeratedSentence *>> training;
-    std::vector<EnumeratedSentence *> testing;
+const float KCrossEvaluator::Evaluate(IClassifier *c, float *smap) const {
+    std::vector<std::vector<const EnumeratedSentence *>> training;
+    std::vector<const EnumeratedSentence *> testing;
     std::vector<EvaluationResult> results;
+    std::map<unsigned int, std::vector<const EnumeratedSentence *>> folds = this->GetFolds();
     std::srand((unsigned int)std::time(0));
     for (int i = 0; i < this->number_of_folds; i++) {
         // Empty everything so far
         training.clear();
         // At any point, fold i is the one used for testing
-        testing = this->folds[i];
+        testing = folds[i];
         for (int j = 0; j < this->number_of_folds; j++) {
             // Folds j represent those used for training
             if (i == j) continue;
-            training.push_back(this->folds[j]);
+            training.push_back(folds[j]);
         }
         results.push_back(this->EvaluateConfiguration(c, smap, training, testing));
     }
