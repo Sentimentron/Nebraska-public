@@ -13,6 +13,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "sfmt.h"
 
 class Evolver {
 private:
@@ -32,9 +33,9 @@ private:
     float GetTotalFitness();
     float *ChooseParentFromFitnessMap(float);
     float *ChooseRandomParent(float);
-    float best_fitness;
-    unsigned int best_run;
-    float average_fitness;
+    float best_fitness = 0.0f;
+    unsigned int best_run = 0.0f;
+    float average_fitness = 0.0f;
     std::pair<float *, float *> ChooseParents();
     pthread_mutex_t runlock;
     pthread_mutex_t maplock;
@@ -42,15 +43,18 @@ private:
     bool output = false;
     int _PushGenomeFitness(const float *, float);
     inline float Random(const float min, const float max) {
-        return -min + (float)rand()/((float)RAND_MAX/(max-min));
+        double rnd = this->smft.Random();
+        rnd *= (max-min);
+        return min + rnd;
     }
+    CRandomSFMT0 smft;
 public:
     // Breeds a new genome, places the result in float
     void BreedGenome(float *);
     // Copies the first argument, stores fitness value
     int PushGenomeFitness(const float *, float);
     ~Evolver();
-    Evolver(float *init, float fitness, size_t size, unsigned int count) {
+    Evolver(float *init, float fitness, size_t size, unsigned int count) : smft((int)std::time(0)) {
         this->genome_size = size;
         this->count = count;
         pthread_mutex_init(&this->runlock, NULL);

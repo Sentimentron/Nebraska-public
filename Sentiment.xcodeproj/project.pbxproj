@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		DE6630E417EF459300EFE393 /* FloatingFloatBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */; };
 		DE9648C017E89B3300BE46A5 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648BF17E89B3300BE46A5 /* main.cpp */; };
-		DE9648C217E89B3300BE46A5 /* Sentiment.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
+		DE9648C217E89B3300BE46A5 /* Sentiment.1 in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
 		DE9648CA17E89B9A00BE46A5 /* PLSentenceSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */; };
 		DE9648CD17E8AEA100BE46A5 /* sentences.csv in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648CB17E8AAFA00BE46A5 /* sentences.csv */; };
 		DE9648D017E8CCF500BE46A5 /* Sentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */; };
@@ -20,9 +20,9 @@
 		DE9AAA5017F5A7AC00531FCE /* SentiWordNetReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4E17F5A7AB00531FCE /* SentiWordNetReader.cpp */; };
 		DE9C17CD17F380AE00418017 /* SignMetaClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */; };
 		DEAC8AEB17F5E364009888C6 /* Evolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8AE917F5E364009888C6 /* Evolver.cpp */; };
-		DEAC8B0F17F73858009888C6 /* randomc.h in Headers */ = {isa = PBXBuildFile; fileRef = DEAC8AF317F73662009888C6 /* randomc.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DEAC8B1017F73868009888C6 /* sfmt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8AF517F73662009888C6 /* sfmt.cpp */; };
-		DEAC8B1117F7386B009888C6 /* sfmt.h in Headers */ = {isa = PBXBuildFile; fileRef = DEAC8AF617F73662009888C6 /* sfmt.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DEAC8B3017F73D71009888C6 /* sfmt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8AF517F73662009888C6 /* sfmt.cpp */; };
+		DEAC8B3117F73D74009888C6 /* sfmt.h in Headers */ = {isa = PBXBuildFile; fileRef = DEAC8AF617F73662009888C6 /* sfmt.h */; };
+		DEAC8B3517F73DDC009888C6 /* sfmt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8AF517F73662009888C6 /* sfmt.cpp */; };
 		DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */; };
 		DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */; };
 		DEDD1A3817EDC2F000C83517 /* SentiWordScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */; };
@@ -32,21 +32,22 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		DE9648B917E89B3300BE46A5 /* CopyFiles */ = {
+		DE9648B917E89B3300BE46A5 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
-				DE9648C217E89B3300BE46A5 /* Sentiment.1 in CopyFiles */,
+				DE9648C217E89B3300BE46A5 /* Sentiment.1 in Copy Files */,
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 		DE9648CC17E8AE8100BE46A5 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
 			dstPath = "";
-			dstSubfolderSpec = 7;
+			dstSubfolderSpec = 16;
 			files = (
 				DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */,
 				DE9648CD17E8AEA100BE46A5 /* sentences.csv in Copy Files */,
@@ -101,7 +102,7 @@
 		DEAC8AF617F73662009888C6 /* sfmt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sfmt.h; sourceTree = "<group>"; };
 		DEAC8AF717F73662009888C6 /* testirandomx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testirandomx.cpp; sourceTree = "<group>"; };
 		DEAC8AF817F73662009888C6 /* userintf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = userintf.cpp; sourceTree = "<group>"; };
-		DEAC8B0417F737F9009888C6 /* libRandomC.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libRandomC.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEAC8B2B17F73D69009888C6 /* libRandomC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRandomC.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IStringEnumerator.h; sourceTree = "<group>"; };
 		DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HMStringEnumerator.cpp; sourceTree = "<group>"; };
 		DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMStringEnumerator.h; sourceTree = "<group>"; };
@@ -124,7 +125,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DEAC8B0117F737F9009888C6 /* Frameworks */ = {
+		DEAC8B2817F73D69009888C6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -148,7 +149,7 @@
 			isa = PBXGroup;
 			children = (
 				DE9648BB17E89B3300BE46A5 /* Sentiment */,
-				DEAC8B0417F737F9009888C6 /* libRandomC.dylib */,
+				DEAC8B2B17F73D69009888C6 /* libRandomC.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -224,12 +225,11 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		DEAC8B0217F737F9009888C6 /* Headers */ = {
+		DEAC8B2917F73D69009888C6 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEAC8B0F17F73858009888C6 /* randomc.h in Headers */,
-				DEAC8B1117F7386B009888C6 /* sfmt.h in Headers */,
+				DEAC8B3117F73D74009888C6 /* sfmt.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,7 +242,7 @@
 			buildPhases = (
 				DE9648B717E89B3300BE46A5 /* Sources */,
 				DE9648B817E89B3300BE46A5 /* Frameworks */,
-				DE9648B917E89B3300BE46A5 /* CopyFiles */,
+				DE9648B917E89B3300BE46A5 /* Copy Files */,
 				DE9648CC17E8AE8100BE46A5 /* Copy Files */,
 			);
 			buildRules = (
@@ -254,13 +254,13 @@
 			productReference = DE9648BB17E89B3300BE46A5 /* Sentiment */;
 			productType = "com.apple.product-type.tool";
 		};
-		DEAC8B0317F737F9009888C6 /* RandomC */ = {
+		DEAC8B2A17F73D69009888C6 /* RandomC */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DEAC8B0517F737F9009888C6 /* Build configuration list for PBXNativeTarget "RandomC" */;
+			buildConfigurationList = DEAC8B2C17F73D69009888C6 /* Build configuration list for PBXNativeTarget "RandomC" */;
 			buildPhases = (
-				DEAC8B0017F737F9009888C6 /* Sources */,
-				DEAC8B0117F737F9009888C6 /* Frameworks */,
-				DEAC8B0217F737F9009888C6 /* Headers */,
+				DEAC8B2717F73D69009888C6 /* Sources */,
+				DEAC8B2817F73D69009888C6 /* Frameworks */,
+				DEAC8B2917F73D69009888C6 /* Headers */,
 			);
 			buildRules = (
 			);
@@ -268,8 +268,8 @@
 			);
 			name = RandomC;
 			productName = RandomC;
-			productReference = DEAC8B0417F737F9009888C6 /* libRandomC.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
+			productReference = DEAC8B2B17F73D69009888C6 /* libRandomC.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
 
@@ -293,7 +293,7 @@
 			projectRoot = "";
 			targets = (
 				DE9648BA17E89B3300BE46A5 /* Sentiment */,
-				DEAC8B0317F737F9009888C6 /* RandomC */,
+				DEAC8B2A17F73D69009888C6 /* RandomC */,
 			);
 		};
 /* End PBXProject section */
@@ -319,14 +319,15 @@
 				DE9AAA4D17F59B1E00531FCE /* SentiWordTokenizer.cpp in Sources */,
 				DE9AAA5017F5A7AC00531FCE /* SentiWordNetReader.cpp in Sources */,
 				DEAC8AEB17F5E364009888C6 /* Evolver.cpp in Sources */,
+				DEAC8B3517F73DDC009888C6 /* sfmt.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DEAC8B0017F737F9009888C6 /* Sources */ = {
+		DEAC8B2717F73D69009888C6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEAC8B1017F73868009888C6 /* sfmt.cpp in Sources */,
+				DEAC8B3017F73D71009888C6 /* sfmt.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,7 +411,7 @@
 			};
 			name = Release;
 		};
-		DEAC8B0617F737F9009888C6 /* Debug */ = {
+		DEAC8B2D17F73D69009888C6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -423,7 +424,7 @@
 			};
 			name = Debug;
 		};
-		DEAC8B0717F737F9009888C6 /* Release */ = {
+		DEAC8B2E17F73D69009888C6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -456,11 +457,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DEAC8B0517F737F9009888C6 /* Build configuration list for PBXNativeTarget "RandomC" */ = {
+		DEAC8B2C17F73D69009888C6 /* Build configuration list for PBXNativeTarget "RandomC" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DEAC8B0617F737F9009888C6 /* Debug */,
-				DEAC8B0717F737F9009888C6 /* Release */,
+				DEAC8B2D17F73D69009888C6 /* Debug */,
+				DEAC8B2E17F73D69009888C6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};
