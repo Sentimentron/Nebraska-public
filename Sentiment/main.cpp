@@ -93,16 +93,15 @@ int main(int argc, const char * argv[])
     }
     
     // Create the Evolution environment
-    KCrossEvaluator kef(10);
-    float result = kef.Evaluate(&c, scoring_map, &etsv);
-    Evolver evlv(scoring_map, result, scoring_map_size, 5);
+    KCrossEvaluator kef(&etsv, 5);
+    float result = kef.Evaluate(&c, scoring_map);
+    Evolver evlv(scoring_map, result, scoring_map_size, 200);
     
     while(1) {
         run_count++;
-        KCrossEvaluator kef2(3);
-        LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 2> *c2 = new LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 2>();
+        LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 1> *c2 = new LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 1>();
         evlv.BreedGenome(smap);
-        float result = kef2.Evaluate(c2, smap, &etsv);
+        float result = kef.Evaluate(c2, smap);
         std::cout << "#(" << run_count << ") Current fitness: " << result << "\n";
         std::cout << "Best fitness: " << best_accuracy << "(Run #" << best_run << ")\n";
         if(result > best_accuracy) {

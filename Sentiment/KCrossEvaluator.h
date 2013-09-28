@@ -38,6 +38,7 @@ public:
     }
     KCrossEvaluator(std::vector<EnumeratedSentence *> *s, unsigned int folds) {
         this->number_of_folds = folds;
+        this->GenerateRandomizedFolds(s);
     }
     float Evaluate(IClassifier *c, float *smap, std::vector<EnumeratedSentence *> *s) {
         this->GenerateRandomizedFolds(s);

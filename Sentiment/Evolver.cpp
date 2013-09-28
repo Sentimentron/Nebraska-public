@@ -9,7 +9,9 @@
 #include <cfloat>
 #include "Evolver.h"
 
-const float MUTATION_RATE = 0.25f;
+const float MUTATION_RATE = 0.15f;
+const float MUTATION_AMOUNT = 0.005f;
+const float FITNESS_PREF = 3.5f;
 
 Evolver::~Evolver() {
     for (auto it = this->fitness_map.begin(); it != this->fitness_map.end(); it++) {
@@ -19,9 +21,9 @@ Evolver::~Evolver() {
 }
 
 int Evolver::PushGenomeFitness(float *genome, float fitness) {
-    float *worst = this->GetLeastFitGenome();
-    float worst_fitness = this->fitness_map[worst];
-    if (worst_fitness >= fitness) return 0;
+    //float *worst = this->GetLeastFitGenome();
+    //float worst_fitness = this->fitness_map[worst];
+    //if (worst_fitness >= fitness) return 0;
     
     // Allocate space for the genome
     float *genome_buf = (float *)malloc(this->genome_size * sizeof(float));
@@ -73,43 +75,52 @@ void Evolver::RandomGenome(float *out) {
     }
 }
 
+float Evolver::GetTotalFitness() {
+    float total = 0.0f;
+    for (auto it = this->fitness_map.begin(); it != this->fitness_map.end(); it++) {
+        auto fitness = it->second;
+        total += powf(fitness, FITNESS_PREF);
+    }
+    return total;
+}
+
+float * Evolver::ChooseParentFromFitnessMap(float input) {
+    float total = 0.0f;
+    float *ret = NULL;
+    for (auto it = this->fitness_map.begin(); it != this->fitness_map.end(); it++) {
+        auto fitness = it->second;
+        total += powf(fitness, FITNESS_PREF);
+        ret = it->first;
+        if (total > input) {
+            break;
+        }
+    }
+    return ret;
+}
+
+float * Evolver::ChooseRandomParent(float total) {
+    float rnd = (float)rand()/((float)RAND_MAX/total);
+    return this->ChooseParentFromFitnessMap(rnd);
+}
+
+std::pair<float *, float *> Evolver::ChooseParents() {
+    float *mother = this->fitness_map.begin()->first;
+    float *father = this->fitness_map.begin()->first;
+    float total = this->GetTotalFitness();
+    while (mother == father) {
+        mother = this->ChooseRandomParent(total);
+        father = this->ChooseRandomParent(total);
+    }
+    return std::make_pair(mother, father);
+}
+
 void Evolver::BreedGenome(float *out) {
-    float total = 0;
+    float *father, *mother;
+    std::pair<float *, float *> parents;
     
-    if (this->cur < this->count) {
-        // Breed a random genome
-        // return this->RandomGenome(out);
-    }
-    
-    // Compute total fitness
-    for (auto it = this->fitness_map.begin(); it != this->fitness_map.end(); it++) {
-        auto fitness = it->second;
-        total += fitness;
-    }
-    // Generate a random number between 0 and the total
-    float rnd_father = (float)rand()/((float)RAND_MAX/(total));
-    float rnd_mother = (float)rand()/((float)RAND_MAX/(total));
-    
-    // Find the father and the mother
-    float *mother, *father;
-    total = 0;
-    for (auto it = this->fitness_map.begin(); it != this->fitness_map.end(); it++) {
-        auto fitness = it->second;
-        total += fitness;
-        if (total > rnd_father) {
-            father = it->first;
-            break;
-        }
-    }
-    total = 0;
-    for (auto it = this->fitness_map.begin(); it != this->fitness_map.end(); it++) {
-        auto fitness = it->second;
-        total += fitness;
-        if (total > rnd_mother) {
-            mother = it->first;
-            break;
-        }
-    }
+    parents = this->ChooseParents();
+    mother = parents.first;
+    father = parents.second;
     
     // Breedin' time!
     for (int i = 0; i < this->genome_size; i++) {
@@ -121,7 +132,7 @@ void Evolver::BreedGenome(float *out) {
             *cur = *(father + i);
             if (rnd2 < 0.05f) {
                 // Mutation time!
-                *cur += -0.01f + (float)rand()/((float)RAND_MAX/(0.02f));
+                *cur += -MUTATION_AMOUNT + (float)rand()/((float)RAND_MAX/(MUTATION_AMOUNT * 2));
             }
         }
         else {
@@ -129,7 +140,7 @@ void Evolver::BreedGenome(float *out) {
             *cur = *(mother + i);
             if (rnd2 < 0.05f) {
                 // Mutation time!
-                *cur += -0.01f + (float)rand()/((float)RAND_MAX/(0.02f));
+                *cur += -MUTATION_AMOUNT + (float)rand()/((float)RAND_MAX/(MUTATION_AMOUNT * 2));
             }
         }
     }

@@ -27,6 +27,10 @@ private:
     // Returns the least-fit genome
     float *GetLeastFitGenome();
     void RandomGenome(float *);
+    float GetTotalFitness();
+    float *ChooseParentFromFitnessMap(float);
+    float *ChooseRandomParent(float);
+    std::pair<float *, float *> ChooseParents();
 public:
     // Breeds a new genome, places the result in float
     void BreedGenome(float *);
