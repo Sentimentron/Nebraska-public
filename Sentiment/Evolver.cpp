@@ -9,8 +9,8 @@
 #include <cfloat>
 #include "Evolver.h"
 
-const float MUTATION_RATE = 0.15f;
-const float MUTATION_AMOUNT = 0.005f;
+const float MUTATION_RATE = 0.0025f;
+const float MUTATION_AMOUNT = 0.0025f;
 const float FITNESS_PREF = 3.5f;
 
 Evolver::~Evolver() {
@@ -25,6 +25,8 @@ int Evolver::PushGenomeFitness(const float *genome, float fitness) {
     pthread_mutex_lock(&this->runlock);
     this->run++;
     if (this->output) {
+        std::cout.precision(4);
+        std::cout << std::fixed;
         std::cout << "#(" << this->run << ") Current fitness: " << fitness << "\t";
         std::cout << "Best fitness: " << this->best_fitness << " (Run # " << this->best_run << ")\t";
         std::cout << "Average: " << this->average_fitness << "\t";
@@ -66,6 +68,9 @@ int Evolver::_PushGenomeFitness(const float *genome, float fitness) {
     memcpy(genome_buf, genome, this->genome_size * sizeof(float));
     // Increment the number of genomes we have
     this->cur++;
+    if (!this->run % 1000) {
+        this->count++;
+    }
     // Remove the least fit genomes
     for (int i = this->cur; i > this->count; i--) {
         float *cur = this->GetLeastFitGenome();
