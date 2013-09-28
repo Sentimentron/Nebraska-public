@@ -29,7 +29,6 @@ int Evolver::PushGenomeFitness(float *genome, float fitness) {
         std::cout << "Best fitness: " << this->best_fitness << " (Run # " << this->best_run << ")\t";
         std::cout << "Average: " << this->average_fitness << "\t";
     }
-    pthread_mutex_unlock(&this->runlock);
     
     pthread_mutex_lock(&this->maplock);
     float *worst = this->GetLeastFitGenome();
@@ -39,6 +38,8 @@ int Evolver::PushGenomeFitness(float *genome, float fitness) {
         if (this->output) {
             std::cout << "(Rejected)\n";
         }
+        pthread_mutex_unlock(&this->runlock);
+        return 0;
     }
     if (this->output) {
         std::cout << "(Accepted)\n";
@@ -68,6 +69,7 @@ int Evolver::PushGenomeFitness(float *genome, float fitness) {
     }
     this->ComputeStats();
     pthread_mutex_unlock(&this->maplock);
+    pthread_mutex_unlock(&this->runlock);
     return 0;
 }
 

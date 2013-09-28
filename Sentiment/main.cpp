@@ -22,6 +22,7 @@
 #include "SentiWordNetReader.h"
 #include "Evolver.h"
 #include "math.h"
+#include <thread>
 
 int exiting = 0;
 
@@ -103,8 +104,6 @@ int main(int argc, const char * argv[])
     //float s = sef.Evaluate(&c, scoring_map, &etsv);
     //std::cout << s;
     std::cout << "\nk-fold validation (k = 3):\n";
-    int run_count = 0, best_run = 0;
-    float best_accuracy = 0;
     // Evaluate the classifier using cross-fold
     float *smap = (float *)malloc(scoring_map_size * sizeof(float));
     if (smap == NULL) {
@@ -117,21 +116,16 @@ int main(int argc, const char * argv[])
     float result = kef.Evaluate(&c, scoring_map);
     Evolver evlv(scoring_map, result, scoring_map_size, 200);
     
-    WorkerThread(kef, etsv, evlv, scoring_map_size);
+    // Get the number of cores in the machine
+    unsigned int threads = std::thread::hardware_concurrency();
+    std::vector<std::thread *> thread_handles;
+    for (int i = 0; i < threads; i++) {
+        std::thread *t = new std::thread(WorkerThread, std::ref(kef), std::ref(etsv), std::ref(evlv), scoring_map_size);
+        thread_handles.push_back(t);
+    }
     
-    while(1) {
-        run_count++;
-        LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 1> *c2 = new LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 1>();
-        evlv.BreedGenome(smap);
-        float result = kef.Evaluate(c2, smap);
-        std::cout << "#(" << run_count << ") Current fitness: " << result << "\n";
-        std::cout << "Best fitness: " << best_accuracy << "(Run #" << best_run << ")\n";
-        if(result > best_accuracy) {
-            best_run = run_count;
-            best_accuracy = result;
-        }
-        evlv.PushGenomeFitness(smap, result);
-        delete c2;
+    for (auto it = thread_handles.begin(); it != thread_handles.end(); it++) {
+        (*it)->join();
     }
     
     delete p;
