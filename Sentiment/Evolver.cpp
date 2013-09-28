@@ -64,10 +64,10 @@ int Evolver::_PushGenomeFitness(const float *genome, float fitness) {
     memcpy(genome_buf, genome, this->genome_size * sizeof(float));
     // Increment the number of genomes we have
     this->cur++;
-    if (!(this->run % 1000)) {
+    if (!(this->run % 500)) {
         this->count++;
         this->mutation_amount *= 0.95f;
-        this->mutation_rate *= 0.95f;
+        this->mutation_rate *= 0.75f;
     }
     // Remove the least fit genomes
     for (int i = this->cur; i > this->count; i--) {
@@ -106,6 +106,20 @@ void Evolver::RemoveGenome(float *genome) {
     }
     free(genome);
     if (this->cur) this->cur--;
+}
+
+float *Evolver::GetMostFitGenome() {
+    float best_fitness = 0.0f;
+    float *best_genome = NULL;
+    for (auto it = this->fitness_map.begin(); it != this->fitness_map.end(); it++) {
+        auto genome = it->first;
+        auto fitness = it->second;
+        if (fitness > best_fitness) {
+            best_genome = genome;
+            best_fitness = fitness;
+        }
+    }
+    return best_genome;
 }
 
 float *Evolver::GetLeastFitGenome() {

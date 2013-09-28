@@ -25,6 +25,9 @@ private:
 public:
     ~HMStringEnumerator();
     HMStringEnumerator();
+    const std::vector<std::string> GetStrings() const {
+        return this->reverse_map;
+    }
     unsigned int Enumerate(std::string);
     unsigned int GetSize();
 };

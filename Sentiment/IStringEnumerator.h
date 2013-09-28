@@ -9,6 +9,7 @@
 #ifndef Sentiment_IStringEnumerator_h
 #define Sentiment_IStringEnumerator_h
 
+#include <vector>
 #include <string>
 
 class IStringEnumerator {
@@ -16,6 +17,7 @@ public:
     virtual ~IStringEnumerator() {}
     virtual unsigned int Enumerate(std::string) = 0;
     virtual unsigned int GetSize() = 0;
+    const virtual std::vector<std::string> GetStrings() const = 0;
 };
 
 

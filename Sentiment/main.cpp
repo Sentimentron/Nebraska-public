@@ -22,9 +22,15 @@
 #include "SentiWordNetReader.h"
 #include "Evolver.h"
 #include "math.h"
+#include <signal.h>
 #include <thread>
+#include <fstream>
 
-int exiting = 0;
+volatile int exiting = 0;
+
+void SignalHandler(int sig) {
+    exiting = 1;
+}
 
 void WorkerThread(const KCrossEvaluator &kef, const std::vector<const EnumeratedSentence *> &etsv,
                   Evolver &evlv, size_t genome_size) {
@@ -114,20 +120,38 @@ int main(int argc, const char * argv[])
     // Create the Evolution environment
     KCrossEvaluator kef(&etsv, 5);
     float result = kef.Evaluate(&c, scoring_map);
-    Evolver evlv(scoring_map, result, scoring_map_size, 20);
+    Evolver evlv(scoring_map, result, scoring_map_size, 100);
+    
+    // Set up Ctrl+C handling
+    signal(SIGINT, SignalHandler);
     
     // Get the number of cores in the machine
     unsigned int threads = std::thread::hardware_concurrency();
     std::vector<std::thread *> thread_handles;
+    // Start worker threads
     for (int i = 0; i < threads; i++) {
         std::thread *t = new std::thread(WorkerThread, std::ref(kef), std::ref(etsv), std::ref(evlv), scoring_map_size);
         thread_handles.push_back(t);
     }
-    
+    // Wait for worker threads to respond to signal
     for (auto it = thread_handles.begin(); it != thread_handles.end(); it++) {
         (*it)->join();
     }
     
+    // Get the best genome
+    float *best_genome = evlv.GetMostFitGenome();
+    
+    // Output the best genome
+    std::ofstream genome_outputf;
+    genome_outputf.open("best_genome.txt", std::ofstream::out | std::ofstream::trunc);
+    auto strings = hms->GetStrings();
+    for (auto it = strings.begin(); it != strings.end(); it++) {
+        auto id = hms->Enumerate(*it);
+        auto gn = *(best_genome + id);
+        genome_outputf << *it << "\t" << id << "\t" << gn << "\n";
+    }
+    genome_outputf.close();
+
     delete p;
     delete wt;
     delete hms;

@@ -47,7 +47,7 @@ private:
     bool output = false;
     int _PushGenomeFitness(const float *, float);
     float mutation_rate = 0.05f;
-    float mutation_amount = 0.0025f;
+    float mutation_amount = 0.025f;
     float fitness_pref = 3.5f;
     inline float Random(const float min, const float max) {
         double rnd = this->smft.Random();
@@ -60,6 +60,7 @@ public:
     void BreedGenome(float *);
     // Copies the first argument, stores fitness value
     int PushGenomeFitness(const float *, float);
+    float *GetMostFitGenome();
     ~Evolver();
     Evolver(float *init, float fitness, size_t size, unsigned int count) : smft((int)std::time(0)) {
         this->genome_size = size;
