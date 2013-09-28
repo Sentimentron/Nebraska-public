@@ -41,6 +41,9 @@ private:
     unsigned int run = 0;
     bool output = false;
     int _PushGenomeFitness(const float *, float);
+    inline float Random(const float min, const float max) {
+        return -min + (float)rand()/((float)RAND_MAX/(max-min));
+    }
 public:
     // Breeds a new genome, places the result in float
     void BreedGenome(float *);

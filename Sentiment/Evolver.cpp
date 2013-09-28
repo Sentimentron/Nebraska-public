@@ -123,7 +123,7 @@ void Evolver::RandomGenome(float *out) {
     for(int i = 0; i < this->genome_size; i++) {
         float *cur = (out + i);
         //if (fabs(*cur) > 0.005) continue;
-        *cur = -0.1f + (float)rand()/((float)RAND_MAX/(0.2f));
+        *cur = this->Random(-0.1f, 0.1f);
     }
 }
 
@@ -151,7 +151,7 @@ float * Evolver::ChooseParentFromFitnessMap(float input) {
 }
 
 float * Evolver::ChooseRandomParent(float total) {
-    float rnd = (float)rand()/((float)RAND_MAX/total);
+    float rnd = this->Random(0.0f, total);
     return this->ChooseParentFromFitnessMap(rnd);
 }
 
@@ -179,14 +179,14 @@ void Evolver::BreedGenome(float *out) {
     // Breedin' time!
     for (int i = 0; i < this->genome_size; i++) {
         float *cur = out + i;
-        float rnd = (float)rand()/((float)RAND_MAX);
-        float rnd2 = (float)rand()/((float)RAND_MAX);
+        float rnd = this->Random(0.0f, 1.0f);
+        float rnd2 = this->Random(0.0f, 1.0f);
         if (rnd <= 0.5f) {
             // Luke, I am your father!
             *cur = *(father + i);
             if (rnd2 < 0.05f) {
                 // Mutation time!
-                *cur += -MUTATION_AMOUNT + (float)rand()/((float)RAND_MAX/(MUTATION_AMOUNT * 2));
+                *cur += this->Random(-MUTATION_AMOUNT, +MUTATION_AMOUNT);
             }
         }
         else {
@@ -194,7 +194,7 @@ void Evolver::BreedGenome(float *out) {
             *cur = *(mother + i);
             if (rnd2 < 0.05f) {
                 // Mutation time!
-                *cur += -MUTATION_AMOUNT + (float)rand()/((float)RAND_MAX/(MUTATION_AMOUNT * 2));
+                *cur += this->Random(-MUTATION_AMOUNT, +MUTATION_AMOUNT);
             }
         }
     }

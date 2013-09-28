@@ -20,6 +20,9 @@
 		DE9AAA5017F5A7AC00531FCE /* SentiWordNetReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4E17F5A7AB00531FCE /* SentiWordNetReader.cpp */; };
 		DE9C17CD17F380AE00418017 /* SignMetaClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */; };
 		DEAC8AEB17F5E364009888C6 /* Evolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8AE917F5E364009888C6 /* Evolver.cpp */; };
+		DEAC8B0F17F73858009888C6 /* randomc.h in Headers */ = {isa = PBXBuildFile; fileRef = DEAC8AF317F73662009888C6 /* randomc.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DEAC8B1017F73868009888C6 /* sfmt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8AF517F73662009888C6 /* sfmt.cpp */; };
+		DEAC8B1117F7386B009888C6 /* sfmt.h in Headers */ = {isa = PBXBuildFile; fileRef = DEAC8AF617F73662009888C6 /* sfmt.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */; };
 		DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */; };
 		DEDD1A3817EDC2F000C83517 /* SentiWordScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */; };
@@ -86,6 +89,19 @@
 		DE9C17D117F44E2F00418017 /* SelfEvaluationFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SelfEvaluationFramework.h; sourceTree = "<group>"; };
 		DEAC8AE917F5E364009888C6 /* Evolver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Evolver.cpp; sourceTree = "<group>"; };
 		DEAC8AEA17F5E364009888C6 /* Evolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Evolver.h; sourceTree = "<group>"; };
+		DEAC8AED17F73662009888C6 /* ex-ran.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "ex-ran.cpp"; sourceTree = "<group>"; };
+		DEAC8AEE17F73662009888C6 /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
+		DEAC8AEF17F73662009888C6 /* mersenne.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mersenne.cpp; sourceTree = "<group>"; };
+		DEAC8AF017F73662009888C6 /* mother.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mother.cpp; sourceTree = "<group>"; };
+		DEAC8AF117F73662009888C6 /* ran-instructions.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "ran-instructions.pdf"; sourceTree = "<group>"; };
+		DEAC8AF217F73662009888C6 /* rancombi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rancombi.cpp; sourceTree = "<group>"; };
+		DEAC8AF317F73662009888C6 /* randomc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = randomc.h; sourceTree = "<group>"; };
+		DEAC8AF417F73662009888C6 /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
+		DEAC8AF517F73662009888C6 /* sfmt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sfmt.cpp; sourceTree = "<group>"; };
+		DEAC8AF617F73662009888C6 /* sfmt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sfmt.h; sourceTree = "<group>"; };
+		DEAC8AF717F73662009888C6 /* testirandomx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testirandomx.cpp; sourceTree = "<group>"; };
+		DEAC8AF817F73662009888C6 /* userintf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = userintf.cpp; sourceTree = "<group>"; };
+		DEAC8B0417F737F9009888C6 /* libRandomC.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libRandomC.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IStringEnumerator.h; sourceTree = "<group>"; };
 		DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HMStringEnumerator.cpp; sourceTree = "<group>"; };
 		DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMStringEnumerator.h; sourceTree = "<group>"; };
@@ -108,12 +124,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DEAC8B0117F737F9009888C6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		DE9648B017E89B3300BE46A5 = {
 			isa = PBXGroup;
 			children = (
+				DEAC8AEC17F73661009888C6 /* randomc */,
 				DE9648CB17E8AAFA00BE46A5 /* sentences.csv */,
 				DE9648BE17E89B3300BE46A5 /* Sentiment */,
 				DE9648BC17E89B3300BE46A5 /* Products */,
@@ -124,6 +148,7 @@
 			isa = PBXGroup;
 			children = (
 				DE9648BB17E89B3300BE46A5 /* Sentiment */,
+				DEAC8B0417F737F9009888C6 /* libRandomC.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -177,7 +202,38 @@
 			path = Sentiment;
 			sourceTree = "<group>";
 		};
+		DEAC8AEC17F73661009888C6 /* randomc */ = {
+			isa = PBXGroup;
+			children = (
+				DEAC8AED17F73662009888C6 /* ex-ran.cpp */,
+				DEAC8AEE17F73662009888C6 /* license.txt */,
+				DEAC8AEF17F73662009888C6 /* mersenne.cpp */,
+				DEAC8AF017F73662009888C6 /* mother.cpp */,
+				DEAC8AF117F73662009888C6 /* ran-instructions.pdf */,
+				DEAC8AF217F73662009888C6 /* rancombi.cpp */,
+				DEAC8AF317F73662009888C6 /* randomc.h */,
+				DEAC8AF417F73662009888C6 /* readme.txt */,
+				DEAC8AF517F73662009888C6 /* sfmt.cpp */,
+				DEAC8AF617F73662009888C6 /* sfmt.h */,
+				DEAC8AF717F73662009888C6 /* testirandomx.cpp */,
+				DEAC8AF817F73662009888C6 /* userintf.cpp */,
+			);
+			path = randomc;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		DEAC8B0217F737F9009888C6 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEAC8B0F17F73858009888C6 /* randomc.h in Headers */,
+				DEAC8B1117F7386B009888C6 /* sfmt.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
 		DE9648BA17E89B3300BE46A5 /* Sentiment */ = {
@@ -198,13 +254,30 @@
 			productReference = DE9648BB17E89B3300BE46A5 /* Sentiment */;
 			productType = "com.apple.product-type.tool";
 		};
+		DEAC8B0317F737F9009888C6 /* RandomC */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DEAC8B0517F737F9009888C6 /* Build configuration list for PBXNativeTarget "RandomC" */;
+			buildPhases = (
+				DEAC8B0017F737F9009888C6 /* Sources */,
+				DEAC8B0117F737F9009888C6 /* Frameworks */,
+				DEAC8B0217F737F9009888C6 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RandomC;
+			productName = RandomC;
+			productReference = DEAC8B0417F737F9009888C6 /* libRandomC.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		DE9648B217E89B3300BE46A5 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = "Richard Townsend";
 			};
 			buildConfigurationList = DE9648B517E89B3300BE46A5 /* Build configuration list for PBXProject "Sentiment" */;
@@ -220,6 +293,7 @@
 			projectRoot = "";
 			targets = (
 				DE9648BA17E89B3300BE46A5 /* Sentiment */,
+				DEAC8B0317F737F9009888C6 /* RandomC */,
 			);
 		};
 /* End PBXProject section */
@@ -245,6 +319,14 @@
 				DE9AAA4D17F59B1E00531FCE /* SentiWordTokenizer.cpp in Sources */,
 				DE9AAA5017F5A7AC00531FCE /* SentiWordNetReader.cpp in Sources */,
 				DEAC8AEB17F5E364009888C6 /* Evolver.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEAC8B0017F737F9009888C6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEAC8B1017F73868009888C6 /* sfmt.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,6 +410,31 @@
 			};
 			name = Release;
 		};
+		DEAC8B0617F737F9009888C6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		DEAC8B0717F737F9009888C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -348,6 +455,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		DEAC8B0517F737F9009888C6 /* Build configuration list for PBXNativeTarget "RandomC" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEAC8B0617F737F9009888C6 /* Debug */,
+				DEAC8B0717F737F9009888C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
