@@ -194,7 +194,7 @@ void Evolver::BreedGenome(float *out) {
     father = parents.second;
     
     // Breedin' time!
-    for (int i = 0; i < this->genome_size; i++) {
+    for (int i = 0; i < this->dont_mutate_beyond; i++) {
         float *cur = out + i;
         float rnd = this->Random(0.0f, 1.0f);
         float rnd2 = this->Random(0.0f, 1.0f);

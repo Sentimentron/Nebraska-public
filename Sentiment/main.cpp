@@ -73,7 +73,8 @@ int main(int argc, const char * argv[])
     // SentiWordScorer retrieves word scores from SentiWordNet
     SentiWordScorer scr(swr);
     float *scoring_map;
-    size_t scoring_map_size; 
+    size_t scoring_map_size;
+    size_t dont_mutate_beyond;
     // Construct tokenizer
     wt = new SentiWordTokenizer(swr);
     hms = new HMStringEnumerator();
@@ -94,6 +95,8 @@ int main(int argc, const char * argv[])
          it != tsv.end(); it++) {
         etsv.push_back(new EnumeratedSentence(*it, hms));
     }
+    
+    dont_mutate_beyond = hms->GetStrings().size();
     
     // Create a scoring map from SentiWordNet
     scoring_map_size = 0;
@@ -120,7 +123,7 @@ int main(int argc, const char * argv[])
     // Create the Evolution environment
     KCrossEvaluator kef(&etsv, 5);
     float result = kef.Evaluate(&c, scoring_map);
-    Evolver evlv(scoring_map, result, scoring_map_size, 100);
+    Evolver evlv(scoring_map, result, scoring_map_size, dont_mutate_beyond, 100);
     
     // Set up Ctrl+C handling
     signal(SIGINT, SignalHandler);

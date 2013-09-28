@@ -54,6 +54,7 @@ private:
         rnd *= (max-min);
         return min + rnd;
     }
+    const size_t dont_mutate_beyond;
     CRandomSFMT0 smft;
 public:
     // Breeds a new genome, places the result in float
@@ -62,7 +63,7 @@ public:
     int PushGenomeFitness(const float *, float);
     float *GetMostFitGenome();
     ~Evolver();
-    Evolver(float *init, float fitness, size_t size, unsigned int count) : smft((int)std::time(0)) {
+    Evolver(float *init, float fitness, size_t size, size_t dont_mutate_beyond, unsigned int count) : smft((int)std::time(0)), dont_mutate_beyond(dont_mutate_beyond) {
         this->genome_size = size;
         this->count = count;
         pthread_mutex_init(&this->runlock, NULL);
