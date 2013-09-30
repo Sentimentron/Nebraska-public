@@ -20,9 +20,25 @@
 		DE9AAA5017F5A7AC00531FCE /* SentiWordNetReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4E17F5A7AB00531FCE /* SentiWordNetReader.cpp */; };
 		DE9C17CD17F380AE00418017 /* SignMetaClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */; };
 		DEAC8AEB17F5E364009888C6 /* Evolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8AE917F5E364009888C6 /* Evolver.cpp */; };
-		DEAC8B3017F73D71009888C6 /* sfmt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8AF517F73662009888C6 /* sfmt.cpp */; };
-		DEAC8B3117F73D74009888C6 /* sfmt.h in Headers */ = {isa = PBXBuildFile; fileRef = DEAC8AF617F73662009888C6 /* sfmt.h */; };
 		DEAC8B3517F73DDC009888C6 /* sfmt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8AF517F73662009888C6 /* sfmt.cpp */; };
+		DEAC8B3D17F9699B009888C6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8B3C17F9699B009888C6 /* main.cpp */; };
+		DEAC8B3F17F9699B009888C6 /* GenomeDemo.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DEAC8B3E17F9699B009888C6 /* GenomeDemo.1 */; };
+		DEAC8B4317F96A2C009888C6 /* EnumeratedSentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A4517EDF6A700C83517 /* EnumeratedSentence.cpp */; };
+		DEAC8B4417F96A2C009888C6 /* FFTClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A4217EDF5A100C83517 /* FFTClassifier.cpp */; };
+		DEAC8B4517F96A2C009888C6 /* FloatingFloatBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */; };
+		DEAC8B4617F96A2C009888C6 /* HMStringEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */; };
+		DEAC8B4717F96A2C009888C6 /* KCrossEvaluator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4817F4DB5100531FCE /* KCrossEvaluator.cpp */; };
+		DEAC8B4817F96A2C009888C6 /* PLSentenceSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */; };
+		DEAC8B4917F96A2C009888C6 /* Sentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */; };
+		DEAC8B4A17F96A2C009888C6 /* SentiWordScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */; };
+		DEAC8B4B17F96A2C009888C6 /* SignMetaClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9C17CB17F380AE00418017 /* SignMetaClassifier.cpp */; };
+		DEAC8B4C17F96A2C009888C6 /* TokenizedSentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3C17EDEEF600C83517 /* TokenizedSentence.cpp */; };
+		DEAC8B4D17F96A2C009888C6 /* WhitespaceTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D717E8D19B00BE46A5 /* WhitespaceTokenizer.cpp */; };
+		DEAC8B4E17F96A2C009888C6 /* WordToken.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648D417E8D07000BE46A5 /* WordToken.cpp */; };
+		DEAC8B4F17F96A2C009888C6 /* SentiWordTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4B17F59B1D00531FCE /* SentiWordTokenizer.cpp */; };
+		DEAC8B5017F96A2C009888C6 /* SentiWordNetReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4E17F5A7AB00531FCE /* SentiWordNetReader.cpp */; };
+		DEAC8B5717F96B56009888C6 /* ExportedGenomeScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8B5517F96B54009888C6 /* ExportedGenomeScorer.cpp */; };
+		DEAC8B5817F96D9F009888C6 /* ExportedGenomeScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8B5517F96B54009888C6 /* ExportedGenomeScorer.cpp */; };
 		DEDD1A3317E9C2AD00C83517 /* HMStringEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */; };
 		DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */; };
 		DEDD1A3817EDC2F000C83517 /* SentiWordScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A3617EDC2EF00C83517 /* SentiWordScorer.cpp */; };
@@ -54,6 +70,16 @@
 			);
 			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEAC8B3817F9699B009888C6 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				DEAC8B3F17F9699B009888C6 /* GenomeDemo.1 in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -102,7 +128,11 @@
 		DEAC8AF617F73662009888C6 /* sfmt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sfmt.h; sourceTree = "<group>"; };
 		DEAC8AF717F73662009888C6 /* testirandomx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testirandomx.cpp; sourceTree = "<group>"; };
 		DEAC8AF817F73662009888C6 /* userintf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = userintf.cpp; sourceTree = "<group>"; };
-		DEAC8B2B17F73D69009888C6 /* libRandomC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRandomC.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEAC8B3A17F9699B009888C6 /* GenomeDemo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GenomeDemo; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEAC8B3C17F9699B009888C6 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		DEAC8B3E17F9699B009888C6 /* GenomeDemo.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = GenomeDemo.1; sourceTree = "<group>"; };
+		DEAC8B5517F96B54009888C6 /* ExportedGenomeScorer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExportedGenomeScorer.cpp; sourceTree = "<group>"; };
+		DEAC8B5617F96B55009888C6 /* ExportedGenomeScorer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExportedGenomeScorer.h; sourceTree = "<group>"; };
 		DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IStringEnumerator.h; sourceTree = "<group>"; };
 		DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HMStringEnumerator.cpp; sourceTree = "<group>"; };
 		DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMStringEnumerator.h; sourceTree = "<group>"; };
@@ -125,7 +155,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DEAC8B2817F73D69009888C6 /* Frameworks */ = {
+		DEAC8B3717F9699B009888C6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -141,6 +171,7 @@
 				DEAC8AEC17F73661009888C6 /* randomc */,
 				DE9648CB17E8AAFA00BE46A5 /* sentences.csv */,
 				DE9648BE17E89B3300BE46A5 /* Sentiment */,
+				DEAC8B3B17F9699B009888C6 /* GenomeDemo */,
 				DE9648BC17E89B3300BE46A5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -149,7 +180,7 @@
 			isa = PBXGroup;
 			children = (
 				DE9648BB17E89B3300BE46A5 /* Sentiment */,
-				DEAC8B2B17F73D69009888C6 /* libRandomC.a */,
+				DEAC8B3A17F9699B009888C6 /* GenomeDemo */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -199,6 +230,8 @@
 				DE9AAA4F17F5A7AC00531FCE /* SentiWordNetReader.h */,
 				DEAC8AE917F5E364009888C6 /* Evolver.cpp */,
 				DEAC8AEA17F5E364009888C6 /* Evolver.h */,
+				DEAC8B5517F96B54009888C6 /* ExportedGenomeScorer.cpp */,
+				DEAC8B5617F96B55009888C6 /* ExportedGenomeScorer.h */,
 			);
 			path = Sentiment;
 			sourceTree = "<group>";
@@ -222,18 +255,16 @@
 			path = randomc;
 			sourceTree = "<group>";
 		};
-/* End PBXGroup section */
-
-/* Begin PBXHeadersBuildPhase section */
-		DEAC8B2917F73D69009888C6 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				DEAC8B3117F73D74009888C6 /* sfmt.h in Headers */,
+		DEAC8B3B17F9699B009888C6 /* GenomeDemo */ = {
+			isa = PBXGroup;
+			children = (
+				DEAC8B3C17F9699B009888C6 /* main.cpp */,
+				DEAC8B3E17F9699B009888C6 /* GenomeDemo.1 */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+			path = GenomeDemo;
+			sourceTree = "<group>";
 		};
-/* End PBXHeadersBuildPhase section */
+/* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
 		DE9648BA17E89B3300BE46A5 /* Sentiment */ = {
@@ -254,22 +285,22 @@
 			productReference = DE9648BB17E89B3300BE46A5 /* Sentiment */;
 			productType = "com.apple.product-type.tool";
 		};
-		DEAC8B2A17F73D69009888C6 /* RandomC */ = {
+		DEAC8B3917F9699B009888C6 /* GenomeDemo */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DEAC8B2C17F73D69009888C6 /* Build configuration list for PBXNativeTarget "RandomC" */;
+			buildConfigurationList = DEAC8B4017F9699B009888C6 /* Build configuration list for PBXNativeTarget "GenomeDemo" */;
 			buildPhases = (
-				DEAC8B2717F73D69009888C6 /* Sources */,
-				DEAC8B2817F73D69009888C6 /* Frameworks */,
-				DEAC8B2917F73D69009888C6 /* Headers */,
+				DEAC8B3617F9699B009888C6 /* Sources */,
+				DEAC8B3717F9699B009888C6 /* Frameworks */,
+				DEAC8B3817F9699B009888C6 /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = RandomC;
-			productName = RandomC;
-			productReference = DEAC8B2B17F73D69009888C6 /* libRandomC.a */;
-			productType = "com.apple.product-type.library.static";
+			name = GenomeDemo;
+			productName = GenomeDemo;
+			productReference = DEAC8B3A17F9699B009888C6 /* GenomeDemo */;
+			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
@@ -293,7 +324,7 @@
 			projectRoot = "";
 			targets = (
 				DE9648BA17E89B3300BE46A5 /* Sentiment */,
-				DEAC8B2A17F73D69009888C6 /* RandomC */,
+				DEAC8B3917F9699B009888C6 /* GenomeDemo */,
 			);
 		};
 /* End PBXProject section */
@@ -320,14 +351,30 @@
 				DE9AAA5017F5A7AC00531FCE /* SentiWordNetReader.cpp in Sources */,
 				DEAC8AEB17F5E364009888C6 /* Evolver.cpp in Sources */,
 				DEAC8B3517F73DDC009888C6 /* sfmt.cpp in Sources */,
+				DEAC8B5717F96B56009888C6 /* ExportedGenomeScorer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DEAC8B2717F73D69009888C6 /* Sources */ = {
+		DEAC8B3617F9699B009888C6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEAC8B3017F73D71009888C6 /* sfmt.cpp in Sources */,
+				DEAC8B4317F96A2C009888C6 /* EnumeratedSentence.cpp in Sources */,
+				DEAC8B4417F96A2C009888C6 /* FFTClassifier.cpp in Sources */,
+				DEAC8B4517F96A2C009888C6 /* FloatingFloatBuffer.cpp in Sources */,
+				DEAC8B4617F96A2C009888C6 /* HMStringEnumerator.cpp in Sources */,
+				DEAC8B4717F96A2C009888C6 /* KCrossEvaluator.cpp in Sources */,
+				DEAC8B4817F96A2C009888C6 /* PLSentenceSource.cpp in Sources */,
+				DEAC8B4917F96A2C009888C6 /* Sentence.cpp in Sources */,
+				DEAC8B4A17F96A2C009888C6 /* SentiWordScorer.cpp in Sources */,
+				DEAC8B4B17F96A2C009888C6 /* SignMetaClassifier.cpp in Sources */,
+				DEAC8B4C17F96A2C009888C6 /* TokenizedSentence.cpp in Sources */,
+				DEAC8B4D17F96A2C009888C6 /* WhitespaceTokenizer.cpp in Sources */,
+				DEAC8B4E17F96A2C009888C6 /* WordToken.cpp in Sources */,
+				DEAC8B4F17F96A2C009888C6 /* SentiWordTokenizer.cpp in Sources */,
+				DEAC8B5017F96A2C009888C6 /* SentiWordNetReader.cpp in Sources */,
+				DEAC8B3D17F9699B009888C6 /* main.cpp in Sources */,
+				DEAC8B5817F96D9F009888C6 /* ExportedGenomeScorer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -411,27 +458,24 @@
 			};
 			name = Release;
 		};
-		DEAC8B2D17F73D69009888C6 /* Debug */ = {
+		DEAC8B4117F9699B009888C6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				EXECUTABLE_PREFIX = lib;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
 		};
-		DEAC8B2E17F73D69009888C6 /* Release */ = {
+		DEAC8B4217F9699B009888C6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				EXECUTABLE_PREFIX = lib;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -457,11 +501,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DEAC8B2C17F73D69009888C6 /* Build configuration list for PBXNativeTarget "RandomC" */ = {
+		DEAC8B4017F9699B009888C6 /* Build configuration list for PBXNativeTarget "GenomeDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DEAC8B2D17F73D69009888C6 /* Debug */,
-				DEAC8B2E17F73D69009888C6 /* Release */,
+				DEAC8B4117F9699B009888C6 /* Debug */,
+				DEAC8B4217F9699B009888C6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};
