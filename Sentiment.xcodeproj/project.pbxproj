@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		DE6630E417EF459300EFE393 /* FloatingFloatBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */; };
-		DE9648C017E89B3300BE46A5 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648BF17E89B3300BE46A5 /* main.cpp */; };
+		DE9648C017E89B3300BE46A5 /* Sentiment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */; };
 		DE9648C217E89B3300BE46A5 /* Sentiment.1 in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
 		DE9648CA17E89B9A00BE46A5 /* PLSentenceSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */; };
 		DE9648CD17E8AEA100BE46A5 /* sentences.csv in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648CB17E8AAFA00BE46A5 /* sentences.csv */; };
@@ -61,7 +61,7 @@
 		DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FloatingFloatBuffer.cpp; sourceTree = "<group>"; };
 		DE6630E317EF459300EFE393 /* FloatingFloatBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatingFloatBuffer.h; sourceTree = "<group>"; };
 		DE9648BB17E89B3300BE46A5 /* Sentiment */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sentiment; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE9648BF17E89B3300BE46A5 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sentiment.cpp; sourceTree = "<group>"; };
 		DE9648C117E89B3300BE46A5 /* Sentiment.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Sentiment.1; sourceTree = "<group>"; };
 		DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PLSentenceSource.cpp; sourceTree = "<group>"; };
 		DE9648C917E89B9A00BE46A5 /* PLSentenceSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLSentenceSource.h; sourceTree = "<group>"; };
@@ -175,7 +175,7 @@
 				DE9AAA4817F4DB5100531FCE /* KCrossEvaluator.cpp */,
 				DE9AAA4917F4DB5100531FCE /* KCrossEvaluator.h */,
 				DE9C17CF17F449B800418017 /* LengthMetaClassifier.h */,
-				DE9648BF17E89B3300BE46A5 /* main.cpp */,
+				DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */,
 				DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */,
 				DE9648C917E89B9A00BE46A5 /* PLSentenceSource.h */,
 				DE9C17D117F44E2F00418017 /* SelfEvaluationFramework.h */,
@@ -303,7 +303,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE9648C017E89B3300BE46A5 /* main.cpp in Sources */,
+				DE9648C017E89B3300BE46A5 /* Sentiment.cpp in Sources */,
 				DE9648CA17E89B9A00BE46A5 /* PLSentenceSource.cpp in Sources */,
 				DE9648D017E8CCF500BE46A5 /* Sentence.cpp in Sources */,
 				DE9648D617E8D07000BE46A5 /* WordToken.cpp in Sources */,
