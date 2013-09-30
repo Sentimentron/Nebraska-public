@@ -1,9 +1,5 @@
 Nebraska
 ========
 
-
-
-hello. ljsjsfosf
-
-hi again
+Hello: this is Nebraska, an evolving Sentiment analyser thingy.
 
