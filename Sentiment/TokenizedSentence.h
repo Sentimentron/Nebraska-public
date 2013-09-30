@@ -10,13 +10,14 @@
 #define __Sentiment__TokenizedSentence__
 
 #include <iostream>
-#include <vector>
-#include "ITokenizer.h"
+#include "Sentence.h"
 #include "IToken.h"
+#include "ITokenizer.h"
 
 class TokenizedSentence : public Sentence {
 private:
-    std::vector<unsigned int> tokens;
+    std::vector<IToken *> tokens;
+    Sentence *parent;
 public:
     TokenizedSentence (Sentence *, ITokenizer *);
     ~TokenizedSentence();
