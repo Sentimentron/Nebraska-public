@@ -85,7 +85,7 @@ int main(int argc, const char * argv[])
     
     // Load in the improved genome
     ExportedGenomeScorer egs(S_DEFAULT_GENOME_PATH);
-    free(scoring_map); scoring_map = NULL;
+    free(scoring_map); scoring_map = NULL; scoring_map_size = 0;
     egs.CreateScoringMap(hms, &scoring_map_size, &scoring_map);
     scoring_map = (float *)calloc(scoring_map_size, sizeof(float));
     if(scoring_map == NULL) {
