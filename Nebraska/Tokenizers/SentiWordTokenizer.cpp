@@ -52,13 +52,11 @@ void SentiWordTokenizer::init(SentiwordNetReader &swr) {
     }
 }
 
-std::vector<IToken *> SentiWordTokenizer::Tokenize(Sentence *s) {
-    std::vector<std::string> split_wbuf;
-    std::string buf;
+std::vector<std::string> SentiWordTokenizer::SplitWhitespace(Sentence *s) {
     std::string text = s->GetText();
-    std::vector<IToken *> ret;
-    
-    // Phase 1: split text based on whitespace
+    std::string buf;
+    std::vector<std::string> split_wbuf;
+
     for (int i = 0; i < text.length(); i++) {
         bool is_space = this->IsConsideredWhitespace(text[i]);
         if (is_space) {
@@ -69,13 +67,17 @@ std::vector<IToken *> SentiWordTokenizer::Tokenize(Sentence *s) {
         }
         buf += text[i];
     }
+    
     if(buf.length()) {
         split_wbuf.push_back(buf);
     }
-    buf = "";
     
-    // Phase 2: peek ahead largest_no_dashes for each token
-    // and see if a more complex SentiWordNet token can be created
+    return split_wbuf;
+}
+
+std::vector<std::string> SentiWordTokenizer::ResolveTokensInDictionary(std::vector<std::string> split_wbuf) {
+    std::string buf = "";
+    std::vector<std::string> ret;
     for (int i = 0; i < split_wbuf.size(); i++) {
         if(!split_wbuf[i].length()) continue;
         buf = "" + split_wbuf[i];
@@ -91,7 +93,27 @@ std::vector<IToken *> SentiWordTokenizer::Tokenize(Sentence *s) {
         std::string word = candidates.top();
         unsigned int no_dashes = countSubstring(word, "_");
         i += no_dashes;
-        ret.push_back(new WordToken(word));
+        ret.push_back(word);
+    }
+    return ret;
+}
+
+std::vector<IToken *> SentiWordTokenizer::Tokenize(Sentence *s) {
+    std::vector<std::string> split_wbuf, tokens;
+    std::string buf;
+    std::string text = s->GetText();
+    std::vector<IToken *> ret;
+    
+    // Phase 1: split text based on whitespace
+    split_wbuf = this->SplitWhitespace(s);
+    
+    // Phase 2: peek ahead largest_no_dashes for each token
+    // and see if a more complex SentiWordNet token can be created
+    tokens = this->ResolveTokensInDictionary(split_wbuf);
+    
+    // Phase 3: convert to ITokens
+    for (auto it = tokens.begin(); it != tokens.end(); it++) {
+        ret.push_back(new WordToken(*it));
     }
     
     return ret;

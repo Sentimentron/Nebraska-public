@@ -8,28 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		DE4D351F17FB215D00B878A5 /* sfmt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8AF517F73662009888C6 /* sfmt.cpp */; };
-		DE4D352C17FB216C00B878A5 /* Sentiment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */; };
 		DE4D352D17FB217300B878A5 /* libNebraska.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DE4D351717FB211E00B878A5 /* libNebraska.dylib */; };
 		DE4D353717FB22F800B878A5 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D353617FB22F000B878A5 /* SentiWordNet_3.0.0_20120510.txt */; };
 		DE4D353817FB22F800B878A5 /* best_genome.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D353317FB22C800B878A5 /* best_genome.txt */; };
 		DE4D353917FB22F800B878A5 /* sentences.csv in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D353417FB22C800B878A5 /* sentences.csv */; };
 		DE4D353A17FB22F800B878A5 /* twitter.csv in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D353517FB22C800B878A5 /* twitter.csv */; };
-		DE4D357617FB25EB00B878A5 /* FFTClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D354617FB25EB00B878A5 /* FFTClassifier.cpp */; };
-		DE4D357717FB25EB00B878A5 /* SignMetaClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D354917FB25EB00B878A5 /* SignMetaClassifier.cpp */; };
-		DE4D357817FB25EB00B878A5 /* HMStringEnumerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D354C17FB25EB00B878A5 /* HMStringEnumerator.cpp */; };
-		DE4D357917FB25EB00B878A5 /* KCrossEvaluator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D354F17FB25EB00B878A5 /* KCrossEvaluator.cpp */; };
-		DE4D357A17FB25EB00B878A5 /* Evolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D355217FB25EB00B878A5 /* Evolver.cpp */; };
-		DE4D357B17FB25EB00B878A5 /* PLSentenceSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D355517FB25EB00B878A5 /* PLSentenceSource.cpp */; };
-		DE4D357C17FB25EB00B878A5 /* SentiWordNetReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D355717FB25EB00B878A5 /* SentiWordNetReader.cpp */; };
-		DE4D357D17FB25EB00B878A5 /* EnumeratedSentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D356217FB25EB00B878A5 /* EnumeratedSentence.cpp */; };
-		DE4D357E17FB25EB00B878A5 /* FloatingFloatBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D356417FB25EB00B878A5 /* FloatingFloatBuffer.cpp */; };
-		DE4D357F17FB25EB00B878A5 /* Sentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D356617FB25EB00B878A5 /* Sentence.cpp */; };
-		DE4D358017FB25EB00B878A5 /* TokenizedSentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D356817FB25EB00B878A5 /* TokenizedSentence.cpp */; };
-		DE4D358117FB25EB00B878A5 /* WordToken.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D356A17FB25EB00B878A5 /* WordToken.cpp */; };
-		DE4D358217FB25EB00B878A5 /* ExportedGenomeScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D356D17FB25EB00B878A5 /* ExportedGenomeScorer.cpp */; };
-		DE4D358317FB25EB00B878A5 /* SentiWordScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D356F17FB25EB00B878A5 /* SentiWordScorer.cpp */; };
-		DE4D358417FB25EB00B878A5 /* SentiWordTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D357217FB25EB00B878A5 /* SentiWordTokenizer.cpp */; };
-		DE4D358517FB25EB00B878A5 /* WhitespaceTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D357417FB25EB00B878A5 /* WhitespaceTokenizer.cpp */; };
 		DE4D358617FB25FD00B878A5 /* Evolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D355217FB25EB00B878A5 /* Evolver.cpp */; };
 		DE4D358717FB260200B878A5 /* FFTClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D354617FB25EB00B878A5 /* FFTClassifier.cpp */; };
 		DE4D358817FB260900B878A5 /* SignMetaClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D354917FB25EB00B878A5 /* SignMetaClassifier.cpp */; };
@@ -50,7 +33,6 @@
 		DE4D359A17FB270F00B878A5 /* SentiWordNet_3.0.0_20120510.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353617FB22F000B878A5 /* SentiWordNet_3.0.0_20120510.txt */; };
 		DE4D359B17FB270F00B878A5 /* best_genome.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353317FB22C800B878A5 /* best_genome.txt */; };
 		DE4D359C17FB270F00B878A5 /* sentences.csv in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353417FB22C800B878A5 /* sentences.csv */; };
-		DE4D35A017FB27BD00B878A5 /* TwitterTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D359F17FB27BD00B878A5 /* TwitterTest.cpp */; };
 		DE4D35B017FB27DA00B878A5 /* libNebraska.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DE4D351717FB211E00B878A5 /* libNebraska.dylib */; };
 		DE4D35B217FB27E900B878A5 /* SentiWordNet_3.0.0_20120510.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353617FB22F000B878A5 /* SentiWordNet_3.0.0_20120510.txt */; };
 		DE4D35B317FB27E900B878A5 /* best_genome.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353317FB22C800B878A5 /* best_genome.txt */; };
@@ -59,6 +41,9 @@
 		DE4D35B617FB28DC00B878A5 /* TwitterTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D359F17FB27BD00B878A5 /* TwitterTest.cpp */; };
 		DE4D35B917FB2DA300B878A5 /* SSentenceSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D35B717FB2DA300B878A5 /* SSentenceSource.cpp */; };
 		DE4D35BA17FB2DA300B878A5 /* SSentenceSource.h in Headers */ = {isa = PBXBuildFile; fileRef = DE4D35B817FB2DA300B878A5 /* SSentenceSource.h */; };
+		DE4D35BD17FB491300B878A5 /* TwitterTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D35BB17FB491300B878A5 /* TwitterTokenizer.cpp */; };
+		DE4D35BE17FB491300B878A5 /* TwitterTokenizer.h in Headers */ = {isa = PBXBuildFile; fileRef = DE4D35BC17FB491300B878A5 /* TwitterTokenizer.h */; };
+		DE4D35BF17FB4CCB00B878A5 /* Sentiment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */; };
 		DE9648C217E89B3300BE46A5 /* Sentiment.1 in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
 		DEAC8B3D17F9699B009888C6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8B3C17F9699B009888C6 /* main.cpp */; };
 		DEAC8B3F17F9699B009888C6 /* GenomeDemo.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DEAC8B3E17F9699B009888C6 /* GenomeDemo.1 */; };
@@ -211,6 +196,8 @@
 		DE4D35A517FB27CD00B878A5 /* TwitterTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TwitterTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE4D35B717FB2DA300B878A5 /* SSentenceSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSentenceSource.cpp; sourceTree = "<group>"; };
 		DE4D35B817FB2DA300B878A5 /* SSentenceSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSentenceSource.h; sourceTree = "<group>"; };
+		DE4D35BB17FB491300B878A5 /* TwitterTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TwitterTokenizer.cpp; sourceTree = "<group>"; };
+		DE4D35BC17FB491300B878A5 /* TwitterTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TwitterTokenizer.h; sourceTree = "<group>"; };
 		DE9648BB17E89B3300BE46A5 /* Sentiment */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sentiment; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sentiment.cpp; sourceTree = "<group>"; };
 		DE9648C117E89B3300BE46A5 /* Sentiment.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Sentiment.1; sourceTree = "<group>"; };
@@ -388,6 +375,8 @@
 				DE4D357317FB25EB00B878A5 /* SentiWordTokenizer.h */,
 				DE4D357417FB25EB00B878A5 /* WhitespaceTokenizer.cpp */,
 				DE4D357517FB25EB00B878A5 /* WhitespaceTokenizer.h */,
+				DE4D35BB17FB491300B878A5 /* TwitterTokenizer.cpp */,
+				DE4D35BC17FB491300B878A5 /* TwitterTokenizer.h */,
 			);
 			path = Tokenizers;
 			sourceTree = "<group>";
@@ -470,6 +459,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE4D35BA17FB2DA300B878A5 /* SSentenceSource.h in Headers */,
+				DE4D35BE17FB491300B878A5 /* TwitterTokenizer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -601,8 +591,8 @@
 				DE4D358717FB260200B878A5 /* FFTClassifier.cpp in Sources */,
 				DE4D358617FB25FD00B878A5 /* Evolver.cpp in Sources */,
 				DE4D351F17FB215D00B878A5 /* sfmt.cpp in Sources */,
-				DE4D35A017FB27BD00B878A5 /* TwitterTest.cpp in Sources */,
 				DE4D35B917FB2DA300B878A5 /* SSentenceSource.cpp in Sources */,
+				DE4D35BD17FB491300B878A5 /* TwitterTokenizer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -618,23 +608,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE4D352C17FB216C00B878A5 /* Sentiment.cpp in Sources */,
-				DE4D357617FB25EB00B878A5 /* FFTClassifier.cpp in Sources */,
-				DE4D357717FB25EB00B878A5 /* SignMetaClassifier.cpp in Sources */,
-				DE4D357817FB25EB00B878A5 /* HMStringEnumerator.cpp in Sources */,
-				DE4D357917FB25EB00B878A5 /* KCrossEvaluator.cpp in Sources */,
-				DE4D357A17FB25EB00B878A5 /* Evolver.cpp in Sources */,
-				DE4D357B17FB25EB00B878A5 /* PLSentenceSource.cpp in Sources */,
-				DE4D357C17FB25EB00B878A5 /* SentiWordNetReader.cpp in Sources */,
-				DE4D357D17FB25EB00B878A5 /* EnumeratedSentence.cpp in Sources */,
-				DE4D357E17FB25EB00B878A5 /* FloatingFloatBuffer.cpp in Sources */,
-				DE4D357F17FB25EB00B878A5 /* Sentence.cpp in Sources */,
-				DE4D358017FB25EB00B878A5 /* TokenizedSentence.cpp in Sources */,
-				DE4D358117FB25EB00B878A5 /* WordToken.cpp in Sources */,
-				DE4D358217FB25EB00B878A5 /* ExportedGenomeScorer.cpp in Sources */,
-				DE4D358317FB25EB00B878A5 /* SentiWordScorer.cpp in Sources */,
-				DE4D358417FB25EB00B878A5 /* SentiWordTokenizer.cpp in Sources */,
-				DE4D358517FB25EB00B878A5 /* WhitespaceTokenizer.cpp in Sources */,
+				DE4D35BF17FB4CCB00B878A5 /* Sentiment.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -687,6 +661,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				EXECUTABLE_PREFIX = lib;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				MACH_O_TYPE = staticlib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

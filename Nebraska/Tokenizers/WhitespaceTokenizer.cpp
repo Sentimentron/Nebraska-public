@@ -33,7 +33,7 @@ bool WhitespaceTokenizer::IsConsideredWhitespace(char c) {
     // Helper function, takes a character and determines whether
     // it's whitespace or not. When something is whitespace, that's
     // used to split the input Sentence
-    return !(c >= 'a' && c <= 'z');
+    return !((c >= 'a' && c <= 'z') || (c == '@') || (c == '#') || (c >= 'A' && c <= 'Z'));
 }
 
 std::vector<IToken *> WhitespaceTokenizer::Tokenize(Sentence *s) {

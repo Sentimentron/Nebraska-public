@@ -21,8 +21,11 @@
 #include "SentiWordTokenizer.h"
 #include "SentiWordNetReader.h"
 #include "SSentenceSource.h"
+#include "TwitterTokenizer.h"
 #include "Evolver.h"
 #include "math.h"
+#include "ExportedGenomeScorer.h"   
+#include "TwitterTokenizer.h"
 #include <signal.h>
 #include <thread>
 #include <fstream>
@@ -58,7 +61,7 @@ int main(int argc, const char * argv[])
 {
     // WhitespaceTokenizer splits sentences into scorable parts based on
     // whitespace
-    SentiWordTokenizer *wt;
+    TwitterTokenizer *wt;
     // PLSentenceSource reads sentences from a CSV file on disk
     SSentenceSource *p;
     // HMStringEnumerator enumerates GetKey() values from WordTokens
@@ -75,12 +78,13 @@ int main(int argc, const char * argv[])
     // Allows iteration thorugh WordTokens
     std::vector<IToken *> tv;
     // SentiWordScorer retrieves word scores from SentiWordNet
-    SentiWordScorer scr(swr);
+    // SentiWordScorer scr(swr);
+    ExportedGenomeScorer scr("best_genome.txt");
     float *scoring_map;
     size_t scoring_map_size;
     size_t dont_mutate_beyond;
     // Construct tokenizer
-    wt = new SentiWordTokenizer(swr);
+    wt = new TwitterTokenizer(swr);
     hms = new HMStringEnumerator();
     
     // Read sentences from CSV file in the default location

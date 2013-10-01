@@ -67,7 +67,7 @@ int Evolver::_PushGenomeFitness(const float *genome, float fitness) {
     if (!(this->run % 500)) {
         this->count++;
         this->mutation_amount *= 0.95f;
-        this->mutation_rate *= 0.75f;
+        this->mutation_rate *= 0.85f;
     }
     // Remove the least fit genomes
     for (int i = this->cur; i > this->count; i--) {
