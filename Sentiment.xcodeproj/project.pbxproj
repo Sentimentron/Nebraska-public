@@ -198,6 +198,7 @@
 		DE4D35B817FB2DA300B878A5 /* SSentenceSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSentenceSource.h; sourceTree = "<group>"; };
 		DE4D35BB17FB491300B878A5 /* TwitterTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TwitterTokenizer.cpp; sourceTree = "<group>"; };
 		DE4D35BC17FB491300B878A5 /* TwitterTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TwitterTokenizer.h; sourceTree = "<group>"; };
+		DE4D35C017FB643E00B878A5 /* best_genome_twitter.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = best_genome_twitter.txt; path = Data/best_genome_twitter.txt; sourceTree = "<group>"; };
 		DE9648BB17E89B3300BE46A5 /* Sentiment */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sentiment; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sentiment.cpp; sourceTree = "<group>"; };
 		DE9648C117E89B3300BE46A5 /* Sentiment.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Sentiment.1; sourceTree = "<group>"; };
@@ -257,6 +258,7 @@
 		DE4D353217FB22B700B878A5 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				DE4D35C017FB643E00B878A5 /* best_genome_twitter.txt */,
 				DE4D353617FB22F000B878A5 /* SentiWordNet_3.0.0_20120510.txt */,
 				DE4D353317FB22C800B878A5 /* best_genome.txt */,
 				DE4D353417FB22C800B878A5 /* sentences.csv */,
