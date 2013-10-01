@@ -23,11 +23,12 @@ private:
     bool                free_text;
     char                *text;
     ClassificationLabel label;
+    void CopyStringToInternal(const char *);
 public:
     //Sentence(ClassificationLabel, std::string);
     Sentence (Sentence *);
-    Sentence (ClassificationLabel, char *);
-    Sentence (int, char *);
+    Sentence (ClassificationLabel, const char *);
+    Sentence (int, const char *);
     ~Sentence();
     const ClassificationLabel GetClassification() const;
     const char* GetClassificationStr();

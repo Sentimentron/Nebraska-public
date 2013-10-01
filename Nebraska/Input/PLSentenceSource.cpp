@@ -94,6 +94,7 @@ SentenceReadStatus PLSentenceSource::init(char *path) {
             ret = SentenceReadFormatError;
             goto cleanup;
         }
+        free(text);
         this->sentences.push_back(s);
     }
     

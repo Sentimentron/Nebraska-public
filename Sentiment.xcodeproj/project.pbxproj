@@ -50,6 +50,15 @@
 		DE4D359A17FB270F00B878A5 /* SentiWordNet_3.0.0_20120510.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353617FB22F000B878A5 /* SentiWordNet_3.0.0_20120510.txt */; };
 		DE4D359B17FB270F00B878A5 /* best_genome.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353317FB22C800B878A5 /* best_genome.txt */; };
 		DE4D359C17FB270F00B878A5 /* sentences.csv in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353417FB22C800B878A5 /* sentences.csv */; };
+		DE4D35A017FB27BD00B878A5 /* TwitterTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D359F17FB27BD00B878A5 /* TwitterTest.cpp */; };
+		DE4D35B017FB27DA00B878A5 /* libNebraska.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DE4D351717FB211E00B878A5 /* libNebraska.dylib */; };
+		DE4D35B217FB27E900B878A5 /* SentiWordNet_3.0.0_20120510.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353617FB22F000B878A5 /* SentiWordNet_3.0.0_20120510.txt */; };
+		DE4D35B317FB27E900B878A5 /* best_genome.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353317FB22C800B878A5 /* best_genome.txt */; };
+		DE4D35B417FB27E900B878A5 /* sentences.csv in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353417FB22C800B878A5 /* sentences.csv */; };
+		DE4D35B517FB27E900B878A5 /* twitter.csv in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353517FB22C800B878A5 /* twitter.csv */; };
+		DE4D35B617FB28DC00B878A5 /* TwitterTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D359F17FB27BD00B878A5 /* TwitterTest.cpp */; };
+		DE4D35B917FB2DA300B878A5 /* SSentenceSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D35B717FB2DA300B878A5 /* SSentenceSource.cpp */; };
+		DE4D35BA17FB2DA300B878A5 /* SSentenceSource.h in Headers */ = {isa = PBXBuildFile; fileRef = DE4D35B817FB2DA300B878A5 /* SSentenceSource.h */; };
 		DE9648C217E89B3300BE46A5 /* Sentiment.1 in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
 		DEAC8B3D17F9699B009888C6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8B3C17F9699B009888C6 /* main.cpp */; };
 		DEAC8B3F17F9699B009888C6 /* GenomeDemo.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DEAC8B3E17F9699B009888C6 /* GenomeDemo.1 */; };
@@ -70,6 +79,13 @@
 			remoteGlobalIDString = DE4D351617FB211E00B878A5;
 			remoteInfo = Nebraska;
 		};
+		DE4D35AE17FB27D500B878A5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DE9648B217E89B3300BE46A5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE4D351617FB211E00B878A5;
+			remoteInfo = Nebraska;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -82,6 +98,28 @@
 				DE4D359A17FB270F00B878A5 /* SentiWordNet_3.0.0_20120510.txt in CopyFiles */,
 				DE4D359B17FB270F00B878A5 /* best_genome.txt in CopyFiles */,
 				DE4D359C17FB270F00B878A5 /* sentences.csv in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE4D35A317FB27CD00B878A5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		DE4D35B117FB27DD00B878A5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				DE4D35B217FB27E900B878A5 /* SentiWordNet_3.0.0_20120510.txt in CopyFiles */,
+				DE4D35B317FB27E900B878A5 /* best_genome.txt in CopyFiles */,
+				DE4D35B417FB27E900B878A5 /* sentences.csv in CopyFiles */,
+				DE4D35B517FB27E900B878A5 /* twitter.csv in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -169,6 +207,10 @@
 		DE4D357317FB25EB00B878A5 /* SentiWordTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentiWordTokenizer.h; sourceTree = "<group>"; };
 		DE4D357417FB25EB00B878A5 /* WhitespaceTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhitespaceTokenizer.cpp; sourceTree = "<group>"; };
 		DE4D357517FB25EB00B878A5 /* WhitespaceTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhitespaceTokenizer.h; sourceTree = "<group>"; };
+		DE4D359F17FB27BD00B878A5 /* TwitterTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TwitterTest.cpp; sourceTree = "<group>"; };
+		DE4D35A517FB27CD00B878A5 /* TwitterTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TwitterTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE4D35B717FB2DA300B878A5 /* SSentenceSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSentenceSource.cpp; sourceTree = "<group>"; };
+		DE4D35B817FB2DA300B878A5 /* SSentenceSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSentenceSource.h; sourceTree = "<group>"; };
 		DE9648BB17E89B3300BE46A5 /* Sentiment */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sentiment; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sentiment.cpp; sourceTree = "<group>"; };
 		DE9648C117E89B3300BE46A5 /* Sentiment.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Sentiment.1; sourceTree = "<group>"; };
@@ -195,6 +237,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE4D35A217FB27CD00B878A5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE4D35B017FB27DA00B878A5 /* libNebraska.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,6 +333,8 @@
 				DE4D355617FB25EB00B878A5 /* PLSentenceSource.h */,
 				DE4D355717FB25EB00B878A5 /* SentiWordNetReader.cpp */,
 				DE4D355817FB25EB00B878A5 /* SentiWordNetReader.h */,
+				DE4D35B717FB2DA300B878A5 /* SSentenceSource.cpp */,
+				DE4D35B817FB2DA300B878A5 /* SSentenceSource.h */,
 			);
 			path = Input;
 			sourceTree = "<group>";
@@ -340,16 +392,25 @@
 			path = Tokenizers;
 			sourceTree = "<group>";
 		};
+		DE4D359E17FB279C00B878A5 /* TwitterTest */ = {
+			isa = PBXGroup;
+			children = (
+				DE4D359F17FB27BD00B878A5 /* TwitterTest.cpp */,
+			);
+			path = TwitterTest;
+			sourceTree = "<group>";
+		};
 		DE9648B017E89B3300BE46A5 = {
 			isa = PBXGroup;
 			children = (
-				DE4D354417FB25EB00B878A5 /* Nebraska */,
 				DE4D353217FB22B700B878A5 /* Data */,
-				DEAC8B5917F9A716009888C6 /* README.md */,
-				DEAC8AEC17F73661009888C6 /* randomc */,
-				DE9648BE17E89B3300BE46A5 /* Sentiment */,
 				DEAC8B3B17F9699B009888C6 /* GenomeDemo */,
+				DE4D354417FB25EB00B878A5 /* Nebraska */,
 				DE9648BC17E89B3300BE46A5 /* Products */,
+				DEAC8AEC17F73661009888C6 /* randomc */,
+				DEAC8B5917F9A716009888C6 /* README.md */,
+				DE9648BE17E89B3300BE46A5 /* Sentiment */,
+				DE4D359E17FB279C00B878A5 /* TwitterTest */,
 			);
 			sourceTree = "<group>";
 		};
@@ -359,6 +420,7 @@
 				DE9648BB17E89B3300BE46A5 /* Sentiment */,
 				DEAC8B3A17F9699B009888C6 /* GenomeDemo */,
 				DE4D351717FB211E00B878A5 /* libNebraska.dylib */,
+				DE4D35A517FB27CD00B878A5 /* TwitterTest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -407,6 +469,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE4D35BA17FB2DA300B878A5 /* SSentenceSource.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -429,6 +492,25 @@
 			productName = Nebraska;
 			productReference = DE4D351717FB211E00B878A5 /* libNebraska.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
+		};
+		DE4D35A417FB27CD00B878A5 /* TwitterTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE4D35AB17FB27CD00B878A5 /* Build configuration list for PBXNativeTarget "TwitterTest" */;
+			buildPhases = (
+				DE4D35A117FB27CD00B878A5 /* Sources */,
+				DE4D35A217FB27CD00B878A5 /* Frameworks */,
+				DE4D35A317FB27CD00B878A5 /* CopyFiles */,
+				DE4D35B117FB27DD00B878A5 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DE4D35AF17FB27D500B878A5 /* PBXTargetDependency */,
+			);
+			name = TwitterTest;
+			productName = TwitterTest;
+			productReference = DE4D35A517FB27CD00B878A5 /* TwitterTest */;
+			productType = "com.apple.product-type.tool";
 		};
 		DE9648BA17E89B3300BE46A5 /* Sentiment */ = {
 			isa = PBXNativeTarget;
@@ -492,6 +574,7 @@
 				DE9648BA17E89B3300BE46A5 /* Sentiment */,
 				DEAC8B3917F9699B009888C6 /* GenomeDemo */,
 				DE4D351617FB211E00B878A5 /* Nebraska */,
+				DE4D35A417FB27CD00B878A5 /* TwitterTest */,
 			);
 		};
 /* End PBXProject section */
@@ -518,6 +601,16 @@
 				DE4D358717FB260200B878A5 /* FFTClassifier.cpp in Sources */,
 				DE4D358617FB25FD00B878A5 /* Evolver.cpp in Sources */,
 				DE4D351F17FB215D00B878A5 /* sfmt.cpp in Sources */,
+				DE4D35A017FB27BD00B878A5 /* TwitterTest.cpp in Sources */,
+				DE4D35B917FB2DA300B878A5 /* SSentenceSource.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE4D35A117FB27CD00B878A5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE4D35B617FB28DC00B878A5 /* TwitterTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -566,6 +659,11 @@
 			target = DE4D351617FB211E00B878A5 /* Nebraska */;
 			targetProxy = DE4D359617FB26E000B878A5 /* PBXContainerItemProxy */;
 		};
+		DE4D35AF17FB27D500B878A5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE4D351617FB211E00B878A5 /* Nebraska */;
+			targetProxy = DE4D35AE17FB27D500B878A5 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -576,7 +674,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				EXECUTABLE_PREFIX = lib;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -588,6 +686,27 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		DE4D35AC17FB27CD00B878A5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		DE4D35AD17FB27CD00B878A5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -699,6 +818,14 @@
 			buildConfigurations = (
 				DE4D351917FB211F00B878A5 /* Debug */,
 				DE4D351A17FB211F00B878A5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		DE4D35AB17FB27CD00B878A5 /* Build configuration list for PBXNativeTarget "TwitterTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE4D35AC17FB27CD00B878A5 /* Debug */,
+				DE4D35AD17FB27CD00B878A5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};
