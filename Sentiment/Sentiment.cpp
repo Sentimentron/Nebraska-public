@@ -20,11 +20,15 @@
 #include "KCrossEvaluator.h"
 #include "SentiWordTokenizer.h"
 #include "SentiWordNetReader.h"
+#include "SSentenceSource.h"
 #include "Evolver.h"
 #include "math.h"
 #include <signal.h>
 #include <thread>
 #include <fstream>
+
+const char * const S_DEFAULT_TWITTER_PATH = "twitter.csv";
+const char * const S_DEFAULT_GENOME_PATH  = "best_genome_twitter.txt";
 
 volatile int exiting = 0;
 
@@ -56,7 +60,7 @@ int main(int argc, const char * argv[])
     // whitespace
     SentiWordTokenizer *wt;
     // PLSentenceSource reads sentences from a CSV file on disk
-    PLSentenceSource *p;
+    SSentenceSource *p;
     // HMStringEnumerator enumerates GetKey() values from WordTokens
     HMStringEnumerator *hms;
     // Classifier decides whether a sentence is positive or negative
@@ -80,7 +84,7 @@ int main(int argc, const char * argv[])
     hms = new HMStringEnumerator();
     
     // Read sentences from CSV file in the default location
-    p = new PLSentenceSource();
+    p = new SSentenceSource(S_DEFAULT_TWITTER_PATH);
     // Iterator sv through the sentences
     sv = p->GetSentences();
     
@@ -146,7 +150,7 @@ int main(int argc, const char * argv[])
     
     // Output the best genome
     std::ofstream genome_outputf;
-    genome_outputf.open("best_genome.txt", std::ofstream::out | std::ofstream::trunc);
+    genome_outputf.open(S_DEFAULT_GENOME_PATH, std::ofstream::out | std::ofstream::trunc);
     auto strings = hms->GetStrings();
     for (auto it = strings.begin(); it != strings.end(); it++) {
         auto id = hms->Enumerate(*it);
