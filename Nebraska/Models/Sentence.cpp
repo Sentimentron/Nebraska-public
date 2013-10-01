@@ -18,13 +18,19 @@ Sentence::Sentence(Sentence *s) {
     this->free_text = false;
 }
 
-Sentence::Sentence(ClassificationLabel label, char *text) {
-    this->text  = text;
+void Sentence::CopyStringToInternal(const char *text) {
+    size_t length = strlen(text);
+    this->text = (char *)calloc(length + 1, 1);
+    memcpy(this->text, text, length);
+}
+
+Sentence::Sentence(ClassificationLabel label, const char *text) {
+    this->CopyStringToInternal(text);
     this->label = label;
     this->free_text = true;
 }
 
-Sentence::Sentence(int label, char *text) {
+Sentence::Sentence(int label, const char *text) {
     ClassificationLabel l;
     if (label == 1) {
         l = PositiveSentenceLabel;
@@ -35,7 +41,7 @@ Sentence::Sentence(int label, char *text) {
     else {
         l = UndefinedSentenceLabel;
     }
-    this->text = text;
+    this->CopyStringToInternal(text);
     this->label = l;
     this->free_text = true;
 }
