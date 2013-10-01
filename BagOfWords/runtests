@@ -1,0 +1,5 @@
+java BagOfWords -t data.arff -c first -o predictions.arff -x 2 -s 1 -W "weka.classifiers.trees.J48 -C 0.25"
+java BagOfWords -t data.arff -c first -o predictions.arff -x 2 -s 1 -W "weka.classifiers.bayes.NaiveBayes"
+java BagOfWords -t data.arff -c first -o predictions.arff -x 2 -s 1 -W "weka.classifiers.rules.JRip"
+java BagOfWords -t data.arff -c first -o predictions.arff -x 2 -s 1 -W "weka.classifiers.functions.Logistic"
+java BagOfWords -t data.arff -c first -o predictions.arff -x 2 -s 1 -W "weka.classifiers.lazy.IBk"
