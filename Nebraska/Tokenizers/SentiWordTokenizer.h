@@ -19,6 +19,9 @@ private:
     void init(SentiwordNetReader &);
     std::set<std::string> words;
     unsigned int largest_no_dashes = 0;
+protected:
+    std::vector<std::string> SplitWhitespace(Sentence *);
+    std::vector<std::string> ResolveTokensInDictionary(std::vector<std::string>);
 public:
     SentiWordTokenizer(SentiwordNetReader &swr) {
         this->init(swr);

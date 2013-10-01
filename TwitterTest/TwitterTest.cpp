@@ -7,7 +7,6 @@
 //
 
 #include "FFTClassifier.h"
-#include "SentiWordTokenizer.h"
 #include "PLSentenceSource.h"
 #include "HMStringEnumerator.h"
 #include "LengthMetaClassifier.h"
@@ -18,6 +17,7 @@
 #include "EnumeratedSentence.h"
 #include "KCrossEvaluator.h"
 #include "ExportedGenomeScorer.h"
+#include "TwitterTokenizer.h"
 
 #include <stdio.h>
 
@@ -25,7 +25,6 @@ const char * const S_DEFAULT_TWITTER_PATH = "twitter.csv";
 const char * const S_DEFAULT_GENOME_PATH  = "best_genome.txt";
 
 int main (int argc, const char * argv[]) {
-    SentiWordTokenizer wt;
     PLSentenceSource psrc;
     HMStringEnumerator hms;
     FFTClassifier c;
@@ -33,6 +32,7 @@ int main (int argc, const char * argv[]) {
     SentiwordNetReader swr;
     SSentenceSource ssrc(S_DEFAULT_TWITTER_PATH);
     SentiWordScorer scr(swr);
+    TwitterTokenizer wt(swr);
     std::vector<Sentence *>sv;
     std::vector<const EnumeratedSentence *> etsv;
     float *scoring_map;
