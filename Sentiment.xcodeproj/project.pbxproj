@@ -46,6 +46,10 @@
 		DE4D359317FB263C00B878A5 /* SentiWordScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D356F17FB25EB00B878A5 /* SentiWordScorer.cpp */; };
 		DE4D359417FB264100B878A5 /* SentiWordTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D357217FB25EB00B878A5 /* SentiWordTokenizer.cpp */; };
 		DE4D359517FB264500B878A5 /* WhitespaceTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D357417FB25EB00B878A5 /* WhitespaceTokenizer.cpp */; };
+		DE4D359817FB26EA00B878A5 /* libNebraska.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DE4D351717FB211E00B878A5 /* libNebraska.dylib */; };
+		DE4D359A17FB270F00B878A5 /* SentiWordNet_3.0.0_20120510.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353617FB22F000B878A5 /* SentiWordNet_3.0.0_20120510.txt */; };
+		DE4D359B17FB270F00B878A5 /* best_genome.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353317FB22C800B878A5 /* best_genome.txt */; };
+		DE4D359C17FB270F00B878A5 /* sentences.csv in CopyFiles */ = {isa = PBXBuildFile; fileRef = DE4D353417FB22C800B878A5 /* sentences.csv */; };
 		DE9648C217E89B3300BE46A5 /* Sentiment.1 in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
 		DEAC8B3D17F9699B009888C6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8B3C17F9699B009888C6 /* main.cpp */; };
 		DEAC8B3F17F9699B009888C6 /* GenomeDemo.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DEAC8B3E17F9699B009888C6 /* GenomeDemo.1 */; };
@@ -59,9 +63,28 @@
 			remoteGlobalIDString = DE4D351617FB211E00B878A5;
 			remoteInfo = Nebraska;
 		};
+		DE4D359617FB26E000B878A5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DE9648B217E89B3300BE46A5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE4D351617FB211E00B878A5;
+			remoteInfo = Nebraska;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		DE4D359917FB26FD00B878A5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				DE4D359A17FB270F00B878A5 /* SentiWordNet_3.0.0_20120510.txt in CopyFiles */,
+				DE4D359B17FB270F00B878A5 /* best_genome.txt in CopyFiles */,
+				DE4D359C17FB270F00B878A5 /* sentences.csv in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DE9648B917E89B3300BE46A5 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -187,6 +210,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE4D359817FB26EA00B878A5 /* libNebraska.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -432,10 +456,12 @@
 				DEAC8B3617F9699B009888C6 /* Sources */,
 				DEAC8B3717F9699B009888C6 /* Frameworks */,
 				DEAC8B3817F9699B009888C6 /* CopyFiles */,
+				DE4D359917FB26FD00B878A5 /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				DE4D359717FB26E000B878A5 /* PBXTargetDependency */,
 			);
 			name = GenomeDemo;
 			productName = GenomeDemo;
@@ -534,6 +560,11 @@
 			isa = PBXTargetDependency;
 			target = DE4D351617FB211E00B878A5 /* Nebraska */;
 			targetProxy = DE4D352E17FB218000B878A5 /* PBXContainerItemProxy */;
+		};
+		DE4D359717FB26E000B878A5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE4D351617FB211E00B878A5 /* Nebraska */;
+			targetProxy = DE4D359617FB26E000B878A5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
