@@ -133,6 +133,7 @@
 		DEAC8B3E17F9699B009888C6 /* GenomeDemo.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = GenomeDemo.1; sourceTree = "<group>"; };
 		DEAC8B5517F96B54009888C6 /* ExportedGenomeScorer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExportedGenomeScorer.cpp; sourceTree = "<group>"; };
 		DEAC8B5617F96B55009888C6 /* ExportedGenomeScorer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExportedGenomeScorer.h; sourceTree = "<group>"; };
+		DEAC8B5917F9A716009888C6 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		DEDD1A3017E9C17600C83517 /* IStringEnumerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IStringEnumerator.h; sourceTree = "<group>"; };
 		DEDD1A3117E9C2AD00C83517 /* HMStringEnumerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HMStringEnumerator.cpp; sourceTree = "<group>"; };
 		DEDD1A3217E9C2AD00C83517 /* HMStringEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMStringEnumerator.h; sourceTree = "<group>"; };
@@ -168,6 +169,7 @@
 		DE9648B017E89B3300BE46A5 = {
 			isa = PBXGroup;
 			children = (
+				DEAC8B5917F9A716009888C6 /* README.md */,
 				DEAC8AEC17F73661009888C6 /* randomc */,
 				DE9648CB17E8AAFA00BE46A5 /* sentences.csv */,
 				DE9648BE17E89B3300BE46A5 /* Sentiment */,
