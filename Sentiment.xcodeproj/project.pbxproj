@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DE4D351117FB20E300B878A5 /* best_genome.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D351017FB20BF00B878A5 /* best_genome.txt */; };
+		DE4D351217FB20E300B878A5 /* twitter.csv in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D350F17FB20AF00B878A5 /* twitter.csv */; };
 		DE6630E417EF459300EFE393 /* FloatingFloatBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */; };
 		DE9648C017E89B3300BE46A5 /* Sentiment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */; };
 		DE9648C217E89B3300BE46A5 /* Sentiment.1 in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
@@ -65,6 +67,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				DE4D351117FB20E300B878A5 /* best_genome.txt in Copy Files */,
+				DE4D351217FB20E300B878A5 /* twitter.csv in Copy Files */,
 				DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */,
 				DE9648CD17E8AEA100BE46A5 /* sentences.csv in Copy Files */,
 			);
@@ -84,6 +88,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DE4D350F17FB20AF00B878A5 /* twitter.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = twitter.csv; sourceTree = "<group>"; };
+		DE4D351017FB20BF00B878A5 /* best_genome.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = best_genome.txt; sourceTree = "<group>"; };
 		DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FloatingFloatBuffer.cpp; sourceTree = "<group>"; };
 		DE6630E317EF459300EFE393 /* FloatingFloatBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatingFloatBuffer.h; sourceTree = "<group>"; };
 		DE9648BB17E89B3300BE46A5 /* Sentiment */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sentiment; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -169,6 +175,8 @@
 		DE9648B017E89B3300BE46A5 = {
 			isa = PBXGroup;
 			children = (
+				DE4D351017FB20BF00B878A5 /* best_genome.txt */,
+				DE4D350F17FB20AF00B878A5 /* twitter.csv */,
 				DEAC8B5917F9A716009888C6 /* README.md */,
 				DEAC8AEC17F73661009888C6 /* randomc */,
 				DE9648CB17E8AAFA00BE46A5 /* sentences.csv */,
@@ -510,6 +518,7 @@
 				DEAC8B4217F9699B009888C6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
