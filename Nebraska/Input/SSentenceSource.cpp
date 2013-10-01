@@ -9,6 +9,7 @@
 #include "SSentenceSource.h"
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 void ReadCSV(std::ifstream &file, std::vector<std::vector<std::string>> &lines) {
     bool bufquote = false;
@@ -85,6 +86,7 @@ SSentenceSource::SSentenceSource(std::string path) {
             label = UndefinedSentenceLabel;
         }
         // Create the sentence
+        std::transform(fields[4].begin(), fields[4].end(), fields[4].begin(), ::tolower);
         s = new Sentence(label, fields[4].c_str());
         this->sentences.push_back(s);
     }
