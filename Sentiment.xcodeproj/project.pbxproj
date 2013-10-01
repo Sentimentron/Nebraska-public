@@ -199,6 +199,19 @@
 		DE4D35BB17FB491300B878A5 /* TwitterTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TwitterTokenizer.cpp; sourceTree = "<group>"; };
 		DE4D35BC17FB491300B878A5 /* TwitterTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TwitterTokenizer.h; sourceTree = "<group>"; };
 		DE4D35C017FB643E00B878A5 /* best_genome_twitter.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = best_genome_twitter.txt; path = Data/best_genome_twitter.txt; sourceTree = "<group>"; };
+		DE4D35C217FB675900B878A5 /* de_sentiment.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = de_sentiment.tsv; sourceTree = "<group>"; };
+		DE4D35C317FB675900B878A5 /* de_sentiment_agree2.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = de_sentiment_agree2.tsv; sourceTree = "<group>"; };
+		DE4D35C417FB675900B878A5 /* de_sentiment_agree3.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = de_sentiment_agree3.tsv; sourceTree = "<group>"; };
+		DE4D35C517FB675900B878A5 /* en_sentiment.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = en_sentiment.tsv; sourceTree = "<group>"; };
+		DE4D35C617FB675900B878A5 /* en_sentiment_agree2.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = en_sentiment_agree2.tsv; sourceTree = "<group>"; };
+		DE4D35C717FB675900B878A5 /* en_sentiment_agree3.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = en_sentiment_agree3.tsv; sourceTree = "<group>"; };
+		DE4D35C817FB675900B878A5 /* fr_sentiment.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = fr_sentiment.tsv; sourceTree = "<group>"; };
+		DE4D35C917FB675900B878A5 /* fr_sentiment_agree2.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = fr_sentiment_agree2.tsv; sourceTree = "<group>"; };
+		DE4D35CA17FB675900B878A5 /* fr_sentiment_agree3.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = fr_sentiment_agree3.tsv; sourceTree = "<group>"; };
+		DE4D35CB17FB675900B878A5 /* pt_sentiment.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = pt_sentiment.tsv; sourceTree = "<group>"; };
+		DE4D35CC17FB675900B878A5 /* pt_sentiment_agree2.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = pt_sentiment_agree2.tsv; sourceTree = "<group>"; };
+		DE4D35CD17FB675900B878A5 /* pt_sentiment_agree3.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = pt_sentiment_agree3.tsv; sourceTree = "<group>"; };
+		DE4D35CE17FB675900B878A5 /* readme.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
 		DE9648BB17E89B3300BE46A5 /* Sentiment */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sentiment; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sentiment.cpp; sourceTree = "<group>"; };
 		DE9648C117E89B3300BE46A5 /* Sentiment.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Sentiment.1; sourceTree = "<group>"; };
@@ -258,6 +271,7 @@
 		DE4D353217FB22B700B878A5 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				DE4D35C117FB675900B878A5 /* SentimentDataset */,
 				DE4D35C017FB643E00B878A5 /* best_genome_twitter.txt */,
 				DE4D353617FB22F000B878A5 /* SentiWordNet_3.0.0_20120510.txt */,
 				DE4D353317FB22C800B878A5 /* best_genome.txt */,
@@ -389,6 +403,26 @@
 				DE4D359F17FB27BD00B878A5 /* TwitterTest.cpp */,
 			);
 			path = TwitterTest;
+			sourceTree = "<group>";
+		};
+		DE4D35C117FB675900B878A5 /* SentimentDataset */ = {
+			isa = PBXGroup;
+			children = (
+				DE4D35C217FB675900B878A5 /* de_sentiment.tsv */,
+				DE4D35C317FB675900B878A5 /* de_sentiment_agree2.tsv */,
+				DE4D35C417FB675900B878A5 /* de_sentiment_agree3.tsv */,
+				DE4D35C517FB675900B878A5 /* en_sentiment.tsv */,
+				DE4D35C617FB675900B878A5 /* en_sentiment_agree2.tsv */,
+				DE4D35C717FB675900B878A5 /* en_sentiment_agree3.tsv */,
+				DE4D35C817FB675900B878A5 /* fr_sentiment.tsv */,
+				DE4D35C917FB675900B878A5 /* fr_sentiment_agree2.tsv */,
+				DE4D35CA17FB675900B878A5 /* fr_sentiment_agree3.tsv */,
+				DE4D35CB17FB675900B878A5 /* pt_sentiment.tsv */,
+				DE4D35CC17FB675900B878A5 /* pt_sentiment_agree2.tsv */,
+				DE4D35CD17FB675900B878A5 /* pt_sentiment_agree3.tsv */,
+				DE4D35CE17FB675900B878A5 /* readme.txt */,
+			);
+			path = SentimentDataset;
 			sourceTree = "<group>";
 		};
 		DE9648B017E89B3300BE46A5 = {
