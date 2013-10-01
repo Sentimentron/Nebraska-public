@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DE4D351117FB20E300B878A5 /* best_genome.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D351017FB20BF00B878A5 /* best_genome.txt */; };
-		DE4D351217FB20E300B878A5 /* twitter.csv in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D350F17FB20AF00B878A5 /* twitter.csv */; };
 		DE4D351B17FB213E00B878A5 /* EnumeratedSentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A4517EDF6A700C83517 /* EnumeratedSentence.cpp */; };
 		DE4D351C17FB213E00B878A5 /* FFTClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A4217EDF5A100C83517 /* FFTClassifier.cpp */; };
 		DE4D351D17FB213E00B878A5 /* FloatingFloatBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */; };
@@ -28,8 +26,11 @@
 		DE4D352B17FB215D00B878A5 /* ExportedGenomeScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8B5517F96B54009888C6 /* ExportedGenomeScorer.cpp */; };
 		DE4D352C17FB216C00B878A5 /* Sentiment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */; };
 		DE4D352D17FB217300B878A5 /* libNebraska.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DE4D351717FB211E00B878A5 /* libNebraska.dylib */; };
+		DE4D353717FB22F800B878A5 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D353617FB22F000B878A5 /* SentiWordNet_3.0.0_20120510.txt */; };
+		DE4D353817FB22F800B878A5 /* best_genome.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D353317FB22C800B878A5 /* best_genome.txt */; };
+		DE4D353917FB22F800B878A5 /* sentences.csv in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D353417FB22C800B878A5 /* sentences.csv */; };
+		DE4D353A17FB22F800B878A5 /* twitter.csv in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D353517FB22C800B878A5 /* twitter.csv */; };
 		DE9648C217E89B3300BE46A5 /* Sentiment.1 in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
-		DE9648CD17E8AEA100BE46A5 /* sentences.csv in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648CB17E8AAFA00BE46A5 /* sentences.csv */; };
 		DEAC8B3D17F9699B009888C6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8B3C17F9699B009888C6 /* main.cpp */; };
 		DEAC8B3F17F9699B009888C6 /* GenomeDemo.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DEAC8B3E17F9699B009888C6 /* GenomeDemo.1 */; };
 		DEAC8B4317F96A2C009888C6 /* EnumeratedSentence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEDD1A4517EDF6A700C83517 /* EnumeratedSentence.cpp */; };
@@ -47,7 +48,6 @@
 		DEAC8B4F17F96A2C009888C6 /* SentiWordTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4B17F59B1D00531FCE /* SentiWordTokenizer.cpp */; };
 		DEAC8B5017F96A2C009888C6 /* SentiWordNetReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9AAA4E17F5A7AB00531FCE /* SentiWordNetReader.cpp */; };
 		DEAC8B5817F96D9F009888C6 /* ExportedGenomeScorer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8B5517F96B54009888C6 /* ExportedGenomeScorer.cpp */; };
-		DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DEDD1A3417EDC2B600C83517 /* SentiWordNet_3.0.0_20120510.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -78,10 +78,10 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				DE4D351117FB20E300B878A5 /* best_genome.txt in Copy Files */,
-				DE4D351217FB20E300B878A5 /* twitter.csv in Copy Files */,
-				DEDD1A3517EDC2C600C83517 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */,
-				DE9648CD17E8AEA100BE46A5 /* sentences.csv in Copy Files */,
+				DE4D353717FB22F800B878A5 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */,
+				DE4D353817FB22F800B878A5 /* best_genome.txt in Copy Files */,
+				DE4D353917FB22F800B878A5 /* sentences.csv in Copy Files */,
+				DE4D353A17FB22F800B878A5 /* twitter.csv in Copy Files */,
 			);
 			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -99,9 +99,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		DE4D350F17FB20AF00B878A5 /* twitter.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = twitter.csv; sourceTree = "<group>"; };
-		DE4D351017FB20BF00B878A5 /* best_genome.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = best_genome.txt; sourceTree = "<group>"; };
 		DE4D351717FB211E00B878A5 /* libNebraska.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libNebraska.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE4D353317FB22C800B878A5 /* best_genome.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = best_genome.txt; path = Data/best_genome.txt; sourceTree = "<group>"; };
+		DE4D353417FB22C800B878A5 /* sentences.csv */ = {isa = PBXFileReference; lastKnownFileType = text; name = sentences.csv; path = Data/sentences.csv; sourceTree = "<group>"; };
+		DE4D353517FB22C800B878A5 /* twitter.csv */ = {isa = PBXFileReference; lastKnownFileType = text; name = twitter.csv; path = Data/twitter.csv; sourceTree = "<group>"; };
+		DE4D353617FB22F000B878A5 /* SentiWordNet_3.0.0_20120510.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SentiWordNet_3.0.0_20120510.txt; path = Data/SentiWordNet_3.0.0_20120510.txt; sourceTree = "<group>"; };
 		DE6630E217EF459200EFE393 /* FloatingFloatBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FloatingFloatBuffer.cpp; sourceTree = "<group>"; };
 		DE6630E317EF459300EFE393 /* FloatingFloatBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatingFloatBuffer.h; sourceTree = "<group>"; };
 		DE9648BB17E89B3300BE46A5 /* Sentiment */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sentiment; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -109,7 +111,6 @@
 		DE9648C117E89B3300BE46A5 /* Sentiment.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Sentiment.1; sourceTree = "<group>"; };
 		DE9648C817E89B9A00BE46A5 /* PLSentenceSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PLSentenceSource.cpp; sourceTree = "<group>"; };
 		DE9648C917E89B9A00BE46A5 /* PLSentenceSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLSentenceSource.h; sourceTree = "<group>"; };
-		DE9648CB17E8AAFA00BE46A5 /* sentences.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sentences.csv; sourceTree = "<group>"; };
 		DE9648CE17E8CCF500BE46A5 /* Sentence.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sentence.cpp; sourceTree = "<group>"; };
 		DE9648CF17E8CCF500BE46A5 /* Sentence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sentence.h; sourceTree = "<group>"; };
 		DE9648D117E8CE9600BE46A5 /* ISentenceSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISentenceSource.h; sourceTree = "<group>"; };
@@ -192,14 +193,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		DE4D353017FB21F800B878A5 /* Nebraska */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Nebraska;
+			sourceTree = "<group>";
+		};
+		DE4D353217FB22B700B878A5 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				DE4D353617FB22F000B878A5 /* SentiWordNet_3.0.0_20120510.txt */,
+				DE4D353317FB22C800B878A5 /* best_genome.txt */,
+				DE4D353417FB22C800B878A5 /* sentences.csv */,
+				DE4D353517FB22C800B878A5 /* twitter.csv */,
+			);
+			name = Data;
+			sourceTree = "<group>";
+		};
 		DE9648B017E89B3300BE46A5 = {
 			isa = PBXGroup;
 			children = (
-				DE4D351017FB20BF00B878A5 /* best_genome.txt */,
-				DE4D350F17FB20AF00B878A5 /* twitter.csv */,
+				DE4D353217FB22B700B878A5 /* Data */,
+				DE4D353017FB21F800B878A5 /* Nebraska */,
 				DEAC8B5917F9A716009888C6 /* README.md */,
 				DEAC8AEC17F73661009888C6 /* randomc */,
-				DE9648CB17E8AAFA00BE46A5 /* sentences.csv */,
 				DE9648BE17E89B3300BE46A5 /* Sentiment */,
 				DEAC8B3B17F9699B009888C6 /* GenomeDemo */,
 				DE9648BC17E89B3300BE46A5 /* Products */,
