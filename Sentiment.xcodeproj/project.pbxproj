@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DE4D351F17FB215D00B878A5 /* sfmt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8AF517F73662009888C6 /* sfmt.cpp */; };
 		DE4D352D17FB217300B878A5 /* libNebraska.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DE4D351717FB211E00B878A5 /* libNebraska.dylib */; };
 		DE4D353717FB22F800B878A5 /* SentiWordNet_3.0.0_20120510.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D353617FB22F000B878A5 /* SentiWordNet_3.0.0_20120510.txt */; };
 		DE4D353817FB22F800B878A5 /* best_genome.txt in Copy Files */ = {isa = PBXBuildFile; fileRef = DE4D353317FB22C800B878A5 /* best_genome.txt */; };
@@ -46,6 +45,9 @@
 		DE4D35BF17FB4CCB00B878A5 /* Sentiment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */; };
 		DE66B47417FC7ECE007CFF58 /* IntegerBloomFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE66B47217FC7ECE007CFF58 /* IntegerBloomFilter.cpp */; };
 		DE66B47517FC7ECE007CFF58 /* IntegerBloomFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = DE66B47317FC7ECE007CFF58 /* IntegerBloomFilter.h */; };
+		DE66B47917FC7F53007CFF58 /* sfmt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE66B47717FC7F53007CFF58 /* sfmt.cpp */; };
+		DE66B47A17FC7F53007CFF58 /* sfmt.h in Headers */ = {isa = PBXBuildFile; fileRef = DE66B47817FC7F53007CFF58 /* sfmt.h */; };
+		DE66B47C17FC7F84007CFF58 /* randomc.h in Headers */ = {isa = PBXBuildFile; fileRef = DE66B47B17FC7F84007CFF58 /* randomc.h */; };
 		DE9648C217E89B3300BE46A5 /* Sentiment.1 in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
 		DEAC8B3D17F9699B009888C6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8B3C17F9699B009888C6 /* main.cpp */; };
 		DEAC8B3F17F9699B009888C6 /* GenomeDemo.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DEAC8B3E17F9699B009888C6 /* GenomeDemo.1 */; };
@@ -216,21 +218,12 @@
 		DE4D35CE17FB675900B878A5 /* readme.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
 		DE66B47217FC7ECE007CFF58 /* IntegerBloomFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntegerBloomFilter.cpp; sourceTree = "<group>"; };
 		DE66B47317FC7ECE007CFF58 /* IntegerBloomFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegerBloomFilter.h; sourceTree = "<group>"; };
+		DE66B47717FC7F53007CFF58 /* sfmt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sfmt.cpp; path = Support/sfmt.cpp; sourceTree = "<group>"; };
+		DE66B47817FC7F53007CFF58 /* sfmt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sfmt.h; path = Support/sfmt.h; sourceTree = "<group>"; };
+		DE66B47B17FC7F84007CFF58 /* randomc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = randomc.h; path = Support/randomc.h; sourceTree = "<group>"; };
 		DE9648BB17E89B3300BE46A5 /* Sentiment */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sentiment; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sentiment.cpp; sourceTree = "<group>"; };
 		DE9648C117E89B3300BE46A5 /* Sentiment.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Sentiment.1; sourceTree = "<group>"; };
-		DEAC8AED17F73662009888C6 /* ex-ran.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "ex-ran.cpp"; sourceTree = "<group>"; };
-		DEAC8AEE17F73662009888C6 /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
-		DEAC8AEF17F73662009888C6 /* mersenne.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mersenne.cpp; sourceTree = "<group>"; };
-		DEAC8AF017F73662009888C6 /* mother.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mother.cpp; sourceTree = "<group>"; };
-		DEAC8AF117F73662009888C6 /* ran-instructions.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "ran-instructions.pdf"; sourceTree = "<group>"; };
-		DEAC8AF217F73662009888C6 /* rancombi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rancombi.cpp; sourceTree = "<group>"; };
-		DEAC8AF317F73662009888C6 /* randomc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = randomc.h; sourceTree = "<group>"; };
-		DEAC8AF417F73662009888C6 /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
-		DEAC8AF517F73662009888C6 /* sfmt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sfmt.cpp; sourceTree = "<group>"; };
-		DEAC8AF617F73662009888C6 /* sfmt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sfmt.h; sourceTree = "<group>"; };
-		DEAC8AF717F73662009888C6 /* testirandomx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testirandomx.cpp; sourceTree = "<group>"; };
-		DEAC8AF817F73662009888C6 /* userintf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = userintf.cpp; sourceTree = "<group>"; };
 		DEAC8B3A17F9699B009888C6 /* GenomeDemo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GenomeDemo; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEAC8B3C17F9699B009888C6 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		DEAC8B3E17F9699B009888C6 /* GenomeDemo.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = GenomeDemo.1; sourceTree = "<group>"; };
@@ -435,6 +428,9 @@
 		DE66B47617FC7ED5007CFF58 /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				DE66B47B17FC7F84007CFF58 /* randomc.h */,
+				DE66B47717FC7F53007CFF58 /* sfmt.cpp */,
+				DE66B47817FC7F53007CFF58 /* sfmt.h */,
 			);
 			name = Support;
 			sourceTree = "<group>";
@@ -446,7 +442,6 @@
 				DEAC8B3B17F9699B009888C6 /* GenomeDemo */,
 				DE4D354417FB25EB00B878A5 /* Nebraska */,
 				DE9648BC17E89B3300BE46A5 /* Products */,
-				DEAC8AEC17F73661009888C6 /* randomc */,
 				DEAC8B5917F9A716009888C6 /* README.md */,
 				DE9648BE17E89B3300BE46A5 /* Sentiment */,
 				DE4D359E17FB279C00B878A5 /* TwitterTest */,
@@ -473,25 +468,6 @@
 			path = Sentiment;
 			sourceTree = "<group>";
 		};
-		DEAC8AEC17F73661009888C6 /* randomc */ = {
-			isa = PBXGroup;
-			children = (
-				DEAC8AED17F73662009888C6 /* ex-ran.cpp */,
-				DEAC8AEE17F73662009888C6 /* license.txt */,
-				DEAC8AEF17F73662009888C6 /* mersenne.cpp */,
-				DEAC8AF017F73662009888C6 /* mother.cpp */,
-				DEAC8AF117F73662009888C6 /* ran-instructions.pdf */,
-				DEAC8AF217F73662009888C6 /* rancombi.cpp */,
-				DEAC8AF317F73662009888C6 /* randomc.h */,
-				DEAC8AF417F73662009888C6 /* readme.txt */,
-				DEAC8AF517F73662009888C6 /* sfmt.cpp */,
-				DEAC8AF617F73662009888C6 /* sfmt.h */,
-				DEAC8AF717F73662009888C6 /* testirandomx.cpp */,
-				DEAC8AF817F73662009888C6 /* userintf.cpp */,
-			);
-			path = randomc;
-			sourceTree = "<group>";
-		};
 		DEAC8B3B17F9699B009888C6 /* GenomeDemo */ = {
 			isa = PBXGroup;
 			children = (
@@ -511,6 +487,8 @@
 				DE4D35BA17FB2DA300B878A5 /* SSentenceSource.h in Headers */,
 				DE4D35BE17FB491300B878A5 /* TwitterTokenizer.h in Headers */,
 				DE66B47517FC7ECE007CFF58 /* IntegerBloomFilter.h in Headers */,
+				DE66B47A17FC7F53007CFF58 /* sfmt.h in Headers */,
+				DE66B47C17FC7F84007CFF58 /* randomc.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -641,10 +619,10 @@
 				DE4D358817FB260900B878A5 /* SignMetaClassifier.cpp in Sources */,
 				DE4D358717FB260200B878A5 /* FFTClassifier.cpp in Sources */,
 				DE4D358617FB25FD00B878A5 /* Evolver.cpp in Sources */,
-				DE4D351F17FB215D00B878A5 /* sfmt.cpp in Sources */,
 				DE4D35B917FB2DA300B878A5 /* SSentenceSource.cpp in Sources */,
 				DE4D35BD17FB491300B878A5 /* TwitterTokenizer.cpp in Sources */,
 				DE66B47417FC7ECE007CFF58 /* IntegerBloomFilter.cpp in Sources */,
+				DE66B47917FC7F53007CFF58 /* sfmt.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
