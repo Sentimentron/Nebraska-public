@@ -44,6 +44,8 @@
 		DE4D35BD17FB491300B878A5 /* TwitterTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE4D35BB17FB491300B878A5 /* TwitterTokenizer.cpp */; };
 		DE4D35BE17FB491300B878A5 /* TwitterTokenizer.h in Headers */ = {isa = PBXBuildFile; fileRef = DE4D35BC17FB491300B878A5 /* TwitterTokenizer.h */; };
 		DE4D35BF17FB4CCB00B878A5 /* Sentiment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */; };
+		DE66B47417FC7ECE007CFF58 /* IntegerBloomFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE66B47217FC7ECE007CFF58 /* IntegerBloomFilter.cpp */; };
+		DE66B47517FC7ECE007CFF58 /* IntegerBloomFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = DE66B47317FC7ECE007CFF58 /* IntegerBloomFilter.h */; };
 		DE9648C217E89B3300BE46A5 /* Sentiment.1 in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
 		DEAC8B3D17F9699B009888C6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8B3C17F9699B009888C6 /* main.cpp */; };
 		DEAC8B3F17F9699B009888C6 /* GenomeDemo.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DEAC8B3E17F9699B009888C6 /* GenomeDemo.1 */; };
@@ -212,6 +214,8 @@
 		DE4D35CC17FB675900B878A5 /* pt_sentiment_agree2.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = pt_sentiment_agree2.tsv; sourceTree = "<group>"; };
 		DE4D35CD17FB675900B878A5 /* pt_sentiment_agree3.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = pt_sentiment_agree3.tsv; sourceTree = "<group>"; };
 		DE4D35CE17FB675900B878A5 /* readme.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
+		DE66B47217FC7ECE007CFF58 /* IntegerBloomFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntegerBloomFilter.cpp; sourceTree = "<group>"; };
+		DE66B47317FC7ECE007CFF58 /* IntegerBloomFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegerBloomFilter.h; sourceTree = "<group>"; };
 		DE9648BB17E89B3300BE46A5 /* Sentiment */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sentiment; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sentiment.cpp; sourceTree = "<group>"; };
 		DE9648C117E89B3300BE46A5 /* Sentiment.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Sentiment.1; sourceTree = "<group>"; };
@@ -284,6 +288,7 @@
 		DE4D354417FB25EB00B878A5 /* Nebraska */ = {
 			isa = PBXGroup;
 			children = (
+				DE66B47617FC7ED5007CFF58 /* Support */,
 				DE4D354517FB25EB00B878A5 /* Classifiers */,
 				DE4D354B17FB25EB00B878A5 /* Enumerators */,
 				DE4D354E17FB25EB00B878A5 /* Evaluators */,
@@ -369,6 +374,8 @@
 				DE4D356917FB25EB00B878A5 /* TokenizedSentence.h */,
 				DE4D356A17FB25EB00B878A5 /* WordToken.cpp */,
 				DE4D356B17FB25EB00B878A5 /* WordToken.h */,
+				DE66B47217FC7ECE007CFF58 /* IntegerBloomFilter.cpp */,
+				DE66B47317FC7ECE007CFF58 /* IntegerBloomFilter.h */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -423,6 +430,13 @@
 				DE4D35CE17FB675900B878A5 /* readme.txt */,
 			);
 			path = SentimentDataset;
+			sourceTree = "<group>";
+		};
+		DE66B47617FC7ED5007CFF58 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Support;
 			sourceTree = "<group>";
 		};
 		DE9648B017E89B3300BE46A5 = {
@@ -496,6 +510,7 @@
 			files = (
 				DE4D35BA17FB2DA300B878A5 /* SSentenceSource.h in Headers */,
 				DE4D35BE17FB491300B878A5 /* TwitterTokenizer.h in Headers */,
+				DE66B47517FC7ECE007CFF58 /* IntegerBloomFilter.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -629,6 +644,7 @@
 				DE4D351F17FB215D00B878A5 /* sfmt.cpp in Sources */,
 				DE4D35B917FB2DA300B878A5 /* SSentenceSource.cpp in Sources */,
 				DE4D35BD17FB491300B878A5 /* TwitterTokenizer.cpp in Sources */,
+				DE66B47417FC7ECE007CFF58 /* IntegerBloomFilter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -833,6 +849,7 @@
 				DE4D351A17FB211F00B878A5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		DE4D35AB17FB27CD00B878A5 /* Build configuration list for PBXNativeTarget "TwitterTest" */ = {
 			isa = XCConfigurationList;
@@ -841,6 +858,7 @@
 				DE4D35AD17FB27CD00B878A5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		DE9648B517E89B3300BE46A5 /* Build configuration list for PBXProject "Sentiment" */ = {
 			isa = XCConfigurationList;
