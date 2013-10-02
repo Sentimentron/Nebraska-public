@@ -48,6 +48,7 @@
 		DE66B47917FC7F53007CFF58 /* sfmt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE66B47717FC7F53007CFF58 /* sfmt.cpp */; };
 		DE66B47A17FC7F53007CFF58 /* sfmt.h in Headers */ = {isa = PBXBuildFile; fileRef = DE66B47817FC7F53007CFF58 /* sfmt.h */; };
 		DE66B47C17FC7F84007CFF58 /* randomc.h in Headers */ = {isa = PBXBuildFile; fileRef = DE66B47B17FC7F84007CFF58 /* randomc.h */; };
+		DE66B47E17FC802C007CFF58 /* int64murmur.c in Sources */ = {isa = PBXBuildFile; fileRef = DE66B47D17FC802C007CFF58 /* int64murmur.c */; };
 		DE9648C217E89B3300BE46A5 /* Sentiment.1 in Copy Files */ = {isa = PBXBuildFile; fileRef = DE9648C117E89B3300BE46A5 /* Sentiment.1 */; };
 		DEAC8B3D17F9699B009888C6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8B3C17F9699B009888C6 /* main.cpp */; };
 		DEAC8B3F17F9699B009888C6 /* GenomeDemo.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = DEAC8B3E17F9699B009888C6 /* GenomeDemo.1 */; };
@@ -221,6 +222,7 @@
 		DE66B47717FC7F53007CFF58 /* sfmt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sfmt.cpp; path = Support/sfmt.cpp; sourceTree = "<group>"; };
 		DE66B47817FC7F53007CFF58 /* sfmt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sfmt.h; path = Support/sfmt.h; sourceTree = "<group>"; };
 		DE66B47B17FC7F84007CFF58 /* randomc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = randomc.h; path = Support/randomc.h; sourceTree = "<group>"; };
+		DE66B47D17FC802C007CFF58 /* int64murmur.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = int64murmur.c; path = Support/int64murmur.c; sourceTree = "<group>"; };
 		DE9648BB17E89B3300BE46A5 /* Sentiment */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Sentiment; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE9648BF17E89B3300BE46A5 /* Sentiment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sentiment.cpp; sourceTree = "<group>"; };
 		DE9648C117E89B3300BE46A5 /* Sentiment.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Sentiment.1; sourceTree = "<group>"; };
@@ -431,6 +433,7 @@
 				DE66B47B17FC7F84007CFF58 /* randomc.h */,
 				DE66B47717FC7F53007CFF58 /* sfmt.cpp */,
 				DE66B47817FC7F53007CFF58 /* sfmt.h */,
+				DE66B47D17FC802C007CFF58 /* int64murmur.c */,
 			);
 			name = Support;
 			sourceTree = "<group>";
@@ -623,6 +626,7 @@
 				DE4D35BD17FB491300B878A5 /* TwitterTokenizer.cpp in Sources */,
 				DE66B47417FC7ECE007CFF58 /* IntegerBloomFilter.cpp in Sources */,
 				DE66B47917FC7F53007CFF58 /* sfmt.cpp in Sources */,
+				DE66B47E17FC802C007CFF58 /* int64murmur.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
