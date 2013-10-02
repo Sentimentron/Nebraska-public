@@ -21,7 +21,7 @@ inline uint32_t int64_murmur (uint64_t data, uint32_t seed) {
     uint32_t k;
     
     // Do the first 4-byte chunk of the data
-    k = data & 0xFFFFFFFF00000000;
+    k = (data & 0xFFFFFFFF00000000) >> 32;
     k *= c1;
     k = (k << r1) | (k >> (32-r1));
     k *= c2;
