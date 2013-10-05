@@ -7,15 +7,16 @@
 //
 
 #include "math.h"
-#include "FFTClassifier.h"
-#include "EnumeratedSentence.h"
+#include "Classifiers/FFTClassifier.h"
+#include "Models/EnumeratedSentence.h"
 
 //
 // Classifier constructors
 //
 
 FFTClassifier::FFTClassifier() {
-
+    this->positive_seen = false;
+    this->negative_seen = false;
 }
 
 FFTClassifier::~FFTClassifier() {

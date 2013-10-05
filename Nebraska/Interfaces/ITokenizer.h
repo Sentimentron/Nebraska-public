@@ -10,8 +10,8 @@
 #define Sentiment_ITokenizer_h
 
 #include <vector>
-#include "IToken.h" 
-#include "Sentence.h"
+#include "Interfaces/IToken.h" 
+#include "Models/Sentence.h"
 
 class ITokenizer {
 public:
