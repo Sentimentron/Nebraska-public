@@ -9,7 +9,7 @@
 #ifndef Sentiment_IClassifier_h
 #define Sentiment_IClassifier_h
 
-#include "EnumeratedSentence.h"
+#include "Models/EnumeratedSentence.h"
 
 class IClassifier {
 public:
