@@ -1,4 +1,4 @@
-OBJS = SentiWordTokenizer.o TwitterTokenizer.o WhitespaceTokenizer.o
+OBJS = SentiWordNetTokenizer.o TwitterTokenizer.o WhitespaceTokenizer.o
 
 all: $(OBJS)
 
