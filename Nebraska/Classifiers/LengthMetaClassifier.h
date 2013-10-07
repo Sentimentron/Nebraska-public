@@ -9,8 +9,8 @@
 #ifndef Sentiment_LengthMetaClassifier_h
 #define Sentiment_LengthMetaClassifier_h
 
-#include "IMetaClassifier.h"
-#include "EnumeratedSentence.h"
+#include "Interfaces/IMetaClassifier.h"
+#include "Models/EnumeratedSentence.h"
 
 template <class T, unsigned int D>
 class LengthMetaClassifier : public IMetaClassifier<T> {
