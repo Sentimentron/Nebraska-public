@@ -5,9 +5,10 @@ include Makefile.in
 
 all: Nebraska
 
-.PHONY: Classifiers clean
+OBJS=Products Classifiers Enumerators Evaluators Input Models Interfaces Models Scorers Tokenizers Evolver
+.PHONY: $(OBJS) clean
 
-Nebraska: Products Classifiers Enumerators Evaluators Input Models Interfaces Models Scorers Tokenizers Evolver
+Nebraska: $(OBJS)
 
 Products:
 	mkdir -p $(PRODUCTS_DIR)
