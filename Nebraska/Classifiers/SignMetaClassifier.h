@@ -10,7 +10,7 @@
 #define __Sentiment__SignMetaClassifier__
 
 #include <iostream>
-#include "IMetaClassifier.h"
+#include "Interfaces/IMetaClassifier.h"
 #include <map>
 
 int sign_count(const EnumeratedSentence *s, float *smap);
