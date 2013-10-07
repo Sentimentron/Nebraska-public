@@ -15,19 +15,19 @@
 #include "Interfaces/IStringEnumerator.h"
 #include "Input/SentiWordNetReader.h"
 
-class SentiWordScorer {
+class SentiWordNetScorer {
 private:
-    void init(SentiwordNetReader &swr);
+    void init(SentiWordNetReader &swr);
     void enumerate(IStringEnumerator *);
     std::unordered_map<std::string, float> scores;
 public:
-    SentiWordScorer();
-    ~SentiWordScorer();
-    SentiWordScorer(SentiwordNetReader &swr) {
+    SentiWordNetScorer();
+    ~SentiWordNetScorer();
+    SentiWordNetScorer(SentiWordNetReader &swr) {
         this->init(swr);
     }
     // Version which takes a path to a SentiwordNetFile
-    SentiWordScorer(std::string);
+    SentiWordNetScorer(std::string);
     int CreateScoringMap(IStringEnumerator *, size_t *, float **);
 };
 

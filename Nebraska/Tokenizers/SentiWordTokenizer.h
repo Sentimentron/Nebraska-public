@@ -16,22 +16,22 @@
 
 class SentiWordTokenizer : public WhitespaceTokenizer {
 private:
-    void init(SentiwordNetReader &);
+    void init(SentiWordNetReader &);
     std::set<std::string> words;
     unsigned int largest_no_dashes;
 protected:
     std::vector<std::string> SplitWhitespace(Sentence *);
     std::vector<std::string> ResolveTokensInDictionary(std::vector<std::string>);
 public:
-    SentiWordTokenizer(SentiwordNetReader &swr) {
+    SentiWordTokenizer(SentiWordNetReader &swr) {
         this->init(swr);
     }
     SentiWordTokenizer(std::string path) {
-        SentiwordNetReader swr(path);
+        SentiWordNetReader swr(path);
         this->init(swr);
     }
     SentiWordTokenizer() {
-        SentiwordNetReader swr;
+        SentiWordNetReader swr;
         this->init(swr);
     }
     std::vector<IToken *> Tokenize(Sentence*);

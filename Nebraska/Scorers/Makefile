@@ -1,4 +1,4 @@
-OBJS = ExportedGenomeScorer.o SentiWordScorer.o
+OBJS = ExportedGenomeScorer.o SentiWordNetScorer.o
 
 all: $(OBJS)
 

@@ -33,7 +33,7 @@ int setContainsString (const std::string& member, const std::set<std::string> &i
     return 1;
 }
 
-void SentiWordTokenizer::init(SentiwordNetReader &swr) {
+void SentiWordTokenizer::init(SentiWordNetReader &swr) {
     this->largest_no_dashes = 0;
     
     auto contents = swr.GetContents();

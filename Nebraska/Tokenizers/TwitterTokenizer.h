@@ -14,7 +14,7 @@
 
 class TwitterTokenizer : public SentiWordTokenizer {
 public:
-    TwitterTokenizer(SentiwordNetReader &swr) : SentiWordTokenizer(swr) {}
+    TwitterTokenizer(SentiWordNetReader &swr) : SentiWordTokenizer(swr) {}
     TwitterTokenizer(std::string path) : SentiWordTokenizer(path) {}
     TwitterTokenizer() : SentiWordTokenizer() {}
     std::vector<IToken *>Tokenize(Sentence *);
