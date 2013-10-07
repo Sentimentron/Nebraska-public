@@ -9,6 +9,7 @@ OBJS=Products Classifiers Enumerators Evaluators Input Models Models Scorers Tok
 .PHONY: $(OBJS) clean
 
 Nebraska: $(OBJS)
+	$(CXX) -o $(PRODUCTS_DIR)/libNebraska $(PRODUCTS_DIR)/*.o
 
 Products:
 	mkdir -p $(PRODUCTS_DIR)
@@ -38,4 +39,4 @@ Tokenizers:
 	$(MAKE) -C Tokenizers
 
 Evolver:
-	$(CPP) $(CFLAGS) -o $(PRODUCTS_DIR)/Evolver.o Evolver.cpp
+	$(CXX) $(CFLAGS) -o $(PRODUCTS_DIR)/Evolver.o Evolver.cpp
