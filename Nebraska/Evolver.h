@@ -14,6 +14,7 @@
 #include <map>
 #include <vector>
 #include "sfmt.h"
+#include <time.h>
 
 /*const float MUTATION_RATE = 0.0025f;
  const float MUTATION_AMOUNT = 0.0025f;
@@ -27,7 +28,7 @@ private:
     // Stores the number of genomes which are allowed
     unsigned int count;
     // Stores the number of genomes currently managed
-    unsigned int cur = 0;
+    unsigned int cur;
     // Removes the genome from the map, frees it
     void RemoveGenome(float *);
     // Returns the least-fit genome
@@ -37,18 +38,18 @@ private:
     float GetTotalFitness();
     float *ChooseParentFromFitnessMap(float);
     float *ChooseRandomParent(float);
-    float best_fitness = 0.0f;
-    unsigned int best_run = 0.0f;
-    float average_fitness = 0.0f;
+    float best_fitness;
+    unsigned int best_run;
+    float average_fitness;
     std::pair<float *, float *> ChooseParents();
     pthread_mutex_t runlock;
     pthread_mutex_t maplock;
-    unsigned int run = 0;
-    bool output = false;
+    unsigned int run;
+    bool output;
     int _PushGenomeFitness(const float *, float);
-    float mutation_rate = 0.05f;
-    float mutation_amount = 0.025f;
-    float fitness_pref = 3.5f;
+    float mutation_rate;
+    float mutation_amount;
+    float fitness_pref;
     inline float Random(const float min, const float max) {
         double rnd = this->smft.Random();
         rnd *= (max-min);
@@ -56,6 +57,17 @@ private:
     }
     const size_t dont_mutate_beyond;
     CRandomSFMT0 smft;
+    void Construct() {
+	this->cur = 0;
+	this->best_fitness = 0.0f;
+	this->average_fitness = 0.0f;
+	this->best_run = 0;
+	this->run = 0;
+	this->mutation_rate = 0.05f;
+	this->mutation_amount = 0.025f;
+	this->fitness_pref = 3.5f;
+	this->output = false;
+    }
 public:
     // Breeds a new genome, places the result in float
     void BreedGenome(float *);
@@ -63,7 +75,8 @@ public:
     int PushGenomeFitness(const float *, float);
     float *GetMostFitGenome();
     ~Evolver();
-    Evolver(float *init, float fitness, size_t size, size_t dont_mutate_beyond, unsigned int count) : smft((int)std::time(0)), dont_mutate_beyond(dont_mutate_beyond) {
+    Evolver(float *init, float fitness, size_t size, size_t dont_mutate_beyond, unsigned int count) : smft(time(NULL)), dont_mutate_beyond(dont_mutate_beyond) {
+	this->Construct();
         this->genome_size = size;
         this->count = count;
         pthread_mutex_init(&this->runlock, NULL);
