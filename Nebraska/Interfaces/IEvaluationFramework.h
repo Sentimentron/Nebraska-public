@@ -12,8 +12,8 @@
 #include <map>
 #include <vector>
 #include <string>
-#include "IClassifier.h"
-#include "EnumeratedSentence.h"
+#include "Interfaces/IClassifier.h"
+#include "Models/EnumeratedSentence.h"
 #include <exception>
 #include <iostream>
 
