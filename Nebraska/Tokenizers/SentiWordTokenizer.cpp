@@ -6,9 +6,9 @@
 //  Copyright (c) 2013 Richard Townsend. All rights reserved.
 //
 
-#include "WordToken.h"
+#include "Models/WordToken.h"
 #include "SentiWordTokenizer.h"
-#include "SentiWordNetReader.h"
+#include "Input/SentiWordNetReader.h"
 #include <fstream>
 #include <sstream>
 #include <stack>
@@ -34,6 +34,8 @@ int setContainsString (const std::string& member, const std::set<std::string> &i
 }
 
 void SentiWordTokenizer::init(SentiwordNetReader &swr) {
+    this->largest_no_dashes = 0;
+    
     auto contents = swr.GetContents();
     
     for (auto it = contents.begin(); it != contents.end(); it++) {
