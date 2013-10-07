@@ -12,7 +12,7 @@
 #include <iostream>
 #include <string>
 
-#include "IToken.h"
+#include "Interfaces/IToken.h"
 
 class WordToken : public IToken {
 private:
