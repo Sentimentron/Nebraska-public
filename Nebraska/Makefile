@@ -9,7 +9,7 @@ OBJS=Products Classifiers Enumerators Evaluators Input Models Models Scorers Tok
 .PHONY: $(OBJS) clean
 
 Nebraska: $(OBJS)
-	$(CXX) -shared -o $(PRODUCTS_DIR)/libNebraska $(PRODUCTS_DIR)/*.o
+	$(CXX) -shared -o $(PRODUCTS_DIR)/libNebraska.so $(PRODUCTS_DIR)/*.o
 
 Products:
 	mkdir -p $(PRODUCTS_DIR)
