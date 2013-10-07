@@ -9,6 +9,8 @@
 
 // C++ headers
 #include <vector>
+#include <thread>
+#include <fstream>
 #include <iostream>
 // C system headers
 #include <signal.h>
@@ -30,6 +32,7 @@
 #include <Scorers/SentiWordNetScorer.h>
 const char * const S_DEFAULT_SWR_PATH = "../Data/SentiWordNet_3.0.0_20120510.txt";
 const char * const S_DEFAULT_PL_PATH = "../Data/sentences.csv";
+const char * const S_DEFAULT_GENOME_PATH = "best_genome.txt";
 
 volatile int exiting = 0;
 
@@ -70,6 +73,8 @@ int main (int argc, const char * argv[]) {
     float *init_scoring_map;
     size_t init_scoring_map_size;
     size_t dont_mutate_beyond;
+    float result;
+    unsigned int threads; 
     
     // Read in, tokenize sentences
     auto sv = p.GetSentences();
@@ -91,11 +96,37 @@ int main (int argc, const char * argv[]) {
     // Compute an initial fitness
     KCrossEvaluator kef(&etsv, 10);
     LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 2> c;
-    float result = kef.Evaluate(&c, init_scoring_map);
+    result = kef.Evaluate(&c, init_scoring_map);
     
     std::cout << "Initial fitness: " << result << "\n";
     
     // Create the evolution environment
     Evolver evlv(init_scoring_map, result, init_scoring_map_size, dont_mutate_beyond, 100); 
     
+    // Detect the number of threads in the machine
+    threads = std::thread::hardware_concurrency();
+    if(!threads) threads = 4;
+    std::cout << "Staring " << threads << " worker thread(s)...\n";  
+    // Start worker threads
+    std::vector<std::thread *> thread_handles; 
+    for (int i = 0; i < threads; i++) {
+	std::thread *t = new std::thread(WorkerThread, std::ref(etsv), std::ref(evlv),  init_scoring_map_size);
+	thread_handles.push_back(t);
+    }
+    // Wait for all the threads to finish
+    for (auto it = thread_handles.begin(); it != thread_handles.end(); it++) {
+	(*it)->join();
+    }
+    
+    // Get the best genome and output it
+    float *best_genome = evlv.GetMostFitGenome();
+    std::ofstream genome_outputf;
+    genome_outputf.open(S_DEFAULT_GENOME_PATH, std::ofstream::out | std::ofstream::trunc);
+    auto strings = hms.GetStrings();
+    for (auto it = strings.begin(); it != strings.end(); it++) {
+        auto id = hms.Enumerate(*it);
+        auto gn = *(best_genome + id);
+        genome_outputf << *it << "\t" << id << "\t" << gn << "\n";
+    }
+    genome_outputf.close();
 }
