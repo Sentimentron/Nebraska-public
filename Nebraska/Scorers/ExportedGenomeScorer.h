@@ -9,7 +9,7 @@
 #ifndef __Sentiment__ExportedGenomeScorer__
 #define __Sentiment__ExportedGenomeScorer__
 
-#include "IStringEnumerator.h"
+#include "Interfaces/IStringEnumerator.h"
 #include <iostream>
 #include <unordered_map>
 

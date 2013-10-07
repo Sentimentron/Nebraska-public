@@ -5,7 +5,7 @@ include Makefile.in
 
 all: Nebraska
 
-OBJS=Products Classifiers Enumerators Evaluators Input Models Interfaces Models Scorers Tokenizers Evolver
+OBJS=Products Classifiers Enumerators Evaluators Input Models Models Scorers Tokenizers Evolver
 .PHONY: $(OBJS) clean
 
 Nebraska: $(OBJS)
@@ -27,9 +27,6 @@ Evaluators:
 
 Input:
 	$(MAKE) -C Input
-
-Interfaces:
-	$(MAKE) -C Interfaces
 
 Models:
 	$(MAKE) -C Models
