@@ -14,7 +14,7 @@
 #include "Input/SentiWordNetReader.h"
 #include "WhitespaceTokenizer.h"
 
-class SentiWordTokenizer : public WhitespaceTokenizer {
+class SentiWordNetTokenizer : public WhitespaceTokenizer {
 private:
     void init(SentiWordNetReader &);
     std::set<std::string> words;
@@ -23,14 +23,14 @@ protected:
     std::vector<std::string> SplitWhitespace(Sentence *);
     std::vector<std::string> ResolveTokensInDictionary(std::vector<std::string>);
 public:
-    SentiWordTokenizer(SentiWordNetReader &swr) {
+    SentiWordNetTokenizer(SentiWordNetReader &swr) {
         this->init(swr);
     }
-    SentiWordTokenizer(std::string path) {
+    SentiWordNetTokenizer(std::string path) {
         SentiWordNetReader swr(path);
         this->init(swr);
     }
-    SentiWordTokenizer() {
+    SentiWordNetTokenizer() {
         SentiWordNetReader swr;
         this->init(swr);
     }
