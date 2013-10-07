@@ -15,7 +15,7 @@
 #include <vector> 
 
 #include <iostream>
-#include "IStringEnumerator.h"
+#include "Interfaces/IStringEnumerator.h"
 
 class HMStringEnumerator : public IStringEnumerator {
 private:
