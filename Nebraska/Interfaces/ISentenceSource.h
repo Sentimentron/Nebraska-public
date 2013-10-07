@@ -8,7 +8,7 @@
 
 #ifndef Sentiment_ISentenceSource_h
 #define Sentiment_ISentenceSource_h
-#include "Sentence.h"
+#include "Models/Sentence.h"
 class ISentenceSource {
 public:
     virtual ~ISentenceSource() {}

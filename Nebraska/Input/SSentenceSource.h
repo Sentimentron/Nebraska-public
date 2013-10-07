@@ -11,10 +11,10 @@
 
 #include <vector>
 #include <string>
-#include "Sentence.h"
 #include <iostream>
 
-#include "ISentenceSource.h"
+#include "Interfaces/ISentenceSource.h"
+#include "Models/Sentence.h"
 
 class SSentenceSource : ISentenceSource {
 private:
