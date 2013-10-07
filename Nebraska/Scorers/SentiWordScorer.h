@@ -12,8 +12,8 @@
 #include <unordered_map>
 #include <string>
 #include <iostream>
-#include "IStringEnumerator.h"
-#include "SentiWordNetReader.h"
+#include "Interfaces/IStringEnumerator.h"
+#include "Input/SentiWordNetReader.h"
 
 class SentiWordScorer {
 private:
