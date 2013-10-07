@@ -9,6 +9,7 @@
 #include "KCrossEvaluator.h"
 #include <random>
 #include <algorithm>
+#include <time.h>
 
 void KCrossEvaluator::GenerateRandomizedFolds(std::vector<const EnumeratedSentence *> *s) {
     std::vector<const EnumeratedSentence *> tmp;
@@ -51,7 +52,7 @@ const float KCrossEvaluator::Evaluate(IClassifier *c, float *smap) const {
     std::vector<std::vector<const EnumeratedSentence *>> training;
     std::vector<const EnumeratedSentence *> testing;
     std::map<unsigned int, std::vector<const EnumeratedSentence *>> folds = this->GetFolds();
-    std::srand((unsigned int)std::time(0));
+    std::srand((unsigned int)time(NULL));
     unsigned int result_counter = 0;
     float result_total = 0.0f;
     for (int i = 0; i < this->number_of_folds; i++) {
