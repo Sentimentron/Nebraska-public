@@ -11,14 +11,14 @@
 
 #include <set>
 #include <iostream>
-#include "SentiWordNetReader.h"
+#include "Input/SentiWordNetReader.h"
 #include "WhitespaceTokenizer.h"
 
 class SentiWordTokenizer : public WhitespaceTokenizer {
 private:
     void init(SentiwordNetReader &);
     std::set<std::string> words;
-    unsigned int largest_no_dashes = 0;
+    unsigned int largest_no_dashes;
 protected:
     std::vector<std::string> SplitWhitespace(Sentence *);
     std::vector<std::string> ResolveTokensInDictionary(std::vector<std::string>);
