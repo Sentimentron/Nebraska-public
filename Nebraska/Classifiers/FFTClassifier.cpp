@@ -123,7 +123,7 @@ ClassificationLabel FFTClassifier::Classify (const EnumeratedSentence *s, float 
     
     delete classify_signal;
     
-    if (fabs(best_corr) < 0.20) return UndefinedSentenceLabel;
+    //if (fabs(best_corr) < 0.20) return UndefinedSentenceLabel;
     
     return ret;
 }
