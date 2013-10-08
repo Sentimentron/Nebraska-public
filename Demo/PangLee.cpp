@@ -41,19 +41,18 @@ void SignalHandler(int sig) {
 }
 
 void WorkerThread(std::vector<const EnumeratedSentence *> &etsv, 
-		    Evolver &evlv, 
-		    size_t genome_size) {
+                  KCrossEvaluator &kef,
+                  Evolver &evlv,
+                  size_t genome_size) {
 
-    float *genome = (float *)malloc(genome_size * sizeof(float));
+    float *genome = (float *)calloc(genome_size, sizeof(float));
     if (genome == NULL) {
 	std::cerr << "Allocation error\n";
 	return;
     }
-    
-    KCrossEvaluator kef (&etsv, 10);
-    
+
     while (!exiting) {
-	LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 2> c;
+	LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 1> c;
 	evlv.BreedGenome(genome);
 	float result = kef.Evaluate(&c, genome);
 	evlv.PushGenomeFitness(genome, result);
@@ -94,8 +93,8 @@ int main (int argc, const char * argv[]) {
     scr.CreateScoringMap(&hms, &init_scoring_map_size, &init_scoring_map);
     
     // Compute an initial fitness
-    KCrossEvaluator kef(&etsv, 10);
-    LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 2> c;
+    KCrossEvaluator kef(&etsv, 5);
+    LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 1> c;
     result = kef.Evaluate(&c, init_scoring_map);
     
     std::cout << "Initial fitness: " << result << "\n";
@@ -104,13 +103,12 @@ int main (int argc, const char * argv[]) {
     Evolver evlv(init_scoring_map, result, init_scoring_map_size, dont_mutate_beyond, 100); 
     
     // Detect the number of threads in the machine
-    threads = std::thread::hardware_concurrency();
-    if(!threads) threads = 4;
-    std::cout << "Staring " << threads << " worker thread(s)...\n";  
+    threads = 8;
+    std::cout << "Starting " << threads << " worker thread(s)...\n";
     // Start worker threads
     std::vector<std::thread *> thread_handles; 
     for (int i = 0; i < threads; i++) {
-	std::thread *t = new std::thread(WorkerThread, std::ref(etsv), std::ref(evlv),  init_scoring_map_size);
+        std::thread *t = new std::thread(WorkerThread, std::ref(etsv), std::ref(kef), std::ref(evlv), init_scoring_map_size);
 	thread_handles.push_back(t);
     }
     // Wait for all the threads to finish
