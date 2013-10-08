@@ -41,7 +41,6 @@ void SignalHandler(int sig) {
 }
 
 void WorkerThread(std::vector<const EnumeratedSentence *> &etsv, 
-                  KCrossEvaluator &kef,
                   Evolver &evlv,
                   size_t genome_size) {
 
@@ -50,6 +49,8 @@ void WorkerThread(std::vector<const EnumeratedSentence *> &etsv,
 	std::cerr << "Allocation error\n";
 	return;
     }
+    
+    KCrossEvaluator kef(&etsv, 5);
 
     while (!exiting) {
 	LengthMetaClassifier<SignMetaClassifier<FFTClassifier>, 1> c;
@@ -108,7 +109,7 @@ int main (int argc, const char * argv[]) {
     // Start worker threads
     std::vector<std::thread *> thread_handles; 
     for (int i = 0; i < threads; i++) {
-        std::thread *t = new std::thread(WorkerThread, std::ref(etsv), std::ref(kef), std::ref(evlv), init_scoring_map_size);
+        std::thread *t = new std::thread(WorkerThread, std::ref(etsv), std::ref(evlv), init_scoring_map_size);
 	thread_handles.push_back(t);
     }
     
