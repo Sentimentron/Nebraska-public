@@ -69,6 +69,7 @@ SSentenceSource::SSentenceSource(std::string path) {
     // "Topic","Sentiment","TweetId","TweetDate","TweetText"
     while (it != contents.end()) {
         it++; // Skip header row 
+        if (it == contents.end()) break;
         Sentence            *s;
         ClassificationLabel label;
         auto fields = *it;
@@ -83,7 +84,7 @@ SSentenceSource::SSentenceSource(std::string path) {
             label = NegativeSentenceLabel;
         }
         else {
-            label = UndefinedSentenceLabel;
+            continue;
         }
         // Create the sentence
         std::transform(fields[4].begin(), fields[4].end(), fields[4].begin(), ::tolower);
