@@ -9,11 +9,12 @@
 #ifndef __Sentiment__ExportedGenomeScorer__
 #define __Sentiment__ExportedGenomeScorer__
 
+#include "Interfaces/IScorer.h"
 #include "Interfaces/IStringEnumerator.h"
 #include <iostream>
 #include <unordered_map>
 
-class ExportedGenomeScorer {
+class ExportedGenomeScorer : public IScorer {
 private:
     void init(std::string path);
     void enumerate(IStringEnumerator *);

@@ -12,10 +12,11 @@
 #include <unordered_map>
 #include <string>
 #include <iostream>
+#include "Interfaces/IScorer.h"
 #include "Interfaces/IStringEnumerator.h"
 #include "Input/SentiWordNetReader.h"
 
-class SentiWordNetScorer {
+class SentiWordNetScorer : public IScorer {
 private:
     void init(SentiWordNetReader &swr);
     void enumerate(IStringEnumerator *);
