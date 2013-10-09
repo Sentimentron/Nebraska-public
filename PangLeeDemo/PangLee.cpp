@@ -100,7 +100,10 @@ int main (int argc, const char * argv[]) {
     std::cout << "Initial fitness: " << result << "\n";
     
     // Create the evolution environment
-    Evolver evlv(init_scoring_map, result, init_scoring_map_size, dont_mutate_beyond, 100); 
+    Evolver evlv(init_scoring_map, result, init_scoring_map_size, dont_mutate_beyond, 100);
+
+    // Install signal handler
+    signal(SIGINT, SignalHandler); 
     
     // Detect the number of threads in the machine
     threads = 8;
