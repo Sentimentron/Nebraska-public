@@ -75,7 +75,7 @@ public:
     int PushGenomeFitness(const float *, float);
     float *GetMostFitGenome();
     ~Evolver();
-    Evolver(float *init, float fitness, size_t size, size_t dont_mutate_beyond, unsigned int count) : smft(time(NULL)), dont_mutate_beyond(dont_mutate_beyond) {
+    Evolver(float *init, float fitness, size_t size, size_t dont_mutate_beyond, unsigned int count) : smft((int)time(NULL)), dont_mutate_beyond(dont_mutate_beyond) {
 	this->Construct();
         this->genome_size = size;
         this->count = count;
