@@ -54,9 +54,9 @@ int ProcessScrArgs (int argc, char **argv, int pos, SentiWordNetReader &r, IScor
         return 1;
     }
     src = argv[pos];
-    if (!strcmp(src, "EvolvedGenomeScorer")) {
+    if (!strcmp(src, "ExportedGenomeScorer")) {
         if (pos >= argc-1) {
-            std::cerr << "usage: EvolvedGenomeScorer [path]\n";
+            std::cerr << "usage: ExportedGenomeScorer [path]\n";
             return 1;
         }
         char *path = argv[++pos];
@@ -162,12 +162,12 @@ int ProcessCmdArguments (int argc, char ** argv,
             }
         }
         else { 
-            break;
+            // std::cerr << "usage: Evolver --src [args] --scorer [scorer_args] --tokenizer [tk_args]\n";
+            // return 1;
         }
     }
     
-    std::cerr << "usage: Evolver --src [args] --scorer [scorer_args] --tokenizer [tk_args]\n";
-    return 1;
+    return 0;
 }
 
 void WorkerThread(std::vector<const EnumeratedSentence *> &etsv,
@@ -205,10 +205,10 @@ int main (int argc, char ** argv) {
     
     // Process the command arguments
     for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "--evolve")) {
+        if (!strcmp(argv[i], "--evolve")) {
             allow_evolution = true;
         }
-        else if (strcmp(argv[i], "--export")) {
+        else if (!strcmp(argv[i], "--export")) {
             if (i == argc-1) {
                 std::cerr << "usage: --export file_name\n";
                 return 1;
