@@ -45,7 +45,7 @@ def get_mysql_record_count(connection):
 
 def create_mysql_connection(user, host, password, database):
   logging.info("establishing connection to %s@%s", user, host)
-  db = MySQLdb.connect(host=host, user=user, passwd=password, db=database)
+  db = MySQLdb.connect(host=host, user=user, passwd=password, db=database, charset='utf8')
   logging.debug("connection established")
   return db
 
@@ -70,7 +70,8 @@ def delete_mysql_record(connection, identifier):
   # Retrieve a cursor
   cur = connection.cursor()
   # Delete the row matching the identifier
-  cur.execute("DELETE FROM stream WHERE identifier = %d", (identifier,))
+  logging.debug("DELETING mysql record %d", identifier)
+  cur.execute("DELETE FROM stream WHERE identifier = %s", identifier)
 
 def create_sqlite_path():
   hnd, tmp = tempfile.mkstemp(suffix='.sqlite') 
@@ -97,6 +98,7 @@ def create_sqlite_tables(connection):
   logging.debug("Creating default metadata...")
   default_metadata = "INSERT INTO metadata VALUES ('date_created', CURRENT_TIMESTAMP)"
   c.execute(default_metadata)
+  c.execute("INSERT INTO metadata VALUES ('data_format', 'RUBY_YAML')")
   connection.commit()
   
 def close_sqlite(connection):
@@ -173,7 +175,8 @@ def main():
       identifier, date, response = select_mysql_first_record(mysql_conn)
       # Insert into sqlite database
       insert_sqlite_record(sqlite_conn, date, response)
-      break # Testing 
+      # Remove mysql row
+      delete_mysql_record(mysql_conn, identifier)
     # Close sqlite database
     close_sqlite(sqlite_conn)
     # Compress sqlite to escrow 
