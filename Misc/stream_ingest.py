@@ -45,7 +45,7 @@ def get_mysql_record_count(connection):
 
 def create_mysql_connection(user, host, password, database):
   logging.info("establishing connection to %s@%s", user, host)
-  db = MySQLdb.connection(host=host, user=user, passwd=password, db=database)
+  db = MySQLdb.connect(host=host, user=user, passwd=password, db=database)
   logging.debug("connection established")
   return db
 
@@ -63,6 +63,8 @@ def insert_sqlite_record(connection, date, response):
   cur = connection.cursor()
   # Execute an insert query
   cur.execute("insert into stream (date, response) VALUES (?, ?)", (date, response))
+  # Ensure the record has been saved
+  connection.commit()
 
 def delete_mysql_record(connection, identifier):
   # Retrieve a cursor
@@ -71,7 +73,7 @@ def delete_mysql_record(connection, identifier):
   cur.execute("DELETE FROM stream WHERE identifier = %d", (identifier,))
 
 def create_sqlite_path():
-  tmp = tempfile.mkstemp(suffix='.sqlite') 
+  hnd, tmp = tempfile.mkstemp(suffix='.sqlite') 
   logging.info("sqlite path: %s", tmp)
   return tmp
 
@@ -83,7 +85,7 @@ def create_sqlite_connection(path):
 
 def create_sqlite_tables(connection):
   # Retrieve the cursor 
-  c = conn.cursor() 
+  c = connection.cursor() 
   # Create the stream table
   logging.debug("Creating stream table...")
   stream_sql = "CREATE TABLE stream (identifier INTEGER PRIMARY KEY, date DATETIME, response TEXT)"
@@ -95,12 +97,14 @@ def create_sqlite_tables(connection):
   logging.debug("Creating default metadata...")
   default_metadata = "INSERT INTO metadata VALUES ('date_created', CURRENT_TIMESTAMP)"
   c.execute(default_metadata)
+  connection.commit()
   
 def close_sqlite(connection):
+  connection.commit()
   connection.close()
 
 def generate_escrow_name():
-  tmp = tempfile.mkstemp(suffix='.sqlite.xz', prefix='~/')
+  hnd,tmp = tempfile.mkstemp(prefix='in', suffix='.sqlite.xz', dir=os.path.join(os.path.expanduser('~'),"data"))
   logging.info("generated escrow name: %s", tmp)
   return tmp
 
@@ -110,16 +114,22 @@ def compress_sqlite_to_escrow(temporary_name, escrow_name):
   fp = open(escrow_name, "w")
   # Compress
   logging.info("Compressing %s", temporary_name)
-  subprocess.Popen(["xz", "--stdout", "-z", temporary_name], shell=True, stdout=fp)
+  p = subprocess.Popen(["xz", temporary_name])
+  p.communicate()
+  # Move the compressed version 
+  new_path = temporary_name + ".xz"
+  logging.info("Moving compressed version from %s to %s", new_path, escrow_name)
+  os.rename(new_path, escrow_name)
+  return
   # Delete the old database file
   logging.info("Removing old DB file")
   os.remove(temporary_name)
 
 def handle_critical_exception(ex):
   traceback.print_exc()
-  tb = traceback.extract_tb(sys.last_traceback)
-  for entry in tb:
-    logging.error(str(tb))
+  #tb = traceback.extract_tb(sys.last_traceback)
+  #for entry in tb:
+  #  logging.error(str(tb))
   sys.exit(1)
 
 def main():
@@ -155,12 +165,12 @@ def main():
       return 0
     # Get sqlite database ready for transfer
     sqlite_conn = create_sqlite_connection(sqlite_path)
-    create_sqlite_tables(connection)
+    create_sqlite_tables(sqlite_conn)
     sqlite_escrow = generate_escrow_name()
     # Read up to mysql_record_count items out of mysql 
     counter = 0
     while counter < mysql_record_count:
-      date, response = select_mysql_first_record(mysql_conn)
+      identifier, date, response = select_mysql_first_record(mysql_conn)
       # Insert into sqlite database
       insert_sqlite_record(sqlite_conn, date, response)
       break # Testing 
