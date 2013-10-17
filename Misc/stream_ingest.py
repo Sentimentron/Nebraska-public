@@ -72,6 +72,8 @@ def delete_mysql_record(connection, identifier):
   # Delete the row matching the identifier
   logging.debug("DELETING mysql record %d", identifier)
   cur.execute("DELETE FROM stream WHERE identifier = %s", identifier)
+  # Commit the transaction dumbass!
+  connection.commit()
 
 def create_sqlite_path():
   hnd, tmp = tempfile.mkstemp(suffix='.sqlite') 
@@ -98,7 +100,7 @@ def create_sqlite_tables(connection):
   logging.debug("Creating default metadata...")
   default_metadata = "INSERT INTO metadata VALUES ('date_created', CURRENT_TIMESTAMP)"
   c.execute(default_metadata)
-  c.execute("INSERT INTO metadata VALUES ('data_format', 'RUBY_YAML')")
+  c.execute("INSERT INTO metadata VALUES ('data_format', 'RUBY_MIXED')")
   connection.commit()
   
 def close_sqlite(connection):
