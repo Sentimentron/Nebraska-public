@@ -14,23 +14,23 @@ class GetData
       config.oauth_token_secret = "lRsoIxBCv258wzrxCNry6ZLBIfMqdYMhAH0qn2rFw4"
       config.auth_method        = :oauth
     end
-    @conn = Mysql.new('localhost', 'twitterstream', 'rootfish', 'twitterstream')
+    # @conn = Mysql.new('localhost', 'twitterstream', 'rootfish', 'twitterstream')
   end
 
   # Connect to the streaming API and pull in live tweets
   def getIncomingTweets
-    tech_words = 'Mark Zuckerberg, Zynga, YouTube, Yahoo, Jerry Yang, Xbox, Windows, Evan Williams, Wikipedia, Web 2.0, Jimmy Wales, Twitter, Tumblr, Telecoms, Tablet computers, Symbian, Oracle,, Spotify, Sony, Smartphones, Skype, Steven Sinofsky, Clive Sinclair, Samsung, Sheryl Sandberg, Reddit, Oracle, Nokia, Nintendo, Acer, Acta,  Activision Blizzard, Adobe, Amazon.com, Android, AOL, Apple, Asus, Steve Ballmer, Carol Bartz, Tim Berners-Lee, Jeff Bezos, Bing, Bitcoin, BitTorrent, BlackBerry, Chatroulette, snapchat, Cloud computing, Tim Cook, Craigslist, Dell, Digg, ebay, Facebook, Firefox, Flickr, Foursquare, Bill Gates, gmail, google, groupon, htc, ibm, Instagram, Intel, Internet Explorer, iPad, iPad mini, iPhone,iPhone 5,iPhone 5c,iPhone 5s, ipod, iTunes, Jonathan Ive, Steve Jobs, Jack Dorsey, Kickstarter, Kindle, Kindle Fire, Kinect, LinkedIn, Linux, Macworld, Marissa Mayer, Megaupload,
-Microsoft, Microsoft Surface, Mozilla, Myspace'
-    politics_words = 'Congress, Obama, Boehner, Eric Cantor, Biden, Pelosi, Democrats, Republicans, Cruz, Constitution, Federal, Legislature,  Senate, Tea Party, Obamacare, Debt Ceiling, house of representatives, hillary clinton, white house, sarah palin, ted cruz'
-    finance_words = 'Acquisition, AMEX, Amortization, Arbitrage, Balloon payment, Bank, Bankrupt, Barter, Bear, Beneficiary, Bond, Broker, Brokerage, Bull, Buying, Buyout, Call Option, Collateral, Commodity, Credit, Debenture, Debit, Debt, Default, Delinquency, Demand, Depository, Depreciation, Depression, Deregulation, Dow Jones Average, Embezzlement, Exchange rate, Federal, Fees, Fiscal, Foreclosure, Hedge Fund, Mutual Funds, Futures Options, LBO (leveraged buyout), Lending rate, Leverage, Liability, Lien, Liquidity, Long-term, Low risk, Merger, NYSE, OTC, Preferred stock, Recession, Regulation, Securities, Short Sell, Long Sell, Equity Swap, Interest Rate Swap, Takeover, Underwriter'
+    # tech_words = 'Zynga, YouTube, Yahoo, Xbox, Windows, Wikipedia, Twitter, Tumblr, Telecoms, Symbian, Oracle, Spotify, Sony, Smartphones, Skype, Samsung, Reddit, Oracle, Nokia, Nintendo, Acer, Acta,  Activision, Blizzard, Adobe, Amazon, Android, AOL, Apple, Asus, Bing, Bitcoin, BitTorrent, BlackBerry, Chatroulette, snapchat,Craigslist, Dell, Digg, ebay, Facebook, Firefox, Flickr, Foursquare, gmail, google, groupon, htc, ibm, Instagram, Intel, iPad, iPad mini, iPhone, ipod, iTunes, Kickstarter, Kindle, Kindle Fire, Kinect, LinkedIn, Linux, Macworld, Megaupload, Microsoft, Mozilla, Myspace,'
+    # politics_words = 'Congress, Obama, Boehner, Eric Cantor, Biden, Pelosi, Democrats, Republicans, Cruz, Constitution, Federal, Legislature,  Senate, Obamacare,'
+    # finance_words = 'Acquisition, AMEX, Amortization, Arbitrage, Bank, Bankrupt, Barter, Bear, Beneficiary, Bond, Broker, Brokerage, Bull, Buying, Buyout, Collateral, Commodity, Credit, Debenture, Debit, Debt, Default, Delinquency, Demand, Depository, Depreciation, Depression, Deregulation, Embezzlement, Federal, Fees, Fiscal, Foreclosure, Lending rate, Leverage, Liability, Lien, Liquidity, Long-term, Low risk, Merger, NYSE, OTC, Recession, Regulation, Securities, Takeover, Underwriter'
 
     TweetStream::Client.new.on_error do |message|
       puts "Error: #{message.to_s} "
-    end.track(tech_words + politics_words + finance_words) do |status|
-        if status.text.language.to_s == "english"
-          prep = @conn.prepare("INSERT INTO stream(response) VALUES(?)")
-          prep.execute status.to_yaml
-          prep.close
+    end.track('Zynga','YouTube','Yahoo','Xbox','Windows','Wikipedia','Twitter','Tumblr','Telecoms','Symbian','Oracle','Spotify','Sony','Smartphones','Skype','Samsung','Reddit','Oracle','Nokia','Nintendo','Acer','Acta','Activision','Blizzard','Adobe','Amazon','Android','AOL','Apple','Asus','Bing','Bitcoin','BitTorrent','BlackBerry','Chatroulette','snapchat','Craigslist','Dell','Digg','ebay','Facebook','Firefox','Flickr','Foursquare','gmail','google','groupon','htc','ibm','Instagram','Intel','iPad','iPadmini','iPhone','ipod','iTunes','Kickstarter','Kindle','KindleFire','Kinect','LinkedIn','Linux','Macworld','Megaupload','Microsoft','Mozilla','Myspace','Congress','Obama','Boehner','EricCantor','Biden','Pelosi','Democrats','Republicans','Cruz','Constitution','Federal','Legislature','Senate','Obamacare', 'Acquisition','AMEX','Amortization','Arbitrage','Bank','Bankrupt','Barter','Bear','Beneficiary','Bond','Broker','Brokerage','Bull','Buying','Buyout','Collateral','Commodity','Credit','Debenture','Debit','Debt','Default','Delinquency','Demand','Depository','Depreciation','Depression','Deregulation','Embezzlement','Federal','Fees','Fiscal','Foreclosure','Lendingrate','Leverage','Liability','Lien','Liquidity','Long-term','Lowrisk','Merger','NYSE','OTC','Recession','Regulation','Securities','Takeover','Underwriter') do |status|
+        if status.text.language.to_s == "english" && !status.retweet?
+          puts status.text
+          # prep = @conn.prepare("INSERT INTO stream(response) VALUES(?)")
+          # prep.execute status.text
+          # prep.close
         end
     end
   end
