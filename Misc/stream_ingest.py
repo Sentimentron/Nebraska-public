@@ -100,7 +100,7 @@ def create_sqlite_tables(connection):
   logging.debug("Creating default metadata...")
   default_metadata = "INSERT INTO metadata VALUES ('date_created', CURRENT_TIMESTAMP)"
   c.execute(default_metadata)
-  c.execute("INSERT INTO metadata VALUES ('data_format', 'RUBY_MIXED')")
+  c.execute("INSERT INTO metadata VALUES ('data_format', 'TWEET_TEXT')")
   connection.commit()
   
 def close_sqlite(connection):
@@ -141,7 +141,7 @@ def main():
   logging.basicConfig(filename="/var/log/stream_ingest.log", level = logging.DEBUG)
   root = logging.getLogger() 
   ch = logging.StreamHandler(sys.stdout)
-  ch.setLevel(logging.DEBUG)
+  ch.setLevel(logging.INFO)
   formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
   ch.setFormatter(formatter)
   root.addHandler(ch)
@@ -174,7 +174,10 @@ def main():
     # Read up to mysql_record_count items out of mysql 
     counter = 0
     while counter < mysql_record_count:
-      identifier, date, response = select_mysql_first_record(mysql_conn)
+      row_tuple = select_mysql_first_record(mysql_conn)
+      if row_tuple is None:
+         break
+      identifier, date, response = row_tuple
       # Insert into sqlite database
       insert_sqlite_record(sqlite_conn, date, response)
       # Remove mysql row
