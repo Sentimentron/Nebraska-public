@@ -141,6 +141,10 @@ def main():
 		for i in inputs:
 			i = Input(i)
 			i.run_import(sqlite_conn)
+		# Filter the data 
+		for f in filters:
+			f = Filter(f)
+			f.execute(sqlite_conn)
 	finally:
 		if not options["retain_input"]:
 			remove_sqlite_path(sqlite_path)
