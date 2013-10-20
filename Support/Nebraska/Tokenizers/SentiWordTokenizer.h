@@ -11,27 +11,27 @@
 
 #include <set>
 #include <iostream>
-#include "Input/SentiWordNetReader.h"
+#include "SentiWordNetReader.h"
 #include "WhitespaceTokenizer.h"
 
-class SentiWordNetTokenizer : public WhitespaceTokenizer {
+class SentiWordTokenizer : public WhitespaceTokenizer {
 private:
-    void init(SentiWordNetReader &);
+    void init(SentiwordNetReader &);
     std::set<std::string> words;
-    unsigned int largest_no_dashes;
+    unsigned int largest_no_dashes = 0;
 protected:
     std::vector<std::string> SplitWhitespace(Sentence *);
     std::vector<std::string> ResolveTokensInDictionary(std::vector<std::string>);
 public:
-    SentiWordNetTokenizer(SentiWordNetReader &swr) {
+    SentiWordTokenizer(SentiwordNetReader &swr) {
         this->init(swr);
     }
-    SentiWordNetTokenizer(std::string path) {
-        SentiWordNetReader swr(path);
+    SentiWordTokenizer(std::string path) {
+        SentiwordNetReader swr(path);
         this->init(swr);
     }
-    SentiWordNetTokenizer() {
-        SentiWordNetReader swr;
+    SentiWordTokenizer() {
+        SentiwordNetReader swr;
         this->init(swr);
     }
     std::vector<IToken *> Tokenize(Sentence*);
