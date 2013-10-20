@@ -6,6 +6,8 @@ import logging
 import sqlite3
 import tempfile
 
+from lxml import etree 
+
 LOG_FORMAT='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
 def retrieve_workflow_file():
@@ -28,6 +30,10 @@ def create_sqlite_temp_path():
 	hnd, tmp = tempfile.mkstemp(suffix='.sqlite') 
 	logging.info("SQLite path: %s", tmp)
 	return tmp
+
+def remove_sqlite_path(path):
+	logging.info("Deleting workflow database...")
+	os.remove(path)
 
 def create_sqlite_connection(path):
 	  logging.info("Opening SQLite database: %s", path)
@@ -95,13 +101,40 @@ def create_sqlite_input_tables(conn):
 	logging.info("Committing changes...")
 	conn.commit()
 
+def parse_workflow_file(path):
+	inputs, special_actions = set([]), set([])
+	logging.info("Parsing Workflow XML...")
+	# Start off with a default set of options 
+	options = {
+		"retain_input" : False 
+	}
+	# Parse the top-level document
+	document = etree.parse(path)
+	# Retrieve the WorkflowOptions node
+	x_options = document.find("WorkflowOptions")
+	for x_node in x_options.iter():
+		if x_node.tag == "WorkflowName":
+			options["name"] = x_node.text 
+		elif x_node.tag == "WorkflowDescription":
+			options["description"] = x_node.text 
+	# Retrieve the input sources 
+	for x_node in document.find("InputSources").getchildren():
+		inputs.add(x_node)
+	for x_node in document.find("SpecialActions").getchildren():
+		special_actions.add(x_node)
+	return inputs, special_actions, options 
+
 def main():
 	configure_logging()
 	workflow_file = retrieve_workflow_file()
 	assert_workflow_file_exists(workflow_file)
-	sqlite_path = create_sqlite_temp_path()
-	sqlite_conn = create_sqlite_connection(sqlite_path)
-	create_sqlite_input_tables(sqlite_conn)
-
+	inputs, actions, options = parse_workflow_file(workflow_file)
+	try:
+		sqlite_path = create_sqlite_temp_path()
+		sqlite_conn = create_sqlite_connection(sqlite_path)
+		create_sqlite_input_tables(sqlite_conn)
+	finally:
+		if not options["retain_input"]:
+			remove_sqlite_path(sqlite_path)
 if __name__ == "__main__":
 	main()
