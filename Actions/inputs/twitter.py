@@ -70,14 +70,22 @@ class TwitterInputSource(object):
 		self.directory = xml.get("dir")
 		self.__assert_directory_exists()
 
-	def run_import(self):
-		input_sources = []
+	def get_import_files(self):
+		ret = set([])
+		# Get suitable files in the directory
 		for root, _, files in os.walk(self.directory):
 			for filename in files:
 				extension = os.path.splitext(filename)[1][1:].strip()
 				if extension != "xz":
 					continue 
-				input_sources.append(TwitterCompressedDBInputSource(os.path.join(root, filename)))
+				ret.add(os.path.join(root, filename))
+
+		return ret 
+
+	def run_import(self, files):
+		input_sources = []
+		for filename in files:
+			input_sources.append(TwitterCompressedDBInputSource(filename))
 
 		for src in input_sources:
 			for text in src.run_import():
