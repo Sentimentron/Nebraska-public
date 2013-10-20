@@ -82,7 +82,7 @@ def create_sqlite_input_tables(conn):
 
 	# Create the input table
 	logging.info("Creating input table")
-	sql = "CREATE TABLE input (identifier INTEGER PIMARY KEY, document TEXT NOT NULL, label TEXT NOT NULL, domain TEXT NOT NULL)"
+	sql = "CREATE TABLE input (identifier INTEGER PRIMARY KEY, document TEXT NOT NULL, label TEXT NOT NULL, domain TEXT NOT NULL)"
 	c.execute(sql)
 
 	logging.info("Setting up input table triggers...")

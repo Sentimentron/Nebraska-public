@@ -31,14 +31,17 @@ class Filter(object):
 			logging.info("Committing changes...")
 			db_conn.commit()
 		else:
-			# Select the text and identifier of the input documents
-			sql = "SELECT identifier, document FROM input;"
-			c.execute(sql)
-			sql = "DELETE FROM input WHERE identifier = ?"
-			for (identifier, text) in c.fetchall():
-				if self._class.filtered(text):
-					c.execute(sql, (identifier,))
-					db_conn.commit()
+			if not self._class.is_batch_filter():
+				# Select the text and identifier of the input documents
+				sql = "SELECT identifier, document FROM input;"
+				c.execute(sql)
+				sql = "DELETE FROM input WHERE identifier = ?"
+				for (identifier, text) in c.fetchall():
+					if self._class.filtered(text):
+						c.execute(sql, (identifier,))
+						db_conn.commit()
+			else:
+				self._class.filter(db_conn)
 
 		# Count the number of output documents 
 		input_count_output = self.__count_documents(db_conn)
