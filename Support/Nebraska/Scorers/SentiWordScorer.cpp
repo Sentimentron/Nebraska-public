@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Richard Townsend. All rights reserved.
 //
 
-#include "SentiWordNetScorer.h"
+#include "SentiWordScorer.h"
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -16,25 +16,25 @@
 //
 // Constructors / destructors
 //
-SentiWordNetScorer::SentiWordNetScorer() {
+SentiWordScorer::SentiWordScorer() {
     std::string default_path = std::string(S_DEFAULT_SENTIWORDNET_PATH);
-    SentiWordNetReader swr(default_path);
+    SentiwordNetReader swr(default_path);
     this->init(swr);
 }
 
-SentiWordNetScorer::SentiWordNetScorer(std::string path) {
-    SentiWordNetReader swr;
+SentiWordScorer::SentiWordScorer(std::string path) {
+    SentiwordNetReader swr;
     this->init(swr);
 }
 
-SentiWordNetScorer::~SentiWordNetScorer() {
+SentiWordScorer::~SentiWordScorer() {
     // Does nothing (yet)
 }
 
 //
 // Misc functions
 //
-void SentiWordNetScorer::init(SentiWordNetReader &swr) {
+void SentiWordScorer::init(SentiwordNetReader &swr) {
     float       good, bad;
     std::string word, junk, line;
     std::ifstream input;
@@ -71,14 +71,14 @@ void SentiWordNetScorer::init(SentiWordNetReader &swr) {
     }
 }
 
-void SentiWordNetScorer::enumerate(IStringEnumerator *e) {
+void SentiWordScorer::enumerate(IStringEnumerator *e) {
     for(std::unordered_map<std::string, float>::const_iterator it = this->scores.begin();
         it != this->scores.end(); it++) {
         e->Enumerate(it->first);
     }
 }
 
-int SentiWordNetScorer::CreateScoringMap(IStringEnumerator *enumerator, size_t *smap_size, float **smap) {
+int SentiWordScorer::CreateScoringMap(IStringEnumerator *enumerator, size_t *smap_size, float **smap) {
     
     unsigned int required_size;
     

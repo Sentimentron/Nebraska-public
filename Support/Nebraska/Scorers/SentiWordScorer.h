@@ -12,23 +12,22 @@
 #include <unordered_map>
 #include <string>
 #include <iostream>
-#include "Interfaces/IScorer.h"
-#include "Interfaces/IStringEnumerator.h"
-#include "Input/SentiWordNetReader.h"
+#include "IStringEnumerator.h"
+#include "SentiWordNetReader.h"
 
-class SentiWordNetScorer : public IScorer {
+class SentiWordScorer {
 private:
-    void init(SentiWordNetReader &swr);
+    void init(SentiwordNetReader &swr);
     void enumerate(IStringEnumerator *);
     std::unordered_map<std::string, float> scores;
 public:
-    SentiWordNetScorer();
-    ~SentiWordNetScorer();
-    SentiWordNetScorer(SentiWordNetReader &swr) {
+    SentiWordScorer();
+    ~SentiWordScorer();
+    SentiWordScorer(SentiwordNetReader &swr) {
         this->init(swr);
     }
     // Version which takes a path to a SentiwordNetFile
-    SentiWordNetScorer(std::string);
+    SentiWordScorer(std::string);
     int CreateScoringMap(IStringEnumerator *, size_t *, float **);
 };
 

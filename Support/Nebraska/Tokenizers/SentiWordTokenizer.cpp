@@ -6,9 +6,9 @@
 //  Copyright (c) 2013 Richard Townsend. All rights reserved.
 //
 
-#include "Models/WordToken.h"
-#include "SentiWordNetTokenizer.h"
-#include "Input/SentiWordNetReader.h"
+#include "WordToken.h"
+#include "SentiWordTokenizer.h"
+#include "SentiWordNetReader.h"
 #include <fstream>
 #include <sstream>
 #include <stack>
@@ -33,9 +33,7 @@ int setContainsString (const std::string& member, const std::set<std::string> &i
     return 1;
 }
 
-void SentiWordNetTokenizer::init(SentiWordNetReader &swr) {
-    this->largest_no_dashes = 0;
-    
+void SentiWordTokenizer::init(SentiwordNetReader &swr) {
     auto contents = swr.GetContents();
     
     for (auto it = contents.begin(); it != contents.end(); it++) {
@@ -54,7 +52,7 @@ void SentiWordNetTokenizer::init(SentiWordNetReader &swr) {
     }
 }
 
-std::vector<std::string> SentiWordNetTokenizer::SplitWhitespace(Sentence *s) {
+std::vector<std::string> SentiWordTokenizer::SplitWhitespace(Sentence *s) {
     std::string text = s->GetText();
     std::string buf;
     std::vector<std::string> split_wbuf;
@@ -77,7 +75,7 @@ std::vector<std::string> SentiWordNetTokenizer::SplitWhitespace(Sentence *s) {
     return split_wbuf;
 }
 
-std::vector<std::string> SentiWordNetTokenizer::ResolveTokensInDictionary(std::vector<std::string> split_wbuf) {
+std::vector<std::string> SentiWordTokenizer::ResolveTokensInDictionary(std::vector<std::string> split_wbuf) {
     std::string buf = "";
     std::vector<std::string> ret;
     for (int i = 0; i < split_wbuf.size(); i++) {
@@ -100,7 +98,7 @@ std::vector<std::string> SentiWordNetTokenizer::ResolveTokensInDictionary(std::v
     return ret;
 }
 
-std::vector<IToken *> SentiWordNetTokenizer::Tokenize(Sentence *s) {
+std::vector<IToken *> SentiWordTokenizer::Tokenize(Sentence *s) {
     std::vector<std::string> split_wbuf, tokens;
     std::string buf;
     std::string text = s->GetText();
