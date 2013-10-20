@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+from metadata import *
 
 class Input(object):
 
@@ -15,7 +16,21 @@ class Input(object):
 		logging.info("Importing documents...")
 		sql = "INSERT INTO input (document, label, domain) VALUES (?, ?, ?)"
 		inserted = 0 
-		for text, label, domain in self._class.run_import():
+		
+		# Get the import files in the source directory 
+		import_files = self._class.get_import_files()
+
+		# Get the files already imported 
+		already_imported = fetch_metadata("IMPORT_FILES", db_conn)
+		if already_imported != None:
+			already_imported = set(already_imported.split('|'))
+			logging.info("%d documents already imported", len(already_imported))
+		else:
+			already_imported = set([])
+
+		import_files = import_files - already_imported
+		logging.info("%d documents to be imported", len(import_files))
+		for text, label, domain in self._class.run_import(import_files):
 			cur.execute(sql, (text, label, domain))
 			inserted += 1
 		logging.debug("Committing documents...")
