@@ -1,5 +1,5 @@
 *.class
-Sentiment.xcodeproj/project.xcworkspace/
+*.pyc
 Sentiment.xcodeproj/xcuserdata/
 *~
 *.o
