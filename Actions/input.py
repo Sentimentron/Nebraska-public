@@ -33,6 +33,8 @@ class Input(object):
 		for text, label, domain in self._class.run_import(import_files):
 			cur.execute(sql, (text, label, domain))
 			inserted += 1
+
+		push_metadata("IMPORT_FILES", '|'.join(import_files | already_imported), db_conn)
 		logging.debug("Committing documents...")
 		db_conn.commit()
 		logging.info("%d document(s) imported", inserted)

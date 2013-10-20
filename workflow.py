@@ -150,6 +150,12 @@ def parse_workflow_xml_doc(document):
 def parse_workflow_file(path):
 	return parse_workflow_xml_doc(etree.parse(path))
 
+def parse_workflow_sqlite(db_conn):
+	metadata = fetch_metadata("WORKFLOW", db_conn)
+	if metadata is None:
+		raise Exception("Workflow file has no WORKFLOW metadata key!")
+	return parse_workflow_xml_doc(etree.fromstring(metadata))
+
 def verify_options(options):
 	if options["retain_output"]:
 		assert "output_file" in options 
@@ -178,16 +184,25 @@ def main():
 	assert_workflow_file_exists(workflow_file)
 	if action == "touch":
 		inputs, filters, actions, options = parse_workflow_file(workflow_file)
+	elif action == "rerun":
+		conn = create_sqlite_connection(workflow_file)
+		inputs, filters, actions, options = parse_workflow_sqlite(conn)
+		conn.close()
 	else:
 		raise ValueError("Other operations are not yet supported.")
 	try:
 		verify_options(options)
-		# Set up the SQLite input database 
-		sqlite_path = create_sqlite_temp_path()
-		sqlite_conn = create_sqlite_connection(sqlite_path)
-		create_sqlite_input_tables(sqlite_conn)
-		# Push any information we have about the workflow into the database 
-		push_workflow_metadata(workflow_file, options["check_untracked"], sqlite_conn)
+		if action == "touch":
+			# Set up the SQLite input database 
+			sqlite_path = create_sqlite_temp_path()
+			sqlite_conn = create_sqlite_connection(sqlite_path)
+			create_sqlite_input_tables(sqlite_conn)
+		else:
+			sqlite_conn = create_sqlite_connection(workflow_file)
+
+		if action == "touch":
+			# Push any information we have about the workflow into the database 
+			push_workflow_metadata(workflow_file, options["check_untracked"], sqlite_conn) # Need to modify this
 		# Import the data using the input sources 
 		for i in inputs:
 			i = Input(i)
@@ -199,12 +214,13 @@ def main():
 		sqlite_conn.commit()
 		sqlite_conn.close()
 	finally:
-		if not options["retain_output"]:
-			remove_sqlite_path(sqlite_path)
-		else:
-			output_path = options["output_file"]
-			logging.info("Moving temporary database from '%s' to '%s'", sqlite_path, output_path)
-			os.rename(sqlite_path, output_path)
+		if action == "touch":
+			if not options["retain_output"]:
+				remove_sqlite_path(sqlite_path)
+			else:
+				output_path = options["output_file"]
+				logging.info("Moving temporary database from '%s' to '%s'", sqlite_path, output_path)
+				os.rename(sqlite_path, output_path)
 
 if __name__ == "__main__":
 	main()
