@@ -6,6 +6,7 @@ import logging
 import sqlite3
 import tempfile
 
+from Actions import *
 from lxml import etree 
 
 LOG_FORMAT='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -64,7 +65,7 @@ def create_sqlite_input_tables(conn):
 
 	# Create the input table
 	logging.info("Creating input table")
-	sql = "CREATE TABLE input (identifier INTEGER PIMARY KEY, document TEXT NOT NULL)"
+	sql = "CREATE TABLE input (identifier INTEGER PIMARY KEY, document TEXT NOT NULL, label TEXT NOT NULL, domain TEXT NOT NULL)"
 	c.execute(sql)
 
 	logging.info("Setting up input table triggers...")
@@ -74,7 +75,7 @@ def create_sqlite_input_tables(conn):
 	FOR EACH ROW
 		WHEN (SELECT 1 
 			FROM labels 
-			WHERE labels = new.label
+			WHERE label = new.label
 			LIMIT 1) IS NULL
 		BEGIN
 			SELECT raise(rollback, 'Undefined row label');
@@ -87,7 +88,7 @@ def create_sqlite_input_tables(conn):
 	FOR EACH ROW
 		WHEN (SELECT 1 
 			FROM domains
-			WHERE domains = new.domain
+			WHERE domain = new.domain
 			LIMIT 1) IS NULL
 		BEGIN
 			SELECT raise(rollback, 'Undefined domain label');
@@ -102,7 +103,7 @@ def create_sqlite_input_tables(conn):
 	conn.commit()
 
 def parse_workflow_file(path):
-	inputs, special_actions = set([]), set([])
+	inputs, filters, special_actions = [], [],  []
 	logging.info("Parsing Workflow XML...")
 	# Start off with a default set of options 
 	options = {
@@ -119,22 +120,30 @@ def parse_workflow_file(path):
 			options["description"] = x_node.text 
 	# Retrieve the input sources 
 	for x_node in document.find("InputSources").getchildren():
-		inputs.add(x_node)
+		inputs.append(x_node)
+	for x_node in document.find("InputFilters").getchildren():
+		filters.append(x_node)
 	for x_node in document.find("SpecialActions").getchildren():
-		special_actions.add(x_node)
-	return inputs, special_actions, options 
+		special_actions.append(x_node)
+	return inputs, filters, special_actions, options 
 
 def main():
 	configure_logging()
 	workflow_file = retrieve_workflow_file()
 	assert_workflow_file_exists(workflow_file)
-	inputs, actions, options = parse_workflow_file(workflow_file)
+	inputs, filters, actions, options = parse_workflow_file(workflow_file)
 	try:
+		# Set up the SQLite input database 
 		sqlite_path = create_sqlite_temp_path()
 		sqlite_conn = create_sqlite_connection(sqlite_path)
 		create_sqlite_input_tables(sqlite_conn)
+		# Import the data using the input sources 
+		for i in inputs:
+			i = Input(i)
+			i.run_import(sqlite_conn)
 	finally:
 		if not options["retain_input"]:
 			remove_sqlite_path(sqlite_path)
+
 if __name__ == "__main__":
 	main()
