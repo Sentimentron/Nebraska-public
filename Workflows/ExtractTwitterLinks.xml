@@ -13,6 +13,7 @@
 
 	<InputFilters>
 		<BasicFilter filterText="http://" />
+		<UniqueFilter />
 	</InputFilters>
 
 	<SpecialActions>
