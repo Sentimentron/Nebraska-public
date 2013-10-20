@@ -1,0 +1,22 @@
+<Workflow>
+
+	<WorkflowOptions>
+		<WorkflowName>Twitter Link Extractor</WorkflowName>
+		<WorkflowDescription> Extract all Twitter short-links and dump them into a MySQL database.</WorkflowDescription>
+	</WorkflowOptions>
+
+	<InputSources>
+		<TwitterInputSource dir="Data/Corpora" />
+	</InputSources />
+
+	<SpecialActions>
+		<TwitterLinkExtractor>
+			<Option name="mysql_host" value="localhost" />
+			<Option name="mysql_user" value="twitterstream" />
+			<Option name="mysql_password" value="rootfish" />
+			<Option name="mysql_database" value="twitterstream />
+			<Option name="mysql_table" value="shortlinks" />
+		</TwitterLinkExtractor>
+	</SpecialActions>
+
+</Workflow>

@@ -1,0 +1,107 @@
+#!/usr/bin/env python
+
+import os 
+import sys
+import logging
+import sqlite3
+import tempfile
+
+LOG_FORMAT='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+def retrieve_workflow_file():
+	# Check number of parameters
+	if len(sys.argv) != 2:
+		logging.error("Incorrect number of arguments")
+		logging.info("Usage: workflow.py /path/to/workflow.xml")
+		sys.exit(1)
+
+	return os.path.abspath(sys.argv[1])
+
+def assert_workflow_file_exists(path):
+	if not os.path.exists(path):
+		raise IOError("'%s' does not exist" % (path,))
+
+def configure_logging():
+	logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
+
+def create_sqlite_temp_path():
+	hnd, tmp = tempfile.mkstemp(suffix='.sqlite') 
+	logging.info("SQLite path: %s", tmp)
+	return tmp
+
+def create_sqlite_connection(path):
+	  logging.info("Opening SQLite database: %s", path)
+	  conn = sqlite3.connect(path)
+	  logging.debug("Connection open")
+	  return conn
+
+def create_sqlite_input_tables(conn):
+	# Retrieve a cursor
+	c = conn.cursor()
+	# Create a table of possible labels
+	logging.info("Creating labels...")
+	sql = "CREATE TABLE labels (label TEXT UNIQUE)"
+	c.execute(sql)
+	logging.info("Inserting labels...")
+	sql = "INSERT INTO labels (label) VALUES (?)"
+	for label in ["Positive", "Negative", "Neutral", "Undefined"]:
+		logging.debug("Creating label %s...", label)
+		c.execute(sql, (label,))
+
+	# Create a possible domains table 
+	logging.info("Creating domains table...")
+	sql = "CREATE TABLE domains (domain TEXT UNIQUE)"
+	c.execute(sql)
+	logging.info("Creating default domain...")
+	sql = "INSERT INTO domains (domain) VALUES ('Undefined')";
+	c.execute(sql)
+
+	# Create the input table
+	logging.info("Creating input table")
+	sql = "CREATE TABLE input (identifier INTEGER PIMARY KEY, document TEXT NOT NULL)"
+	c.execute(sql)
+
+	logging.info("Setting up input table triggers...")
+	logging.debug("Setting up constraint on label...")
+	sql = r"""CREATE TRIGGER input_label_trigger 
+	BEFORE INSERT ON input
+	FOR EACH ROW
+		WHEN (SELECT 1 
+			FROM labels 
+			WHERE labels = new.label
+			LIMIT 1) IS NULL
+		BEGIN
+			SELECT raise(rollback, 'Undefined row label');
+		END;"""
+	c.execute(sql)
+
+	logging.debug("Setting up constraint on domain...")
+	sql = r"""CREATE TRIGGER input_domain_trigger
+	BEFORE INSERT ON input
+	FOR EACH ROW
+		WHEN (SELECT 1 
+			FROM domains
+			WHERE domains = new.domain
+			LIMIT 1) IS NULL
+		BEGIN
+			SELECT raise(rollback, 'Undefined domain label');
+		END;"""
+	c.execute(sql)
+
+	logging.info("Creating metadata table...")
+	sql = r"""CREATE TABLE metadata (key TEXT UNIQUE, value TEXT)"""
+	c.execute(sql)
+
+	logging.info("Committing changes...")
+	conn.commit()
+
+def main():
+	configure_logging()
+	workflow_file = retrieve_workflow_file()
+	assert_workflow_file_exists(workflow_file)
+	sqlite_path = create_sqlite_temp_path()
+	sqlite_conn = create_sqlite_connection(sqlite_path)
+	create_sqlite_input_tables(sqlite_conn)
+
+if __name__ == "__main__":
+	main()
