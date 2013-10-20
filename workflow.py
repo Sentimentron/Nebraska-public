@@ -11,12 +11,28 @@ from lxml import etree
 
 LOG_FORMAT='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
-def retrieve_workflow_file():
+def print_usage_exit():
+	logging.error("Incorrect number of arguments")
+	logging.info("Usage: workflow.py /path/to/workflow.xml")
+	sys.exit(1)
+
+
+def parse_arguments():
 	# Check number of parameters
-	if len(sys.argv) != 2:
-		logging.error("Incorrect number of arguments")
-		logging.info("Usage: workflow.py /path/to/workflow.xml")
-		sys.exit(1)
+	if not (len(sys.argv) == 2 or len(sys.argv) == 3):
+		print_usage_exit()
+
+	action = sys.argv[1]
+	if action == "verify":
+		if len(sys.argv) != 3:
+			print_usage_exit()
+		return "verify", os.path.abspath(sys.argv[2])
+	elif action == "rerun":
+		if len(sys.argv) != 3:
+			print_usage_exit()
+		return "rerun", os.path.abspath(sys.argv[2])
+	else:
+		return "touch", os.path.abspath(sys.argv[1])
 
 	return os.path.abspath(sys.argv[1])
 
@@ -129,9 +145,12 @@ def parse_workflow_file(path):
 
 def main():
 	configure_logging()
-	workflow_file = retrieve_workflow_file()
+	action, workflow_file = parse_arguments()
 	assert_workflow_file_exists(workflow_file)
-	inputs, filters, actions, options = parse_workflow_file(workflow_file)
+	if action == "touch":
+		inputs, filters, actions, options = parse_workflow_file(workflow_file)
+	else:
+		raise ValueError("Other operations are not yet supported.")
 	try:
 		# Set up the SQLite input database 
 		sqlite_path = create_sqlite_temp_path()
