@@ -56,6 +56,7 @@ def remove_sqlite_path(path):
 def create_sqlite_connection(path):
 	  logging.info("Opening SQLite database: %s", path)
 	  conn = sqlite3.connect(path)
+	  conn.text_factory = str 
 	  logging.debug("Connection open")
 	  return conn
 
