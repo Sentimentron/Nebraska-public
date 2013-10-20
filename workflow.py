@@ -5,6 +5,7 @@ import sys
 import logging
 import sqlite3
 import tempfile
+import subprocess
 
 from Actions import *
 from lxml import etree 
@@ -118,15 +119,13 @@ def create_sqlite_input_tables(conn):
 	logging.info("Committing changes...")
 	conn.commit()
 
-def parse_workflow_file(path):
+def parse_workflow_xml_doc(document):
 	inputs, filters, special_actions = [], [],  []
-	logging.info("Parsing Workflow XML...")
 	# Start off with a default set of options 
 	options = {
-		"retain_input" : False 
+		"retain_output" : False,
+		"check_untracked": True
 	}
-	# Parse the top-level document
-	document = etree.parse(path)
 	# Retrieve the WorkflowOptions node
 	x_options = document.find("WorkflowOptions")
 	for x_node in x_options.iter():
@@ -134,6 +133,11 @@ def parse_workflow_file(path):
 			options["name"] = x_node.text 
 		elif x_node.tag == "WorkflowDescription":
 			options["description"] = x_node.text 
+		elif x_node.tag == "RetainOutputFile":
+			options["retain_output"] = True
+			options["output_file"] = x_node.get("path")
+		elif x_node.tag == "DisableUntrackedFileCheck":
+			options["check_untracked"] = False
 	# Retrieve the input sources 
 	for x_node in document.find("InputSources").getchildren():
 		inputs.append(x_node)
@@ -142,6 +146,31 @@ def parse_workflow_file(path):
 	for x_node in document.find("SpecialActions").getchildren():
 		special_actions.append(x_node)
 	return inputs, filters, special_actions, options 
+
+def parse_workflow_file(path):
+	return parse_workflow_xml_doc(etree.parse(path))
+
+def verify_options(options):
+	if options["retain_output"]:
+		assert "output_file" in options 
+
+def push_workflow_metadata(workflow_file, check_untracked, db_conn):
+	with open(workflow_file, 'r') as f:
+		content = f.read()
+		push_metadata("WORKFLOW", content, db_conn)
+
+	if check_untracked:
+		# Check for untracked files within the tree 
+		process = subprocess.Popen("git status --porcelain", stdout=subprocess.PIPE, stderr=None, shell=True)
+		output, errors = process.communicate()
+		for line in output.split("\n"):
+			raise Exception("Untracked files present in working tree %s"% (output,))
+
+		# Get the git version 
+		process = subprocess.Popen("git rev-parse HEAD", stdout=subprocess.PIPE, stderr=None, shell=True)
+		output = process.communicate()
+		push_metadata("GIT_HASH", output[0], db_conn)
+
 
 def main():
 	configure_logging()
@@ -152,10 +181,13 @@ def main():
 	else:
 		raise ValueError("Other operations are not yet supported.")
 	try:
+		verify_options(options)
 		# Set up the SQLite input database 
 		sqlite_path = create_sqlite_temp_path()
 		sqlite_conn = create_sqlite_connection(sqlite_path)
 		create_sqlite_input_tables(sqlite_conn)
+		# Push any information we have about the workflow into the database 
+		push_workflow_metadata(workflow_file, options["check_untracked"], sqlite_conn)
 		# Import the data using the input sources 
 		for i in inputs:
 			i = Input(i)
@@ -164,9 +196,15 @@ def main():
 		for f in filters:
 			f = Filter(f)
 			f.execute(sqlite_conn)
+		sqlite_conn.commit()
+		sqlite_conn.close()
 	finally:
-		if not options["retain_input"]:
+		if not options["retain_output"]:
 			remove_sqlite_path(sqlite_path)
+		else:
+			output_path = options["output_file"]
+			logging.info("Moving temporary database from '%s' to '%s'", sqlite_path, output_path)
+			os.rename(sqlite_path, output_path)
 
 if __name__ == "__main__":
 	main()

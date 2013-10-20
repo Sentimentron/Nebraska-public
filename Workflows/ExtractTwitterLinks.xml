@@ -3,6 +3,8 @@
 	<WorkflowOptions>
 		<WorkflowName>Twitter Link Extractor</WorkflowName>
 		<WorkflowDescription> Extract all Twitter short-links and dump them into a MySQL database.</WorkflowDescription>
+		<RetainOutputFile path="links.sqlite"/>
+		<DisableUntrackedFileCheck />
 	</WorkflowOptions>
 
 	<InputSources>
