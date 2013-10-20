@@ -9,6 +9,10 @@
 		<TwitterInputSource dir="Data/Corpora" />
 	</InputSources>
 
+	<InputFilters>
+		<BasicFilter filterText="http://" />
+	</InputFilters>
+
 	<SpecialActions>
 		<TwitterLinkExtractor>
 			<Option name="mysql_host" value="localhost" />
