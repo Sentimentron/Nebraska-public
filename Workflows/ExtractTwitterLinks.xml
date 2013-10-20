@@ -7,14 +7,14 @@
 
 	<InputSources>
 		<TwitterInputSource dir="Data/Corpora" />
-	</InputSources />
+	</InputSources>
 
 	<SpecialActions>
 		<TwitterLinkExtractor>
 			<Option name="mysql_host" value="localhost" />
 			<Option name="mysql_user" value="twitterstream" />
 			<Option name="mysql_password" value="rootfish" />
-			<Option name="mysql_database" value="twitterstream />
+			<Option name="mysql_database" value="twitterstream" />
 			<Option name="mysql_table" value="shortlinks" />
 		</TwitterLinkExtractor>
 	</SpecialActions>
