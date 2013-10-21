@@ -15,6 +15,9 @@
 		<BasicFilter filterText="http://" />
 		<UniqueFilter />
 		<UniqueTextFilter />
+		<BasicNotFilter filterText="$" />
+		<BasicNotFilter filterText="£" />
+		<BasicNotFilter filterText="@YouTube" />
 	</InputFilters>
 
 	<SpecialActions>

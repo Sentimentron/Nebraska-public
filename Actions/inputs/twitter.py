@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import os 
 import logging
@@ -38,6 +39,7 @@ class TwitterCompressedDBInputSource(object):
 	def run_import(self):
 		tmp = self.decompress()
 		con = sqlite3.connect(tmp)
+		con.text_factory = unicode
 		try:
 			cur = con.cursor()
 			# Retrieve some metadata so we know how to handle the file 
