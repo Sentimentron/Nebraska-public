@@ -3,3 +3,4 @@
 
 from basic import BasicFilter, BasicNotFilter 
 from unique import UniqueFilter, UniqueTextFilter
+from jaccard import ClusteringJaccardFilter
