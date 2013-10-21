@@ -55,7 +55,6 @@ class UniqueTextFilter(object):
         
         logging.info("Deleting documents...")
         sql = "DELETE FROM input WHERE identifier = ?"
-        print delete_set
         c.executemany(sql, [(identifier,) for identifier in delete_set])
 
         logging.info("Committing changes...")
