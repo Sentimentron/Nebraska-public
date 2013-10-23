@@ -1,4 +1,5 @@
 #include <map>
+#include <stack>
 #include <iostream>
 #include <unordered_set>
 
@@ -10,6 +11,81 @@
 #include <sqlite3.h>
 
 const char * const SELECT_QUERY = "SELECT document_identifier, label FROM temporary_label_%s;"; 
+
+inline float _dbscan_dist (const std::unordered_set<uint64_t> first,
+                   const std::unordered_set<uint64_t> second) {
+    unsigned int u = 0, i = 0;
+    
+    for (auto t : first) {
+        u++;
+        if (second.find(t) != second.end()) {
+            i++;
+        }
+    }
+    
+    for (auto t : second) {
+        if (first.find(t) == first.end()) {
+            u++;
+        }
+    }
+    
+    return 1.0 - 1.0*i/u;
+}
+
+std::stack<std::pair<const uint64_t, std::unordered_set<uint64_t>>> dbscan_region_query(
+    std::pair<const uint64_t, std::unordered_set<uint64_t>> point, 
+    const std::map<const uint64_t, std::unordered_set<uint64_t>> &d,
+    float epsilon) {
+    std::stack<std::pair<const uint64_t, std::unordered_set<uint64_t>>> ret; 
+    for (auto _point : d) {
+        if(_dbscan_dist(point.second, _point.second) < epsilon) {
+            ret.push(_point);
+        }
+    }
+    return ret;
+}
+
+std::map<const uint64_t, uint64_t> dbscan(const std::map<const uint64_t, std::unordered_set<uint64_t>> &d,
+                                    const float epsilon, const unsigned int min_points) {
+    std::map<const uint64_t, uint64_t> ret;
+    std::unordered_set<uint64_t> visited, clustered; 
+    uint64_t cluster_counter = 0;
+    for(auto point : d) {
+        std::cout << "DBSCAN " << visited.size() << "\t" << d.size() << "\n";
+        if (visited.find(point.first) != visited.end()) continue;
+        visited.insert(point.first);
+        // 
+        auto neighbours = dbscan_region_query(point, d, epsilon);
+        if (neighbours.size() < min_points) {
+            ret[point.first] = 0; // Noise
+        }
+        else {
+            cluster_counter++;
+            ret[point.first] = cluster_counter;
+            clustered.insert(point.first);
+            while(!neighbours.empty()) {
+                auto neighbour = neighbours.top();
+                neighbours.pop();
+                if (visited.find(neighbour.first) == visited.end()) {
+                    visited.insert(neighbour.first);
+                    auto secondary_neighbours = dbscan_region_query(neighbour, d, epsilon);
+                    if (secondary_neighbours.size() >= min_points) {
+                        while(!secondary_neighbours.empty()) {
+                            auto n = secondary_neighbours.top();
+                            secondary_neighbours.pop();
+                            neighbours.push(n);
+                        }
+                    }
+                }
+                if (clustered.find(neighbour.first) == clustered.end()) {
+                    ret[neighbour.first] = cluster_counter;
+                    clustered.insert(neighbour.first);
+                }
+            }
+        }
+    }
+    return ret;
+}                                                 
 
 static int query_callback(void *map, int argc, char **argv, char **col) {
     auto *points = (std::map<uint64_t, std::unordered_set<uint64_t>> *)map;
@@ -27,9 +103,7 @@ static int query_callback(void *map, int argc, char **argv, char **col) {
     else {
         it->second.insert(label);
     }
-    
-    // printf("%lu = %lu\n", identifier, label);
-    
+        
     return 0;
 }
 
@@ -46,7 +120,7 @@ int main(int argc, char **argv) {
     int rc = 0; 
     
     // Stored as identifier -> [labels]
-    std::map<uint64_t, std::unordered_set<uint64_t>> points;
+    std::map<const uint64_t, std::unordered_set<uint64_t>> points;
     
     // Parse command line arguments 
     for (int i = 0; i < argc-1; i++) {
@@ -87,6 +161,10 @@ int main(int argc, char **argv) {
          fprintf(stderr, "SQL error: %s\n", zErrMsg);
          sqlite3_free(zErrMsg);
     }
+    else {
+        auto result = dbscan(points, 0.3, 2);
+    }
+    
     
     for (auto it = points.begin(); it != points.end(); ++it) {
         std::cout << it->first << "\t";
