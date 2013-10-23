@@ -3,6 +3,15 @@
 
 import logging 
 
+class Bag(frozenset):
+  
+  def __init__(self, document_identifier, _iter=[], **kwargs):
+      self.identifier = document_identifier
+      super(Bag,self).__init__(_iter, **kwargs)
+  
+  def get_identifier(self):
+      return self.identifer
+
 def dbscan(dataset, distances, epsilon, minimum_points):
     visited = set([])
     classification = {}
