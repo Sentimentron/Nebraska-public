@@ -22,12 +22,14 @@ def create_sqlite_connection(path):
     return conn
 
 def create_sqlite_temporary_label_table(prefix, conn):
+    if prefix is None:
+        raise ValueError()
     # Retrieve a cursor
     c = conn.cursor()
     # Create the table 
     logging.info("Creating temporary label table %s", prefix)
     c.execute(r"""CREATE TABLE temporary_label_%s (
-        document_identifier INTEGER UNIQUE NOT NULL,
+        document_identifier INTEGER NOT NULL,
         label INTEGER NOT NULL
     )""" % (prefix, ))
     logging.debug("Committing temporary table...")
