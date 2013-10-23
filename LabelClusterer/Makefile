@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-g --std=c++11 -O3  
+CXXFLAGS=-g --std=c++11 -O3 -ffast-math 
 LDFLAGS=-lsqlite3
 
 Cluster: main.o
