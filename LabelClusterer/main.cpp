@@ -1,4 +1,5 @@
 #include <map>
+#include <iostream>
 #include <unordered_set>
 
 #include <errno.h>
@@ -17,7 +18,17 @@ static int query_callback(void *map, int argc, char **argv, char **col) {
     identifier = strtoul(argv[0], NULL, 10);
     label      = strtoul(argv[1], NULL, 10);
     
-    printf("%lu = %lu\n", identifier, label);
+    auto it = points->find(identifier);
+    if (it == points->end()) {
+        auto set = std::unordered_set<uint64_t>();
+        set.insert(label);
+        points->insert(std::pair<uint64_t,std::unordered_set<uint64_t>>(identifier, set));
+    }
+    else {
+        it->second.insert(label);
+    }
+    
+    // printf("%lu = %lu\n", identifier, label);
     
     return 0;
 }
@@ -75,6 +86,14 @@ int main(int argc, char **argv) {
     if (rc != SQLITE_OK) {
          fprintf(stderr, "SQL error: %s\n", zErrMsg);
          sqlite3_free(zErrMsg);
+    }
+    
+    for (auto it = points.begin(); it != points.end(); ++it) {
+        std::cout << it->first << "\t";
+        for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+            std::cout << *it2 << " ";
+        }
+        std::cout << "\n";
     }
     
     sqlite3_close(db);
