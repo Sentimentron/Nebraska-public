@@ -6,26 +6,22 @@
 		<RetainOutputFile path="links.sqlite"/>
 		<DisableUntrackedFileCheck />
 	</WorkflowOptions>
+    
+    <Tables>
+        <TemporaryLabelTable prefix="filterClustering" />
+    </Tables>
 
 	<InputSources>
 		<TwitterInputSource dir="Data/Corpora" />
 	</InputSources>
-
-	<InputFilters>
-		<BasicFilter filterText="http://" />
-		<UniqueFilter />
-		<UniqueTextFilter />
-		<ClusteringJaccardFilter useHashTags="true" />
-	</InputFilters>
-
-	<SpecialActions>
-		<TwitterLinkExtractor>
-			<Option name="mysql_host" value="localhost" />
-			<Option name="mysql_user" value="twitterstream" />
-			<Option name="mysql_password" value="rootfish" />
-			<Option name="mysql_database" value="twitterstream" />
-			<Option name="mysql_table" value="shortlinks" />
-		</TwitterLinkExtractor>
-	</SpecialActions>
+    
+    <WorkflowTasks>
+        <BasicFilter filterText="http://" />
+        <UniqueFilter />
+        <UniqueTextFilter />
+        <!--HashtagLabeller dest="filterClustering" />
+        <AtLabeller dest="filterClustering" />
+        <LabelClusterFilter src="filterClustering" /-->
+    </WorkflowTasks>
 
 </Workflow>
