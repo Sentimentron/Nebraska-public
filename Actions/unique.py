@@ -6,24 +6,21 @@ import itertools
 
 class UniqueFilter(object):
 
-    def is_batch_filter(self):
-        return True 
-
     def __init__(self, xml):
         pass
 
-    def filter(self, db_conn):
-        c = db_conn.cursor()
+    def execute(self, path, conn):
+        c = conn.cursor()
+        
         logging.info("Finding duplicate documents...")
         sql = "DELETE FROM input WHERE document IN (SELECT document FROM (SELECT COUNT(*) AS c, document FROM input GROUP BY (document) HAVING c > 1))"
         c.execute(sql)
+        
         logging.info("Committing changes...")
-        db_conn.commit()
+        conn.commit()
+        return True, conn
 
 class UniqueTextFilter(object):
-    
-    def is_batch_filter(self):
-        return True 
 
     def __init__(self, xml):
         pass 
@@ -38,8 +35,8 @@ class UniqueTextFilter(object):
         tweet2 = self.__filter_nonmatching(tweet2)
         return tweet1 == tweet2
     
-    def filter(self, db_conn):
-        c = db_conn.cursor()
+    def execute(self, path, conn):
+        c = conn.cursor()
         # Read in all documents 
         logging.info("Searching for unique tweet text...")
         c.execute("SELECT identifier, document FROM input ORDER BY document")
@@ -58,4 +55,6 @@ class UniqueTextFilter(object):
         c.executemany(sql, [(identifier,) for identifier in delete_set])
 
         logging.info("Committing changes...")
-        db_conn.commit()
+        conn.commit()
+        
+        return True, conn
