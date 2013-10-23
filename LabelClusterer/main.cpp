@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sqlite3.h>
+
+const char * const SELECT_QUERY = "SELECT document, label FROM label_temporary_%s;"; 
+
+static int query_callback(void *unused, int argc, char **argv, char **col) {
+    int i;
+    for (i = 0; i < argc; i++) {
+        printf("%s = %s\n", col[i], argv[i] ? argv[i] : "NULL");
+    }
+    printf("\n");
+    return 0;
+}
+
+int main(int argc, char **argv) {
+
+    char *db_location = NULL;
+    char *src_table   = NULL; 
+    char *dest_table  = NULL;
+    char *query;
+    size_t query_len;
+   
+    sqlite3 *db       = NULL;
+    char *zErrMsg     = NULL;
+    int rc = 0; 
+    
+    // Parse command line arguments 
+    for (int i = 0; i < argc-1; i++) {
+        if (!strcmp(argv[i],"--db")) {
+            db_location = argv[i+1];
+        }
+        else if (!strcmp(argv[i],"--src")) {
+            src_table = argv[i+1];
+        }
+        else if (!strcmp(argv[i], "--dest")) {
+            dest_table = argv[i+1];
+        }
+    }
+    
+    // Create the query string
+    query_len = strlen(SELECT_QUERY);
+    query = (char *)calloc(query_len + 1, 1);
+    if (query == NULL) {
+        fprintf(stderr, "Allocation error\n");
+        return 2;
+    }
+    memcpy(query, SELECT_QUERY, query_len);
+    query_len = snprintf(query, 0, SELECT_QUERY, src_table) + 1;
+    query = (char *)realloc(query, query_len);
+    snprintf(query, query_len, SELECT_QUERY, src_table);
+
+    // Open the database 
+    rc = sqlite3_open(db_location, &db);
+    if (rc) {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return 1;
+    }
+    
+    fprintf(stderr, "Executing '%s'...\n", query);
+    rc = sqlite3_exec(db, query, query_callback, 0, &zErrMsg);
+    if (rc != SQLITE_OK) {
+         fprintf(stderr, "SQL error: %s\n", zErrMsg);
+         sqlite3_free(zErrMsg);
+    }
+    
+    sqlite3_close(db);
+}
