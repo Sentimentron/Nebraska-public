@@ -47,7 +47,7 @@ def configure_logging():
     logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 def create_sqlite_temp_path():
-    hnd, tmp = tempfile.mkstemp(suffix='.sqlite') 
+    hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix=os.getcwd()+"/") 
     logging.info("SQLite path: %s", tmp)
     return tmp
 
