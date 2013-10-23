@@ -12,8 +12,8 @@
 
 const char * const SELECT_QUERY = "SELECT document_identifier, label FROM temporary_label_%s;"; 
 
-inline float _dbscan_dist (const std::unordered_set<uint64_t> first,
-                   const std::unordered_set<uint64_t> second) {
+inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
+                   const std::unordered_set<uint64_t> &second) {
     unsigned int u = 0, i = 0;
     
     for (auto t : first) {
@@ -32,20 +32,19 @@ inline float _dbscan_dist (const std::unordered_set<uint64_t> first,
     return 1.0 - 1.0*i/u;
 }
 
-std::stack<std::pair<const uint64_t, std::unordered_set<uint64_t>>> dbscan_region_query(
-    std::pair<const uint64_t, std::unordered_set<uint64_t>> point, 
+void dbscan_region_query (std::stack<uint64_t> &neighbours,
+    const std::unordered_set<uint64_t> point, 
     const std::map<const uint64_t, std::unordered_set<uint64_t>> &d,
     float epsilon) {
     std::stack<std::pair<const uint64_t, std::unordered_set<uint64_t>>> ret; 
     for (auto _point : d) {
-        if(_dbscan_dist(point.second, _point.second) < epsilon) {
+        if(_dbscan_dist(point, _point.second) < epsilon) {
             ret.push(_point);
         }
     }
-    return ret;
 }
 
-std::map<const uint64_t, uint64_t> dbscan(const std::map<const uint64_t, std::unordered_set<uint64_t>> &d,
+std::map<const uint64_t, uint64_t> dbscan(std::map<const uint64_t, std::unordered_set<uint64_t>> &d,
                                     const float epsilon, const unsigned int min_points) {
     std::map<const uint64_t, uint64_t> ret;
     std::unordered_set<uint64_t> visited, clustered; 
@@ -55,7 +54,9 @@ std::map<const uint64_t, uint64_t> dbscan(const std::map<const uint64_t, std::un
         if (visited.find(point.first) != visited.end()) continue;
         visited.insert(point.first);
         // 
-        auto neighbours = dbscan_region_query(point, d, epsilon);
+        std::stack<uint64_t> neighbours;
+        neighbours.push(point.first);
+        dbscan_region_query(neighbours, point.second, d, epsilon);
         if (neighbours.size() < min_points) {
             ret[point.first] = 0; // Noise
         }
@@ -66,9 +67,12 @@ std::map<const uint64_t, uint64_t> dbscan(const std::map<const uint64_t, std::un
             while(!neighbours.empty()) {
                 auto neighbour = neighbours.top();
                 neighbours.pop();
-                if (visited.find(neighbour.first) == visited.end()) {
-                    visited.insert(neighbour.first);
-                    auto secondary_neighbours = dbscan_region_query(neighbour, d, epsilon);
+                if (visited.find(neighbour) == visited.end()) {
+                    visited.insert(neighbour);
+                    std::stack<uint64_t> secondary_neighbours;
+                    const std::unordered_set<uint64_t> &src_point = d[neighbour];
+                    secondary_neighbours.push(neighbour);
+                    dbscan_region_query(secondary_neighbours, src_point, d, epsilon);
                     if (secondary_neighbours.size() >= min_points) {
                         while(!secondary_neighbours.empty()) {
                             auto n = secondary_neighbours.top();
@@ -77,9 +81,9 @@ std::map<const uint64_t, uint64_t> dbscan(const std::map<const uint64_t, std::un
                         }
                     }
                 }
-                if (clustered.find(neighbour.first) == clustered.end()) {
-                    ret[neighbour.first] = cluster_counter;
-                    clustered.insert(neighbour.first);
+                if (clustered.find(neighbour) == clustered.end()) {
+                    ret[neighbour] = cluster_counter;
+                    clustered.insert(neighbour);
                 }
             }
         }
@@ -162,16 +166,17 @@ int main(int argc, char **argv) {
          sqlite3_free(zErrMsg);
     }
     else {
-        auto result = dbscan(points, 0.3, 2);
-    }
-    
-    
-    for (auto it = points.begin(); it != points.end(); ++it) {
-        std::cout << it->first << "\t";
-        for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
-            std::cout << *it2 << " ";
+        
+        std::map<const uint64_t, std::unordered_set<uint64_t>> filtered;
+        for (auto it : points) {
+            if (it.second.size() < 2) continue;
+            filtered[it.first] = it.second;
         }
-        std::cout << "\n";
+        
+        auto result = dbscan(points, 0.6, 2);
+        for (auto it : result) {
+            std::cout << it.first << "\t" << it.second << "\n";
+        }
     }
     
     sqlite3_close(db);
