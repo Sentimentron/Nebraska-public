@@ -1,16 +1,24 @@
+#include <map>
+#include <unordered_set>
+
+#include <errno.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sqlite3.h>
 
-const char * const SELECT_QUERY = "SELECT document, label FROM label_temporary_%s;"; 
+const char * const SELECT_QUERY = "SELECT document_identifier, label FROM temporary_label_%s;"; 
 
-static int query_callback(void *unused, int argc, char **argv, char **col) {
-    int i;
-    for (i = 0; i < argc; i++) {
-        printf("%s = %s\n", col[i], argv[i] ? argv[i] : "NULL");
-    }
-    printf("\n");
+static int query_callback(void *map, int argc, char **argv, char **col) {
+    auto *points = (std::map<uint64_t, std::unordered_set<uint64_t>> *)map;
+    uint64_t identifier, label;
+    
+    identifier = strtoul(argv[0], NULL, 10);
+    label      = strtoul(argv[1], NULL, 10);
+    
+    printf("%lu = %lu\n", identifier, label);
+    
     return 0;
 }
 
@@ -25,6 +33,9 @@ int main(int argc, char **argv) {
     sqlite3 *db       = NULL;
     char *zErrMsg     = NULL;
     int rc = 0; 
+    
+    // Stored as identifier -> [labels]
+    std::map<uint64_t, std::unordered_set<uint64_t>> points;
     
     // Parse command line arguments 
     for (int i = 0; i < argc-1; i++) {
@@ -60,7 +71,7 @@ int main(int argc, char **argv) {
     }
     
     fprintf(stderr, "Executing '%s'...\n", query);
-    rc = sqlite3_exec(db, query, query_callback, 0, &zErrMsg);
+    rc = sqlite3_exec(db, query, query_callback, &points, &zErrMsg);
     if (rc != SQLITE_OK) {
          fprintf(stderr, "SQL error: %s\n", zErrMsg);
          sqlite3_free(zErrMsg);
