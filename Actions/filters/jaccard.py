@@ -3,15 +3,6 @@
 
 import logging 
 
-class Bag(frozenset):
-  
-  def __init__(self, document_identifier, _iter=[], **kwargs):
-      self.identifier = document_identifier
-      super(Bag,self).__init__(_iter, **kwargs)
-  
-  def get_identifier(self):
-      return self.identifer
-
 def dbscan(dataset, distances, epsilon, minimum_points):
     visited = set([])
     classification = {}
@@ -98,7 +89,7 @@ class ClusteringJaccardFilter(object):
         if not self.use_text and not self.atmentions and not self.hashtags:
             raise ValueError()
     
-    def __build_dataset_entry(self, text):
+    def __build_dataset_entry(self, text, enumerate_dict, enumerate_counter):
         parts = filter(lambda x: len(x) > 0, text.split(' '))
         ret = set([])
         if self.hashtags:
@@ -107,7 +98,15 @@ class ClusteringJaccardFilter(object):
             ret.update(filter(lambda x: x[0] == '@', parts))
         if self.use_text:
             ret.update(filter(lambda x: x[0] != '@' and x[0] != '#', parts))
-        return frozenset(ret)
+        
+        enum_ret = set([])
+        for item in ret:
+            if item not in enumerate_dict:
+                enumerate_dict[item] = enumerate_counter
+                enumerate_counter += 1
+            enum_ret.add(enumerate_dict[item])
+            
+        return frozenset(enum_ret), enumerate_counter
     
     def is_batch_filter(self):
         return True 
@@ -118,21 +117,26 @@ class ClusteringJaccardFilter(object):
         dataset = []
         source = []
         logging.info("Extracting clustering terms...")
+        enumerate_dict = {}
+        enumerate_counter = 0
         for identifier, document_text in c.fetchall():
-            d = self.__build_dataset_entry(document_text)
+            d, enumerate_counter = self.__build_dataset_entry(document_text, enumerate_dict, enumerate_counter)
             dataset.append(d)
             source.append((identifier, d))
             
         clusters = build_and_run_dbscan(dataset, 0.6, 1)
         delete_identifiers = set([])
         logging.debug("Identifying documents...")
+        # Reverse the enumerate dict
+        # inverse_enumerate_dict = {enumerate_dict[v] : v for v in enumerate_dict}
+        
         for key in clusters:
             
             if clusters[key] == -1:
                 continue
             
             for identifier, terms in source:
-                if terms == key:
+                if enumerate_dict[terms] == key:
                     delete_identifiers.add(identifier)
          
         logging.info("Deleting documents")
