@@ -59,7 +59,8 @@ class TwitterCompressedDBInputSource(object):
 				yield text 
 		finally:
 			con.close()
-			# os.remove(tmp)
+			logging.debug("Removing %s...", tmp)
+			os.remove(tmp)
 
 class TwitterInputSource(object):
 
