@@ -19,9 +19,9 @@
         <BasicFilter filterText="http://" />
         <UniqueFilter />
         <UniqueTextFilter />
-        <!--HashtagLabeller dest="filterClustering" />
-        <AtLabeller dest="filterClustering" />
-        <LabelClusterFilter src="filterClustering" /-->
+        <HashTagLabeller dest="filterClustering" />
+        <AtMentionLabeller dest="filterClustering" />
+        <!--LabelClusterFilter src="filterClustering" /-->
     </WorkflowTasks>
 
 </Workflow>
