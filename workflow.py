@@ -96,7 +96,7 @@ def execute_workflow(document, sqlite_path):
         if x_node.tag is etree.Comment:
             continue
         if x_node.tag == "TemporaryLabelTable":
-            sqlite.create_sqlite_temporary_label_table(x_node.text, sqlite_conn)
+            sqlite.create_sqlite_temporary_label_table(x_node.get("prefix"), sqlite_conn)
     
     # 
     # IMPORT SOURCE DATA 
