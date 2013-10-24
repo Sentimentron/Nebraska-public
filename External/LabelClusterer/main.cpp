@@ -296,7 +296,7 @@ int main(int argc, char **argv) {
     }
     
     fprintf(stderr, "Inverting...\n");
-    for (auto it : filtered) {
+    for (auto it : points) {
         cluster_items.push_back(it.second);
         cluster_item_map[cluster_item_map_offset++] = it.first;
     }
