@@ -5,8 +5,27 @@ import sys
 import logging
 import subprocess
 
+from workflow import check_gitinfo
+
 external_path = os.path.join(os.getcwd(), "External/")
 
+def generate_version_header(path):
+    changes, version = check_gitinfo()
+    if changes:
+        version = "%s+CHANGES" % (version,)
+    template = r"""#ifndef __VERSION_H
+#define __VERSION_H
+
+/* Automatically generated version header
+   Do not modify, changes will be lost */
+
+const char * const VERSION = "%s";
+#endif
+"""
+
+    with open(path, 'w') as f:
+        f.write(template % (version,))
+    
 action = None
 print sys.argv
 if len(sys.argv) != 1:
@@ -34,6 +53,9 @@ for root, dirs, files in os.walk(external_path):
         args = ' '.join(args)
         logging.warning(args)
         try:
+            logging.info("Writing version header...")
+            generate_version_header(os.path.join(path, "version.h"))
+            logging.info("Running make...")
             subprocess.check_call(args, shell=True)
         finally:
             os.chdir(old_dir)

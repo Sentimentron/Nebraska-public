@@ -3,3 +3,5 @@
 Sentiment.xcodeproj/xcuserdata/
 *~
 *.o
+version.h
+*.sqlite
