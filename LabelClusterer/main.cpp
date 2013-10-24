@@ -1,5 +1,6 @@
 #include <map>
 #include <stack>
+#include <vector>
 #include <iostream>
 #include <unordered_set>
 
@@ -30,6 +31,36 @@ inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
     }
     
     return 1.0 - 1.0*i/u;
+}
+
+float *compute_distances(std::vector<std::unordered_set<uint64_t>> &d) {
+    size_t width = d.size();
+    unsigned int i;
+    float *ret = (float *)calloc(width * width, sizeof(float));
+    if (ret == NULL) {
+        fprintf(stderr, "Allocation error\n");
+        exit(2);
+    }
+    memset(ret, (int)1.0f, width * width * sizeof(float));
+    // 0s on the diagonal!
+    for (i = 0; i < width; i++) {
+        *(ret + i*width + i) = 0;
+    }
+    
+    for (i = 0; i < d.size(); i++) {
+        unsigned int j = i + 1;
+        for (j = i + 1; j < d.size(); j++) {
+            off_t o;
+            float distance; 
+            o = (i * width) + j;
+            distance = _dbscan_dist(d[i], d[j]);
+            *(ret + o) = distance;
+            o = (j * width) + i;
+            *(ret + 0) = distance; 
+        }
+    }
+    
+    return ret;
 }
 
 void dbscan_region_query (std::stack<uint64_t> &neighbours,
@@ -167,16 +198,35 @@ int main(int argc, char **argv) {
     }
     else {
         
+        float *distances;
+        std::vector<std::unordered_set<uint64_t>> cluster_items; 
+        // Stores the relationship between offset in cluster_items
+        // and document_id (document_id -> cluster_items_offset)
+        std::map<uint64_t, uint64_t> cluster_item_map;
+        unsigned int cluster_item_map_offset = 0;
+        
+        printf("Filtering...\n");
         std::map<const uint64_t, std::unordered_set<uint64_t>> filtered;
         for (auto it : points) {
             if (it.second.size() < 2) continue;
             filtered[it.first] = it.second;
         }
         
+        printf("Inverting...\n");
+        for (auto it : filtered) {
+            cluster_items.push_back(it.second);
+            cluster_item_map[it.first] = cluster_item_map_offset++;
+        }
+        
+        printf("Computing distance matrix...\n");
+        distances = compute_distances(cluster_items);
+        
         auto result = dbscan(points, 0.6, 2);
         for (auto it : result) {
             std::cout << it.first << "\t" << it.second << "\n";
         }
+        
+        free(distances);
     }
     
     sqlite3_close(db);
