@@ -17,12 +17,15 @@
 	</InputSources>
     
     <WorkflowTasks>
-        <BasicFilter filterText="http://" />
+        <BasicFilter filterText="http" />
         <UniqueFilter />
         <UniqueTextFilter />
         <HashTagLabeller dest="filterClustering" />
         <AtMentionLabeller dest="filterClustering" />
-        <ClusterLabeller src="filterClustering" dest="filterClustering" epsilon="0.6" minSize="4" />
+        <ClusterLabeller src="filterClustering" dest="filterClusters" epsilon="0.6" minSize="2" />
+        <LabelFilter src="filterClusters" delete="true" temporary="true">
+            <RetainLabel id="0" />
+        </LabelFilter>
         <!--LabelClusterFilter src="filterClustering" /-->
     </WorkflowTasks>
 
