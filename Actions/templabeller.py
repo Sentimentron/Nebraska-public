@@ -64,3 +64,19 @@ class AtMentionLabeller(TemporaryLabeller):
         tokens = [t for t in tokens if len(t) > 0]
         # Only return those tokens which begin with an @
         return filter(lambda x: x[0] == '@', tokens)
+
+class BasicWordLabeller(TemporaryLabeller):
+    
+    def only_letters(self, word):
+        for w in word:
+            if w >= 'a' and w <= 'a':
+                continue
+            if w >= 'A' and w <= 'Z':
+                continue 
+            return False 
+        return True 
+    
+    def split(self, document):
+        tokens = document.split(' ')
+        tokens = [t for t in tokens if self.only_letters(t)]
+        return tokens
