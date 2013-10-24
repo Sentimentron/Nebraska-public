@@ -17,6 +17,7 @@ class LabelFilter(object):
            else:
                raise ValueError((x_node.tag, "Unsupported here"))
        
+       # Known issue: boolean flags aren't translating
        self.table = xml.get("src")
        self.temporary = xml.get("temporary")
        self.delete = xml.get("delete")
