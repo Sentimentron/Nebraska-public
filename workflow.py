@@ -20,6 +20,16 @@ def print_usage_exit():
     logging.info("Usage: workflow.py /path/to/workflow.xml")
     sys.exit(1)
 
+def setup_environment():
+    path = os.environ.get("PATH")
+    if "Nebraska/Build" not in path:
+        logging.warning("Nebraska/Build is not in your PATH variable.")
+        logging.info("Nebraska/Build contains external compiled programs which aren't part of workflow.py")
+        logging.info("Add a line like the following to your ~/.bashrc file:")
+        logging.info("\texport PATH=$HOME/Nebraska/Build:$PATH")
+        logging.info("Don't forget to restart your shell.")
+        
+
 def parse_arguments():
     # Check number of parameters
     if not (len(sys.argv) == 2 or len(sys.argv) == 3):
@@ -160,6 +170,9 @@ def push_workflow_metadata(workflow_file, db_conn):
 
 def main():
     configure_logging()
+    
+    # Check the tree is up to date, things are in the path 
+    setup_environment()
     
     # Parse command line arguments  
     action, workflow_file = parse_arguments()
