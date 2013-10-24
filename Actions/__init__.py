@@ -9,3 +9,5 @@ from twitter import TwitterInputSource
 
 from templabeller import HashTagLabeller, AtMentionLabeller
 from ml import ClusterLabeller
+
+from filter import LabelFilter
