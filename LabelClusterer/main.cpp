@@ -211,26 +211,28 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    // If truncating the table, need to create the query 
-    query_len = strlen(TRUNCATE_QUERY);
-    query = (char *)calloc(query_len + 1, 1);
-    if (query == NULL) {
-        fprintf(stderr, "Allocation error\n");
-        return 2;
+    if (truncate) {
+        // If truncating the table, need to create the query 
+        query_len = strlen(TRUNCATE_QUERY);
+        query = (char *)calloc(query_len + 1, 1);
+        if (query == NULL) {
+            fprintf(stderr, "Allocation error\n");
+            return 2;
+        }
+        memcpy(query, TRUNCATE_QUERY, query_len);
+        query_len = snprintf(query, 0, TRUNCATE_QUERY, dest_table) + 1;
+        query = (char *)realloc(query, query_len);
+        snprintf(query, query_len, TRUNCATE_QUERY, dest_table);
+        fprintf(stderr, "Executing '%s'...\n", query);
+        rc = sqlite3_exec(db, query, query_callback, &points, &zErrMsg);
+        if (rc != SQLITE_OK) {
+            fprintf(stderr, "SQL error: %s\n", zErrMsg);
+            sqlite3_free(zErrMsg);
+            sqlite3_close(db);
+            return 1;
+        }
+        free(query);
     }
-    memcpy(query, TRUNCATE_QUERY, query_len);
-    query_len = snprintf(query, 0, TRUNCATE_QUERY, dest_table) + 1;
-    query = (char *)realloc(query, query_len);
-    snprintf(query, query_len, TRUNCATE_QUERY, dest_table);
-    fprintf(stderr, "Executing '%s'...\n", query);
-    rc = sqlite3_exec(db, query, query_callback, &points, &zErrMsg);
-    if (rc != SQLITE_OK) {
-         fprintf(stderr, "SQL error: %s\n", zErrMsg);
-         sqlite3_free(zErrMsg);
-         sqlite3_close(db);
-         return 1;
-    }
-    free(query);
     
     // Create the query string
     query_len = strlen(SELECT_QUERY);
