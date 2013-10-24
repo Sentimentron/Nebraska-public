@@ -13,6 +13,7 @@
 
 const char * const SELECT_QUERY = "SELECT document_identifier, label FROM temporary_label_%s;"; 
 const char * const INSERT_QUERY = "INSERT INTO temporary_label_%s VALUES (?, ?);";
+const char * const TRUNCATE_QUERY = "DELETE FROM temporary_label_%s;";
 
 inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
                    const std::unordered_set<uint64_t> &second) {
@@ -142,6 +143,12 @@ static int query_callback(void *map, int argc, char **argv, char **col) {
     return 0;
 }
 
+void _as_ltargv(int i, int argc) {
+    if (i < argc) return; 
+    fprintf(stderr, "Expected a parameter!\n");
+    exit(1);
+}
+
 int main(int argc, char **argv) {
 
     char *db_location = NULL;
@@ -154,23 +161,76 @@ int main(int argc, char **argv) {
     char *zErrMsg     = NULL;
     int rc = 0; 
     
+    int truncate = 0;
+    
     sqlite3_stmt *insert_statement = NULL;
+    float epsilon = 0.5f;
+    unsigned int minpoints = 2; 
     
     // Stored as identifier -> [labels]
     std::map<const uint64_t, std::unordered_set<uint64_t>> points;
     
     // Parse command line arguments 
-    for (int i = 0; i < argc-1; i++) {
+    for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i],"--db")) {
+            _as_ltargv(i+1, argc);
             db_location = argv[i+1];
         }
         else if (!strcmp(argv[i],"--src")) {
+            _as_ltargv(i+1, argc);
             src_table = argv[i+1];
         }
         else if (!strcmp(argv[i], "--dest")) {
+            _as_ltargv(i+1, argc);
             dest_table = argv[i+1];
         }
+        else if (!strcmp(argv[i], "--truncate")) {
+            truncate = 1;
+        }
+        else if (!strcmp(argv[i], "--minpoints")) {
+            _as_ltargv(i+1, argc);
+            if(!sscanf(argv[i+1], "%u", &minpoints)) {
+                fprintf(stderr, "--minpoints [unsigned int]\n");
+                return 1;
+            }
+        }
+        else if (!strcmp(argv[i], "--epsilon")) {
+            _as_ltargv(i+1, argc);
+            if(!sscanf(argv[i+1], "%f", &epsilon)) {
+                fprintf(stderr, "--epsilon [float]\n");
+                return 1;
+            }
+        }
     }
+    
+    // Open the database 
+    rc = sqlite3_open(db_location, &db);
+    if (rc) {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return 1;
+    }
+    
+    // If truncating the table, need to create the query 
+    query_len = strlen(TRUNCATE_QUERY);
+    query = (char *)calloc(query_len + 1, 1);
+    if (query == NULL) {
+        fprintf(stderr, "Allocation error\n");
+        return 2;
+    }
+    memcpy(query, TRUNCATE_QUERY, query_len);
+    query_len = snprintf(query, 0, TRUNCATE_QUERY, dest_table) + 1;
+    query = (char *)realloc(query, query_len);
+    snprintf(query, query_len, TRUNCATE_QUERY, dest_table);
+    fprintf(stderr, "Executing '%s'...\n", query);
+    rc = sqlite3_exec(db, query, query_callback, &points, &zErrMsg);
+    if (rc != SQLITE_OK) {
+         fprintf(stderr, "SQL error: %s\n", zErrMsg);
+         sqlite3_free(zErrMsg);
+         sqlite3_close(db);
+         return 1;
+    }
+    free(query);
     
     // Create the query string
     query_len = strlen(SELECT_QUERY);
@@ -183,14 +243,6 @@ int main(int argc, char **argv) {
     query_len = snprintf(query, 0, SELECT_QUERY, src_table) + 1;
     query = (char *)realloc(query, query_len);
     snprintf(query, query_len, SELECT_QUERY, src_table);
-
-    // Open the database 
-    rc = sqlite3_open(db_location, &db);
-    if (rc) {
-        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-        sqlite3_close(db);
-        return 1;
-    }
     
     fprintf(stderr, "Executing '%s'...\n", query);
     rc = sqlite3_exec(db, query, query_callback, &points, &zErrMsg);
@@ -200,6 +252,7 @@ int main(int argc, char **argv) {
          sqlite3_close(db);
          return 1;
     }
+    free(query);
         
     std::vector<bool> distances;
     std::vector<std::unordered_set<uint64_t>> cluster_items; 
@@ -209,8 +262,7 @@ int main(int argc, char **argv) {
     unsigned int cluster_item_map_offset = 0;
     
     fprintf(stderr, "Preparing insert query...\n");
-    // Create the query string
-    free(query);
+    // Create the insert string
     query_len = strlen(INSERT_QUERY);
     query = (char *)calloc(query_len + 1, 1);
     if (query == NULL) {
@@ -242,10 +294,10 @@ int main(int argc, char **argv) {
     }
     
     fprintf(stderr, "Computing distance matrix...\n");
-    distances = compute_distances(cluster_items, 0.3); 
+    distances = compute_distances(cluster_items, epsilon); 
     
     fprintf(stderr, "Clustering...\n");
-    auto result = dbscan(cluster_items, distances, 3);
+    auto result = dbscan(cluster_items, distances, minpoints);
     fprintf(stderr, "Outputting...\n");
     for (auto it : result) {
         if (!it.second) continue;
