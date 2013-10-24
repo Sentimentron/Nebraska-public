@@ -12,6 +12,7 @@
 #include <sqlite3.h>
 
 const char * const SELECT_QUERY = "SELECT document_identifier, label FROM temporary_label_%s;"; 
+const char * const INSERT_QUERY = "INSERT INTO temporary_label_%s VALUES (?, ?);";
 
 inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
                    const std::unordered_set<uint64_t> &second) {
@@ -153,6 +154,8 @@ int main(int argc, char **argv) {
     char *zErrMsg     = NULL;
     int rc = 0; 
     
+    sqlite3_stmt *insert_statement = NULL;
+    
     // Stored as identifier -> [labels]
     std::map<const uint64_t, std::unordered_set<uint64_t>> points;
     
@@ -205,6 +208,26 @@ int main(int argc, char **argv) {
     std::map<uint64_t, uint64_t> cluster_item_map;
     unsigned int cluster_item_map_offset = 0;
     
+    fprintf(stderr, "Preparing insert query...\n");
+    // Create the query string
+    free(query);
+    query_len = strlen(INSERT_QUERY);
+    query = (char *)calloc(query_len + 1, 1);
+    if (query == NULL) {
+        fprintf(stderr, "Allocation error\n");
+        return 2;
+    }
+    memcpy(query, INSERT_QUERY, query_len);
+    query_len = snprintf(query, 0, INSERT_QUERY, dest_table) + 1;
+    query = (char *)realloc(query, query_len);
+    snprintf(query, query_len, INSERT_QUERY, dest_table);
+    fprintf(stderr, "\tInsert query is '%s'...\n", query);
+    rc = sqlite3_prepare(db, query, -1, &insert_statement, 0);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "ERROR: Failed to prepare statement. Reason given '%s'\n", sqlite3_errmsg(db));
+        return 1;
+    }
+    
     fprintf(stderr, "Filtering...\n");
     std::map<const uint64_t, std::unordered_set<uint64_t>> filtered;
     for (auto it : points) {
@@ -223,9 +246,26 @@ int main(int argc, char **argv) {
     
     fprintf(stderr, "Clustering...\n");
     auto result = dbscan(cluster_items, distances, 3);
+    fprintf(stderr, "Outputting...\n");
     for (auto it : result) {
         if (!it.second) continue;
-        std::cout << it.first << "\t" << cluster_item_map[it.first] <<   "\t" << it.second << "\n";
+        // std::cout << it.first << "\t" << cluster_item_map[it.first] <<   "\t" << it.second << "\n";
+        rc = sqlite3_bind_int64(insert_statement, 1, cluster_item_map[it.first]);
+        if (rc != SQLITE_OK) {
+            fprintf(stderr, "ERROR: Failed to bind identifier parameter. Reason given '%s'\n", sqlite3_errmsg(db));
+            return 1;
+        }
+        rc = sqlite3_bind_int64(insert_statement, 2, it.second);
+        if (rc != SQLITE_OK) {
+            fprintf(stderr, "ERROR: Failed to bind cluster parameter. Reason given '%s'\n", sqlite3_errmsg(db));
+            return 1;
+        }
+        sqlite3_step(insert_statement);
+        rc = sqlite3_reset(insert_statement);
+        if (rc != SQLITE_OK) {
+            fprintf(stderr, "ERROR: Failed to reset insert statement. Reason given '%s'\n", sqlite3_errmsg(db));
+            return 1;
+        }
     }
     
     sqlite3_close(db);
