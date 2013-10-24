@@ -21,11 +21,11 @@
         <UniqueFilter />
         <UniqueTextFilter />
         <HashTagLabeller dest="filterClustering" />
-        <AtMentionLabeller dest="filterClustering" />
-        <ClusterLabeller src="filterClustering" dest="filterClusters" epsilon="0.6" minSize="2" />
-        <LabelFilter src="filterClusters" delete="true" temporary="true">
+        <BasicWordLabeller dest="filterClustering" />
+        <ClusterLabeller src="filterClustering" dest="filterClusters" epsilon="0.4" minSize="2" />
+        <!--LabelFilter src="filterClusters" temporary="true">
             <RetainLabel id="0" />
-        </LabelFilter>
+        </LabelFilter-->
         <!--LabelClusterFilter src="filterClustering" /-->
     </WorkflowTasks>
 

@@ -240,6 +240,16 @@ int main(int argc, char **argv) {
         free(query);
     }
     
+    // Switch off synchronization otherwise it's REEEAAALY slow
+    fprintf(stderr, "Switching off pragma...\n");
+    rc = sqlite3_exec(db, "PRAGMA synchronous = 0", NULL, NULL, &zErrMsg); 
+    if (rc != SQLITE_OK) {
+         fprintf(stderr, "SQL error: %s\n", zErrMsg);
+         sqlite3_free(zErrMsg);
+         sqlite3_close(db);
+         return 1;
+    }
+    
     // Create the query string
     query_len = strlen(SELECT_QUERY);
     query = (char *)calloc(query_len + 1, 1);
@@ -326,6 +336,15 @@ int main(int argc, char **argv) {
             fprintf(stderr, "ERROR: Failed to reset insert statement. Reason given '%s'\n", sqlite3_errmsg(db));
             return 1;
         }
+    }
+    
+    fprintf(stderr, "Committing...\n");
+    rc = sqlite3_exec(db, "COMMIT;", NULL, NULL, &zErrMsg); 
+    if (rc != SQLITE_OK) {
+         fprintf(stderr, "SQL error: %s\n", zErrMsg);
+         sqlite3_free(zErrMsg);
+         sqlite3_close(db);
+         return 1;
     }
     
     sqlite3_close(db);
