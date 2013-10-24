@@ -11,6 +11,8 @@
 #include <string.h>
 #include <sqlite3.h>
 
+#include "version.h"
+
 const char * const SELECT_QUERY = "SELECT document_identifier, label FROM temporary_label_%s;"; 
 const char * const INSERT_QUERY = "INSERT INTO temporary_label_%s VALUES (?, ?);";
 const char * const TRUNCATE_QUERY = "DELETE FROM temporary_label_%s;";
@@ -200,6 +202,10 @@ int main(int argc, char **argv) {
                 fprintf(stderr, "--epsilon [float]\n");
                 return 1;
             }
+        }
+        else if (!strcmp(argv[i], "--version")) {
+            printf("%s\n", VERSION);
+            exit(0);
         }
     }
     

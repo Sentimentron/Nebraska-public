@@ -57,10 +57,16 @@ def check_versions():
     changes, version = check_gitinfo() 
     
     for filename in os.listdir(os.path.join(os.getcwd(), "Build")):
+        if len(filename) == 0:
+            continue
+        if filename[0] == '.':
+            continue
         extension = os.path.splitext(filename)[1][1:]
         if len(extension) > 0:
             continue
         args = [filename, "--version"]
+        args = ' '.join(args)
+        print args
         pipe = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE)
         text, err = pipe.communicate()
         if "CHANGES" in text:
