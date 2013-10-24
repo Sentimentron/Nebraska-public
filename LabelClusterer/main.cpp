@@ -194,38 +194,38 @@ int main(int argc, char **argv) {
     if (rc != SQLITE_OK) {
          fprintf(stderr, "SQL error: %s\n", zErrMsg);
          sqlite3_free(zErrMsg);
+         sqlite3_close(db);
+         return 1;
     }
-    else {
         
-        std::vector<bool> distances;
-        std::vector<std::unordered_set<uint64_t>> cluster_items; 
-        // Stores the relationship between offset in cluster_items
-        // and document_id (document_id -> cluster_items_offset)
-        std::map<uint64_t, uint64_t> cluster_item_map;
-        unsigned int cluster_item_map_offset = 0;
-        
-        fprintf(stderr, "Filtering...\n");
-        std::map<const uint64_t, std::unordered_set<uint64_t>> filtered;
-        for (auto it : points) {
-            if (it.second.size() < 2) continue;
-            filtered[it.first] = it.second;
-        }
-        
-        fprintf(stderr, "Inverting...\n");
-        for (auto it : filtered) {
-            cluster_items.push_back(it.second);
-            cluster_item_map[cluster_item_map_offset++] = it.first;
-        }
-        
-        fprintf(stderr, "Computing distance matrix...\n");
-        distances = compute_distances(cluster_items, 0.3); 
-        
-        fprintf(stderr, "Clustering...\n");
-        auto result = dbscan(cluster_items, distances, 3);
-        for (auto it : result) {
-            if (!it.second) continue;
-            std::cout << it.first << "\t" << cluster_item_map[it.first] <<   "\t" << it.second << "\n";
-        }
+    std::vector<bool> distances;
+    std::vector<std::unordered_set<uint64_t>> cluster_items; 
+    // Stores the relationship between offset in cluster_items
+    // and document_id (document_id -> cluster_items_offset)
+    std::map<uint64_t, uint64_t> cluster_item_map;
+    unsigned int cluster_item_map_offset = 0;
+    
+    fprintf(stderr, "Filtering...\n");
+    std::map<const uint64_t, std::unordered_set<uint64_t>> filtered;
+    for (auto it : points) {
+        if (it.second.size() < 2) continue;
+        filtered[it.first] = it.second;
+    }
+    
+    fprintf(stderr, "Inverting...\n");
+    for (auto it : filtered) {
+        cluster_items.push_back(it.second);
+        cluster_item_map[cluster_item_map_offset++] = it.first;
+    }
+    
+    fprintf(stderr, "Computing distance matrix...\n");
+    distances = compute_distances(cluster_items, 0.3); 
+    
+    fprintf(stderr, "Clustering...\n");
+    auto result = dbscan(cluster_items, distances, 3);
+    for (auto it : result) {
+        if (!it.second) continue;
+        std::cout << it.first << "\t" << cluster_item_map[it.first] <<   "\t" << it.second << "\n";
     }
     
     sqlite3_close(db);
