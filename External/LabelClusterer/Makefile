@@ -5,5 +5,5 @@ LDFLAGS=-lsqlite3
 Cluster: main.o
 	$(CXX) $(LDFLAGS) -o Cluster *.o
 
-deploy: Cluster
+.PHONY deploy: Cluster
 	mv -v Cluster ../../Build
