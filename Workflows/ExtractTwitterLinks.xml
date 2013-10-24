@@ -9,6 +9,7 @@
     
     <Tables>
         <TemporaryLabelTable prefix="filterClustering" />
+        <TemporaryLabelTable prefix="filterClusters" />
     </Tables>
 
 	<InputSources>
@@ -21,6 +22,7 @@
         <UniqueTextFilter />
         <HashTagLabeller dest="filterClustering" />
         <AtMentionLabeller dest="filterClustering" />
+        <ClusterLabeller src="filterClustering" dest="filterClustering" epsilon="0.6" minSize="4" />
         <!--LabelClusterFilter src="filterClustering" /-->
     </WorkflowTasks>
 

@@ -8,3 +8,4 @@ from unique import UniqueFilter, UniqueTextFilter
 from twitter import TwitterInputSource
 
 from templabeller import HashTagLabeller, AtMentionLabeller
+from ml import ClusterLabeller
