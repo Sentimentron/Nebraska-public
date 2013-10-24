@@ -33,18 +33,14 @@ inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
     return 1.0 - 1.0*i/u;
 }
 
-float *compute_distances(std::vector<std::unordered_set<uint64_t>> &d) {
+std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d, float epsilon) {
     size_t width = d.size();
     unsigned int i;
-    float *ret = (float *)malloc(width * width * sizeof(float));
-    if (ret == NULL) {
-        fprintf(stderr, "Allocation error\n");
-        exit(2);
-    }
-    memset(ret, (int)1.0f, width * width * sizeof(float));
+    std::vector<bool> ret (width * width); 
+
     // 0s on the diagonal!
     for (i = 0; i < width; i++) {
-        *(ret + i*width + i) = 0;
+        ret[i*width + i] = true;
     }
     
     for (i = 0; i < d.size(); i++) {
@@ -52,11 +48,13 @@ float *compute_distances(std::vector<std::unordered_set<uint64_t>> &d) {
         for (j = i + 1; j < d.size(); j++) {
             off_t o;
             float distance; 
+            
             o = (i * width) + j;
             distance = _dbscan_dist(d[i], d[j]);
-            *(ret + o) = distance;
+            
+            ret[o] = distance < epsilon;
             o = (j * width) + i;
-            *(ret + 0) = distance; 
+            ret[i] = distance < epsilon; 
         }
     }
     
@@ -65,33 +63,31 @@ float *compute_distances(std::vector<std::unordered_set<uint64_t>> &d) {
 
 void dbscan_region_query (std::stack<uint64_t> &neighbours,
     const uint64_t point_offset,
-    const float *distances,
-    size_t max_offset,
-    float epsilon) {
+    const std::vector<bool> &distances,
+    size_t max_offset) {
     
     off_t offset = point_offset; 
     for (off_t i = offset; i < max_offset; i++) {
-        if (*(distances + (offset * max_offset + i)) < epsilon) {
-           neighbours.push(i);
+        if (distances[offset * max_offset + i]) {
+            neighbours.push(i);
         }
     }
     
 }
 
 std::map<const uint64_t, uint64_t> dbscan(const std::vector<std::unordered_set<uint64_t>> &d,
-                                    const float *distances,
-                                    const float epsilon, const unsigned int min_points) {
+                                    const std::vector<bool> distances, 
+                                    const unsigned int min_points) {
     std::map<const uint64_t, uint64_t> ret;
     std::unordered_set<uint64_t> visited, clustered; 
     uint64_t cluster_counter = 0;
     for (uint64_t point_offset = 0; point_offset < d.size(); point_offset++) {
         auto point = d[point_offset];
-        std::cout << "DBSCAN " << visited.size() << "\t" << d.size() << "\n";
         if (visited.find(point_offset) != visited.end()) continue;
         visited.insert(point_offset);
         // 
         std::stack<uint64_t> neighbours;
-        dbscan_region_query(neighbours, point_offset, distances, d.size(), epsilon);
+        dbscan_region_query(neighbours, point_offset, distances, d.size());
         if (neighbours.size() < min_points) {
             ret[point_offset] = 0; // Noise
         }
@@ -106,7 +102,7 @@ std::map<const uint64_t, uint64_t> dbscan(const std::vector<std::unordered_set<u
                     visited.insert(neighbour);
                     std::stack<uint64_t> secondary_neighbours;
                     const std::unordered_set<uint64_t> &src_point = d[neighbour];
-                    dbscan_region_query(secondary_neighbours, neighbour, distances, d.size(), epsilon);
+                    dbscan_region_query(secondary_neighbours, neighbour, distances, d.size());
                     if (secondary_neighbours.size() >= min_points) {
                         while(!secondary_neighbours.empty()) {
                             auto n = secondary_neighbours.top();
@@ -201,35 +197,35 @@ int main(int argc, char **argv) {
     }
     else {
         
-        float *distances;
+        std::vector<bool> distances;
         std::vector<std::unordered_set<uint64_t>> cluster_items; 
         // Stores the relationship between offset in cluster_items
         // and document_id (document_id -> cluster_items_offset)
         std::map<uint64_t, uint64_t> cluster_item_map;
         unsigned int cluster_item_map_offset = 0;
         
-        printf("Filtering...\n");
+        fprintf(stderr, "Filtering...\n");
         std::map<const uint64_t, std::unordered_set<uint64_t>> filtered;
         for (auto it : points) {
             if (it.second.size() < 2) continue;
             filtered[it.first] = it.second;
         }
         
-        printf("Inverting...\n");
+        fprintf(stderr, "Inverting...\n");
         for (auto it : filtered) {
             cluster_items.push_back(it.second);
             cluster_item_map[cluster_item_map_offset++] = it.first;
         }
         
-        printf("Computing distance matrix...\n");
-        distances = compute_distances(cluster_items);
+        fprintf(stderr, "Computing distance matrix...\n");
+        distances = compute_distances(cluster_items, 0.3); 
         
-        auto result = dbscan(cluster_items, distances, 0.6, 2);
+        fprintf(stderr, "Clustering...\n");
+        auto result = dbscan(cluster_items, distances, 3);
         for (auto it : result) {
+            if (!it.second) continue;
             std::cout << it.first << "\t" << cluster_item_map[it.first] <<   "\t" << it.second << "\n";
         }
-        
-        free(distances);
     }
     
     sqlite3_close(db);
