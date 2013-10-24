@@ -23,12 +23,51 @@ def print_usage_exit():
 def setup_environment():
     path = os.environ.get("PATH")
     if "Nebraska/Build" not in path:
-        logging.warning("Nebraska/Build is not in your PATH variable.")
+        logging.error("Nebraska/Build is not in your PATH variable.")
         logging.info("Nebraska/Build contains external compiled programs which aren't part of workflow.py")
         logging.info("Add a line like the following to your ~/.bashrc file:")
         logging.info("\texport PATH=$HOME/Nebraska/Build:$PATH")
         logging.info("Don't forget to restart your shell.")
+        sys.exit(1)
+
+def check_gitinfo():
+    # Check for untracked files within the tree 
+    process = subprocess.Popen("git status --porcelain", stdout=subprocess.PIPE, stderr=None, shell=True)
+    output, errors = process.communicate()
+    changes = False
+    for line in output.split("\n"):
+        logging.warning("Untracked file present in the tree! (%s)", line)
+        changes = True 
         
+    # Get the git version 
+    process = subprocess.Popen("git rev-parse HEAD", stdout=subprocess.PIPE, stderr=None, shell=True)
+    output = process.communicate()
+    return changes, output[0].strip()
+
+
+def check_versions():
+    # Check that we're in Nebraska's root
+    if "Build" not in os.listdir(os.getcwd()):
+        logging.error("Nebraska/Build is not in the current directory")
+        logging.info("Nebraska/Build contains external compiled programs which aren't part of workflow.py")
+        logging.info("To correct this problem, change into the root of Nebraska")
+        sys.exit(1)
+        
+    # Retrieve the git version 
+    changes, version = check_gitinfo() 
+    
+    for filename in os.listdir(os.path.join(os.getcwd(), "Build")):
+        extension = os.path.splitext(filename)[1][1:]
+        if len(extension) > 0:
+            continue
+        args = [filename, "--version"]
+        pipe = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE)
+        text, err = pipe.communicate()
+        if "CHANGES" in text:
+            assert changes == True 
+        tool_version,junk,junk = text.partition('+')
+        if version != tool_version:
+            raise Exception(("Invalid version", filename, text, version))
 
 def parse_arguments():
     # Check number of parameters
@@ -173,6 +212,7 @@ def main():
     
     # Check the tree is up to date, things are in the path 
     setup_environment()
+    check_versions()
     
     # Parse command line arguments  
     action, workflow_file = parse_arguments()
