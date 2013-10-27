@@ -31,6 +31,19 @@ print sys.argv
 if len(sys.argv) != 1:
     action = sys.argv[1]
 
+logging.info("Running CMake as appropriate...")
+for root, dirs, files in os.walk(external_path):
+    for d in dirs:
+        path = os.path.join(external_path, d)
+        cmake_path = os.path.join(path, "CMakeLists.txt")
+        if not os.path.exists(cmake_path):
+            # logging.warning("No CMakeLists.txt found for %s", path)
+            continue 
+        args = ["cmake", cmake_path]
+        args = ' '.join(args)
+        subprocess.check_call(args, shell=True)
+
+logging.info("Running make...")
 for root, dirs, files in os.walk(external_path):
     
     old_dir = os.getcwd()
