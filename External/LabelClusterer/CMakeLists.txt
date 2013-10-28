@@ -25,6 +25,3 @@ add_definitions(-Wall -W -g -O3 -ffast-math -std=${PLATFORM_CXX_STANDARD} ${PLAT
 target_link_libraries(Cluster sqlite3)
 target_link_libraries(Cluster c++)
 
-add_custom_command(TARGET Cluster POST_BUILD
-	COMMAND ${MAKE_COMMAND} -E copy_file
-		${CMAKE_SOURCE_DIR}/Cluster ../../Build) 
