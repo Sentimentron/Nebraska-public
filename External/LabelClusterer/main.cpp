@@ -4,6 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include <unordered_set>
+#include <math.h>
 
 #include <errno.h>
 #include <stdint.h>
@@ -17,6 +18,8 @@
 const char * const SELECT_QUERY = "SELECT document_identifier, label FROM temporary_label_%s;"; 
 const char * const INSERT_QUERY = "INSERT INTO temporary_label_%s VALUES (?, ?);";
 const char * const TRUNCATE_QUERY = "DELETE FROM temporary_label_%s;";
+
+void compute_bloom_filter(std::vector<uint64_t> &bloom, std::vector<uint64_t> &bloom_count, std::vector<std::unordered_set<uint64_t>> &d);
 
 inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
                    const std::unordered_set<uint64_t> &second) {
@@ -38,29 +41,60 @@ inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
     return 1.0 - 1.0*i/u;
 }
 
+inline int popcount(uint64_t x) {
+    int count;
+    for (count=0; x; count++)
+        x &= x-1;
+    return count;
+}
+
+inline float estimate_bm_element_count(uint64_t b) {
+    int c = popcount(b);
+    return -32 * logf(1.0f - c/64.0f);
+}
+
+inline float estimate_bm_element_union_count(uint64_t a, uint64_t b) {
+    uint64_t c = a | b;
+    return estimate_bm_element_count(c);
+}
+
 std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d, float epsilon) {
     size_t width = d.size();
     unsigned int i;
     std::vector<bool> ret (width * width); 
-    std::cerr.precision(2);
     // 0s on the diagonal!
     for (i = 0; i < width; i++) {
         ret[i*width + i] = true;
     }
     
+    std::vector<uint64_t> bloom(d.size()), bloom_count(d.size());
+    compute_bloom_filter(bloom, bloom_count, d);
+    
+    const float epsilon_comp_const = (2.0f - epsilon);
+    
     for (i = 0; i < d.size(); i++) {
         unsigned int j = i + 1;
-        if (! ( i % 100)) std::cerr << "Compute Distances: " << 100.0f * i / d.size() << "% done \r";
+        if (! ( i % 100)) std::cerr << "Compute distances: " << 100.0f * i / d.size() << "% done \r";
         for (j = i + 1; j < d.size(); j++) {
+            if (!(bloom[i] & bloom[j])) continue;
+            float a = bloom_count[i];
+            float b = bloom_count[j];
+            float c = estimate_bm_element_count(bloom[i] | bloom[j]); 
+            
+            if (a + b > epsilon_comp_const * c) continue;
+            
+            // if ((logf(-(a-64)*(b-64)*(c-64)/262144.0f)/logf(1.0f-c/64.0f)) > epsilon - 1.0f) continue;
+            // if ((a - 64) *(b - 64) * (c - 64) > powf(1-c/64.0f, epsilon-1.0f) * -262144) continue;
+
             off_t o;
-            float distance; 
+            float distance;
             
             o = (i * width) + j;
             distance = _dbscan_dist(d[i], d[j]);
             
             ret[o] = distance < epsilon;
             o = (j * width) + i;
-            ret[i] = distance < epsilon; 
+            ret[i] = distance < epsilon;
         }
     }
 
@@ -83,16 +117,16 @@ void dbscan_region_query (std::stack<uint64_t> &neighbours,
 }
 
 std::map<const uint64_t, uint64_t> dbscan(const std::vector<std::unordered_set<uint64_t>> &d,
-                                    const std::vector<bool> distances, 
-                                    const unsigned int min_points) {
+                                          const std::vector<bool> distances,
+                                          const unsigned int min_points) {
     std::map<const uint64_t, uint64_t> ret;
-    std::unordered_set<uint64_t> visited, clustered; 
+    std::unordered_set<uint64_t> visited, clustered;
     uint64_t cluster_counter = 0;
     for (uint64_t point_offset = 0; point_offset < d.size(); point_offset++) {
         auto point = d[point_offset];
         if (visited.find(point_offset) != visited.end()) continue;
         visited.insert(point_offset);
-        // 
+        //
         std::stack<uint64_t> neighbours;
         dbscan_region_query(neighbours, point_offset, distances, d.size());
         if (neighbours.size() < min_points) {
@@ -108,6 +142,7 @@ std::map<const uint64_t, uint64_t> dbscan(const std::vector<std::unordered_set<u
                 if (visited.find(neighbour) == visited.end()) {
                     visited.insert(neighbour);
                     std::stack<uint64_t> secondary_neighbours;
+                    const std::unordered_set<uint64_t> &src_point = d[neighbour];
                     dbscan_region_query(secondary_neighbours, neighbour, distances, d.size());
                     if (secondary_neighbours.size() >= min_points) {
                         while(!secondary_neighbours.empty()) {
@@ -125,7 +160,7 @@ std::map<const uint64_t, uint64_t> dbscan(const std::vector<std::unordered_set<u
         }
     }
     return ret;
-}                                                 
+}
 
 static int query_callback(void *map, int argc, char **argv, char **col) {
     auto *points = (std::map<uint64_t, std::unordered_set<uint64_t>> *)map;
@@ -243,14 +278,14 @@ int main(int argc, char **argv) {
     }
     
     // Switch off synchronization otherwise it's REEEAAALY slow
-    fprintf(stderr, "Switching off pragma...\n");
-    rc = sqlite3_exec(db, "PRAGMA synchronous = 0", NULL, NULL, &zErrMsg); 
+    /*fprintf(stderr, "Switching off pragma...\n");
+    rc = sqlite3_exec(db, "PRAGMA synchronous = 0", NULL, NULL, &zErrMsg);
     if (rc != SQLITE_OK) {
          fprintf(stderr, "SQL error: %s\n", zErrMsg);
          sqlite3_free(zErrMsg);
          sqlite3_close(db);
          return 1;
-    }
+    }*/
     
     // Create the query string
     query_len = strlen(SELECT_QUERY);
@@ -340,14 +375,14 @@ int main(int argc, char **argv) {
         }
     }
     
-    fprintf(stderr, "Committing...\n");
+    /*fprintf(stderr, "Committing...\n");
     rc = sqlite3_exec(db, "COMMIT;", NULL, NULL, &zErrMsg); 
     if (rc != SQLITE_OK) {
          fprintf(stderr, "SQL error: %s\n", zErrMsg);
          sqlite3_free(zErrMsg);
          sqlite3_close(db);
          return 1;
-    }
+    }*/
     
     sqlite3_close(db);
 }
