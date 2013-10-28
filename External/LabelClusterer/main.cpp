@@ -2,6 +2,7 @@
 #include <stack>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 #include <unordered_set>
 
 #include <errno.h>
@@ -41,7 +42,7 @@ std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d
     size_t width = d.size();
     unsigned int i;
     std::vector<bool> ret (width * width); 
-
+    std::cerr.precision(2);
     // 0s on the diagonal!
     for (i = 0; i < width; i++) {
         ret[i*width + i] = true;
@@ -49,6 +50,7 @@ std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d
     
     for (i = 0; i < d.size(); i++) {
         unsigned int j = i + 1;
+        if (! ( i % 100)) std::cerr << "Compute Distances: " << 100.0f * i / d.size() << "% done \r";
         for (j = i + 1; j < d.size(); j++) {
             off_t o;
             float distance; 
@@ -61,14 +63,15 @@ std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d
             ret[i] = distance < epsilon; 
         }
     }
-    
+
+    std::cerr << "\n";
     return ret;
 }
 
 void dbscan_region_query (std::stack<uint64_t> &neighbours,
-    const uint64_t point_offset,
+    const off_t point_offset,
     const std::vector<bool> &distances,
-    size_t max_offset) {
+    const off_t max_offset) {
     
     off_t offset = point_offset; 
     for (off_t i = offset; i < max_offset; i++) {
@@ -105,7 +108,6 @@ std::map<const uint64_t, uint64_t> dbscan(const std::vector<std::unordered_set<u
                 if (visited.find(neighbour) == visited.end()) {
                     visited.insert(neighbour);
                     std::stack<uint64_t> secondary_neighbours;
-                    const std::unordered_set<uint64_t> &src_point = d[neighbour];
                     dbscan_region_query(secondary_neighbours, neighbour, distances, d.size());
                     if (secondary_neighbours.size() >= min_points) {
                         while(!secondary_neighbours.empty()) {
