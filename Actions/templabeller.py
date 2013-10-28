@@ -69,7 +69,7 @@ class BasicWordLabeller(TemporaryLabeller):
     
     def only_letters(self, word):
         for w in word:
-            if w >= 'a' and w <= 'a':
+            if w >= 'a' and w <= 'z':
                 continue
             if w >= 'A' and w <= 'Z':
                 continue 
@@ -78,5 +78,29 @@ class BasicWordLabeller(TemporaryLabeller):
     
     def split(self, document):
         tokens = document.split(' ')
-        tokens = [t for t in tokens if self.only_letters(t)]
+        tokens = [t for t in tokens if self.only_letters(t) and len(t) >= 5]
         return tokens
+
+class BigramLabeller(TemporaryLabeller):
+
+    def splittable(self, w):
+        if w >= 'a' and w <= 'z':
+            return False
+        if w >= 'A' and w <= 'Z':
+            return False  
+        if w >= '0' and w <= '9':
+            return False 
+        return True  
+
+    def split(self, document):
+        tokens = []
+        for i in document:
+            if not self.splittable(i):
+                tokens.append(i)
+            else:
+                tokens.append(' ')
+        tokens = ''.join(tokens).split(' ')
+        tokens = [t for t in tokens if len(t) > 4]
+        print tokens 
+        print [(u,v) for u, v in zip(tokens[0:-1], tokens[1:])]
+        return [(u,v) for u, v in zip(tokens[0:-1], tokens[1:])]
