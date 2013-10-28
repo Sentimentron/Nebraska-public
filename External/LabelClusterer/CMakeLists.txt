@@ -8,7 +8,7 @@ SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../Build)
 # CXXFLAGS=-g -std=c++0x -stdlib=libc++ -O3 -ffast-math 
 # LDFLAGS=-lsqlite3 -stdlib=libc++ 
 
-add_executable(Cluster main.cpp)
+add_executable(Cluster main.cpp Point.cpp)
 
 # Compiler flags
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
