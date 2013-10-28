@@ -22,7 +22,7 @@ const char * const TRUNCATE_QUERY = "DELETE FROM temporary_label_%s;";
 void compute_bloom_filter(std::vector<uint64_t> &bloom, std::vector<uint64_t> &bloom_count, std::vector<std::unordered_set<uint64_t>> &d);
 
 inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
-                   const std::unordered_set<uint64_t> &second) {
+                           const std::unordered_set<uint64_t> &second) {
     unsigned int u = 0, i = 0;
     
     for (auto t : first) {
@@ -81,7 +81,7 @@ std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d
             float b = bloom_count[j];
             float c = estimate_bm_element_count(bloom[i] | bloom[j]); 
             
-            if (a + b > epsilon_comp_const * c) continue;
+            // if (a + b > epsilon_comp_const * c) continue;
             
             // if ((logf(-(a-64)*(b-64)*(c-64)/262144.0f)/logf(1.0f-c/64.0f)) > epsilon - 1.0f) continue;
             // if ((a - 64) *(b - 64) * (c - 64) > powf(1-c/64.0f, epsilon-1.0f) * -262144) continue;
@@ -125,29 +125,40 @@ std::map<const uint64_t, uint64_t> dbscan(const std::vector<std::unordered_set<u
     for (uint64_t point_offset = 0; point_offset < d.size(); point_offset++) {
         auto point = d[point_offset];
         if (visited.find(point_offset) != visited.end()) continue;
+        // For each unvisited point...
+        // Mark this point as visited
         visited.insert(point_offset);
-        //
+        // Get neighbours to this point 
         std::stack<uint64_t> neighbours;
+        std::unordered_set<uint64_t> visited_neighbours;
         dbscan_region_query(neighbours, point_offset, distances, d.size());
+        // If less than the minum number of points...
         if (neighbours.size() < min_points) {
             ret[point_offset] = 0; // Noise
         }
+        // Otherwise expand the cluster...
         else {
+            // Allocate a new cluster and assign it
             cluster_counter++;
             ret[point_offset] = cluster_counter;
             clustered.insert(point_offset);
+            // Visit each neighbour point...
             while(!neighbours.empty()) {
                 auto neighbour = neighbours.top();
+                // if (visited_neighbours.find(neighbour) != visited_neighbours.end()) continue;
+                visited_neighbours.insert(neighbour);
                 neighbours.pop();
+                // If neighbour hasn't been visited...
                 if (visited.find(neighbour) == visited.end()) {
-                    visited.insert(neighbour);
+                    visited.insert(neighbour); // Mark the point as visited
+                    // Retrieve secondary neighbours...
                     std::stack<uint64_t> secondary_neighbours;
-                    const std::unordered_set<uint64_t> &src_point = d[neighbour];
                     dbscan_region_query(secondary_neighbours, neighbour, distances, d.size());
                     if (secondary_neighbours.size() >= min_points) {
                         while(!secondary_neighbours.empty()) {
                             auto n = secondary_neighbours.top();
                             secondary_neighbours.pop();
+                            if (visited_neighbours.find(n) != visited_neighbours.end()) continue;
                             neighbours.push(n);
                         }
                     }
