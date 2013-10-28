@@ -56,10 +56,15 @@ def check_versions():
     # Retrieve the git version 
     changes, version = check_gitinfo() 
     
-    for filename in os.listdir(os.path.join(os.getcwd(), "Build")):
+    build_dir = os.path.join(os.getcwd(), "Build")
+
+    for filename in os.listdir(build_dir):
+        if filename[0] == '.':
+            continue
+        filename = os.path.join(build_dir, filename)
         if len(filename) == 0:
             continue
-        if filename[0] == '.':
+        if os.path.isdir(filename):
             continue
         extension = os.path.splitext(filename)[1][1:]
         if len(extension) > 0:
