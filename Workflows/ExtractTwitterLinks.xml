@@ -8,8 +8,14 @@
 	</WorkflowOptions>
     
     <Tables>
-        <TemporaryLabelTable prefix="filterClustering" />
-        <TemporaryLabelTable prefix="filterClusters" />
+        <TemporaryLabelTable prefix="hashtagLabels" />
+        <TemporaryLabelTable prefix="wordLabels" />
+        <TemporaryLabelTable prefix="atLabels" />
+        <TemporaryLabelTable prefix="bigramLabels" />
+        <TemporaryLabelTable prefix="hashtagClusters" />
+        <TemporaryLabelTable prefix="wordClusters" />
+        <TemporaryLabelTable prefix="atClusters" />
+        <TemporaryLabelTable prefix="bigramClusters" />
     </Tables>
 
 	<InputSources>
@@ -20,9 +26,14 @@
         <BasicFilter filterText="http" />
         <UniqueFilter />
         <UniqueTextFilter />
-        <HashTagLabeller dest="filterClustering" />
-        <BasicWordLabeller dest="filterClustering" />
-        <ClusterLabeller src="filterClustering" dest="filterClusters" epsilon="0.4" minSize="2" />
+        <HashTagLabeller dest="hashtagLabels" />
+        <AtMentionLabeller dest="atLabels" />
+        <BasicWordLabeller dest="wordLabels" />
+        <BigramLabeller dest="bigramClusters" />
+        <ClusterLabeller src="hashtagLabels" dest="hashtagClusters" epsilon="0.9" minSize="2" />
+        <ClusterLabeller src="wordLabels" dest="wordClusters" epsilon="0.9" minSize="2" />
+        <ClusterLabeller src="atLabels" dest="atClusters" epsilon="0.9" minSize="2" />
+        <ClusterLabeller src="bigramLabels" dest="bigramClusters" epsilon="0.9" minSize="2" />
         <!--LabelFilter src="filterClusters" temporary="true">
             <RetainLabel id="0" />
         </LabelFilter-->
