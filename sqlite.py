@@ -1,14 +1,15 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import os
 import logging
 import sqlite3
 import tempfile
 
+import Actions 
+
 def create_sqlite_temp_path():
-    hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix=os.getcwd()+"/") 
-    logging.info("SQLite path: %s", tmp)
-    return tmp
+    return Actions.create_sqlite_temp_path()
 
 def remove_sqlite_path(path):
     logging.info("Deleting workflow database...")
