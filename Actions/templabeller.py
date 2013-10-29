@@ -101,6 +101,4 @@ class BigramLabeller(TemporaryLabeller):
                 tokens.append(' ')
         tokens = ''.join(tokens).split(' ')
         tokens = [t for t in tokens if len(t) > 4]
-        print tokens 
-        print [(u,v) for u, v in zip(tokens[0:-1], tokens[1:])]
         return [(u,v) for u, v in zip(tokens[0:-1], tokens[1:])]
