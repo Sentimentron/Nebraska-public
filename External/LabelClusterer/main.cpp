@@ -33,7 +33,7 @@ inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
     }
     
     for (auto it = second.begin(); it != second.end(); ++it) {
-        if (first.find((it) == first.end()) {
+        if (first.find(*it) == first.end()) {
             u++;
         }
     }
