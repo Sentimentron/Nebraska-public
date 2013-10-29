@@ -3,6 +3,7 @@ GEM
   specs:
     addressable (2.3.5)
     cookiejar (0.3.0)
+    curb (0.8.5)
     daemons (1.1.9)
     em-http-request (1.0.3)
       addressable (>= 2.2.3)
@@ -19,10 +20,22 @@ GEM
     eventmachine (1.0.3)
     faraday (0.8.8)
       multipart-post (~> 1.2.0)
+    feedzirra (0.2.1)
+      curb (~> 0.8.1)
+      loofah (~> 1.2.1)
+      nokogiri (~> 1.6.0)
+      sax-machine (~> 0.2.1)
     http_parser.rb (0.5.3)
+    loofah (1.2.1)
+      nokogiri (>= 1.4.4)
+    mini_portile (0.5.1)
     multi_json (1.8.2)
     multipart-post (1.2.0)
     mysql (2.9.1)
+    nokogiri (1.6.0)
+      mini_portile (~> 0.5.0)
+    sax-machine (0.2.1)
+      nokogiri (~> 1.6.0)
     simple_oauth (0.2.0)
     tweetstream (2.5.0)
       daemons (~> 1.1)
@@ -41,6 +54,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  feedzirra
   mysql
+  nokogiri
   tweetstream
   whatlanguage
