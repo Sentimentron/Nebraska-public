@@ -56,24 +56,25 @@ uint64_t MurmurHash64A ( const void * key, int len, unsigned int seed )
 	return h;
 } 
 
-uint64_t build_entry(std::unordered_set<uint64_t> point, uint64_t &count) {
+uint64_t build_entry(std::unordered_set<uint64_t> point, uint64_t &count, unsigned int hash_functions) {
     uint64_t ret = 0;
     for (auto it = point.begin(); it != point.end(); ++it) {
         auto p = *it;
-        uint64_t hash1 = MurmurHash64A(&p, 8, 97 ) % 64;
-        uint64_t hash2 = MurmurHash64A(&p, 8, 108) % 64;
-        ret |= (1 << hash1) | (1 << hash2);
+        for (unsigned int i = 0; i < hash_functions; i++) {
+            uint64_t hash = MurmurHash64A(&p, 8, 2*(i+1)+1) % 64;
+            ret |= (1 << hash);
+        }
         count++;
     }
     return ret; 
 }
 
-void compute_bloom_filter(std::vector<uint64_t> &bloom, std::vector<uint64_t> &bloom_count, std::vector<std::unordered_set<uint64_t>> &d) {
+void compute_bloom_filter(std::vector<uint64_t> &bloom, std::vector<uint64_t> &bloom_count, std::vector<std::unordered_set<uint64_t>> &d, unsigned int hash_functions) {
     std::cerr << "Computing bloom filter...\n";
     for (unsigned int i = 0; i < d.size(); i++) {
         if (! ( i % 100)) std::cerr << "Compute bloom filter: " << 100.0f * i / d.size() << "% done \r";
         auto point = d[i];
-        bloom[i] = build_entry(point, bloom_count[i]);
+        bloom[i] = build_entry(point, bloom_count[i], hash_functions);
     }
     std::cerr << "\n";
 }
