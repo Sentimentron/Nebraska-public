@@ -348,15 +348,15 @@ int main(int argc, char **argv) {
     
     fprintf(stderr, "Filtering...\n");
     std::map<const uint64_t, std::unordered_set<uint64_t>> filtered;
-    for (auto it : points) {
-        if (it.second.size() < 2) continue;
-        filtered[it.first] = it.second;
+    for (auto it = points.begin(); it != points.end(); ++it) {
+        if (it->second.size() < 2) continue;
+        filtered[it->first] = it->second;
     }
     
     fprintf(stderr, "Inverting...\n");
-    for (auto it : points) {
-        cluster_items.push_back(it.second);
-        cluster_item_map[cluster_item_map_offset++] = it.first;
+    for (auto it = points.begin(); it != points.end(); ++it) {
+        cluster_items.push_back(it->second);
+        cluster_item_map[cluster_item_map_offset++] = it->first;
     }
     
     fprintf(stderr, "Computing distance matrix...\n");
@@ -365,15 +365,15 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Clustering...\n");
     auto result = dbscan(cluster_items, distances, minpoints);
     fprintf(stderr, "Outputting...\n");
-    for (auto it : result) {
-        if (!it.second) continue;
+    for (auto it = result.begin(); it != result.end(); ++it) {
+        if (!it->second) continue;
         // std::cout << it.first << "\t" << cluster_item_map[it.first] <<   "\t" << it.second << "\n";
-        rc = sqlite3_bind_int64(insert_statement, 1, cluster_item_map[it.first]);
+        rc = sqlite3_bind_int64(insert_statement, 1, cluster_item_map[it->first]);
         if (rc != SQLITE_OK) {
             fprintf(stderr, "ERROR: Failed to bind identifier parameter. Reason given '%s'\n", sqlite3_errmsg(db));
             return 1;
         }
-        rc = sqlite3_bind_int64(insert_statement, 2, it.second);
+        rc = sqlite3_bind_int64(insert_statement, 2, it->second);
         if (rc != SQLITE_OK) {
             fprintf(stderr, "ERROR: Failed to bind cluster parameter. Reason given '%s'\n", sqlite3_errmsg(db));
             return 1;
