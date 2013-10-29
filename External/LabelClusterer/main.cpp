@@ -19,7 +19,7 @@ const char * const SELECT_QUERY = "SELECT document_identifier, label FROM tempor
 const char * const INSERT_QUERY = "INSERT INTO temporary_label_%s VALUES (?, ?);";
 const char * const TRUNCATE_QUERY = "DELETE FROM temporary_label_%s;";
 
-void compute_bloom_filter(std::vector<uint64_t> &bloom, std::vector<uint64_t> &bloom_count, std::vector<std::unordered_set<uint64_t>> &d);
+void compute_bloom_filter(std::vector<uint64_t> &bloom, std::vector<uint64_t> &bloom_count, std::vector<std::unordered_set<uint64_t>> &d, unsigned int hash_functions);
 
 inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
                            const std::unordered_set<uint64_t> &second) {
@@ -58,7 +58,7 @@ inline float estimate_bm_element_union_count(uint64_t a, uint64_t b) {
     return estimate_bm_element_count(c);
 }
 
-std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d, float epsilon) {
+std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d, float epsilon, unsigned int hash_functions) {
     size_t width = d.size();
     unsigned int i;
     std::vector<bool> ret (width * width); 
@@ -68,7 +68,7 @@ std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d
     }
     
     std::vector<uint64_t> bloom(d.size()), bloom_count(d.size());
-    compute_bloom_filter(bloom, bloom_count, d);
+    compute_bloom_filter(bloom, bloom_count, d, hash_functions);
     
     const float epsilon_comp_const = (2.0f - epsilon);
     
@@ -216,6 +216,7 @@ int main(int argc, char **argv) {
     sqlite3_stmt *insert_statement = NULL;
     float epsilon = 0.5f;
     unsigned int minpoints = 2; 
+    unsigned int hash_functions = 37;
     
     // Stored as identifier -> [labels]
     std::map<const uint64_t, std::unordered_set<uint64_t>> points;
@@ -360,7 +361,7 @@ int main(int argc, char **argv) {
     }
     
     fprintf(stderr, "Computing distance matrix...\n");
-    distances = compute_distances(cluster_items, epsilon); 
+    distances = compute_distances(cluster_items, epsilon, hash_functions); 
     
     fprintf(stderr, "Clustering...\n");
     auto result = dbscan(cluster_items, distances, minpoints);
