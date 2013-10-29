@@ -25,15 +25,15 @@ inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
                            const std::unordered_set<uint64_t> &second) {
     unsigned int u = 0, i = 0;
     
-    for (auto t : first) {
+    for (auto it = first.begin(); it != first.end(); ++it) {
         u++;
-        if (second.find(t) != second.end()) {
+        if (second.find(*it) != second.end()) {
             i++;
         }
     }
     
-    for (auto t : second) {
-        if (first.find(t) == first.end()) {
+    for (auto it = second.begin(); it != second.end(); ++it) {
+        if (first.find((it) == first.end()) {
             u++;
         }
     }

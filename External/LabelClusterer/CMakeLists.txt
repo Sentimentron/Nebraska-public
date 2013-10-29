@@ -14,14 +14,12 @@ add_executable(Cluster main.cpp Point.cpp)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	SET(PLATFORM_CXX_STANDARD "c++0x")
 	SET(PLATFORM_CXX_FLAGS "-stdlib=libc++")
-	# target_link_libraries(Cluster c++)
+	target_link_libraries(Cluster c++)
 else ()
-	SET(PLATFORM_CXX_STANDARD "c++11")
-	SET(PLATFORM_CXX_FLAGS "")
+	SET(PLATFORM_CXX_STANDARD "gnu++0x")
 endif ()
 
 add_definitions(-Wall -W -g -O3 -ffast-math -std=${PLATFORM_CXX_STANDARD} ${PLATFORM_CXX_FLAGS})
 
 target_link_libraries(Cluster sqlite3)
-target_link_libraries(Cluster c++)
 
