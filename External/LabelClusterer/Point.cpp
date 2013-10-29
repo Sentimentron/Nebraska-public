@@ -12,6 +12,10 @@
 #include <unordered_set>
 #include <stdint.h>
 
+const unsigned int PRIMES[64] = {
+    311,313,317,331,337,347,349,353,359,367,373,379,383,389,397,401,409,419,421,431,433,439,443,449,457,461,463,467,479,487,491,499,503,509,521,523,541,547,557,563,569,571,577,587,593,599,601,607,613,617,619,631,641,643,647,653,659,661,673,677,683,691,701,709
+};
+
 // MurmurHash2, 64-bit version, by Austin Appleby
 uint64_t MurmurHash64A ( const void * key, int len, unsigned int seed )
 {
@@ -61,7 +65,7 @@ uint64_t build_entry(std::unordered_set<uint64_t> point, uint64_t &count, unsign
     for (auto it = point.begin(); it != point.end(); ++it) {
         auto p = *it;
         for (unsigned int i = 0; i < hash_functions; i++) {
-            uint64_t hash = MurmurHash64A(&p, 8, 2*(i+1)+1) % 64;
+            uint64_t hash = MurmurHash64A(&p, 8, PRIMES[i]) % 64;
             ret |= (1 << hash);
         }
         count++;
