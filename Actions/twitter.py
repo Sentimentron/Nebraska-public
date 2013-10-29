@@ -6,6 +6,7 @@ import logging
 import sqlite3
 import tempfile
 import subprocess
+from temp import create_sqlite_temp_path
 
 class TwitterCompressedDBInputSource(object):
 
@@ -18,7 +19,7 @@ class TwitterCompressedDBInputSource(object):
         self.__assert_path_exists()
 
     def decompress(self):
-        hnd, tmp = tempfile.mkstemp(suffix='.sqlite') 
+        tmp = create_sqlite_temp_path()
         try:
             logging.info("Decompressing '%s' to '%s'...", self.path, tmp)
             # Open the decompression output
