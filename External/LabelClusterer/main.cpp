@@ -23,21 +23,17 @@ void compute_bloom_filter(std::vector<uint64_t> &bloom, std::vector<uint64_t> &b
 
 inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
                            const std::unordered_set<uint64_t> &second) {
-    unsigned int u = 0, i = 0;
+    unsigned int u, i = 0;
+
+    u = first.size();
+    if (second.size() > u) u = second.size();
     
     for (auto it = first.begin(); it != first.end(); ++it) {
-        u++;
         if (second.find(*it) != second.end()) {
             i++;
         }
     }
-    
-    for (auto it = second.begin(); it != second.end(); ++it) {
-        if (first.find(*it) == first.end()) {
-            u++;
-        }
-    }
-    
+     
     return 1.0 - 1.0*i/u;
 }
 
@@ -48,9 +44,20 @@ inline int popcount(uint64_t x) {
     return count;
 }
 
+const float BM_ELEMENT_ESTIMATE[64] = {0., 0.503947, 1.01596, 1.5363, 2.06523, 2.60306, 3.15008, 3.70662, 
+4.273, 4.8496, 5.43677, 6.03492, 6.64446, 7.26584, 7.89952, 8.54601, 
+9.20583, 9.87954, 10.5677, 11.2711, 11.9902, 12.7259, 13.4788, 14.25, 
+15.0401, 15.8503, 16.6815, 17.5349, 18.4117, 19.3131, 20.2407, 
+21.196, 22.1807, 23.1967, 24.2459, 25.3308, 26.4537, 27.6175, 
+28.8252, 30.0802, 31.3865, 32.7484, 34.1709, 35.6595, 37.2208, 
+38.8622, 40.5924, 42.4214, 44.3614, 46.4267, 48.6344, 51.0059, 
+53.5672, 56.3516, 59.4015, 62.7731, 66.5421, 70.8151, 75.748, 
+81.5822, 88.7228, 97.9287, 110.904, 133.084};
+
 inline float estimate_bm_element_count(uint64_t b) {
-    int c = popcount(b);
-    return -32 * logf(1.0f - c/64.0f);
+    int c = __builtin_popcount(b);
+    return BM_ELEMENT_ESTIMATE[c];
+//    return -32 * logf(1.0f - c/64.0f);
 }
 
 inline float estimate_bm_element_union_count(uint64_t a, uint64_t b) {
