@@ -58,7 +58,8 @@ uint64_t MurmurHash64A ( const void * key, int len, unsigned int seed )
 
 uint64_t build_entry(std::unordered_set<uint64_t> point, uint64_t &count) {
     uint64_t ret = 0;
-    for (auto p : point) {
+    for (auto it = point.begin(); it != point.end(); ++it) {
+        auto p = *it;
         uint64_t hash1 = MurmurHash64A(&p, 8, 97 ) % 64;
         uint64_t hash2 = MurmurHash64A(&p, 8, 108) % 64;
         ret |= (1 << hash1) | (1 << hash2);
