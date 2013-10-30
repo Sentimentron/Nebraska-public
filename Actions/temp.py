@@ -5,6 +5,7 @@
  This file handles temporary path generation.
 """
 
+import os
 import logging
 import platform 
 import tempfile 
