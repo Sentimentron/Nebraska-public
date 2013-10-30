@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import math
 import logging
 import subprocess
 
@@ -25,6 +26,20 @@ class ClusterLabeller(object):
             logging.warning("No minSize value specified, set at 4")
             self.min_size = 4
         
+        # Estimate the number of hash functions needed
+        logging.info("Estimating number of hash functions needed...")
+        sql = """SELECT AVG(c) FROM (
+        SELECT COUNT(*) AS c FROM temporary_label_%s
+        GROUP BY document_identifier 
+        )""" % (self.src,)
+        c = conn.cursor()
+        c.execute(sql)
+        for avg, in c.fetchall():
+            pass 
+        funcs = 64.0 / avg * math.log(2)
+        funcs = int(round(funcs))
+        logging.info("Selected %d hash functions.", funcs)
+        
         # 
         args = ["Cluster",
             "--db", path,
@@ -32,9 +47,11 @@ class ClusterLabeller(object):
             "--dest", self.dest,
             "--epsilon", self.epsilon,
             "--minpoints", self.min_size,
+            "--hashfunctions", str(funcs),
             "--truncate"
         ]
         args = ' '.join(args)
+        logging.debug(args)
         subprocess.check_call(args, shell=True)
         
         return True, conn
