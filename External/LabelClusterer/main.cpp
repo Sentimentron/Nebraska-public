@@ -223,7 +223,7 @@ int main(int argc, char **argv) {
     sqlite3_stmt *insert_statement = NULL;
     float epsilon = 0.5f;
     unsigned int minpoints = 2; 
-    unsigned int hash_functions = 37;
+    unsigned int hash_functions = 0;
     
     // Stored as identifier -> [labels]
     std::map<const uint64_t, std::unordered_set<uint64_t>> points;
@@ -263,6 +263,23 @@ int main(int argc, char **argv) {
             printf("%s\n", VERSION);
             exit(0);
         }
+	else if (!strcmp(argv[i], "--hashfunctions")) {
+            _as_ltargv(i+1, argc);
+            if(!sscanf(argv[i+1], "%u", &hash_functions)) {
+                fprintf(stderr, "--hashfunctions [unsigned int]\n");
+                return 1;
+            }
+	}
+    }
+
+    if (!hash_functions) {
+        fprintf(stderr, "Error: --hashfunctions must be specified.\n");
+        return 1;
+    }
+
+    if (hash_functions > 64) { 
+        fprintf(stderr, "Error: number of hash functions doesn't make sense!\n");
+        return 1;
     }
     
     // Open the database 
