@@ -102,3 +102,13 @@ class BigramLabeller(TemporaryLabeller):
         tokens = ''.join(tokens).split(' ')
         tokens = [t for t in tokens if len(t) > 4]
         return [(u,v) for u, v in zip(tokens[0:-1], tokens[1:])]
+
+class LengthLabeller(TemporaryLabeller):
+    
+    def __init__(self, xml):
+        super(LengthLabeller, self).__init__(xml)
+        self.bin_size = xml.get("binSize")
+        assert self.bin_size != None
+    
+    def split(self, document):
+        return len(document) % self.bin_size
