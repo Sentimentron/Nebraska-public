@@ -34,7 +34,7 @@ inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
         }
     }
      
-    return 1.0 - 1.0*i/u;
+    return 1.0 - (1.0*i)/u;
 }
 
 inline int popcount(uint64_t x) {
@@ -54,15 +54,10 @@ const float BM_ELEMENT_ESTIMATE[64] = {0., 0.503947, 1.01596, 1.5363, 2.06523, 2
 53.5672, 56.3516, 59.4015, 62.7731, 66.5421, 70.8151, 75.748, 
 81.5822, 88.7228, 97.9287, 110.904, 133.084};
 
-inline float estimate_bm_element_count(uint64_t b) {
+inline float estimate_bm_element_count(uint64_t b, unsigned int hash_functions) {
     int c = __builtin_popcount(b);
-    return BM_ELEMENT_ESTIMATE[c];
-//    return -32 * logf(1.0f - c/64.0f);
-}
-
-inline float estimate_bm_element_union_count(uint64_t a, uint64_t b) {
-    uint64_t c = a | b;
-    return estimate_bm_element_count(c);
+    // fprintf(stderr, "%d\n", c);
+    return -64.0 / hash_functions * logf(1.0f - (c/64.0f));
 }
 
 std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d, float epsilon, unsigned int hash_functions) {
@@ -84,9 +79,11 @@ std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d
         if (! ( i % 100)) std::cerr << "Compute distances: " << 100.0f * i / d.size() << "% done \r";
         for (j = i + 1; j < d.size(); j++) {
             if (!(bloom[i] & bloom[j])) continue;
-            float a = bloom_count[i];
-            float b = bloom_count[j];
-            float c = estimate_bm_element_count(bloom[i] | bloom[j]); 
+            uint64_t a = bloom_count[i];
+            uint64_t b = bloom_count[j];
+            float c = estimate_bm_element_count(bloom[i] | bloom[j], hash_functions); 
+            
+            //fprintf(stderr, "a: %d\tb: %d\tc: %f\te: %f\t", a, b, c, epsilon_comp_const);
             
             // if (a + b > epsilon_comp_const * c) continue;
             
@@ -98,6 +95,7 @@ std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d
             
             o = (i * width) + j;
             distance = _dbscan_dist(d[i], d[j]);
+            //fprintf(stderr, "d:%f\n", distance);
             
             ret[o] = distance < epsilon;
             o = (j * width) + i;
