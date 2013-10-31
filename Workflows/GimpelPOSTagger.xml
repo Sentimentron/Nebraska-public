@@ -1,0 +1,22 @@
+<Workflow>
+
+	<WorkflowOptions>
+		<WorkflowName>Gimpel POS Tagger</WorkflowName>
+		<WorkflowDescription> Tags the tweets based on the POS tagger by Gimpel et al.</WorkflowDescription>
+		<RetainOutputFile path="gimpel.sqlite"/>
+		<DisableUntrackedFileCheck />
+	</WorkflowOptions>
+
+    <Tables>
+        <PartOfSpeechTable name="test"/>
+    </Tables>
+
+	<InputSources>
+		<TwitterInputSource dir="Data/Corpora" />
+	</InputSources>
+
+    <WorkflowTasks>
+        <GimpelPOSTagger dest="test"/>
+    </WorkflowTasks>
+
+</Workflow>
