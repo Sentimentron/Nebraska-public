@@ -53,8 +53,23 @@
 		DE1C1A241806C73400589ED0 /* TwitterTokenizer.h in Headers */ = {isa = PBXBuildFile; fileRef = DE1C19ED1806C73400589ED0 /* TwitterTokenizer.h */; };
 		DE1C1A251806C73400589ED0 /* WhitespaceTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE1C19EE1806C73400589ED0 /* WhitespaceTokenizer.cpp */; };
 		DE1C1A261806C73400589ED0 /* WhitespaceTokenizer.h in Headers */ = {isa = PBXBuildFile; fileRef = DE1C19EF1806C73400589ED0 /* WhitespaceTokenizer.h */; };
+		DE1C1A291806C8C700589ED0 /* Evolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE1C1A281806C8C700589ED0 /* Evolver.cpp */; };
+		DE1C1A371807061C00589ED0 /* Evolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE1C1A281806C8C700589ED0 /* Evolver.cpp */; };
+		DE1C1A381807063600589ED0 /* libNebraska.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DE4D351717FB211E00B878A5 /* libNebraska.dylib */; };
 		DE4D351F17FB215D00B878A5 /* sfmt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAC8AF517F73662009888C6 /* sfmt.cpp */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DE1C1A2C1807060000589ED0 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		DE1C19AD1806C73400589ED0 /* FFTClassifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFTClassifier.cpp; sourceTree = "<group>"; };
@@ -103,6 +118,8 @@
 		DE1C19ED1806C73400589ED0 /* TwitterTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TwitterTokenizer.h; sourceTree = "<group>"; };
 		DE1C19EE1806C73400589ED0 /* WhitespaceTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhitespaceTokenizer.cpp; sourceTree = "<group>"; };
 		DE1C19EF1806C73400589ED0 /* WhitespaceTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhitespaceTokenizer.h; sourceTree = "<group>"; };
+		DE1C1A281806C8C700589ED0 /* Evolver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Evolver.cpp; path = Evolver/Evolver.cpp; sourceTree = "<group>"; };
+		DE1C1A2E1807060000589ED0 /* Evolver */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Evolver; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE4D351717FB211E00B878A5 /* libNebraska.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libNebraska.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE4D353317FB22C800B878A5 /* best_genome.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = best_genome.txt; path = Data/best_genome.txt; sourceTree = "<group>"; };
 		DE4D353417FB22C800B878A5 /* sentences.csv */ = {isa = PBXFileReference; lastKnownFileType = text; name = sentences.csv; path = Data/sentences.csv; sourceTree = "<group>"; };
@@ -138,6 +155,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		DE1C1A2B1807060000589ED0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE1C1A381807063600589ED0 /* libNebraska.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DE4D351417FB211E00B878A5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -265,6 +290,14 @@
 			path = Tokenizers;
 			sourceTree = "<group>";
 		};
+		DE1C1A271806C8A900589ED0 /* Evolver */ = {
+			isa = PBXGroup;
+			children = (
+				DE1C1A281806C8C700589ED0 /* Evolver.cpp */,
+			);
+			name = Evolver;
+			sourceTree = "<group>";
+		};
 		DE4D353217FB22B700B878A5 /* Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -301,6 +334,7 @@
 		DE9648B017E89B3300BE46A5 = {
 			isa = PBXGroup;
 			children = (
+				DE1C1A271806C8A900589ED0 /* Evolver */,
 				DE1C19AB1806C73400589ED0 /* Nebraska */,
 				DE4D353217FB22B700B878A5 /* Data */,
 				DE9648BC17E89B3300BE46A5 /* Products */,
@@ -313,6 +347,7 @@
 			isa = PBXGroup;
 			children = (
 				DE4D351717FB211E00B878A5 /* libNebraska.dylib */,
+				DE1C1A2E1807060000589ED0 /* Evolver */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -377,6 +412,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		DE1C1A2D1807060000589ED0 /* Evolver */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE1C1A341807060000589ED0 /* Build configuration list for PBXNativeTarget "Evolver" */;
+			buildPhases = (
+				DE1C1A2A1807060000589ED0 /* Sources */,
+				DE1C1A2B1807060000589ED0 /* Frameworks */,
+				DE1C1A2C1807060000589ED0 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Evolver;
+			productName = Evolver;
+			productReference = DE1C1A2E1807060000589ED0 /* Evolver */;
+			productType = "com.apple.product-type.tool";
+		};
 		DE4D351617FB211E00B878A5 /* Nebraska */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DE4D351817FB211F00B878A5 /* Build configuration list for PBXNativeTarget "Nebraska" */;
@@ -416,11 +468,20 @@
 			projectRoot = "";
 			targets = (
 				DE4D351617FB211E00B878A5 /* Nebraska */,
+				DE1C1A2D1807060000589ED0 /* Evolver */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		DE1C1A2A1807060000589ED0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE1C1A371807061C00589ED0 /* Evolver.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DE4D351317FB211E00B878A5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -444,12 +505,36 @@
 				DE1C1A211806C73400589ED0 /* SentiWordNetTokenizer.cpp in Sources */,
 				DE1C1A231806C73400589ED0 /* TwitterTokenizer.cpp in Sources */,
 				DE1C1A251806C73400589ED0 /* WhitespaceTokenizer.cpp in Sources */,
+				DE1C1A291806C8C700589ED0 /* Evolver.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		DE1C1A351807060000589ED0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Nebraska";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		DE1C1A361807060000589ED0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Nebraska";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		DE4D351917FB211F00B878A5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -546,6 +631,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		DE1C1A341807060000589ED0 /* Build configuration list for PBXNativeTarget "Evolver" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE1C1A351807060000589ED0 /* Debug */,
+				DE1C1A361807060000589ED0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		DE4D351817FB211F00B878A5 /* Build configuration list for PBXNativeTarget "Nebraska" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
