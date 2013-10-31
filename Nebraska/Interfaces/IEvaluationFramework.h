@@ -12,8 +12,8 @@
 #include <map>
 #include <vector>
 #include <string>
-#include "IClassifier.h"
-#include "EnumeratedSentence.h"
+#include "Interfaces/IClassifier.h"
+#include "Models/EnumeratedSentence.h"
 #include <exception>
 #include <iostream>
 
@@ -34,7 +34,7 @@ public:
     }
     float ComputeFitness() {
         // return this->TotalCorrectByLabel(PositiveSentenceLabel) + this->TotalCorrectByLabel(NegativeSentenceLabel);
-        return this->TotalSentencesCorrect() * 100.0f / this->TotalDefined();
+        return this->TotalSentencesCorrect() * 100.0f / this->TotalSentencesTested();
     }
     unsigned int TotalSentencesCorrect() {
         unsigned int ret = 0;

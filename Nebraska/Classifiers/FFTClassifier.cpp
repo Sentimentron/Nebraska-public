@@ -7,15 +7,16 @@
 //
 
 #include "math.h"
-#include "FFTClassifier.h"
-#include "EnumeratedSentence.h"
+#include "Classifiers/FFTClassifier.h"
+#include "Models/EnumeratedSentence.h"
 
 //
 // Classifier constructors
 //
 
 FFTClassifier::FFTClassifier() {
-
+    this->positive_seen = false;
+    this->negative_seen = false;
 }
 
 FFTClassifier::~FFTClassifier() {
@@ -122,7 +123,7 @@ ClassificationLabel FFTClassifier::Classify (const EnumeratedSentence *s, float 
     
     delete classify_signal;
     
-    if (fabs(best_corr) < 0.20) return UndefinedSentenceLabel;
+    //if (fabs(best_corr) < 0.20) return UndefinedSentenceLabel;
     
     return ret;
 }

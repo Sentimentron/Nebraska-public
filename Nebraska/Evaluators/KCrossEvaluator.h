@@ -10,13 +10,7 @@
 #define __Sentiment__KCrossEvaluator__
 
 #include <iostream>
-#include "IEvaluationFramework.h"
-
-/*    IEvaluationFramework() {}
- IEvaluationFramework(std::vector<EnumeratedSentence *> *)  {}
- virtual ~IEvaluationFramework() {}
- virtual EvaluationResult Evaluate(IClassifier *c, float *smap, std::vector<EnumeratedSentence *> *s) = 0;
- virtual EvaluationResult Evaluate(IClassifier *, float*) = 0;*/
+#include "Interfaces/IEvaluationFramework.h"
 
 class KCrossEvaluator : IEvaluationFramework {
 private:
@@ -27,18 +21,23 @@ private:
                                            std::vector<std::vector<const EnumeratedSentence *>> ,
                                            std::vector<const EnumeratedSentence *>
                                            ) const;
-    unsigned int number_of_folds = 3;
+    unsigned int number_of_folds;
     
     const std::map<unsigned int, std::vector<const EnumeratedSentence *>> GetFolds() const {
         return this->folds;
     }
-    
+    void Construct() {
+	this->number_of_folds = 3;
+    }
 public:
-    KCrossEvaluator() {};
+    KCrossEvaluator() {
+	this->Construct();
+    }
     KCrossEvaluator(unsigned int folds) {
         this->number_of_folds = folds;
     }
     KCrossEvaluator(std::vector<const EnumeratedSentence *> *s) {
+	this->Construct();
         this->GenerateRandomizedFolds(s);
     }
     KCrossEvaluator(std::vector<const EnumeratedSentence *> *s, unsigned int folds) {

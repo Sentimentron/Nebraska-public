@@ -9,9 +9,9 @@
 #include <string>
 #include <vector>
 
-#include "Sentence.h"
+#include "Models/Sentence.h"
 #include "WhitespaceTokenizer.h"
-#include "WordToken.h"
+#include "Models/WordToken.h"
 
 //
 // Constructors and destructors 

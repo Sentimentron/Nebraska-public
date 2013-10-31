@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Richard Townsend. All rights reserved.
 //
 
-#include "Sentence.h"
+#include "Models/Sentence.h"
 #include "PLSentenceSource.h"
 #include <stdlib.h>
 #include <stdio.h>

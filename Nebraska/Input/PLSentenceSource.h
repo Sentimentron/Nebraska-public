@@ -12,7 +12,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "ISentenceSource.h"
+#include "Interfaces/ISentenceSource.h"
 
 typedef enum {
     SentenceReadFileError,

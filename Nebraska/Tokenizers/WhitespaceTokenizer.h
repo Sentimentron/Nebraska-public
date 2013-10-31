@@ -13,8 +13,8 @@
 #include <string>
 #include <vector>
 
-#include "ITokenizer.h"
-#include "Sentence.h"
+#include "Interfaces/ITokenizer.h"
+#include "Models/Sentence.h"
 
 class WhitespaceTokenizer : public ITokenizer {
 public:

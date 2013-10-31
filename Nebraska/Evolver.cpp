@@ -8,6 +8,7 @@
 #include <random>
 #include <cfloat>
 #include "Evolver.h"
+#include <string.h>
 
 Evolver::~Evolver() {
     for (auto it = this->fitness_map.begin(); it != this->fitness_map.end(); it++) {
