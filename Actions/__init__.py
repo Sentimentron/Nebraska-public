@@ -3,7 +3,7 @@
 
 from metadata import fetch_metadata, push_metadata
 
-from basic import BasicFilter, BasicNotFilter 
+from basic import BasicFilter, BasicNotFilter
 from unique import UniqueFilter, UniqueTextFilter
 
 from twitter import TwitterInputSource
@@ -14,3 +14,5 @@ from ml import ClusterLabeller
 from filter import LabelFilter
 
 from temp import create_sqlite_temp_path
+
+from whitespace import WhiteSpacePOSTagger
