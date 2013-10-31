@@ -1,5 +1,12 @@
 *.class
-Sentiment.xcodeproj/project.xcworkspace/
-Sentiment.xcodeproj/xcuserdata/
+*.pyc
 *~
 *.o
+version.h
+*.sqlite
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
+Sentiment.xcodeproj
