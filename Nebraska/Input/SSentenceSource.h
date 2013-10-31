@@ -16,7 +16,7 @@
 #include "Interfaces/ISentenceSource.h"
 #include "Models/Sentence.h"
 
-class SSentenceSource : ISentenceSource {
+class SSentenceSource : public ISentenceSource {
 private:
     std::vector<Sentence *> sentences;
 public:

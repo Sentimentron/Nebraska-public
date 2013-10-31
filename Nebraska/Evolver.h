@@ -69,6 +69,12 @@ private:
 	this->output = false;
     }
 public:
+    void SetMutationRate(float rate) {
+        this->mutation_rate = rate;
+    }
+    void SetMutationAmount(float amount) {
+        this->mutation_amount = amount;
+    }
     // Breeds a new genome, places the result in float
     void BreedGenome(float *);
     // Copies the first argument, stores fitness value
