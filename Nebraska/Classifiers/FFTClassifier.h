@@ -11,15 +11,15 @@
 
 #include <tuple>
 #include <iostream>
-#include "EnumeratedSentence.h"
-#include "FloatingFloatBuffer.h"
-#include "IClassifier.h"
+#include "Models/EnumeratedSentence.h"
+#include "Models/FloatingFloatBuffer.h"
+#include "Interfaces/IClassifier.h"
 
 
 class FFTClassifier : public IClassifier {
 private:
-    bool negative_seen = false;
-    bool positive_seen = false;
+    bool negative_seen;
+    bool positive_seen;
     std::vector<std::tuple<const EnumeratedSentence*, FloatingFloatBuffer *>>training;
     FloatingFloatBuffer *CreateSignal(const EnumeratedSentence *, float *);
 public:

@@ -10,7 +10,7 @@
 #include <fstream>
 #include <sstream>
 
-void SentiwordNetReader::init() {
+void SentiWordNetReader::init() {
     std::ifstream input;
     std::string buf, line;
     std::vector<std::string> vbuf;

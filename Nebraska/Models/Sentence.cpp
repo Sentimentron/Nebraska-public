@@ -7,6 +7,7 @@
 //
 
 #include "Sentence.h"
+#include <string.h>
 
 //
 // Sentence constructors

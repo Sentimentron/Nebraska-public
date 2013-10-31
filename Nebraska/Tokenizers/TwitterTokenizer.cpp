@@ -7,7 +7,7 @@
 //
 
 #include "TwitterTokenizer.h"
-#include "WordToken.h"
+#include "Models/WordToken.h"
 
 std::vector<IToken *> TwitterTokenizer::Tokenize(Sentence *s) {
     std::vector<std::string> split_wbuf, tokens;

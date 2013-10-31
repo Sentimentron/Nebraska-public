@@ -11,9 +11,9 @@
 
 #include <vector>
 #include <iostream>
-#include "IStringEnumerator.h"
-#include "Sentence.h"
-#include "TokenizedSentence.h"
+#include "Interfaces/IStringEnumerator.h"
+#include "Models/Sentence.h"
+#include "Models/TokenizedSentence.h"
 
 class EnumeratedSentence : public Sentence {
 private:

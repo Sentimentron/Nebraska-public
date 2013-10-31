@@ -10,13 +10,13 @@
 #define __Sentiment__TwitterTokenizer__
 
 #include <iostream>
-#include "SentiWordTokenizer.h"
+#include "SentiWordNetTokenizer.h"
 
-class TwitterTokenizer : public SentiWordTokenizer {
+class TwitterTokenizer : public SentiWordNetTokenizer {
 public:
-    TwitterTokenizer(SentiwordNetReader &swr) : SentiWordTokenizer(swr) {}
-    TwitterTokenizer(std::string path) : SentiWordTokenizer(path) {}
-    TwitterTokenizer() : SentiWordTokenizer() {}
+    TwitterTokenizer(SentiWordNetReader &swr) : SentiWordNetTokenizer(swr) {}
+    TwitterTokenizer(std::string path) : SentiWordNetTokenizer(path) {}
+    TwitterTokenizer() : SentiWordNetTokenizer() {}
     std::vector<IToken *>Tokenize(Sentence *);
 };
 

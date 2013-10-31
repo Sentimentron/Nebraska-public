@@ -17,16 +17,18 @@ class FloatingFloatBuffer {
 private:
     float *items;
     unsigned int length;
-    unsigned int offset = 0;
+    unsigned int offset;
     float mean;
     float variance;
-    bool mean_calculated = false;
-    bool variance_calculated = false; 
+    bool mean_calculated;
+    bool variance_calculated; 
 public:
     FloatingFloatBuffer(float *data, unsigned int length) {
         this->items = data;
         this->length = length;
         this->offset = 0;
+	this->mean_calculated = false;
+	this->variance_calculated = false;
     }
     ~FloatingFloatBuffer() {
         free(this->items);

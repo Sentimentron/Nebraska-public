@@ -15,7 +15,7 @@
 
 const char * const S_DEFAULT_SENTIWORDNET_PATH = "SentiWordNet_3.0.0_20120510.txt";
 
-class SentiwordNetReader {
+class SentiWordNetReader {
 private:
     std::string path;
     std::vector<std::vector<std::string>> contents;
@@ -24,11 +24,11 @@ public:
     std::vector<std::vector<std::string>> GetContents() {
         return this->contents;
     }
-    SentiwordNetReader() {
+    SentiWordNetReader() {
         this->path = S_DEFAULT_SENTIWORDNET_PATH;
         this->init();
     }
-    SentiwordNetReader(std::string path) {
+    SentiWordNetReader(std::string path) {
         this->path = path;
         this->init();
     }
