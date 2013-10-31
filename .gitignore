@@ -1,6 +1,5 @@
 *.class
 *.pyc
-Sentiment.xcodeproj/xcuserdata/
 *~
 *.o
 version.h
