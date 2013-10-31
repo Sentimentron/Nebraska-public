@@ -1,0 +1,43 @@
+<Workflow>
+
+	<WorkflowOptions>
+		<WorkflowName>Twitter Link Extractor</WorkflowName>
+		<WorkflowDescription> Extract all Twitter short-links and dump them into a MySQL database.</WorkflowDescription>
+		<RetainOutputFile path="links.sqlite"/>
+		<DisableUntrackedFileCheck />
+	</WorkflowOptions>
+    
+    <Tables>
+        <TemporaryLabelTable prefix="hashtagLabels" />
+        <TemporaryLabelTable prefix="wordLabels" />
+        <TemporaryLabelTable prefix="atLabels" />
+        <TemporaryLabelTable prefix="bigramLabels" />
+        <TemporaryLabelTable prefix="hashtagClusters" />
+        <TemporaryLabelTable prefix="wordClusters" />
+        <TemporaryLabelTable prefix="atClusters" />
+        <TemporaryLabelTable prefix="bigramClusters" />
+    </Tables>
+
+	<InputSources>
+		<TwitterInputSource dir="Data/Corpora" />
+	</InputSources>
+    
+    <WorkflowTasks>
+        <BasicFilter filterText="http" />
+        <UniqueFilter />
+        <UniqueTextFilter />
+        <HashTagLabeller dest="hashtagLabels" />
+        <AtMentionLabeller dest="atLabels" />
+        <BasicWordLabeller dest="wordLabels" />
+        <BigramLabeller dest="bigramClusters" />
+        <ClusterLabeller src="hashtagLabels" dest="hashtagClusters" epsilon="0.9" minSize="2" />
+        <ClusterLabeller src="wordLabels" dest="wordClusters" epsilon="0.9" minSize="2" />
+        <ClusterLabeller src="atLabels" dest="atClusters" epsilon="0.9" minSize="2" />
+        <ClusterLabeller src="bigramLabels" dest="bigramClusters" epsilon="0.9" minSize="2" />
+        <!--LabelFilter src="filterClusters" temporary="true">
+            <RetainLabel id="0" />
+        </LabelFilter-->
+        <!--LabelClusterFilter src="filterClustering" /-->
+    </WorkflowTasks>
+
+</Workflow>

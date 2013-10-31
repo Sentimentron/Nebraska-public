@@ -1,0 +1,27 @@
+<Workflow>
+
+	<WorkflowOptions>
+		<WorkflowName>Cluster on bigrams</WorkflowName>
+		<WorkflowDescription>Cluster Tweets based on bigrams</WorkflowDescription>
+		<RetainOutputFile path="bigrams.sqlite"/>
+		<DisableUntrackedFileCheck />
+	</WorkflowOptions>
+    
+    <Tables>
+	<TemporaryLabelTable name="bigramLabels" />
+	<TemporaryLabelTable name="bigramClusters" />
+    </Tables>
+
+	<InputSources>
+		<TwitterInputSource dir="Data/Corpora" />
+	</InputSources>
+    
+    <WorkflowTasks>
+        <BasicFilter filterText="http" />
+        <UniqueFilter />
+        <UniqueTextFilter />
+        <BigramLabeller dest="bigramLabels" />
+        <ClusterLabeller src="bigramLabels" dest="bigramClusters" epsilon="0.5" minSize="2" />
+    </WorkflowTasks>
+
+</Workflow>
