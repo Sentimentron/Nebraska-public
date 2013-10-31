@@ -3,6 +3,9 @@
 
 import logging
 
+import nltk.data 
+import nltk.tag 
+
 class WorkflowNativePOSTagger(object):
 
     def __init__(self, xml):
@@ -13,6 +16,9 @@ class WorkflowNativePOSTagger(object):
     def execute(self, path, conn):
         # Select the input documents
         c = conn.cursor()
+        sql = "SELECT COUNT(*) FROM input"
+        c.execute(sql)
+        (number_of_rows, ) = c.fetchone()
         sql = "SELECT identifier, document FROM input"
         c.execute(sql)
         # TO DO: Get current tags from the database
@@ -20,9 +26,11 @@ class WorkflowNativePOSTagger(object):
         # c.execute("SELECT identifier, token FROM pos_tokens_%s" % self.dest)
         # tokens = c.fetchall()
         tokens = {}
-        for identifier, document in c.fetchall():
+        documents = {}
+        for counter, (identifier, document) in enumerate(c.fetchall()):
             tagged_string = ""
             tagged_form = []
+            logging.debug("%.2f %% done", counter * 100.0 / number_of_rows)
             for token in self.tokenize(document):
                 # Check if this this token was in the database already
                 if token in tokens:
@@ -46,3 +54,15 @@ class WhiteSpacePOSTagger(WorkflowNativePOSTagger):
 
     def tokenize(self, document):
         return document.split(" ")
+
+class NLTKPOSTagger(WorkflowNativePOSTagger):
+
+    def __init__(self, xml):
+        super(NLTKPOSTagger, self).__init__(xml)
+        self.tagger = nltk.data.load(nltk.tag._POS_TAGGER)
+
+    def tokenize(self, document):
+        # Make sure to run nltk.download('maxent_treebank_pos_tagger') first 
+        tokens = nltk.word_tokenize(document)
+        for word, tag in self.tagger.tag(tokens):
+            yield "%s/%s" % (word, tag)

@@ -15,5 +15,5 @@ from filter import LabelFilter
 
 from temp import create_sqlite_temp_path
 
-from pos import WhiteSpacePOSTagger
+from pos import WhiteSpacePOSTagger, NLTKPOSTagger
 from twitterpos import GimpelPOSTagger
