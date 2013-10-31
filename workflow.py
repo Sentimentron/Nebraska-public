@@ -145,6 +145,21 @@ def execute_workflow(document, sqlite_path):
     # Check that the options are correct
     verify_options(options)
 
+    # Try to execute the workflow 
+    try:
+        _execute_workflow(document, sqlite_path, options)
+    finally:
+        if not options["retain_output"]:
+            return 
+        try:
+            logging.info("Moving output file from %s to %s...", sqlite_path, options["output_file"]);
+            shutil.move(sqlite_path, options["output_file"])
+        except Exception as ex:
+            logging.error("FAILED TO MOVE OUTPUT FILE");
+            raise ex 
+
+def _execute_workflow(document, sqlite_path, options):
+
     #
     # CREATE TABLES
 
@@ -172,7 +187,7 @@ def execute_workflow(document, sqlite_path):
         task_status, sqlite_conn = task.execute(sqlite_path, sqlite_conn)
 
     #
-    # APPLY WORKFLOW ACTIONs
+    # APPLY WORKFLOW ACTIONS
     for x_node in document.find("WorkflowTasks").getchildren():
         if x_node.tag is etree.Comment:
             continue
