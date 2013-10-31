@@ -32,12 +32,12 @@ class WhiteSpacePOSTagger(object):
                     tagged_string = tagged_string + "[" +`tokens[token]`+"] "
                 else:
                     # Insert the new tag in the database
-                    print tokens
                     c.execute("INSERT INTO pos_tokens_%s(token) VALUES (?)" % self.dest, [token])
                     # Add it to the dictionary
                     tokens[token] = c.lastrowid
                     tagged_string = tagged_string + "[" +`tokens[token]`+"] "
             # Insert this string which has been converted into tags into the db
             c.execute("INSERT INTO pos_%s(document_identifier, tokenized_form) VALUES (?, ?)" % self.dest, (identifier, tagged_string))
+        conn.commit()
         return True, conn
 
