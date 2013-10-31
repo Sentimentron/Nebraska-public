@@ -1,0 +1,22 @@
+<Workflow>
+
+	<WorkflowOptions>
+		<WorkflowName>White Space POS Tagger</WorkflowName>
+		<WorkflowDescription> Splits all the words in text on white space.</WorkflowDescription>
+		<RetainOutputFile path="whitespace.sqlite"/>
+		<DisableUntrackedFileCheck />
+	</WorkflowOptions>
+
+    <Tables>
+        <PartOfSpeechTable name="test"/>
+    </Tables>
+
+	<InputSources>
+		<TwitterInputSource dir="Data/Corpora" />
+	</InputSources>
+
+    <WorkflowTasks>
+        <WhiteSpacePOSTagger dest="test"/>
+    </WorkflowTasks>
+
+</Workflow>
