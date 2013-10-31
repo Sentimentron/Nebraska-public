@@ -42,3 +42,7 @@ class WorkflowNativePOSTagger(object):
         conn.commit()
         return True, conn
 
+class WhiteSpacePOSTagger(WorkflowNativePOSTagger):
+
+    def tokenize(self, document):
+        return document.split(" ")
