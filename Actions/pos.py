@@ -9,6 +9,11 @@ class WorkflowNativePOSTagger(object):
         self.dest = xml.get("dest")
         if self.dest is None:
             raise ValueError()
+        self.verbose = xml.get("verbose")
+        if self.verbose is None:
+            self.verbose = False
+        else:
+            self.verbose = True
 
     def execute(self, path, conn):
         # Select the input documents
@@ -27,7 +32,8 @@ class WorkflowNativePOSTagger(object):
         for counter, (identifier, document) in enumerate(c.fetchall()):
             tagged_string = ""
             tagged_form = []
-            logging.debug("%.2f %% done", counter * 100.0 / number_of_rows)
+            if self.verbose:
+                logging.debug("%.2f %% done", counter * 100.0 / number_of_rows)
             for token in self.tokenize(document):
                 # Check if this this token was in the database already
                 if token in tokens:
