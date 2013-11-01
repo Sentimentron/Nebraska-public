@@ -166,15 +166,6 @@ def _execute_workflow(document, sqlite_path, options):
     # Open a database connection
     sqlite_conn = sqlite.create_sqlite_connection(sqlite_path)
 
-    # Create the tables
-    for x_node in document.find("Tables").getchildren():
-        if x_node.tag is etree.Comment:
-            continue
-        if x_node.tag == "TemporaryLabelTable":
-            sqlite.create_sqlite_temporary_label_table(x_node.get("name"), sqlite_conn)
-        if x_node.tag == "PartOfSpeechTable":
-            sqlite.create_sqlite_postables(x_node.get("name"), sqlite_conn)
-
     #
     # IMPORT SOURCE DATA
     for x_node in document.find("InputSources").getchildren():
@@ -185,6 +176,15 @@ def _execute_workflow(document, sqlite_path, options):
         logging.debug(task)
         task = task(x_node)
         task_status, sqlite_conn = task.execute(sqlite_path, sqlite_conn)
+
+    # Create the tables
+    for x_node in document.find("Tables").getchildren():
+        if x_node.tag is etree.Comment:
+            continue
+        if x_node.tag == "TemporaryLabelTable":
+            sqlite.create_sqlite_temporary_label_table(x_node.get("name"), sqlite_conn)
+        if x_node.tag == "PartOfSpeechTable":
+            sqlite.create_sqlite_postables(x_node.get("name"), sqlite_conn)
 
     #
     # APPLY WORKFLOW ACTIONS
