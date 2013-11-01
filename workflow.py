@@ -113,10 +113,10 @@ def get_workflow_task(task_name):
         task_name
     )
 
-def execute_workflow(document, sqlite_path):
+def execute_workflow(workflow, workflow_path, sqlite_path):
 
     # Parse the workflow
-    document = etree.fromstring(document)
+    document = etree.fromstring(workflow)
 
     #
     # PARSE WORKFLOW OPTIONS
@@ -147,7 +147,7 @@ def execute_workflow(document, sqlite_path):
 
     # Try to execute the workflow 
     try:
-        _execute_workflow(document, sqlite_path, options)
+        _execute_workflow(document, sqlite_path, options, workflow_path)
     finally:
         if not options["retain_output"]:
             return 
@@ -158,7 +158,7 @@ def execute_workflow(document, sqlite_path):
             logging.error("FAILED TO MOVE OUTPUT FILE");
             raise ex 
 
-def _execute_workflow(document, sqlite_path, options):
+def _execute_workflow(document, sqlite_path, options, workflow_path):
 
     # Open a database connection
     sqlite_conn = sqlite.create_sqlite_connection(sqlite_path)
@@ -173,6 +173,9 @@ def _execute_workflow(document, sqlite_path, options):
         logging.debug(task)
         task = task(x_node)
         task_status, sqlite_conn = task.execute(sqlite_path, sqlite_conn)
+
+    # Push any information we have about the workflow into the database
+    push_workflow_metadata(workflow_path, sqlite_conn)
 
     # Create the tables
     for x_node in document.find("Tables").getchildren():
@@ -256,13 +259,9 @@ def main():
         sqlite_path = workflow_file
         sqlite_conn = sqlite.create_sqlite_connection(workflow_file)
 
-    if action == "touch":
-        # Push any information we have about the workflow into the database
-        push_workflow_metadata(workflow_file, sqlite_conn)
-
     # Execute the workflow
     workflow = read_workflow_file(workflow_file)
-    execute_workflow(workflow, sqlite_path)
+    execute_workflow(workflow, workflow_file, sqlite_path)
 
 if __name__ == "__main__":
     main()
