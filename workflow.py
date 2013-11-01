@@ -160,9 +160,6 @@ def execute_workflow(document, sqlite_path):
 
 def _execute_workflow(document, sqlite_path, options):
 
-    #
-    # CREATE TABLES
-
     # Open a database connection
     sqlite_conn = sqlite.create_sqlite_connection(sqlite_path)
 
