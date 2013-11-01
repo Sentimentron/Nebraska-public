@@ -226,9 +226,8 @@ def push_workflow_metadata(workflow_file, db_conn):
     
     # Get the git version
     logging.debug("Pushing workflow version...")
-    process = subprocess.Popen("git rev-parse HEAD", stdout=subprocess.PIPE, stderr=None, shell=True)
-    output = process.communicate()
-    push_metadata("GIT_HASH", output[0], db_conn)
+    git_hash = get_git_version()
+    push_metadata("GIT_HASH", git_hash, db_conn)
 
     if False:
         # Check for untracked files within the tree

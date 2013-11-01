@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from metadata import fetch_metadata, push_metadata
+from metadata import fetch_metadata, push_metadata, get_git_version
 
 from basic import BasicFilter, BasicNotFilter
 from unique import UniqueFilter, UniqueTextFilter
