@@ -13,7 +13,7 @@ from ml import ClusterLabeller
 
 from filter import LabelFilter
 
-from temp import create_sqlite_temp_path
+from db import create_sqlite_temp_path
 
 from pos import WhiteSpacePOSTagger, NLTKPOSTagger
 from twitterpos import GimpelPOSTagger
