@@ -219,9 +219,19 @@ def verify_options(options):
         assert "output_file" in options
 
 def push_workflow_metadata(workflow_file, db_conn):
+    logging.debug("Pushing workflow contents...")
     with open(workflow_file, 'r') as f:
         content = f.read()
         push_metadata("WORKFLOW", content, db_conn)
+    
+    # Push the path of the workflow file
+    push_metadata("WORKFLOW_PATH", workflow_file, db_conn)
+    
+    # Get the git version
+    logging.debug("Pushing workflow version...")
+    process = subprocess.Popen("git rev-parse HEAD", stdout=subprocess.PIPE, stderr=None, shell=True)
+    output = process.communicate()
+    push_metadata("GIT_HASH", output[0], db_conn)
 
     if False:
         # Check for untracked files within the tree
@@ -230,10 +240,6 @@ def push_workflow_metadata(workflow_file, db_conn):
         for line in output.split("\n"):
             raise Exception("Untracked files present in working tree %s"% (output,))
 
-        # Get the git version
-        process = subprocess.Popen("git rev-parse HEAD", stdout=subprocess.PIPE, stderr=None, shell=True)
-        output = process.communicate()
-        push_metadata("GIT_HASH", output[0], db_conn)
 
 def main():
     configure_logging()
