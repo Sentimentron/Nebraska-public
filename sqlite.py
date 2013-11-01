@@ -16,13 +16,8 @@ def remove_sqlite_path(path):
     os.remove(path)
 
 def create_sqlite_connection(path):
-    logging.info("Opening SQLite database: %s", path)
-    conn = sqlite3.connect(path)
-    conn.text_factory = unicode
-    conn.execute("PRAGMA foreign_keys = ON;")
-    logging.debug("Connection open")
-    return conn
-
+    return Actions.create_sqlite_connection(path)
+    
 def create_sqlite_temporary_label_table(prefix, conn):
     if prefix is None:
         raise ValueError()
