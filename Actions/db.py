@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
- This file handles temporary path generation.
+ This file handles temporary path generation and other database ops.
 """
 
 import os
