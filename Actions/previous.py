@@ -6,6 +6,7 @@ import sys
 import shutil
 import logging
 import sqlite3
+import subprocess
 
 from metadata import fetch_metadata, get_git_version
 from db import create_sqlite_connection
@@ -17,8 +18,6 @@ class PreviousWorkflow(object):
         self.strict_hash_check = xml.get("strictHashCheck")
         if self.strict_hash_check is None:
             self.strict_hash_check = False 
-            
-        
    
     def __determine_rerun_needed(self):
         
@@ -56,11 +55,33 @@ class PreviousWorkflow(object):
             return False 
         finally:
             conn.close()
+    
+    def rerun(self):
+        if not os.path.exists(self.path):
+            raise IOError("PreviousWorkflow: '%s' does not exist!")
         
+        conn = create_sqlite_connection(self.path)
+        try:
+            
+            # Retrieve the old workflow path 
+            old_workflow_path = fetch_metadata("WORKFLOW_PATH", conn)
+            if not os.path.exists(old_workflow_path):
+                raise IOError("WORKFLOw_PATH ('%s') for previous database no longer exists!", old_workflow_path)
+            
+            # Run the old workflow
+            arg_string = "python workflow.py %s" % (old_workflow_path, )
+            logging.debug("Arg string: %s", arg_string)
+            subprocess.check_call(arg_string, shell=True)
+                
+            return False 
+        finally:
+            conn.close()
+    
     def execute(self, path, conn):
         
         if self.__determine_rerun_needed():
-            raise Exception("Previous workflow needs to be re-run") # Rerun logic goes here
+            logging.info("Previous workflow needs to be re-run") # Rerun logic goes here
+            self.rerun()
         
         # Close the currently open connection
         logging.debug("Closing existing database...")
