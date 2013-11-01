@@ -12,7 +12,7 @@
     </Tables>
 
 	<InputSources>
-		<PreviousWorkflow db="spam.sqlite" />
+		<PreviousWorkflow path="Workflows/SpamFight.xml" />
 	</InputSources>
 
     <WorkflowTasks>

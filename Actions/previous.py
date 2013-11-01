@@ -11,13 +11,36 @@ import subprocess
 from metadata import fetch_metadata, get_git_version
 from db import create_sqlite_connection
 
+from lxml import etree
+
 class PreviousWorkflow(object):
     
     def __init__(self, xml):
+        
         self.path = xml.get("db")
+        self.workflow = xml.get("path")
+
+        if self.path is None:
+            if self.workflow is None:
+                raise ValueError("Need either a path to a DB or Workflow XML file")
+            
+            with open(self.workflow, 'r') as p:
+                workflow = p.read()
+            
+            # Parse old workflow file to find output location
+            document = etree.fromstring(workflow)
+            options = document.find("WorkflowOptions")
+            for x_node in options.iter():
+                if x_node.tag == "RetainOutputFile":
+                    self.path = x_node.get("path")
+                    break
+            
+        if self.path is None:
+            raise ValueError("Unable to determine a path to a valid database.")
+        
         self.strict_hash_check = xml.get("strictHashCheck")
         if self.strict_hash_check is None:
-            self.strict_hash_check = False 
+            self.strict_hash_check = False
    
     def __determine_rerun_needed(self):
         
@@ -25,7 +48,8 @@ class PreviousWorkflow(object):
             return True 
            
         if not os.path.exists(self.path):
-            raise IOError("PreviousWorkflow: '%s' does not exist!")
+            logging.info("Output database doesn't exist")
+            return True
         
         conn = create_sqlite_connection(self.path)
         try:
@@ -56,9 +80,18 @@ class PreviousWorkflow(object):
         finally:
             conn.close()
     
+    def __rerun(self, old_workflow_path):
+        # Run the old workflow
+        arg_string = "python workflow.py %s" % (old_workflow_path, )
+        logging.debug("Arg string: %s", arg_string)
+        subprocess.check_call(arg_string, shell=True)
+    
     def rerun(self):
         if not os.path.exists(self.path):
-            raise IOError("PreviousWorkflow: '%s' does not exist!")
+            if self.workflow is None:
+                raise Exception("Previous output database doesn't exist, no path given")
+            self.__rerun(self.workflow)
+            return 
         
         conn = create_sqlite_connection(self.path)
         try:
@@ -68,12 +101,7 @@ class PreviousWorkflow(object):
             if not os.path.exists(old_workflow_path):
                 raise IOError("WORKFLOw_PATH ('%s') for previous database no longer exists!", old_workflow_path)
             
-            # Run the old workflow
-            arg_string = "python workflow.py %s" % (old_workflow_path, )
-            logging.debug("Arg string: %s", arg_string)
-            subprocess.check_call(arg_string, shell=True)
-                
-            return False 
+            self.__rerun(old_workflow_path)
         finally:
             conn.close()
     
