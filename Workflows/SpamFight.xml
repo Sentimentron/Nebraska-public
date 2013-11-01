@@ -1,0 +1,22 @@
+<Workflow>
+
+	<WorkflowOptions>
+		<WorkflowName>Twitter Spam Fighter</WorkflowName>
+		<WorkflowDescription>Apply some heuristics to try and reduce spam volume.</WorkflowDescription>
+		<RetainOutputFile path="spam.sqlite"/>
+		<DisableUntrackedFileCheck />
+	</WorkflowOptions>
+    
+    <Tables />
+
+	<InputSources>
+		<PreviousWorkflow db="tweets.sqlite" />
+	</InputSources>
+    
+    <WorkflowTasks>
+        <BasicFilter filterText="http" />
+        <UniqueFilter />
+        <UniqueTextFilter />
+    </WorkflowTasks>
+
+</Workflow>

@@ -12,7 +12,7 @@
     </Tables>
 
 	<InputSources>
-		<TwitterInputSource dir="Data/Corpora" />
+		<PreviousWorkflow db="spam.sqlite" />
 	</InputSources>
 
     <WorkflowTasks>
