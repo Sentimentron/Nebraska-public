@@ -2,7 +2,7 @@
 
 	<WorkflowOptions>
 		<WorkflowName>Import Twitter</WorkflowName>
-		<WorkflowDescription> Import all tweets.</WorkflowDescription>
+		<WorkflowDescription> Import all tweets from the corpus.</WorkflowDescription>
 		<RetainOutputFile path="tweets.sqlite"/>
 		<DisableUntrackedFileCheck />
 	</WorkflowOptions>
