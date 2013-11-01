@@ -3,9 +3,6 @@
 
 import logging
 
-import nltk.data 
-import nltk.tag 
-
 class WorkflowNativePOSTagger(object):
 
     def __init__(self, xml):
@@ -58,6 +55,8 @@ class WhiteSpacePOSTagger(WorkflowNativePOSTagger):
 class NLTKPOSTagger(WorkflowNativePOSTagger):
 
     def __init__(self, xml):
+        import nltk.data 
+        import nltk.tag 
         super(NLTKPOSTagger, self).__init__(xml)
         self.tagger = nltk.data.load(nltk.tag._POS_TAGGER)
 
