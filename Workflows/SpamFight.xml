@@ -10,7 +10,7 @@
     <Tables />
 
 	<InputSources>
-		<PreviousWorkflow db="tweets.sqlite" />
+		<PreviousWorkflow path="Workflows/ImportTwitter.xml" />
 	</InputSources>
     
     <WorkflowTasks>
