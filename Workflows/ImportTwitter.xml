@@ -1,0 +1,19 @@
+<Workflow>
+
+	<WorkflowOptions>
+		<WorkflowName>Import Twitter</WorkflowName>
+		<WorkflowDescription> Import all tweets.</WorkflowDescription>
+		<RetainOutputFile path="tweets.sqlite"/>
+		<DisableUntrackedFileCheck />
+	</WorkflowOptions>
+    
+    <Tables />
+
+	<InputSources>
+		<TwitterInputSource dir="Data/Corpora" />
+	</InputSources>
+    
+    <WorkflowTasks>
+    </WorkflowTasks>
+
+</Workflow>
