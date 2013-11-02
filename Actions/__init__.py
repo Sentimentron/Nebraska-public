@@ -8,7 +8,7 @@ from unique import UniqueFilter, UniqueTextFilter
 
 from twitter import TwitterInputSource
 
-from templabeller import HashTagLabeller, AtMentionLabeller, BasicWordLabeller, BigramLabeller, LengthLabeller
+from templabeller import HashTagLabeller, AtMentionLabeller, BasicWordLabeller, BigramLabeller, LengthLabeller, SpecialCharacterLengthLabeller
 from ml import ClusterLabeller
 
 from filter import LabelFilter

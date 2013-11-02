@@ -9,6 +9,7 @@
     
     <Tables>
         <TemporaryLabelTable name="lengths" />
+        <TemporaryLabelTable name="special" />
     </Tables>
 
 	<InputSources>
@@ -20,6 +21,7 @@
         <UniqueFilter />
         <UniqueTextFilter />
         <LengthLabeller dest="lengths" binSize="1"/>
+        <SpecialCharacterLengthLabeller dest="special" binSize="1" />
     </WorkflowTasks>
 
 </Workflow>
