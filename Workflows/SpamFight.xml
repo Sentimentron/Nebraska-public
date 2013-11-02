@@ -7,7 +7,9 @@
 		<DisableUntrackedFileCheck />
 	</WorkflowOptions>
     
-    <Tables />
+    <Tables>
+        <TemporaryLabelTable name="lengths" />
+    </Tables>
 
 	<InputSources>
 		<PreviousWorkflow path="Workflows/ImportTwitter.xml" />
@@ -17,6 +19,7 @@
         <BasicFilter filterText="http" />
         <UniqueFilter />
         <UniqueTextFilter />
+        <LengthLabeller dest="lengths" binSize="1"/>
     </WorkflowTasks>
 
 </Workflow>
