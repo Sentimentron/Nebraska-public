@@ -43,14 +43,25 @@ class BasicFilter(object):
         conn.commit()
         return True, conn
 
-class BasicNotFilter(object):
-    
-    def __init__(self, xml):
-        self.string = xml.get("filterText")
+class BasicNotFilter(object):      
     
     def execute(self, path, conn):
         c = conn.cursor()
         sql = "DELETE FROM input WHERE document NOT LIKE ?"
-        c.execute(sql, ('%'+self.string+'%',))
+        like_string = self.construct_like_string()
+        c.execute(sql, (like_string,))
+        conn.commit()
+        return True, conn
+
+class LineBreakFilter(object):
+
+    def __init__(self, xml):
+        pass 
+
+    def execute(self, path, conn):
+        c = conn.cursor()
+        sql = """DELETE FROM input WHERE document LIKE '%
+%'"""
+        c.execute(sql)
         conn.commit()
         return True, conn

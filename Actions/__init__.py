@@ -3,7 +3,7 @@
 
 from metadata import fetch_metadata, push_metadata, get_git_version
 
-from basic import BasicFilter, BasicNotFilter
+from basic import BasicFilter, BasicNotFilter, LineBreakFilter
 from unique import UniqueFilter, UniqueTextFilter
 
 from twitter import TwitterInputSource
