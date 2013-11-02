@@ -21,7 +21,7 @@
     
     <WorkflowTasks>
         <BasicFilter filterText="http" />
-        <BasicFilter filterText="\n" />
+        <LineBreakFilter />
         <BasicFilter filterText="RT" matchBefore="false" matchAfter="true" />
         <UniqueFilter />
         <UniqueTextFilter />
