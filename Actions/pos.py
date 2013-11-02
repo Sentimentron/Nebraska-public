@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import nltk
 
 class WorkflowNativePOSTagger(object):
 
@@ -61,13 +62,32 @@ class WhiteSpacePOSTagger(WorkflowNativePOSTagger):
 class NLTKPOSTagger(WorkflowNativePOSTagger):
 
     def __init__(self, xml):
-        import nltk.data 
-        import nltk.tag 
+        import nltk.data
+        import nltk.tag
         super(NLTKPOSTagger, self).__init__(xml)
         self.tagger = nltk.data.load(nltk.tag._POS_TAGGER)
 
     def tokenize(self, document):
-        # Make sure to run nltk.download('maxent_treebank_pos_tagger') first 
+        # Make sure to run nltk.download('maxent_treebank_pos_tagger') first, you'll also need numpy
         tokens = nltk.word_tokenize(document)
         for word, tag in self.tagger.tag(tokens):
-            yield "%s/%s" % (word, tag)
+            yield "%s" % (tag)
+
+class StanfordTagger(WorkflowNativePOSTagger):
+
+    def __init__(self, xml):
+        from nltk.tag.stanford import POSTagger
+        import os
+        super(StanfordTagger, self).__init__(xml)
+        self.tagger = POSTagger(os.path.join(os.getcwd(),'External/english-bidirectional-distsim.tagger'), os.path.join(os.getcwd(),'External/stanford-postagger.jar'))
+
+    def is_ascii(self, s):
+        return all(ord(c) < 128 for c in s)
+
+    def tokenize(self, document):
+        # Non ASCII characters makes the stanford tagger go crazy and run out of heap space
+        if self.is_ascii(document):
+            for word, tag in self.tagger.tag(document):
+                    yield "%s" % (tag)
+
+
