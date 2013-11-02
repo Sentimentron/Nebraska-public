@@ -11,6 +11,8 @@
         <TemporaryLabelTable name="lengths" />
         <TemporaryLabelTable name="special" />
         <TemporaryLabelTable name="unicode" />
+        <TemporaryLabelTable name="clustering" />
+        <TemporaryLabelTable name="clusters" />
     </Tables>
 
 	<InputSources>
@@ -19,11 +21,20 @@
     
     <WorkflowTasks>
         <BasicFilter filterText="http" />
+        <BasicFilter filterText="\n" />
+        <BasicFilter filterText="RT" matchBefore="false" matchAfter="true" />
         <UniqueFilter />
         <UniqueTextFilter />
         <LengthLabeller dest="lengths" binSize="1"/>
         <SpecialCharacterLengthLabeller dest="special" binSize="1" />
         <ProbablySpamUnicodeLabeller dest="unicode" />
+        <LabelFilter src="unicode" temporary="true" delete="true">
+            <RetainLabel id="0" />
+        </LabelFilter>
+        <LengthLabeller dest="clustering" binSize="2" />
+        <HashTagLabeller dest="clustering" />
+        <AtMentionLabeller dest="clustering" />
+        <ClusterLabeller src="clustering" dest="clusters" epsilon="0.55" minSize="2" />
     </WorkflowTasks>
 
 </Workflow>
