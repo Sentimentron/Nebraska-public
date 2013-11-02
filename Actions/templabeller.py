@@ -4,20 +4,23 @@ import string
 import logging
 
 class TemporaryLabeller(object):
-
+    
+    # TemporaryLabellers operate on disposable tables, 
+    # label -> identifier mapping typically not retained
     def __init__(self, xml):
         self.dest = xml.get("dest")
         if self.dest is None:
             raise ValueError()
+        self.prefix_table = "temporary_label_%s" % (self.dest,)
 
     def estimate_label_count(self, cursor):
         logging.debug("Getting label count...")
-        sql = "SELECT COUNT(*) FROM %s" % (prefix_table, )
+        sql = "SELECT MAX(label) FROM %s" % (self.prefix_table, )
         cursor.execute(sql)
         for count, in cursor.fetchall():
             pass 
         logging.debug("%d items found in the table.", count)
-        return count 
+        return count + 1
 
 
 class LiteralLabeller(TemporaryLabeller):
@@ -26,13 +29,10 @@ class LiteralLabeller(TemporaryLabeller):
         # Grab a cursor
         c = conn.cursor()
 
-        # Set up the table 
-        prefix_table = "temporary_label_%s" % (self.dest,)
-
         logging.info("Labelling documents...")
         sql = "SELECT identifier, document FROM input"
         c.execute(sql)
-        sql = "INSERT INTO %s (document_identifier, label) VALUES (?, ?)" % (prefix_table, )
+        sql = "INSERT INTO %s (document_identifier, label) VALUES (?, ?)" % (self.prefix_table, )
         for identifier, document in c.fetchall():
             # Split method spits out the parts we want to enumerate 
             label_id = self.label(document)
@@ -44,18 +44,9 @@ class LiteralLabeller(TemporaryLabeller):
         return True, conn
 
 class EnumeratingLabeller(TemporaryLabeller):
-    
-    # TemporaryLabellers operate on disposable tables, 
-    # label -> identifier mapping typically not retained
-    
-    def __init__(self, xml):
-        self.dest = xml.get("dest")
-        if self.dest is None:
-            raise ValueError()
         
     def execute(self, path, conn):
         # Set up prefix etc
-        prefix_table = "temporary_label_%s" % (self.dest,)
         enumeration = {}
         
         # Grab a cursor
@@ -68,7 +59,7 @@ class EnumeratingLabeller(TemporaryLabeller):
         logging.info("Labelling documents...")
         sql = "SELECT identifier, document FROM input"
         c.execute(sql)
-        sql = "INSERT INTO %s (document_identifier, label) VALUES (?, ?)" % (prefix_table, )
+        sql = "INSERT INTO %s (document_identifier, label) VALUES (?, ?)" % (self.prefix_table, )
         for identifier, document in c.fetchall():
             # Split method spits out the parts we want to enumerate 
             for token in set(self.split(document)):
@@ -147,7 +138,7 @@ class LengthLabeller(LiteralLabeller):
         assert self.bin_size != None
     
     def compute_binned_length(self, length):
-        return int(length * 1.0 / self.bin_size) * self.bin_size
+        return int((length - self.bin_size/2) * 1.0 / self.bin_size) * self.bin_size
 
     def label(self, document):
         return self.compute_binned_length(len(document))
