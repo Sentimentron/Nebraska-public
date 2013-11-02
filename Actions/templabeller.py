@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import string
 import logging
 
 class TemporaryLabeller(object):
@@ -155,12 +156,28 @@ class SpecialCharacterLengthLabeller(LengthLabeller):
 
     def label(self, document):
         length = 0
+        allowed_set = set(string.uppercase + string.lowercase + ' ')
         for i in document:
-            if i >= 'a' and i <= 'z':
-                continue 
-            if i >= 'A' and i <= 'Z':
-                continue 
-            if i >= '0' and i <= '9':
-                continue 
-            length += 1
+            if i not in allowed_set:
+                length += 1
         return self.compute_binned_length(length)
+
+class ProbablySpamUnicodeLabeller(LiteralLabeller):
+
+    def compute_unicode_len(self, document):
+        length = 0
+        allowed_set = allowed_set = set(string.uppercase + string.lowercase + ' ')
+        for i in document:
+            if i not in allowed_set:
+                length += 1
+        return length
+
+    def label(self, document):
+        if len(document) > 140:
+            return 1 
+
+        special_len = self.compute_unicode_len(document)
+        if special_len > 2 + 12.0/140 * len(document):
+            return 1
+        else:
+            return 0
