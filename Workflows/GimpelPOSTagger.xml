@@ -16,7 +16,7 @@
 	</InputSources>
 
     <WorkflowTasks>
-        <GimpelPOSTagger dest="test"/>
+        <StanfordTagger dest="test" verbose="true"/>
     </WorkflowTasks>
 
 </Workflow>
