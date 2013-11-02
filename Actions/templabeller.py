@@ -145,5 +145,22 @@ class LengthLabeller(LiteralLabeller):
         self.bin_size = int(xml.get("binSize"))
         assert self.bin_size != None
     
+    def compute_binned_length(self, length):
+        return int(length * 1.0 / self.bin_size) * self.bin_size
+
     def label(self, document):
-        return int(len(document) * 1.0 / self.bin_size) * self.bin_size
+        return self.compute_binned_length(len(document))
+
+class SpecialCharacterLengthLabeller(LengthLabeller):
+
+    def label(self, document):
+        length = 0
+        for i in document:
+            if i >= 'a' and i <= 'z':
+                continue 
+            if i >= 'A' and i <= 'Z':
+                continue 
+            if i >= '0' and i <= '9':
+                continue 
+            length += 1
+        return self.compute_binned_length(length)
