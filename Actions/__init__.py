@@ -11,7 +11,7 @@ from twitter import TwitterInputSource
 from templabeller import HashTagLabeller, AtMentionLabeller, BasicWordLabeller, BigramLabeller, LengthLabeller, SpecialCharacterLengthLabeller, ProbablySpamUnicodeLabeller
 from ml import ClusterLabeller
 
-from filter import LabelFilter
+from filter import LabelFilter, HasLabelFilter
 
 from db import create_sqlite_temp_path, create_sqlite_connection
 
