@@ -15,7 +15,7 @@ from filter import LabelFilter
 
 from db import create_sqlite_temp_path, create_sqlite_connection
 
-from pos import WhiteSpacePOSTagger, NLTKPOSTagger
+from pos import WhiteSpacePOSTagger, NLTKPOSTagger, StanfordTagger
 from twitterpos import GimpelPOSTagger
 
 from previous import PreviousWorkflow
