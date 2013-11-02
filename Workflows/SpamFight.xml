@@ -10,6 +10,7 @@
     <Tables>
         <TemporaryLabelTable name="lengths" />
         <TemporaryLabelTable name="special" />
+        <TemporaryLabelTable name="unicode" />
     </Tables>
 
 	<InputSources>
@@ -22,6 +23,7 @@
         <UniqueTextFilter />
         <LengthLabeller dest="lengths" binSize="1"/>
         <SpecialCharacterLengthLabeller dest="special" binSize="1" />
+        <ProbablySpamUnicodeLabeller dest="unicode" />
     </WorkflowTasks>
 
 </Workflow>
