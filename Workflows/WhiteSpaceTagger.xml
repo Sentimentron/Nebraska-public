@@ -12,7 +12,7 @@
     </Tables>
 
 	<InputSources>
-		<PreviousWorkflow path="Workflows/SpamFight.xml" strictHashCheck="true" />
+		<PreviousWorkflow path="Workflows/SpamFight.xml"  />
 	</InputSources>
 
     <WorkflowTasks>
