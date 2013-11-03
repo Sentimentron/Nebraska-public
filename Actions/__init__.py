@@ -19,3 +19,5 @@ from pos import WhiteSpacePOSTagger, NLTKPOSTagger, StanfordTagger
 from twitterpos import GimpelPOSTagger
 
 from previous import PreviousWorkflow
+
+from posTagger import GimpelPOSTagger
