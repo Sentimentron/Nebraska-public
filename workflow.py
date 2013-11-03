@@ -36,6 +36,8 @@ def check_gitinfo():
     output, errors = process.communicate()
     changes = False
     for line in output.split("\n"):
+        if len(line) == 0:
+            continue
         logging.warning("Untracked file present in the tree! (%s)", line)
         changes = True
 
@@ -76,7 +78,7 @@ def check_versions():
         if "CHANGES" in text:
             assert changes == True
         tool_version,junk,junk = text.partition('+')
-        if version != tool_version:
+        if version.strip() != tool_version.strip():
             raise Exception(("Invalid version", filename, text, version))
 
 def parse_arguments():
