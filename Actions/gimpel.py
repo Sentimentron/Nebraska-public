@@ -43,7 +43,7 @@ class GimpelPOSTagger(object):
         c = conn.cursor()
         sql = "SELECT identifier, document FROM input"
         c.execute(sql)
-        tokens = {}
+        token_dict = {}
         rows = c.fetchall()
         for count, (identifier, tagged_string) in enumerate(rows):
             if self.verbose:
@@ -53,20 +53,23 @@ class GimpelPOSTagger(object):
             #Now parse the stdout variable. 
             textArray = output.split("\t")
             #collect all the tags
-            tags = textArray[1]
+            tags = textArray[1].split(' ')
+            # Get the tokens
+            tokens = textArray[0].split(' ')
             tagged_form = []
             tagged_string = ""
-            for token in tags:
-                if token in tokens:
-                    tagged_form.append(tokens[token])
+            for token, pos_tag in zip(tokens, tags):
+                token = "%s/%s" % (token, pos_tag)
+                if token in token_dict:
+                    tagged_form.append(token_dict[token])
                 else:
                     c.execute("INSERT INTO pos_tokens_%s(token) VALUES (?)" % self.dest, [token])    
-                    tokens[token] = c.lastrowid
+                    token_dict[token] = c.lastrowid
                     tagged_form.append(c.lastrowid)
-            tagged_string = ''.join("[%d] " % (t) for t in tagged_form)     
+            tagged_string = ' '.join("%d" % (t) for t in tagged_form)
             # Insert this string which has been converted into tags into the db
             c.execute("INSERT INTO pos_%s(document_identifier, tokenized_form) VALUES (?, ?)" % self.dest, (identifier, tagged_string))
-        conn.commit()
+            conn.commit()
         return True, conn
      
     def runJar(self, tweet):
