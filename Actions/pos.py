@@ -47,7 +47,7 @@ class WorkflowNativePOSTagger(object):
                     tagged_form.append(c.lastrowid)
                     #tagged_string = tagged_string + "[" +`tokens[token]`+"] "
             # Convert into tagged string
-            tagged_string = ''.join("[%d] " % (t) for t in tagged_form)
+            tagged_string = ' '.join("%d" % (t) for t in tagged_form)
             # Insert this string which has been converted into tags into the db
             c.execute("INSERT INTO pos_%s(document_identifier, tokenized_form) VALUES (?, ?)" % self.dest, (identifier, tagged_string))
         logging.info("Committing changes...")
