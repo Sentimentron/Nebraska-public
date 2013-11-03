@@ -182,7 +182,6 @@ class EmoticonLabeller(LiteralLabeller):
         elif re.match('(:\)) | (:D)', document):
             return 1
         elif re.match('(:\() | (;\()', document):
-            print 'sad'
             return -1
         else:
             # No emoticons present
