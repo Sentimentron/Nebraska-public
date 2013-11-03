@@ -34,11 +34,11 @@ class GimpelPOSTagger(object):
         tokens = {}
         List = c.fetchall()
         
-        for i in List:
+        for identifier, tagged_string in List:
             #run the jar for each i
-            output = self.runJar(i)
+            output = self.runJar(tagged_string)
             
-        #Now parse the stdout variable. 
+            #Now parse the stdout variable. 
             textArray = output.split("\t")
             #collect all the tags
             tags = textArray[1]
@@ -61,8 +61,8 @@ class GimpelPOSTagger(object):
         #run the jar file for each tweet     
         #p = subprocess.Popen("java -Xmx500m -jar ark-tweet-nlp-0.3.2.jar", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)    
         #return iter(p.stdout.readline, b'')
-        args = "java -Xmx500m -jar External/ark-tweet-nlp-0.3.2.jar <<< " + tweet
-        process = Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        args = "java -Xmx500m -jar External/ark-tweet-nlp-0.3.2.jar"
+        process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+        stdout, stderr = process.communicate(input=tweet)
         return stdout
         #The variables stdout and stderr will be simple strings corresponding to the output from stdout and stderr from the jar. 
