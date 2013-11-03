@@ -69,9 +69,8 @@ def check_versions():
         extension = os.path.splitext(filename)[1][1:]
         if len(extension) > 0:
             continue
-        args = [filename, "--version"]
+        args = [filename.replace(" ", "\ "), "--version"]
         args = ' '.join(args)
-        print args
         pipe = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE)
         text, err = pipe.communicate()
         if "CHANGES" in text:
@@ -145,18 +144,18 @@ def execute_workflow(workflow, workflow_path, sqlite_path):
     # Check that the options are correct
     verify_options(options)
 
-    # Try to execute the workflow 
+    # Try to execute the workflow
     try:
         _execute_workflow(document, sqlite_path, options, workflow_path)
     finally:
         if not options["retain_output"]:
-            return 
+            return
         try:
             logging.info("Moving output file from %s to %s...", sqlite_path, options["output_file"]);
             shutil.move(sqlite_path, options["output_file"])
         except Exception as ex:
             logging.error("FAILED TO MOVE OUTPUT FILE");
-            raise ex 
+            raise ex
 
 def _execute_workflow(document, sqlite_path, options, workflow_path):
 
@@ -223,10 +222,10 @@ def push_workflow_metadata(workflow_file, db_conn):
     with open(workflow_file, 'r') as f:
         content = f.read()
         push_metadata("WORKFLOW", content, db_conn)
-    
+
     # Push the path of the workflow file
     push_metadata("WORKFLOW_PATH", workflow_file, db_conn)
-    
+
     # Get the git version
     logging.debug("Pushing workflow version...")
     git_hash = get_git_version()
