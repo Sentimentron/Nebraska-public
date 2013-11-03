@@ -62,7 +62,7 @@ class GimpelPOSTagger(object):
        #run the jar file for each tweet     
        #p = subprocess.Popen("java -Xmx500m -jar ark-tweet-nlp-0.3.2.jar", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)    
        #return iter(p.stdout.readline, b'')
-       	args = "java -Xmx500m -jar ark-tweet-nlp-0.3.2.jar <<< " + tweet
+       	args = "java -Xmx500m -jar External/ark-tweet-nlp-0.3.2.jar <<< " + tweet
         process = Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
         return stdout
