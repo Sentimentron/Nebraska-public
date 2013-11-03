@@ -10,6 +10,8 @@ import tempfile
 import subprocess
 import sqlite
 
+import unicodedata
+
 '''
 Get all the filtered tweets from the mysql database.
 Run the jar on each tweet. 
@@ -71,6 +73,7 @@ class GimpelPOSTagger(object):
         #run the jar file for each tweet     
         #p = subprocess.Popen("java -Xmx500m -jar ark-tweet-nlp-0.3.2.jar", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)    
         #return iter(p.stdout.readline, b'')
+        tweet = unicodedata.normalize('NFKD', tweet).encode('ascii', 'ignore')
         args = "java -Xmx500m -jar External/ark-tweet-nlp-0.3.2.jar"
         process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
         stdout, stderr = process.communicate(input=tweet)
