@@ -20,4 +20,4 @@ from twitterpos import GimpelPOSTagger
 
 from previous import PreviousWorkflow
 
-from posTagger import GimpelPOSTagger
+from gimpel import GimpelPOSTagger
