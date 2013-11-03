@@ -25,6 +25,16 @@ class GimpelPOSTagger(object):
         self.dest = xml.get("dest")
         if self.dest is None:
             raise ValueError()
+        self.verbose = xml.get("verbose")
+        if self.verbose is None:
+            self.verbose = False 
+        else:
+            if self.verbose == "true":
+                self.verbose = True 
+            elif self.verbose == "false":
+                self.verbose = False 
+            else:
+                raise ValueError(self.verbose)
             
     def execute(self, path, conn):
         #get tweets from database
@@ -32,12 +42,12 @@ class GimpelPOSTagger(object):
         sql = "SELECT identifier, document FROM input"
         c.execute(sql)
         tokens = {}
-        List = c.fetchall()
-        
-        for identifier, tagged_string in List:
+        rows = c.fetchall()
+        for count, (identifier, tagged_string) in enumerate(rows):
+            if self.verbose:
+                logging.debug("GimpelPOSTagger: %.2f %% done", 100.0*count/len(rows))
             #run the jar for each i
             output = self.runJar(tagged_string)
-            
             #Now parse the stdout variable. 
             textArray = output.split("\t")
             #collect all the tags
