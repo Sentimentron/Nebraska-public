@@ -9,6 +9,10 @@ import weka.filters.supervised.attribute.AddClassification;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 import weka.classifiers.AbstractClassifier;
 import java.util.Random;
+import java.sql.*;
+import weka.core.DenseInstance;
+import weka.core.Attribute;
+import java.util.ArrayList;
 
 /**
  * Performs a single run of cross-validation and adds the prediction on the
@@ -16,9 +20,7 @@ import java.util.Random;
  *
  * Command-line parameters:
  * <ul>
- *    <li>-t filename - the dataset to use</li>
- *    <li>-o filename - the output file to store dataset with the predictions
- *    in</li>
+ *    <li>-t SQLiteDatabase Path - the path to the SQLite database with the data</li>
  *    <li>-x int - the number of folds to use</li>
  *    <li>-s int - the seed for the random number generator</li>
  *    <li>-c int - the class index, "first" and "last" are accepted as well;
@@ -29,24 +31,41 @@ import java.util.Random;
  *
  * Example command-line:
  * <pre>
- * java CrossValidationAddPrediction -t anneal.arff -c last -o predictions.arff -x 10 -s 1 -W "weka.classifiers.trees.J48 -C 0.25"
- * java BagOfWords -t data.arff -c first -o predictions.arff -x 10 -s 1 -W "weka.classifiers.trees.J48 -C 0.25
+ * java BagOfWords -t ../../Data/Corpora/database.sqlite -c last -x 10 -s 1 -W "weka.classifiers.trees.J48 -C 0.25"
  * </pre>
  *
- * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class BagOfWords {
 
-  /**
-   * Performs the cross-validation. See Javadoc of class for information
-   * on command-line parameters.
-   *
-   * @param args        the command-line parameters
-   * @throws Excecption if something goes wrong
-   */
   public static void main(String[] args) throws Exception {
-    // loads data and set class index
-    Instances data = DataSource.read(Utils.getOption("t", args));
+
+    Instances data = DataSource.read("data.arff");
+    // Read in our data from the SQLite file whose path is specified from the -t parameter
+    Connection c = null;
+    try {
+      Class.forName("org.sqlite.JDBC");
+      c = DriverManager.getConnection("jdbc:sqlite:" + Utils.getOption("t", args));
+    } catch ( Exception e ) {
+      System.err.println( e.getClass().getName() + ": " + e.getMessage() + "\nDo you have the SQLite JDBC in your classpath? get it at: https://bitbucket.org/xerial/sqlite-jdbc/downloads" );
+      System.exit(0);
+    }
+
+    Statement stmt = c.createStatement();
+    ResultSet rs = stmt.executeQuery( "SELECT * FROM labelled_data;" );
+
+    while ( rs.next() ) {
+      DenseInstance temp = new DenseInstance(2);
+      temp.setDataset(data);
+      String label = rs.getString("label");
+      String  document = rs.getString("document");
+      temp.setValue(0, document);
+      temp.setValue(1, label);
+      data.add(temp);
+    }
+    rs.close();
+    stmt.close();
+    c.close();
+
     String clsIndex = Utils.getOption("c", args);
     if (clsIndex.length() == 0)
       clsIndex = "last";
@@ -76,7 +95,7 @@ public class BagOfWords {
     Instances randData = new Instances(data);
     try {
       filter.setInputFormat(randData);
-      filter.setAttributeIndices("2");
+      filter.setAttributeIndices("1");
       randData = Filter.useFilter(randData, filter);
     } catch (Exception e) {
       System.out.println(e.toString());
@@ -94,28 +113,10 @@ public class BagOfWords {
       Instances train = randData.trainCV(folds, n);
       Instances test = randData.testCV(folds, n);
 
-      // the above code is used by the StratifiedRemoveFolds filter, the
-      // code below by the Explorer/Experimenter:
-      // Instances train = randData.trainCV(folds, n, rand);
-
       // build and evaluate classifier
       Classifier clsCopy = AbstractClassifier.makeCopy(cls);
       clsCopy.buildClassifier(train);
       eval.evaluateModel(clsCopy, test);
-
-      // add predictions
-      // AddClassification filter = new AddClassification();
-      // filter.setClassifier(cls);
-      // filter.setOutputClassification(true);
-      // filter.setOutputDistribution(true);
-      // filter.setOutputErrorFlag(true);
-      // filter.setInputFormat(train);
-      // Filter.useFilter(train, filter);  // trains the classifier
-      // Instances pred = Filter.useFilter(test, filter);  // perform predictions on test set
-      // if (predictedData == null)
-      //   predictedData = new Instances(pred, 0);
-      // for (int j = 0; j < pred.numInstances(); j++)
-      //   predictedData.add(pred.instance(j));
     }
 
     // output evaluation
