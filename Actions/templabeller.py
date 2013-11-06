@@ -175,15 +175,29 @@ class ProbablySpamUnicodeLabeller(LiteralLabeller):
             return 0
 
 class EmoticonLabeller(LiteralLabeller):
+
+    def __init__(self, xml):
+        super(EmoticonLabeller, self).__init__(xml)
+        self.good = [":)", ";)", ":-)", ";-)", ":D", ":-D"]
+        self.bad = [":(", ":-(", "D:"]
+
     def label(self, document):
-        if re.match(' ( (:\)) | (:D) ) & ( (:\() | (;\() )', document ):
+        good, bad = False, False 
+        for goodterm in self.good:
+            if goodterm in document:
+                good = True 
+                break  
+        for badterm in self.bad:
+            if badterm in document:
+                bad = True 
+                break 
+
+        if good and bad:
             # Mixed emoticons cant tell return the answer to everything
             return 42
-        elif re.match('(:\)) | (:D)', document):
+        if good:
             return 1
-        elif re.match('(:\() | (;\()', document):
+        if bad:
             return -1
-        else:
-            # No emoticons present
-            return 6
-
+        # No empticons present 
+        return 6
