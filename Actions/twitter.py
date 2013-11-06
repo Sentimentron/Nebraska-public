@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os 
+import os
 import logging
 import sqlite3
 import tempfile
 import subprocess
-from temp import create_sqlite_temp_path
+from db import create_sqlite_temp_path
 
 class TwitterCompressedDBInputSource(object):
 
@@ -15,7 +15,7 @@ class TwitterCompressedDBInputSource(object):
             raise IOError("_TwitterInputSource: file '%s' does not exist!", (self.path,))
 
     def __init__(self, path):
-        self.path = path 
+        self.path = path
         self.__assert_path_exists()
 
     def decompress(self):
@@ -35,7 +35,7 @@ class TwitterCompressedDBInputSource(object):
             return tmp
         except Exception as ex:
             os.remove(tmp)
-            raise ex  
+            raise ex
 
     def run_import(self):
         tmp = self.decompress()
@@ -43,21 +43,21 @@ class TwitterCompressedDBInputSource(object):
         con.text_factory = unicode
         try:
             cur = con.cursor()
-            # Retrieve some metadata so we know how to handle the file 
+            # Retrieve some metadata so we know how to handle the file
             metadata = {}
             sql = "SELECT * FROM metadata"
             cur.execute(sql)
             for key, value in cur.fetchall():
-                metadata[key] = value 
-            # Check that we recognise the input 
+                metadata[key] = value
+            # Check that we recognise the input
             if metadata["data_format"] != "TWEET_TEXT":
                 logging.warn("data format: unrecognised value '%s'. Skipping import...", metadata["data_format"])
-                return 
-            # Select document text from the input table 
+                return
+            # Select document text from the input table
             sql = "SELECT response FROM stream"
             cur.execute(sql)
             for text, in cur.fetchall():
-                yield text 
+                yield text
         finally:
             con.close()
             logging.debug("Removing %s...", tmp)
@@ -81,10 +81,10 @@ class TwitterInputSource(object):
             for filename in files:
                 extension = os.path.splitext(filename)[1][1:].strip()
                 if extension != "xz":
-                    continue 
+                    continue
                 ret.add(os.path.join(root, filename))
 
-        return ret 
+        return ret
 
     def execute(self, path, conn):
         # Each database needs decompression and reading
@@ -92,12 +92,12 @@ class TwitterInputSource(object):
         for filename in self.get_import_files():
             input_sources.append(TwitterCompressedDBInputSource(filename))
 
-        # Insert each row into the database 
+        # Insert each row into the database
         c = conn.cursor()
         for src in input_sources:
             for text in src.run_import():
                 c.execute("INSERT INTO input (document) VALUES (?)", (text,))
-                
+
         logging.info("Committing input documents...")
         conn.commit()
         return True, conn
