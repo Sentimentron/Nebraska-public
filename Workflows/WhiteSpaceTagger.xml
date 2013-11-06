@@ -12,7 +12,7 @@
     </Tables>
 
 	<InputSources>
-		<PreviousWorkflow path="Workflows/SpamFight.xml"  />
+		<PreviousWorkflow path="Workflows/EmoticonLabel.xml"  />
 	</InputSources>
 
     <WorkflowTasks>
