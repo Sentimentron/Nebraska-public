@@ -2,8 +2,8 @@ import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 import weka.core.converters.ConverterUtils.DataSink;
 import weka.core.Utils;
-import weka.classifiers.Classifier;
-import weka.classifiers.Evaluation;
+import weka.classifiers.*;
+import weka.classifiers.trees.*;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AddClassification;
 import weka.filters.unsupervised.attribute.StringToWordVector;
@@ -21,6 +21,8 @@ import java.util.ArrayList;
  * Command-line parameters:
  * <ul>
  *    <li>-t SQLiteDatabase Path - the path to the SQLite database with the data</li>
+ *    <li>-T String - The name of the POS-tagged table to read from</li>
+ *    <li>-L String - The name of the temporary label table to read from</li>
  *    <li>-x int - the number of folds to use</li>
  *    <li>-s int - the seed for the random number generator</li>
  *    <li>-c int - the class index, "first" and "last" are accepted as well;
@@ -39,6 +41,13 @@ public class WekaClassifiers {
 
   public static void main(String[] args) throws Exception {
 
+    // Parse command line arguments 
+    String posTable = Utils.getOption("T", args);
+    String labelTable = Utils.getOption("L", args);
+
+    String queryTemplate = "SELECT tokenized_form AS document, label FROM pos_%1$s NATURAL JOIN temporary_label_%2$s";
+    String query = String.format(queryTemplate, posTable, labelTable); 
+
     Instances data = DataSource.read("data.arff");
     // Read in our data from the SQLite file whose path is specified from the -t parameter
     Connection c = null;
@@ -51,7 +60,7 @@ public class WekaClassifiers {
     }
 
     Statement stmt = c.createStatement();
-    ResultSet rs = stmt.executeQuery( "SELECT * FROM labelled_data;" );
+    ResultSet rs = stmt.executeQuery(query);
 
     while ( rs.next() ) {
       DenseInstance temp = new DenseInstance(2);
@@ -82,7 +91,11 @@ public class WekaClassifiers {
     tmpOptions     = Utils.splitOptions(Utils.getOption("W", args));
     classname      = tmpOptions[0];
     tmpOptions[0]  = "";
-    AbstractClassifier cls = (AbstractClassifier) Utils.forName(AbstractClassifier.class, classname, tmpOptions);
+    AbstractClassifier cls = null; 
+    if (classname.equals("J48")) {
+      //(AbstractClassifier) Utils.forName(AbstractClassifier.class, classname, tmpOptions);
+      cls = (AbstractClassifier) new J48();
+    }
 
     // other options
     int seed  = Integer.parseInt(Utils.getOption("s", args));
