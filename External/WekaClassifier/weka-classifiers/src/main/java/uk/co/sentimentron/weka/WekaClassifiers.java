@@ -35,7 +35,7 @@ import java.util.ArrayList;
  * </pre>
  *
  */
-public class BagOfWords {
+public class WekaClassifiers {
 
   public static void main(String[] args) throws Exception {
 
