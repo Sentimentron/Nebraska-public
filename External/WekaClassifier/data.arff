@@ -1,6 +1,6 @@
-@relation iris
+@relation sentiment
 @attribute document string
-@attribute class {positive,negative}
+@attribute class {1,-1}
 
 @DATA
 
