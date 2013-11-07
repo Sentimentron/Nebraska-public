@@ -22,10 +22,10 @@ class WekaAction(object):
         self.identifier = xml.get("id")
 
         # POS table contains the pos tagged forms of tweets
-        self.pos_table = xml.get("pos-src")
+        self.pos_table = xml.get("posSrc")
 
         # Label table contains the training labels
-        self.label_table = xml.get("label-src")
+        self.label_table = xml.get("labelSrc")
 
         # Number of folds to use
         self.folds = xml.get("folds")
