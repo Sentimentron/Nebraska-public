@@ -4,6 +4,7 @@
         <WorkflowName>WEKA benchmark</WorkflowName>
         <WorkflowDescription>Runs a suite of WEKA classifiers</WorkflowDescription>
         <DisableUntrackedFileCheck />
+        <RetainOutputFile path="weka.sqlite" />
     </WorkflowOptions>
 
     <InputSources>
@@ -13,6 +14,16 @@
     <Tables />
 
     <WorkflowTasks>
+        <WekaAction id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
+        <RewritePOSFilter src="test" tag=":)" />
+        <RewritePOSFilter src="test" tag=";)" />
+        <RewritePOSFilter src="test" tag=":-)" />
+        <RewritePOSFilter src="test" tag=";-)" />
+        <RewritePOSFilter src="test" tag=":D" />
+        <RewritePOSFilter src="test" tag=":-D" />
+        <RewritePOSFilter src="test" tag=":(" />
+        <RewritePOSFilter src="test" tag=":-(" />
+        <RewritePOSFilter src="test" tag="D:" />
         <WekaAction id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
     </WorkflowTasks>
 
