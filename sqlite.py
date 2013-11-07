@@ -70,7 +70,7 @@ def create_sqlite_poslisttable(name, src, conn):
     # Retrieve a cursor
     c = conn.cursor()
 
-    sql = "CREATE TABLE pos_list_%s (pos_identifier INTEGER, FOREIGN KEY (pos_identifier) REFERENCES %s (identifier))" % (name, src)
+    sql = "CREATE TABLE pos_list_%s (pos_identifier INTEGER, FOREIGN KEY (pos_identifier) REFERENCES pos_tokens_%s (identifier))" % (name, src)
     logging.debug(sql)
     c.execute(sql)
 

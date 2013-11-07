@@ -13,6 +13,7 @@
 """
 
 import logging
+from lxml import etree
 
 class POSFilter(object):
 
@@ -27,7 +28,6 @@ class POSFilter(object):
 
         # Record the POS tag
         self.tag = xml.get("tag")
-        assert self.tag is not None 
 
         # Record the pos tag table name
         self.table = xml.get("src")
@@ -46,7 +46,7 @@ class POSFilter(object):
             self.match_post = self.convert_bool(self.match_pre)
 
     def identify_pos_tags(self, conn):
-        
+        assert self.tag is not None 
         logging.info("Matching POS tag '%s'...", self.tag)
 
         # Build query 
@@ -81,7 +81,9 @@ class RewritePOSFilter(POSFilter):
         document_tuples = set([])
         like_str = "%%%s%%" % (tag_identifier,)
         query = "SELECT identifier, tokenized_form FROM pos_%s WHERE tokenized_form LIKE '%s'" 
-        c.execute(query % (self.table, like_str))
+        query = query % (self.table, like_str)
+        logging.debug(query)
+        c.execute(query)
         for identifier, tokenized_form in c.fetchall():
             document_tuples.add((identifier, tokenized_form))
 
@@ -108,3 +110,86 @@ class RewritePOSFilter(POSFilter):
             self.rewrite_pos_tag(i, conn)
 
         return True, conn
+
+class POSWhiteListFilter(POSFilter):
+
+    def __init__(self, xml):
+        super(POSWhiteListFilter, self).__init__(xml)
+        self.dest = xml.get("dest")
+        assert self.dest is not None 
+        logging.debug("self.dest: %s", self.dest)
+
+    def execute(self, path, conn):
+
+        identifiers = self.identify_pos_tags(conn)
+        self.store_whitelist(identifiers, conn)
+        return True, conn 
+
+    def store_whitelist(self, identifiers, conn):
+        
+        logging.info("Writing whitelist...")
+        c = conn.cursor()
+        sql = "INSERT INTO pos_list_%s VALUES (?)" % (self.dest,)
+        logging.debug(sql)
+        c.executemany(sql, [(i,) for i in identifiers])
+
+        logging.info("Committing changes...")
+        conn.commit()
+
+
+class POSRewriteFromWhiteList(RewritePOSFilter):
+
+    def __init__(self, xml):
+        super(RewritePOSFilter, self).__init__(xml)
+        self.ref = xml.get("ref")
+        assert self.ref is not None 
+
+    def identify_pos_tags(self, conn):
+
+        c = conn.cursor()
+        sql = "SELECT pos_identifier FROM pos_list_%s" % (self.ref,)
+        c.execute(sql)
+
+        ret = set([])
+        for identifier, in c.fetchall():
+            ret.add(identifier)
+
+        return ret 
+
+class POSWhiteListUnpopularTags(POSWhiteListFilter):
+
+    def __init__(self, xml):
+        super(POSWhiteListUnpopularTags, self).__init__(xml)
+
+        if xml.get("minPopularity") is None:
+            self.min_popularity = 0
+        else:
+            self.min_popularity = int(xml.get("minPopularity"))
+
+        if xml.get("maxPopularity") is None:
+            raise ValueError("maxPopularity must be provided")
+        else:
+            self.max_popularity = int(xml.get("maxPopularity"))
+
+    def identify_pos_tags(self, conn):
+        from collections import Counter 
+        c = conn.cursor()
+
+        # Select all the documents available 
+        sql = "SELECT tokenized_form FROM pos_%s" % (self.table, )
+        c.execute(sql,)
+
+        # Create a popularity counter 
+        popularity = Counter([])
+        for tokenized_form, in c.fetchall():
+            tokens = [int(i) for i in tokenized_form.split(' ')]
+            popularity.update(tokens)
+
+        # Find the pos tags which fit the popularity 
+        output = set([])
+        for token in popularity:
+            print token, popularity[token]
+            if popularity[token] <= self.max_popularity and popularity[token] > self.min_popularity:
+                output.add(token)
+
+        return output
