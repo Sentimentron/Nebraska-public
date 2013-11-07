@@ -21,3 +21,5 @@ from twitterpos import GimpelPOSTagger
 from previous import PreviousWorkflow
 
 from gimpel import GimpelPOSTagger
+
+from weka import WekaAction
