@@ -29,6 +29,7 @@ import java.util.ArrayList;
  *    "last" is used by default</li>
  *    <li>-W classifier - classname and options, enclosed by double quotes;
  *    the classifier to cross-validate</li>
+ *    <li>--version - print git SHA1 hash and exits
  * </ul>
  *
  * Example command-line:
@@ -40,6 +41,13 @@ import java.util.ArrayList;
 public class WekaClassifiers {
 
   public static void main(String[] args) throws Exception {
+
+    for (String s : args) {
+      if (s.equals("--version")) {
+        System.out.println(VersionReader.getGitSha1());
+        System.exit(0);
+      }
+    }
 
     // Parse command line arguments 
     String posTable = Utils.getOption("T", args);
