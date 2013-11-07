@@ -57,6 +57,7 @@ def check_versions():
 
     # Retrieve the git version
     changes, version = check_gitinfo()
+    version = version.strip()
 
     build_dir = os.path.join(os.getcwd(), "Build")
 
@@ -77,8 +78,10 @@ def check_versions():
         text, err = pipe.communicate()
         if "CHANGES" in text:
             assert changes == True
+        text = text.strip()
         tool_version,junk,junk = text.partition('+')
-        if version.strip() != tool_version.strip():
+        tool_version = tool_version.strip()
+        if version != tool_version:
             raise Exception(("Invalid version", filename, text, version))
 
 def parse_arguments():
