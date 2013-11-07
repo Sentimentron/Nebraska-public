@@ -194,8 +194,10 @@ def _execute_workflow(document, sqlite_path, options, workflow_path):
             continue
         if x_node.tag == "TemporaryLabelTable":
             sqlite.create_sqlite_temporary_label_table(x_node.get("name"), sqlite_conn)
-        if x_node.tag == "PartOfSpeechTable":
+        elif x_node.tag == "PartOfSpeechTable":
             sqlite.create_sqlite_postables(x_node.get("name"), sqlite_conn)
+        elif x_node.tag == "PartOfSpeechListTable":
+            sqlite.create_sqlite_poslisttable(x_node.get("name"), x_node.get("ref"), sqlite_conn)
 
     #
     # APPLY WORKFLOW ACTIONS

@@ -11,7 +11,9 @@
         <PreviousWorkflow path="Workflows/WhiteSpaceTagger.xml" />
     </InputSources>
 
-    <Tables />
+    <Tables>
+        <PartOfSpeechListTable name="whitelist" ref="test" />
+    </Tables>
 
     <WorkflowTasks>
         <WekaAction id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
