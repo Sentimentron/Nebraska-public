@@ -1,0 +1,26 @@
+<Workflow>
+
+	<WorkflowOptions>
+		<WorkflowName>Emoticon Labeller</WorkflowName>
+		<WorkflowDescription>Labels the documents according to their emoticons</WorkflowDescription>
+		<RetainOutputFile path="emoticons.sqlite"/>
+		<DisableUntrackedFileCheck />
+	</WorkflowOptions>
+
+    <Tables>
+        <TemporaryLabelTable name="emoticons" />
+    </Tables>
+
+	<InputSources>
+		<PreviousWorkflow path="Workflows/SpamFight.xml"  />
+	</InputSources>
+
+    <WorkflowTasks>
+        <EmoticonLabeller dest="emoticons"/>
+        <LabelFilter src="emoticons" temporary="true">
+        	<RetainLabel id="1" />
+        	<RetainLabel id="-1" />
+        </LabelFilter>
+    </WorkflowTasks>
+
+</Workflow>
