@@ -17,7 +17,7 @@ def remove_sqlite_path(path):
 
 def create_sqlite_connection(path):
     return Actions.create_sqlite_connection(path)
-    
+
 def create_sqlite_temporary_label_table(prefix, conn):
     if prefix is None:
         raise ValueError()
@@ -54,7 +54,7 @@ def create_sqlite_postables(name, conn):
 
     # Create the POSTagging table
     logging.info("Creating pos_%s table", name)
-    sql = "CREATE TABLE pos_%s (identifier INTEGER PRIMARY KEY, document_identifier INTEGER, tokenized_form TEXT, FOREIGN KEY(document_identifier) REFERENCES input(identifier)) ON DELETE CASCADE" %name
+    sql = "CREATE TABLE pos_%s (identifier INTEGER PRIMARY KEY, document_identifier INTEGER, tokenized_form TEXT, FOREIGN KEY(document_identifier) REFERENCES input(identifier) ON DELETE CASCADE)" %name
     c.execute(sql)
 
     logging.info("Creating pos_tokens_%s table..." %name)
