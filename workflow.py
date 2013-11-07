@@ -9,6 +9,7 @@ import sqlite3
 import tempfile
 import subprocess
 import sqlite
+import traceback
 
 from Actions import *
 from lxml import etree
@@ -152,9 +153,15 @@ def execute_workflow(workflow, workflow_path, sqlite_path):
     # Try to execute the workflow
     try:
         _execute_workflow(document, sqlite_path, options, workflow_path)
+    except Exception:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        print >> sys.stderr, ''.join('\t' + line for line in lines)  # Log it or whatever here
     finally:
         if not options["retain_output"]:
-            return
+            logging.info("Removing output file %s...", sqlite_path)
+            os.remove(sqlite_path)
+            return 
         try:
             logging.info("Moving output file from %s to %s...", sqlite_path, options["output_file"]);
             shutil.move(sqlite_path, options["output_file"])
@@ -195,7 +202,6 @@ def _execute_workflow(document, sqlite_path, options, workflow_path):
     for x_node in document.find("WorkflowTasks").getchildren():
         if x_node.tag is etree.Comment:
             continue
-        logging.debug(x_node.tag)
         task = get_workflow_task(x_node.tag)
         logging.debug(task)
         task = task(x_node)

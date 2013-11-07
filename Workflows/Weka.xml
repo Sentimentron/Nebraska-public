@@ -1,0 +1,19 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>WEKA benchmark</WorkflowName>
+        <WorkflowDescription>Runs a suite of WEKA classifiers</WorkflowDescription>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <InputSources>
+        <PreviousWorkflow path="Workflows/WhiteSpaceTagger.xml" />
+    </InputSources>
+
+    <Tables />
+
+    <WorkflowTasks>
+        <WekaAction id="J48" pos-src="test" label-src="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
+    </WorkflowTasks>
+
+</Workflow>
