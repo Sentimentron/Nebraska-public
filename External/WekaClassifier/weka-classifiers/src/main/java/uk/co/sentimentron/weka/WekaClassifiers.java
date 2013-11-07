@@ -91,12 +91,8 @@ public class WekaClassifiers {
     tmpOptions     = Utils.splitOptions(Utils.getOption("W", args));
     classname      = tmpOptions[0];
     tmpOptions[0]  = "";
-    AbstractClassifier cls = null; 
-    if (classname.equals("J48")) {
-      //(AbstractClassifier) Utils.forName(AbstractClassifier.class, classname, tmpOptions);
-      cls = (AbstractClassifier) new J48();
-    }
-
+    AbstractClassifier cls = (AbstractClassifier) Utils.forName(AbstractClassifier.class, classname, tmpOptions);
+; 
     // other options
     int seed  = Integer.parseInt(Utils.getOption("s", args));
     int folds = Integer.parseInt(Utils.getOption("x", args));
