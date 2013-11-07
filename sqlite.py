@@ -53,7 +53,7 @@ def create_sqlite_postables(name, conn):
     c = conn.cursor()
 
     # Create the POSTagging table
-    logging.info("Creating pos_%s table" %name)
+    logging.info("Creating pos_%s table", name)
     sql = "CREATE TABLE pos_%s (identifier INTEGER PRIMARY KEY, document_identifier INTEGER, tokenized_form TEXT, FOREIGN KEY(document_identifier) REFERENCES input(identifier) )" %name
     c.execute(sql)
 
@@ -62,4 +62,17 @@ def create_sqlite_postables(name, conn):
     c.execute(sql)
 
     logging.info("Committing changes...")
+    conn.commit()
+
+def create_sqlite_poslisttable(name, src, conn):
+
+    logging.info("Creating pos_list_%s table...", name)
+    # Retrieve a cursor
+    c = conn.cursor()
+
+    sql = "CREATE TABLE pos_list_%s (pos_identifier INTEGER, FOREIGN KEY (pos_identifier) REFERENCES %s (identifier))" % (name, src)
+    logging.debug(sql)
+    c.execute(sql)
+
+    logging.info("Commiting changes...")
     conn.commit()
