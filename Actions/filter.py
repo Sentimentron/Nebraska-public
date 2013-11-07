@@ -55,6 +55,7 @@ class LabelFilter(object):
         );""" % (table, not_portion)
         
         # Execute the query
+        logging.debug(sql)
         logging.info("Deleting non-matching documents...")
         cursor.execute(sql)
     

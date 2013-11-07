@@ -54,7 +54,7 @@ def create_sqlite_postables(name, conn):
 
     # Create the POSTagging table
     logging.info("Creating pos_%s table", name)
-    sql = "CREATE TABLE pos_%s (identifier INTEGER PRIMARY KEY, document_identifier INTEGER, tokenized_form TEXT, FOREIGN KEY(document_identifier) REFERENCES input(identifier) )" %name
+    sql = "CREATE TABLE pos_%s (identifier INTEGER PRIMARY KEY, document_identifier INTEGER, tokenized_form TEXT, FOREIGN KEY(document_identifier) REFERENCES input(identifier)) ON DELETE CASCADE" %name
     c.execute(sql)
 
     logging.info("Creating pos_tokens_%s table..." %name)
@@ -70,7 +70,7 @@ def create_sqlite_poslisttable(name, src, conn):
     # Retrieve a cursor
     c = conn.cursor()
 
-    sql = "CREATE TABLE pos_list_%s (pos_identifier INTEGER, FOREIGN KEY (pos_identifier) REFERENCES pos_tokens_%s (identifier))" % (name, src)
+    sql = "CREATE TABLE pos_list_%s (pos_identifier INTEGER, FOREIGN KEY (pos_identifier) REFERENCES pos_tokens_%s (identifier)) ON DELETE CASCADE" % (name, src)
     logging.debug(sql)
     c.execute(sql)
 

@@ -11,7 +11,6 @@ import sqlite3
 import platform 
 import tempfile 
 
-
 def create_sqlite_temp_path():
     if "Linux" in platform.system():
         hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix="/dev/shm/") 
@@ -25,5 +24,6 @@ def create_sqlite_connection(path):
     conn = sqlite3.connect(path)
     conn.text_factory = unicode
     conn.execute("PRAGMA foreign_keys = ON;")
+    conn.execute("PRAGMA journal_mode = OFF")
     logging.debug("Connection open")
     return conn
