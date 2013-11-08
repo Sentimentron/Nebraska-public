@@ -35,7 +35,9 @@
         <HashTagLabeller dest="clustering" />
         <AtMentionLabeller dest="clustering" />
         <ClusterLabeller src="clustering" dest="clusters" epsilon="0.55" minSize="2" />
-        <HasLabelFilter src="clusters" temporary="true" delete="false" />
+        <LabelFilter src="clusters" temporary="true" delete="false">
+            <RetainMostPopularLabels count="2" />
+        </LabelFilter>
     </WorkflowTasks>
 
 </Workflow>

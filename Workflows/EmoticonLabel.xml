@@ -18,10 +18,6 @@
 
     <WorkflowTasks>
         <EmoticonLabeller dest="emoticons"/>
-        <LabelFilter src="emoticons" temporary="true">
-        	<RetainLabel id="1" />
-        	<RetainLabel id="-1" />
-        </LabelFilter>
         <TrainingTestSplitLabeller testProportion="0.5" dest="split"/>
     </WorkflowTasks>
 
