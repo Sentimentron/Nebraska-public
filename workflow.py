@@ -8,10 +8,11 @@ import logging
 import sqlite3
 import tempfile
 import subprocess
-import sqlite
 import traceback
 
 from Actions import *
+from Actions import db
+
 from lxml import etree
 
 LOG_FORMAT='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -172,7 +173,7 @@ def execute_workflow(workflow, workflow_path, sqlite_path):
 def _execute_workflow(document, sqlite_path, options, workflow_path):
 
     # Open a database connection
-    sqlite_conn = sqlite.create_sqlite_connection(sqlite_path)
+    sqlite_conn = db.create_sqlite_connection(sqlite_path)
 
     #
     # IMPORT SOURCE DATA
@@ -264,12 +265,12 @@ def main():
     assert_workflow_file_exists(workflow_file)
 
     if action == "touch":
-        sqlite_path = sqlite.create_sqlite_temp_path()
-        sqlite_conn = sqlite.create_sqlite_connection(sqlite_path)
-        sqlite.create_sqlite_input_tables(sqlite_conn)
+        sqlite_path = db.create_sqlite_temp_path()
+        sqlite_conn = db.create_sqlite_connection(sqlite_path)
+        db.create_sqlite_input_tables(sqlite_conn)
     else:
         sqlite_path = workflow_file
-        sqlite_conn = sqlite.create_sqlite_connection(workflow_file)
+        sqlite_conn = db.create_sqlite_connection(workflow_file)
 
     # Execute the workflow
     workflow = read_workflow_file(workflow_file)
