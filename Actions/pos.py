@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import string 
 import logging
 import nltk
 
@@ -56,8 +57,25 @@ class WorkflowNativePOSTagger(object):
 
 class WhiteSpacePOSTagger(WorkflowNativePOSTagger):
 
+    def __init__(self, xml):
+        super(WhiteSpacePOSTagger, self).__init__(xml)
+        self.permitted = set(string.letters + '#' + '@')
+
+    def sanitize(self, token):
+        end_position = len(token)
+        # Seek through reversed string, trim punctuation at end
+        for c, i in enumerate(token):
+            if i not in self.permitted:
+                end_position = c
+                break
+        return token[0:end_position]
+
     def tokenize(self, document):
-        return document.split(" ")
+        tokens = document.split(" ")
+        tokens = [t.lower() for t in tokens]
+        tokens = [self.sanitize(t) for t in tokens]
+        tokens = [t for t in tokens if len(t) > 0]
+        return tokens
 
 class NLTKPOSTagger(WorkflowNativePOSTagger):
 
