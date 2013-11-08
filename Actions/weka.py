@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
     This file's reponsible for running the WEKA workflows
@@ -11,7 +12,7 @@ import subprocess
 import random
 from metadata import push_metadata
 
-class WekaAction(object):
+class WekaBenchmark(object):
 
     def assert_option(self, option, message):
         if self.__dict__[option] is None:
@@ -53,7 +54,7 @@ class WekaAction(object):
         assert self.folds > 0
 
     def execute(self, path, conn):
-        args = ["WekaClassifiers",
+        args = ["WekaBenchmark",
             "-t", path,
             "-T", self.pos_table,
             "-L", self.label_table,

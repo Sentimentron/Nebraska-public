@@ -16,7 +16,7 @@
     </Tables>
 
     <WorkflowTasks>
-        <WekaAction id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
+        <WekaBenchmark id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
         <RewritePOSFilter src="test" tag=":)" />
         <RewritePOSFilter src="test" tag=";)" />
         <RewritePOSFilter src="test" tag=":-)" />
@@ -26,12 +26,12 @@
         <RewritePOSFilter src="test" tag=":(" />
         <RewritePOSFilter src="test" tag=":-(" />
         <RewritePOSFilter src="test" tag="D:" />
-        <WekaAction id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
+        <WekaBenchmark id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
         <POSWhiteListUnpopularTags maxPopularity="1" src="test" dest="whitelist" />
         <POSRewriteFromWhiteList ref="whitelist" src="test" />
-        <WekaAction id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
+        <WekaBenchmark id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
         <RewritePOSFilter src="test" tag="@" />
-        <WekaAction id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
+        <WekaBenchmark id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
     </WorkflowTasks>
 
 </Workflow>
