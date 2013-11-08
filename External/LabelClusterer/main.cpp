@@ -389,7 +389,6 @@ int main(int argc, char **argv) {
     auto result = dbscan(cluster_items, distances, minpoints);
     fprintf(stderr, "Outputting...\n");
     for (auto it = result.begin(); it != result.end(); ++it) {
-        if (!it->second) continue;
         // std::cout << it.first << "\t" << cluster_item_map[it.first] <<   "\t" << it.second << "\n";
         rc = sqlite3_bind_int64(insert_statement, 1, cluster_item_map[it->first]);
         if (rc != SQLITE_OK) {

@@ -68,6 +68,10 @@ class WhiteSpacePOSTagger(WorkflowNativePOSTagger):
             if i not in self.permitted:
                 end_position = c
                 break
+        # If it's all punctuation, may be an emoticon
+        if end_position == 0:
+            return token 
+            
         return token[0:end_position]
 
     def tokenize(self, document):

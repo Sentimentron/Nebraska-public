@@ -39,6 +39,8 @@ class LiteralLabeller(TemporaryLabeller):
         for identifier, document in c.fetchall():
             # Split method spits out the parts we want to enumerate
             label_id = self.label(document)
+            if label_id is None:
+                continue
             c.execute(sql, (identifier, label_id))
 
         # Commit changes
@@ -196,13 +198,12 @@ class EmoticonLabeller(LiteralLabeller):
 
         if good and bad:
             # Mixed emoticons cant tell return the answer to everything
-            return 42
+            return None
         if good:
             return 1
         if bad:
             return -1
         # No empticons present 
-        return 6
 
 class TrainingTestSplitLabeller(LiteralLabeller):
     
