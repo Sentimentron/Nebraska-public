@@ -54,10 +54,10 @@ class TwitterCompressedDBInputSource(object):
                 logging.warn("data format: unrecognised value '%s'. Skipping import...", metadata["data_format"])
                 return
             # Select document text from the input table
-            sql = "SELECT response FROM stream"
+            sql = "SELECT response, date FROM stream"
             cur.execute(sql)
-            for text, in cur.fetchall():
-                yield text
+            for text, date in cur.fetchall():
+                yield text, date
         finally:
             con.close()
             logging.debug("Removing %s...", tmp)
@@ -95,8 +95,8 @@ class TwitterInputSource(object):
         # Insert each row into the database
         c = conn.cursor()
         for src in input_sources:
-            for text in src.run_import():
-                c.execute("INSERT INTO input (document) VALUES (?)", (text,))
+            for text, date in src.run_import():
+                c.execute("INSERT INTO input (document, date) VALUES (?, ?)", (text, date))
 
         logging.info("Committing input documents...")
         conn.commit()
