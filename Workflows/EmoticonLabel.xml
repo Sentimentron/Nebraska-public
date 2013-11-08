@@ -8,6 +8,7 @@
 	</WorkflowOptions>
 
     <Tables>
+        <TemporaryLabelTable name="split" />
         <TemporaryLabelTable name="emoticons" />
     </Tables>
 
@@ -21,6 +22,7 @@
         	<RetainLabel id="1" />
         	<RetainLabel id="-1" />
         </LabelFilter>
+        <TrainingTestSplitLabeller testProportion="0.5" dest="split"/>
     </WorkflowTasks>
 
 </Workflow>
