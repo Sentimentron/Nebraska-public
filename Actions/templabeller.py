@@ -1,5 +1,7 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+import random
 import string
 import logging
 import re
@@ -201,3 +203,23 @@ class EmoticonLabeller(LiteralLabeller):
             return -1
         # No empticons present 
         return 6
+
+class TrainingTestSplitLabeller(LiteralLabeller):
+    
+    def __init__(self, xml):
+        super(TrainingTestSplitLabeller, self).__init__(xml)
+        # Percentage of documents assigned the "test" label
+        self.proportion = xml.get("testProportion")
+        assert self.proportion is not None 
+        
+        self.proportion = float(self.proportion)
+        assert self.proportion > 0
+        assert self.proportion < 1
+    
+    def label(self, document):
+        if random.random() < self.proportion:
+            # This document is a test document
+            return 1
+        # This document is a training document
+        return 0
+        
