@@ -64,7 +64,7 @@ public class WekaBenchmark {
       c = DriverManager.getConnection("jdbc:sqlite:" + Utils.getOption("t", args));
     } catch ( Exception e ) {
       System.err.println( e.getClass().getName() + ": " + e.getMessage() + "\nDo you have the SQLite JDBC in your classpath? get it at: https://bitbucket.org/xerial/sqlite-jdbc/downloads" );
-      System.exit(0);
+      System.exit(1);
     }
 
     Statement stmt = c.createStatement();
