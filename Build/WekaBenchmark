@@ -15,7 +15,7 @@ os.chdir(directory)
 args = sys.argv[1:]
 
 # Constant command used to launch entry class
-base_command = "java -cp weka-classifiers/target/weka-classifiers-1.0-SNAPSHOT-jar-with-dependencies.jar WekaClassifiers"
+base_command = "java -cp weka-classifiers/target/weka-classifiers-1.0-SNAPSHOT-jar-with-dependencies.jar WekaBenchmark"
 
 # Join arguments with base command
 command = base_command + ' ' + ' '.join(args)

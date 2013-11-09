@@ -38,7 +38,7 @@ import java.util.ArrayList;
  * </pre>
  *
  */
-public class WekaClassifiers {
+public class WekaBenchmark {
 
   public static void main(String[] args) throws Exception {
 
