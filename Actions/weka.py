@@ -111,7 +111,7 @@ class WekaClassify(object):
 
     def execute(self, path, conn):
         args = ["WekaClassifier",
-            "-t", path,
+            "-d", path,
             "-T", self.pos_table,
             "-t", self.training_table,
             "-L", self.label_table,
