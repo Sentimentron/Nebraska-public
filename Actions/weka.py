@@ -37,7 +37,7 @@ class WekaBenchmark(object):
             self.seed = int(self.seed)
         else:
             self.seed = random.randrange(1,65536)
-            logging.info("Setting WekaAction seed as %d...", self.seed)
+            logging.info("Setting WekaBenchmark seed as %d...", self.seed)
 
         # Get the classifier
         self.classifier = xml.get("classifier")
@@ -59,6 +59,63 @@ class WekaBenchmark(object):
             "-T", self.pos_table,
             "-L", self.label_table,
             "-x", str(self.folds), 
+            "-s", str(self.seed),
+            "-W", self.classifier
+        ]
+        args = ' '.join(args)
+        logging.debug(args)
+        subprocess.check_call(args, shell=True)
+        return True, conn
+
+class WekaClassify(object):
+
+    def assert_option(self, option, message):
+        if self.__dict__[option] is None:
+            raise Exception("%s %s" % (option, message))
+
+    def __init__(self, xml):
+        # Identifier is for results collation
+        self.identifier = xml.get("id")
+
+        # POS table contains the pos tagged forms of tweets
+        self.pos_table = xml.get("posSrc")
+
+        # Label table contains the training labels
+        self.label_table = xml.get("labelSrc")
+
+        # Label table containing training/test split
+        self.training_table = xml.get("splitSrc")
+
+        # Output table
+        self.output_table = xml.get("dest")
+
+        # Get or generate a random number seed 
+        self.seed = xml.get("seed")
+        if self.seed is not None:
+            self.seed = int(self.seed)
+        else:
+            self.seed = random.randrange(1,65536)
+            logging.info("Setting WekaClassify seed as %d...", self.seed)
+
+        # Get the classifier
+        self.classifier = xml.get("classifier")
+
+        # Check parameters 
+
+        assert self.identifier is not None
+        assert self.pos_table is not None
+        assert self.label_table is not None
+        assert self.training_table is not None 
+        assert self.classifier is not None 
+        assert self.output_table is not None 
+
+    def execute(self, path, conn):
+        args = ["WekaClassify",
+            "-t", path,
+            "-T", self.pos_table,
+            "-t", self.training_table,
+            "-L", self.label_table,
+            "-O", self.output_table,
             "-s", str(self.seed),
             "-W", self.classifier
         ]

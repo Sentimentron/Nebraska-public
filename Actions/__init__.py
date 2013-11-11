@@ -22,5 +22,5 @@ from previous import PreviousWorkflow
 
 from gimpel import GimpelPOSTagger
 
-from weka import WekaBenchmark
+from weka import WekaBenchmark, WekaClassify
 from posfilter import RewritePOSFilter, POSWhiteListUnpopularTags, POSRewriteFromWhiteList
