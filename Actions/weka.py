@@ -110,7 +110,7 @@ class WekaClassify(object):
         assert self.output_table is not None 
 
     def execute(self, path, conn):
-        args = ["WekaClassify",
+        args = ["WekaClassifier",
             "-t", path,
             "-T", self.pos_table,
             "-t", self.training_table,

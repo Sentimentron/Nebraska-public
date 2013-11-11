@@ -13,25 +13,13 @@
 
     <Tables>
         <PartOfSpeechListTable name="whitelist" ref="test" />
+        <TemporaryLabelTable name="trainTest" />
+        <TemporaryLabelTAble name="output" /> 
     </Tables>
 
     <WorkflowTasks>
-        <WekaBenchmark id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
-        <RewritePOSFilter src="test" tag=":)" />
-        <RewritePOSFilter src="test" tag=";)" />
-        <RewritePOSFilter src="test" tag=":-)" />
-        <RewritePOSFilter src="test" tag=";-)" />
-        <RewritePOSFilter src="test" tag=":D" />
-        <RewritePOSFilter src="test" tag=":-D" />
-        <RewritePOSFilter src="test" tag=":(" />
-        <RewritePOSFilter src="test" tag=":-(" />
-        <RewritePOSFilter src="test" tag="D:" />
-        <WekaBenchmark id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
-        <POSWhiteListUnpopularTags maxPopularity="1" src="test" dest="whitelist" />
-        <POSRewriteFromWhiteList ref="whitelist" src="test" />
-        <WekaBenchmark id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
-        <RewritePOSFilter src="test" tag="@" />
-        <WekaBenchmark id="J48" posSrc="test" labelSrc="emoticons" folds="5" classifier="weka.classifiers.trees.J48 -C 0.25" />
+        <TrainingTestSplitLabeller dest="trainTest" testProportion="0.6" />
+        <WekaClassify id="J48" posSrc="test" labelSrc="emoticons" splitSrc="trainTest" dest="classifyTable" classifier="weka.classifiers.trees.J48 -C 0.25" />
     </WorkflowTasks>
 
 </Workflow>

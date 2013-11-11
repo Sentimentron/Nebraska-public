@@ -90,4 +90,15 @@ def create_sqlite_poslisttable(name, src, conn):
 
     logging.info("Commiting changes...")
     conn.commit()
-    
+
+def create_sqlite_classificationtable(name, conn):
+
+    logging.info("Creating classification_%s table...", name)
+
+    cursor = con.cursor()
+    sql = "CREATE TABLE classification_%s (identifier INTEGER PRIMARY KEY, positive FLOAT, negative FLOAT, FOREIGN KEY (identifier) REFERENCES input (identifier))" % (name, )
+    logging.debug(sql)
+    cursor.execute(sql)
+
+    logging.info("Committing changes...")
+    conn.commit()
