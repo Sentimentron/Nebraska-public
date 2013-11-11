@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+
+import os
+import sys 
+import subprocess
+
+# Work out the directory
+directory = os.path.dirname(__file__)
+directory = os.path.abspath(os.path.join(directory, "..", "External", "WekaClassifier"));
+
+# Change into the directory
+os.chdir(directory)
+
+# Get the relevant arguments
+args = sys.argv[1:]
+
+# Constant command used to launch entry class
+base_command = "java -cp weka-classifiers/target/weka-classifiers-1.0-SNAPSHOT-jar-with-dependencies.jar WekaTest"
+
+# Join arguments with base command
+command = base_command + ' ' + ' '.join(args)
+
+print >> sys.stderr, command 
+
+# If there's additional version information needed...
+if "--version" in sys.argv:
+    process = subprocess.Popen("git status --porcelain", stdout=subprocess.PIPE, stderr=None, shell=True)
+    output, errors = process.communicate()
+    changes = False
+    for line in output.split("\n"):
+        if len(line) == 0:
+            continue
+        if "??" in line:
+            continue 
+        if "weka-classifiers" in line:
+            changes = True
+
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=None, shell=True)
+    output, errors = process.communicate()
+    output = output.strip()
+    if changes:
+        output = output + "+CHANGES"
+    print(output)
+    sys.exit(0)
+
+# Call the command
+sys.exit(subprocess.call(command, shell=True))

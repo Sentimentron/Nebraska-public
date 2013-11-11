@@ -49,7 +49,7 @@ public class WekaTest {
         String posTable = Utils.getOption("T", args);
         String labelTable = Utils.getOption("L", args);
         String trainTestTable = Utils.getOption("t", args);
-        String outputTabel = Utils.getOption("O", args);
+        String outputTable = Utils.getOption("O", args);
 
         // Create training + evaluation instances 
         Instances trainingInstances = DataSource.read("data.arff");
@@ -133,7 +133,7 @@ public class WekaTest {
         System.err.println("Building classifier...");
         cls.buildClassifier(randTrainingInstances);
 
-        queryTemplate = "INSERT INTO temporary_label_%s VALUES (%1$d, %1$d)";
+        queryTemplate = "INSERT INTO classification_%1$s VALUES (%2$d, %3$d)";
 
         // label instances
         System.err.printf("Labelling... (0.00% done)");
@@ -148,10 +148,9 @@ public class WekaTest {
                 throw new Exception("Unable to resolve!");
             }
 
-            query = String.format(queryTemplate, identity, (int)clsLabel);
+            query = String.format(queryTemplate, outputTable, identity, (int)clsLabel);
             stmt = c.createStatement();
             stmt.execute(query);
-
         }
         System.err.println("Labelling... (100% done)");
     }
