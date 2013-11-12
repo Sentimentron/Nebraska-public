@@ -17,7 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import weka.classifiers.meta.FilteredClassifier; 
-import weka.filters.unsupervised.instance.RemoveRange;
+import weka.filters.unsupervised.attribute.Remove;
+import java.util.TreeSet;
 
 /**
  * Reads the training and test sets from table t, operate on POS-tagged table 
@@ -53,10 +54,13 @@ public class WekaTest {
         String labelTable = Utils.getOption("L", args);
         String trainTestTable = Utils.getOption("t", args);
         String outputTable = Utils.getOption("O", args);
-
-        // Create training + evaluation instances 
+        
+        // Create a total set of instances for filtering
+        Instances allInstances = DataSource.read("datawithid.arff");
         Instances trainingInstances = DataSource.read("datawithid.arff");
         Instances evaluationInstances = DataSource.read("datawithid.arff");
+        TreeSet<Integer> trainingIds = new TreeSet<Integer>();
+        TreeSet<Integer> evaluationIds = new TreeSet<Integer>();
         
         // Open connection to SQLite database
         Connection c = null;
@@ -83,15 +87,22 @@ public class WekaTest {
         ResultSet rs = stmt.executeQuery(query);
         // Build training instances set 
         while ( rs.next() ) {
-            DenseInstance tmp = new DenseInstance(3);
+            String document, label;
+            int identifier; 
+            DenseInstance tmp; 
+            // Read database values 
+            document = rs.getString("tokenized_form");
+            label = rs.getString("class_label");
+            identifier = rs.getInt("document_identifier");
+            // Construct the instance 
+            tmp = new DenseInstance(3);
             tmp.setDataset(trainingInstances);
-            String document = rs.getString("tokenized_form");
-            String label = rs.getString("class_label");
-            int identifier = rs.getInt("document_identifier");
             tmp.setValue(0, identifier);
             tmp.setValue(1, document);
             tmp.setValue(2, label);
+            // Add instance to relevant tracking structures 
             trainingInstances.add(tmp);
+            trainingIds.add(identifier);
         }
 
         // Build and execute query to retrieve test instances 
@@ -105,18 +116,27 @@ public class WekaTest {
         Map<DenseInstance, Integer> instanceMapping = new HashMap<DenseInstance, Integer>();
         Map<SparseInstance, Integer> sparseInstanceMapping = new HashMap<SparseInstance, Integer>();
         while ( rs.next() ) {
-            DenseInstance tmp = new DenseInstance(3);
+            String document;
+            int identifier; 
+            DenseInstance tmp;
+            // Read database results
+            document = rs.getString("tokenized_form");
+            identifier = rs.getInt("document_identifier");
+            // Construct the instance 
+            tmp = new DenseInstance(3);
             tmp.setDataset(evaluationInstances);
-            String document = rs.getString("tokenized_form");
-            int identity = rs.getInt("document_identifier");
-            tmp.setValue(0, identity);
+            tmp.setValue(0, identifier);
             tmp.setValue(1, document);
+            tmp.setValue(2, 0);
+            // Add to tracking structures 
             evaluationInstances.add(tmp);
+            evaluationIds.add(identifier);
         }
 
+        // Mark the nominal class 
         trainingInstances.setClassIndex(trainingInstances.numAttributes() - 1);
         evaluationInstances.setClassIndex(evaluationInstances.numAttributes() - 1);
-
+        
         // Parse classifier options 
         String[] tmpOptions = Utils.splitOptions(Utils.getOption("W", args));
         String className = tmpOptions[0];
@@ -124,54 +144,54 @@ public class WekaTest {
 
         // Create the classifier 
         AbstractClassifier userCls = (AbstractClassifier) Utils.forName(AbstractClassifier.class, className, tmpOptions);
+        
+        StringToWordVector stwFilt = new StringToWordVector();
+        stwFilt.setInputFormat(trainingInstances);
+        FilteredClassifier vectorCls = new FilteredClassifier();
+        vectorCls.setFilter(stwFilt);
+        vectorCls.setClassifier(userCls);
+        
+        Remove rngFilt = new Remove();
+        rngFilt.setInputFormat(trainingInstances);
+        rngFilt.setAttributeIndices("first");
         FilteredClassifier cls = new FilteredClassifier();
-        RemoveRange rFilter = new RemoveRange(); 
-        rFilter.setInputFormat(trainingInstances);
-        rFilter.setInstancesIndices("2-last");
-        cls.setFilter(rFilter);
-        cls.setClassifier(userCls);
-
+        cls.setClassifier(vectorCls);
+        cls.setFilter(rngFilt);
+        
         // Parse other options 
         int seed = Integer.parseInt(Utils.getOption("s", args));
 
-        // Randomize and split data
+        // Randomize training data 
         StringToWordVector filter = new StringToWordVector();
         Random rand = new Random(seed);
-        Instances randTrainingInstances = new Instances(trainingInstances);
-        filter.setInputFormat(randTrainingInstances);
-        filter.setAttributeIndices("2");
-        randTrainingInstances = Filter.useFilter(randTrainingInstances, filter);
-        randTrainingInstances.randomize(rand);
-
+        trainingInstances.randomize(rand);
+        
         // Build the classifier 
         System.err.println("Building classifier...");
-        cls.buildClassifier(randTrainingInstances);
+        cls.buildClassifier(trainingInstances);
 
         queryTemplate = "INSERT INTO classification_%1$s VALUES (%2$s, %3$d)";
 
         // label instances
         System.err.print("Labelling... (0.00% done)\r");
-        for (int i = 0; i < evaluationInstances.numInstances(); i++) {
+        int numInstances = evaluationInstances.numInstances();
+        for (int i = 0; i < numInstances; i++) {
 
             double clsLabel; 
             DenseInstance instance = (DenseInstance)evaluationInstances.instance(i);
-            SparseInstance splitInstance; 
-
-            if(!filter.input(instance)) {
-                throw new Exception("Failed to input word!");
-            }
-            splitInstance = (SparseInstance) filter.output();
-
-            if ((i % 5) == 0) System.err.printf("Labelling... (%.2f done)\r", i * 100.f / evaluationInstances.numInstances());
-            clsLabel = cls.classifyInstance(splitInstance);
+            
+            if ((i % 5) == 0) System.err.printf("Labelling... (%.2f done)\r", i * 100.f / numInstances);
+            clsLabel = cls.classifyInstance(instance);
             instance.setClassValue(clsLabel);
+            
+            Attribute identity = instance.attribute(0);
+            String identityStr = instance.stringValue(identity);
+            
+            System.err.printf("%s\t%f\n", identityStr, clsLabel);
 
-            Attribute identity = splitInstance.attribute(1);
-            String identityStr = identity.value(0);
-
-            query = String.format(queryTemplate, outputTable, identityStr, (int)clsLabel);
-            stmt = c.createStatement();
-            stmt.execute(query);
+//            query = String.format(queryTemplate, outputTable, identityStr, (int)clsLabel);
+//            stmt = c.createStatement();
+//            stmt.execute(query);
         }
         System.err.println("Labelling... (100% done)");
     }
