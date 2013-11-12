@@ -1,0 +1,59 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>Maria demonstration</WorkflowName>
+        <WorkflowDescription>Special demonstration file for Maria</WorkflowDescription>
+        <DisableUntrackedFileCheck />
+        <RetainOutputFile path="maria.sqlite" />
+    </WorkflowOptions>
+
+    <InputSources>
+        <TwitterInputSource dir="Data/Corpora" />
+    </InputSources>
+
+    <Tables>
+        <PartOfSpeechTable name="test"/>
+        <PartOfSpeechListTable name="whitelist" ref="test" />
+        <TemporaryLabelTable name="trainTest" />
+        <TemporaryLabelTable name="classifyTable" /> 
+        <TemporaryLabelTable name="lengths" />
+        <TemporaryLabelTable name="special" />
+        <TemporaryLabelTable name="unicode" />
+        <TemporaryLabelTable name="clustering" />
+        <TemporaryLabelTable name="clusters" />
+        <TemporaryLabelTable name="emoticons" />
+    </Tables>
+
+    <WorkflowTasks>
+        <!--Get rid of every tweet which doesn't talk about Apple -->
+        <BasicNotFilter filterText="Apple" />
+        <!--Spam fighting-->
+        <BasicFilter filterText="http" /> <!--Remove every tweet with a link -->
+        <LineBreakFilter />
+        <BasicFilter filterText="RT" matchBefore="false" matchAfter="true" /> <!--Remove retweets-->
+        <UniqueFilter />
+        <UniqueTextFilter />
+        <LengthLabeller dest="lengths" binSize="1"/>
+        <SpecialCharacterLengthLabeller dest="special" binSize="1" />
+        <ProbablySpamUnicodeLabeller dest="unicode" />
+        <LabelFilter src="unicode" temporary="true" delete="true">
+        <RetainLabel id="0" />
+        </LabelFilter>
+        <LengthLabeller dest="clustering" binSize="2" />
+        <HashTagLabeller dest="clustering" />
+        <AtMentionLabeller dest="clustering" />
+        <ClusterLabeller src="clustering" dest="clusters" epsilon="0.55" minSize="2" />
+        <LabelFilter src="clusters" temporary="true" delete="false">
+            <RetainMostPopularLabels count="2" />
+        </LabelFilter>
+        <!--Label the tweets with emoticons-->
+        <EmoticonLabeller dest="emoticons"/>
+        <!-- TODO: fix this to take an origin table -->
+        <TrainingTestSplitLabeller dest="trainTest" testProportion="0.6" />
+        <!-- Basic whitespace tokenizer -->
+        <WhiteSpacePOSTagger dest="test"/>
+        <WekaClassify id="J48" posSrc="test" labelSrc="emoticons" splitSrc="trainTest" dest="classifyTable" classifier="weka.classifiers.trees.J48 -C 0.25" />
+        
+    </WorkflowTasks>
+
+</Workflow>
