@@ -43,7 +43,7 @@ class BasicFilter(object):
         conn.commit()
         return True, conn
 
-class BasicNotFilter(object):      
+class BasicNotFilter(BasicFilter):      
     
     def execute(self, path, conn):
         c = conn.cursor()
