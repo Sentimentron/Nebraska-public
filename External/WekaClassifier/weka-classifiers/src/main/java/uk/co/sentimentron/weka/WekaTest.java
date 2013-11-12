@@ -87,13 +87,12 @@ public class WekaTest {
         ResultSet rs = stmt.executeQuery(query);
         // Build training instances set 
         while ( rs.next() ) {
-            String document, label;
-            int identifier; 
+            String document, label, identifier;
             DenseInstance tmp; 
             // Read database values 
             document = rs.getString("tokenized_form");
             label = rs.getString("class_label");
-            identifier = rs.getInt("document_identifier");
+            identifier = rs.getString("document_identifier");
             // Construct the instance 
             tmp = new DenseInstance(3);
             tmp.setDataset(trainingInstances);
@@ -102,7 +101,6 @@ public class WekaTest {
             tmp.setValue(2, label);
             // Add instance to relevant tracking structures 
             trainingInstances.add(tmp);
-            trainingIds.add(identifier);
         }
 
         // Build and execute query to retrieve test instances 
@@ -116,12 +114,11 @@ public class WekaTest {
         Map<DenseInstance, Integer> instanceMapping = new HashMap<DenseInstance, Integer>();
         Map<SparseInstance, Integer> sparseInstanceMapping = new HashMap<SparseInstance, Integer>();
         while ( rs.next() ) {
-            String document;
-            int identifier; 
+            String document, identifier;
             DenseInstance tmp;
             // Read database results
             document = rs.getString("tokenized_form");
-            identifier = rs.getInt("document_identifier");
+            identifier = rs.getString("document_identifier");
             // Construct the instance 
             tmp = new DenseInstance(3);
             tmp.setDataset(evaluationInstances);
@@ -130,7 +127,6 @@ public class WekaTest {
             tmp.setValue(2, 0);
             // Add to tracking structures 
             evaluationInstances.add(tmp);
-            evaluationIds.add(identifier);
         }
 
         // Mark the nominal class 
@@ -170,7 +166,7 @@ public class WekaTest {
         System.err.println("Building classifier...");
         cls.buildClassifier(trainingInstances);
 
-        queryTemplate = "INSERT INTO classification_%1$s VALUES (%2$s, %3$d)";
+        queryTemplate = "INSERT INTO temporary_label_%1$s VALUES (%2$s, %3$s)";
 
         // label instances
         System.err.print("Labelling... (0.00% done)\r");
@@ -180,20 +176,22 @@ public class WekaTest {
             double clsLabel; 
             DenseInstance instance = (DenseInstance)evaluationInstances.instance(i);
             
-            if ((i % 5) == 0) System.err.printf("Labelling... (%.2f done)\r", i * 100.f / numInstances);
+            if ((i % 5) == 0) System.err.printf("Labelling... (%.2f%% done)\r", i * 100.f / numInstances);
             clsLabel = cls.classifyInstance(instance);
             instance.setClassValue(clsLabel);
             
-            Attribute identity = instance.attribute(0);
-            String identityStr = instance.stringValue(identity);
+            Attribute identityAttr = instance.attribute(0);
+            String identityStr = instance.stringValue(identityAttr);
+            Attribute classAttr = instance.attribute(evaluationInstances.numAttributes() - 1);
+            String classStr = instance.stringValue(classAttr);
             
-            System.err.printf("%s\t%f\n", identityStr, clsLabel);
-
-//            query = String.format(queryTemplate, outputTable, identityStr, (int)clsLabel);
-//            stmt = c.createStatement();
-//            stmt.execute(query);
+            query = String.format(queryTemplate, outputTable, identityStr, classStr);
+            stmt = c.createStatement();
+            stmt.execute(query);
         }
         System.err.println("Labelling... (100% done)");
+        System.err.println("Committing changes...");
+        c.close();
     }
 
 }
