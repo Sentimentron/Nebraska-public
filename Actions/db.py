@@ -8,14 +8,14 @@
 import os
 import logging
 import sqlite3
-import platform 
-import tempfile 
+import platform
+import tempfile
 
 def create_sqlite_temp_path():
     if "Linux" in platform.system():
-        hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix="/dev/shm/") 
+        hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix="/dev/shm/")
     else:
-        hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix=os.getcwd()+"/") 
+        hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix=os.getcwd()+"/")
     logging.info("SQLite path: %s", tmp)
     return tmp
 
@@ -95,7 +95,7 @@ def create_sqlite_classificationtable(name, conn):
 
     logging.info("Creating classification_%s table...", name)
 
-    cursor = con.cursor()
+    cursor = conn.cursor()
     sql = "CREATE TABLE classification_%s (identifier INTEGER PRIMARY KEY, positive FLOAT, negative FLOAT, FOREIGN KEY (identifier) REFERENCES input (identifier))" % (name, )
     logging.debug(sql)
     cursor.execute(sql)

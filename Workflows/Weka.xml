@@ -14,7 +14,7 @@
     <Tables>
         <PartOfSpeechListTable name="whitelist" ref="test" />
         <TemporaryLabelTable name="trainTest" />
-        <TemporaryLabelTable name="classifyTable" /> 
+        <ClassificationTable name="classifyTable" />
     </Tables>
 
     <WorkflowTasks>
