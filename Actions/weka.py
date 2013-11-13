@@ -11,6 +11,7 @@ import logging
 import subprocess
 import random
 from metadata import push_metadata
+import csv
 
 class WekaBenchmark(object):
 
@@ -31,7 +32,7 @@ class WekaBenchmark(object):
         # Number of folds to use
         self.folds = xml.get("folds")
 
-        # Get or generate a random number seed 
+        # Get or generate a random number seed
         self.seed = xml.get("seed")
         if self.seed is not None:
             self.seed = int(self.seed)
@@ -42,13 +43,13 @@ class WekaBenchmark(object):
         # Get the classifier
         self.classifier = xml.get("classifier")
 
-        # Check parameters 
+        # Check parameters
 
         assert self.identifier is not None
         assert self.pos_table is not None
         assert self.label_table is not None
-        assert self.folds is not None 
-        assert self.classifier is not None 
+        assert self.folds is not None
+        assert self.classifier is not None
 
         self.folds = int(self.folds)
         assert self.folds > 0
@@ -58,7 +59,7 @@ class WekaBenchmark(object):
             "-t", path,
             "-T", self.pos_table,
             "-L", self.label_table,
-            "-x", str(self.folds), 
+            "-x", str(self.folds),
             "-s", str(self.seed),
             "-W", self.classifier
         ]
@@ -89,7 +90,7 @@ class WekaClassify(object):
         # Output table
         self.output_table = xml.get("dest")
 
-        # Get or generate a random number seed 
+        # Get or generate a random number seed
         self.seed = xml.get("seed")
         if self.seed is not None:
             self.seed = int(self.seed)
@@ -100,14 +101,14 @@ class WekaClassify(object):
         # Get the classifier
         self.classifier = xml.get("classifier")
 
-        # Check parameters 
+        # Check parameters
 
         assert self.identifier is not None
         assert self.pos_table is not None
         assert self.label_table is not None
-        assert self.training_table is not None 
-        assert self.classifier is not None 
-        assert self.output_table is not None 
+        assert self.training_table is not None
+        assert self.classifier is not None
+        assert self.output_table is not None
 
     def execute(self, path, conn):
         args = ["WekaClassifier",
@@ -123,3 +124,20 @@ class WekaClassify(object):
         logging.debug(args)
         subprocess.check_call(args, shell=True)
         return True, conn
+
+class WekaResultsExport(object):
+    def __init__(self, xml):
+        self.input_table = xml.get("table")
+        self.output_file = xml.get("file")
+
+    def execute(self, path, conn):
+        logging.info("Exporting results to %s" % self.output_file)
+        # Retrieve a cursor
+        c = conn.cursor()
+        sql = "SELECT * FROM classification_%s" % self.input_table
+        data = c.execute(sql)
+        with open(self.output_file, 'wb') as f:
+            writer = csv.writer(f)
+            writer.writerow(['Document ID', 'Positive Confidence', 'Negative Confidence'])
+            writer.writerows(data)
+        return True,conn

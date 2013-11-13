@@ -20,6 +20,7 @@
     <WorkflowTasks>
         <TrainingTestSplitLabeller dest="trainTest" testProportion="0.6" />
         <WekaClassify id="J48" posSrc="test" labelSrc="emoticons" splitSrc="trainTest" dest="classifyTable" classifier="weka.classifiers.trees.J48 -C 0.25" />
+        <WekaResultsExport file="results.csv" table="classifyTable" />
     </WorkflowTasks>
 
 </Workflow>
