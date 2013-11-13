@@ -16,12 +16,12 @@ import weka.core.Attribute;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import weka.classifiers.meta.FilteredClassifier; 
+import weka.classifiers.meta.FilteredClassifier;
 import weka.filters.unsupervised.attribute.Remove;
 import java.util.TreeSet;
 
 /**
- * Reads the training and test sets from table t, operate on POS-tagged table 
+ * Reads the training and test sets from table t, operate on POS-tagged table
  * t
  *
  * Command-line parameters:
@@ -54,14 +54,14 @@ public class WekaTest {
         String labelTable = Utils.getOption("L", args);
         String trainTestTable = Utils.getOption("t", args);
         String outputTable = Utils.getOption("O", args);
-        
+
         // Create a total set of instances for filtering
         Instances allInstances = DataSource.read("datawithid.arff");
         Instances trainingInstances = DataSource.read("datawithid.arff");
         Instances evaluationInstances = DataSource.read("datawithid.arff");
         TreeSet<Integer> trainingIds = new TreeSet<Integer>();
         TreeSet<Integer> evaluationIds = new TreeSet<Integer>();
-        
+
         // Open connection to SQLite database
         Connection c = null;
         try {
@@ -85,25 +85,25 @@ public class WekaTest {
         System.err.println(query);
         Statement stmt = c.createStatement();
         ResultSet rs = stmt.executeQuery(query);
-        // Build training instances set 
+        // Build training instances set
         while ( rs.next() ) {
             String document, label, identifier;
-            DenseInstance tmp; 
-            // Read database values 
+            DenseInstance tmp;
+            // Read database values
             document = rs.getString("tokenized_form");
             label = rs.getString("class_label");
             identifier = rs.getString("document_identifier");
-            // Construct the instance 
+            // Construct the instance
             tmp = new DenseInstance(3);
             tmp.setDataset(trainingInstances);
             tmp.setValue(0, identifier);
             tmp.setValue(1, document);
             tmp.setValue(2, label);
-            // Add instance to relevant tracking structures 
+            // Add instance to relevant tracking structures
             trainingInstances.add(tmp);
         }
 
-        // Build and execute query to retrieve test instances 
+        // Build and execute query to retrieve test instances
         System.err.println("Reading evaluation data...");
         queryTemplate = "SELECT tokenized_form, document_identifier FROM pos_%1$s "
             + "NATURAL JOIN temporary_label_%2$s "
@@ -119,73 +119,74 @@ public class WekaTest {
             // Read database results
             document = rs.getString("tokenized_form");
             identifier = rs.getString("document_identifier");
-            // Construct the instance 
+            // Construct the instance
             tmp = new DenseInstance(3);
             tmp.setDataset(evaluationInstances);
             tmp.setValue(0, identifier);
             tmp.setValue(1, document);
             tmp.setValue(2, 0);
-            // Add to tracking structures 
+            // Add to tracking structures
             evaluationInstances.add(tmp);
         }
 
-        // Mark the nominal class 
+        // Mark the nominal class
         trainingInstances.setClassIndex(trainingInstances.numAttributes() - 1);
         evaluationInstances.setClassIndex(evaluationInstances.numAttributes() - 1);
-        
-        // Parse classifier options 
+
+        // Parse classifier options
         String[] tmpOptions = Utils.splitOptions(Utils.getOption("W", args));
         String className = tmpOptions[0];
         tmpOptions[0] = "";
 
-        // Create the classifier 
+        // Create the classifier
         AbstractClassifier userCls = (AbstractClassifier) Utils.forName(AbstractClassifier.class, className, tmpOptions);
-        
+
         StringToWordVector stwFilt = new StringToWordVector();
         stwFilt.setInputFormat(trainingInstances);
         FilteredClassifier vectorCls = new FilteredClassifier();
         vectorCls.setFilter(stwFilt);
         vectorCls.setClassifier(userCls);
-        
+
         Remove rngFilt = new Remove();
         rngFilt.setInputFormat(trainingInstances);
         rngFilt.setAttributeIndices("first");
         FilteredClassifier cls = new FilteredClassifier();
         cls.setClassifier(vectorCls);
         cls.setFilter(rngFilt);
-        
-        // Parse other options 
+
+        // Parse other options
         int seed = Integer.parseInt(Utils.getOption("s", args));
 
-        // Randomize training data 
+        // Randomize training data
         StringToWordVector filter = new StringToWordVector();
         Random rand = new Random(seed);
         trainingInstances.randomize(rand);
-        
-        // Build the classifier 
+
+        // Build the classifier
         System.err.println("Building classifier...");
         cls.buildClassifier(trainingInstances);
 
-        queryTemplate = "INSERT INTO temporary_label_%1$s VALUES (%2$s, %3$s)";
+        queryTemplate = "INSERT INTO classification_%1$s VALUES (%2$s, %3$s, %4$s)";
 
         // label instances
         System.err.print("Labelling... (0.00% done)\r");
         int numInstances = evaluationInstances.numInstances();
         for (int i = 0; i < numInstances; i++) {
 
-            double clsLabel; 
+            double clsLabel;
             DenseInstance instance = (DenseInstance)evaluationInstances.instance(i);
-            
+
             if ((i % 5) == 0) System.err.printf("Labelling... (%.2f%% done)\r", i * 100.f / numInstances);
             clsLabel = cls.classifyInstance(instance);
             instance.setClassValue(clsLabel);
-            
+
+            double[] distribution = cls.distributionForInstance(instance);
             Attribute identityAttr = instance.attribute(0);
             String identityStr = instance.stringValue(identityAttr);
-            Attribute classAttr = instance.attribute(evaluationInstances.numAttributes() - 1);
-            String classStr = instance.stringValue(classAttr);
-            
-            query = String.format(queryTemplate, outputTable, identityStr, classStr);
+            // Attribute classAttr = instance.attribute(evaluationInstances.numAttributes() - 1);
+            // String classStr = instance.stringValue(classAttr);
+
+            query = String.format(queryTemplate, outputTable, identityStr, distribution[0], distribution[1]);
             stmt = c.createStatement();
             stmt.execute(query);
         }
