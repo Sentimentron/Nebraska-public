@@ -102,3 +102,4 @@ def create_sqlite_classificationtable(name, conn):
 
     logging.info("Committing changes...")
     conn.commit()
+
