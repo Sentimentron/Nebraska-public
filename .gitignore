@@ -12,3 +12,6 @@ install_manifest.txt
 Sentiment.xcodeproj
 *.DS_Store
 External/WekaClassifier/weka-classifiers/target
+*.csv
+*.sqlite-journal
+External/GimpelPOSTagger/gimpel-pos-tagger/target
