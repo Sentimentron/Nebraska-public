@@ -6,7 +6,9 @@ import logging
 import sqlite3
 import tempfile
 import subprocess
-from db import create_sqlite_temp_path
+from db import create_sqlite_temp_path, create_sascha_input_table
+import csv
+import unicodedata
 
 class TwitterCompressedDBInputSource(object):
 
@@ -101,3 +103,44 @@ class TwitterInputSource(object):
         logging.info("Committing input documents...")
         conn.commit()
         return True, conn
+
+class SaschaInputSource(object):
+
+    def __init__(self, xml):
+        self.xml = xml
+        self.directory = xml.get("dir")
+        self.__assert_directory_exists()
+
+    def __assert_directory_exists(self):
+        if not os.path.exists(self.directory):
+            raise IOError("SaschaInputSource: directory '%s' does not exist!", (self.directory, ))
+
+    def get_import_files(self):
+        ret = set([])
+        # Get suitable files in the directory
+        for root, _, files in os.walk(self.directory):
+            for filename in files:
+                extension = os.path.splitext(filename)[1][1:].strip()
+                if extension != "tsv":
+                    continue
+                ret.add(os.path.join(root, filename))
+        return ret
+
+    def execute(self, path, conn):
+        create_sascha_input_table(conn)
+        input_sources = self.get_import_files()
+        conn.text_factory = str
+        c = conn.cursor()
+        for source in input_sources:
+            with open(source,'rb') as tsvin:
+                tsvin = csv.reader(tsvin, delimiter='\t')
+                next(tsvin, None)
+                for row in tsvin:
+                    document = unicodedata.normalize('NFKD', unicode(row[0])).encode('ascii', 'ignore')
+                    label = row[3]
+                    c.execute("INSERT INTO sascha_input(document, label) VALUES(?, ?)", (document, label))
+
+        logging.info("Committing sascha input documents...")
+        conn.commit()
+        return True,conn
+

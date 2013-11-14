@@ -162,7 +162,7 @@ def execute_workflow(workflow, workflow_path, sqlite_path):
         if not options["retain_output"]:
             logging.info("Removing output file %s...", sqlite_path)
             os.remove(sqlite_path)
-            return 
+            return
         try:
             logging.info("Moving output file from %s to %s...", sqlite_path, options["output_file"]);
             shutil.move(sqlite_path, options["output_file"])
@@ -201,7 +201,6 @@ def _execute_workflow(document, sqlite_path, options, workflow_path):
             db.create_sqlite_poslisttable(x_node.get("name"), x_node.get("ref"), sqlite_conn)
         elif x_node.tag == "ClassificationTable":
             db.create_sqlite_classificationtable(x_node.get("name"), sqlite_conn)
-
     #
     # APPLY WORKFLOW ACTIONS
     for x_node in document.find("WorkflowTasks").getchildren():

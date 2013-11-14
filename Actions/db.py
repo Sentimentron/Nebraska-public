@@ -103,3 +103,14 @@ def create_sqlite_classificationtable(name, conn):
     logging.info("Committing changes...")
     conn.commit()
 
+def create_sascha_input_table(conn):
+
+    logging.info("Creating sascha corpus input table...")
+
+    cursor = conn.cursor()
+    sql = "CREATE TABLE sascha_input (identifier INTEGER PRIMARY KEY, document TEXT NOT NULL, label VARCHAR(200))"
+    logging.debug(sql)
+    cursor.execute(sql)
+
+    logging.info("Committing changes...")
+    conn.commit()
