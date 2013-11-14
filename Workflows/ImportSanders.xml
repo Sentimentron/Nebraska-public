@@ -1,0 +1,21 @@
+<Workflow>
+
+	<WorkflowOptions>
+		<WorkflowName>Import Sascha</WorkflowName>
+		<WorkflowDescription> Import all tweets from the Sascha corpus.</WorkflowDescription>
+		<RetainOutputFile path="sanderstweets.sqlite"/>
+		<DisableUntrackedFileCheck />
+	</WorkflowOptions>
+
+    <Tables>
+        <SaschaInputTable />
+    </Tables>
+
+	<InputSources>
+		<SandersInputSource dir="Data/Intrinsic/Sanders" />
+	</InputSources>
+
+    <WorkflowTasks>
+    </WorkflowTasks>
+
+</Workflow>

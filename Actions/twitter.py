@@ -6,7 +6,7 @@ import logging
 import sqlite3
 import tempfile
 import subprocess
-from db import create_sqlite_temp_path, create_sascha_input_table
+from db import create_sqlite_temp_path, create_labelled_input_table
 import csv
 import unicodedata
 
@@ -127,7 +127,7 @@ class SaschaInputSource(object):
         return ret
 
     def execute(self, path, conn):
-        create_sascha_input_table(conn)
+        create_labelled_input_table(conn)
         input_sources = self.get_import_files()
         conn.text_factory = str
         c = conn.cursor()
@@ -138,9 +138,48 @@ class SaschaInputSource(object):
                 for row in tsvin:
                     document = unicodedata.normalize('NFKD', unicode(row[0])).encode('ascii', 'ignore')
                     label = row[3]
-                    c.execute("INSERT INTO sascha_input(document, label) VALUES(?, ?)", (document, label))
+                    c.execute("INSERT INTO labelled_input(document, label) VALUES(?, ?)", (document, label))
 
         logging.info("Committing sascha input documents...")
         conn.commit()
         return True,conn
 
+class SandersInputSource(object):
+
+    def __init__(self, xml):
+        self.xml = xml
+        self.directory = xml.get("dir")
+        self.__assert_directory_exists()
+
+    def __assert_directory_exists(self):
+        if not os.path.exists(self.directory):
+            raise IOError("SandersInputSource: directory '%s' does not exist!", (self.directory, ))
+
+    def get_import_files(self):
+        ret = set([])
+        # Get suitable files in the directory
+        for root, _, files in os.walk(self.directory):
+            for filename in files:
+                extension = os.path.splitext(filename)[1][1:].strip()
+                if extension != "csv":
+                    continue
+                ret.add(os.path.join(root, filename))
+        return ret
+
+    def execute(self, path, conn):
+        create_labelled_input_table(conn)
+        input_sources = self.get_import_files()
+        conn.text_factory = str
+        c = conn.cursor()
+        for source in input_sources:
+            with open(source,'rb') as csvin:
+                csvin = csv.reader(csvin, delimiter=',')
+                next(csvin, None)
+                for row in csvin:
+                    document = row[4]
+                    label = row[1]
+                    c.execute("INSERT INTO labelled_input(document, label) VALUES(?, ?)", (document, label))
+
+        logging.info("Committing sanders input documents...")
+        conn.commit()
+        return True,conn
