@@ -1,0 +1,3 @@
+javac -classpath ark-tweet-nlp-0.3.2.jar:. GimpelTagger.java
+
+java -classpath ark-tweet-nlp-0.3.2.jar:sqlite-jdbc-3.7.2.jar:. GimpelTagger ../../weka.sqlite input pos_tokens_test pos_test
