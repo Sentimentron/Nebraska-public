@@ -6,7 +6,8 @@ from metadata import fetch_metadata, push_metadata, get_git_version
 from basic import BasicFilter, BasicNotFilter, LineBreakFilter
 from unique import UniqueFilter, UniqueTextFilter
 
-from twitter import TwitterInputSource, SaschaInputSource, SandersInputSource
+from twitter import TwitterInputSource, SaschaInputSource
+from sanders import SandersInputSource
 
 from templabeller import HashTagLabeller, AtMentionLabeller, BasicWordLabeller, BigramLabeller, LengthLabeller, SpecialCharacterLengthLabeller, ProbablySpamUnicodeLabeller, EmoticonLabeller, TrainingTestSplitLabeller
 from ml import ClusterLabeller

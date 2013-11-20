@@ -12,6 +12,12 @@ import platform
 import tempfile
 
 def create_sqlite_temp_path():
+    """
+        Generates a temporary path to the database file.
+
+        If we're on a Linux system, there's usually a RAM-disk at /dev/shm
+        which we use to make database operations as fast as possible.
+    """
     if "Linux" in platform.system():
         hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix="/dev/shm/")
     else:
@@ -20,6 +26,9 @@ def create_sqlite_temp_path():
     return tmp
 
 def create_sqlite_connection(path):
+    """
+        Opens and configures a SQLite connection
+    """
     logging.info("Opening SQLite database: %s", path)
     conn = sqlite3.connect(path)
     conn.text_factory = unicode
@@ -29,24 +38,66 @@ def create_sqlite_connection(path):
     return conn
 
 def remove_sqlite_path(path):
+    """
+        Deletes the SQLite database created by a workflow
+    """
     logging.info("Deleting workflow database...")
     os.remove(path)
 
-def create_sqlite_temporary_label_table(prefix, conn):
-    if prefix is None:
+def create_sqlite_temporary_label_table(postfix, conn):
+    """
+        Temporary labels are used to store labels used for clustering
+        and deletion-type things where it's not important for the labels
+        to be understood by humans.
+
+        Args:
+            postfix: The string appended to 'temporary_label_' for form
+            the table's name
+            conn: A sqlite3.Connection
+    """
+    if postfix is None:
         raise ValueError()
     # Retrieve a cursor
     c = conn.cursor()
     # Create the table
-    logging.info("Creating temporary label table %s", prefix)
+    logging.info("Creating temporary label table %s", postfix)
     c.execute(r"""CREATE TABLE temporary_label_%s (
         document_identifier INTEGER NOT NULL,
         label INTEGER NOT NULL
-    )""" % (prefix, ))
+    )""" % (postfix, ))
     logging.debug("Committing temporary table...")
     conn.commit()
 
+def create_sqlite_label_table(name, conn):
+    """
+        See documentation in label.py
+    """
+    # Retrieve a cursor
+    c = conn.cursor()
+    # Create the table which holds the label names
+    logging.info("Creating label names table %s...", name)
+    c.execute(r"""CREATE TABLE label_names_%s (
+    label_identifier INTEGER PRIMARY KEY,
+    label TEXT NOT NULL
+    )""" % (name, ))
+    # Create the table which holds the label names
+    logging.info("Creating label table %s...", name)
+    c.execute(r"""CREATE TABLE label_%s (
+    document_identifier INTEGER NOT NULL,
+    label INTEGER NOT NULL,
+    FOREIGN KEY (label) REFERENCES label_names_%s(label_identifier)
+    ) """ % (name, name))
+    logging.debug("Committing temporary table...")
+    conn.commit()
+
+
 def create_sqlite_input_tables(conn):
+    """
+        Creates a table which holds the input documents.
+
+        Args:
+            conn: sqlite3.Connection to the active workflow database
+    """
     # Retrieve a cursor
     c = conn.cursor()
 
@@ -63,16 +114,25 @@ def create_sqlite_input_tables(conn):
     conn.commit()
 
 def create_sqlite_postables(name, conn):
+    """
+        POS-tagging tables store the tokenized form of documents using two tables:
+            1) A table of identifier -> pos_tag tuples ('pos_tokens_%s') which allow humans to decode what's going on
+            2) A table of document identifier -> tokenized_form tuples which store the POS-tagged documents
+                Each number in a tokenized_form string corresponds to a number within the pos_tokens_%s table.
+        Args:
+            name: What this POS table is called
+            conn: A sqlite3.Connection object
+    """
     # Retrieve a cursor
     c = conn.cursor()
 
     # Create the POSTagging table
     logging.info("Creating pos_%s table", name)
-    sql = "CREATE TABLE pos_%s (identifier INTEGER PRIMARY KEY, document_identifier INTEGER, tokenized_form TEXT, FOREIGN KEY(document_identifier) REFERENCES input(identifier) ON DELETE CASCADE)" %name
+    sql = "CREATE TABLE pos_%s (identifier INTEGER PRIMARY KEY, document_identifier INTEGER, tokenized_form TEXT, FOREIGN KEY(document_identifier) REFERENCES input(identifier) ON DELETE CASCADE)" % (name, )
     c.execute(sql)
 
-    logging.info("Creating pos_tokens_%s table..." %name)
-    sql = " CREATE TABLE pos_tokens_%s (identifier INTEGER PRIMARY KEY, token TEXT UNIQUE)" %name
+    logging.info("Creating pos_tokens_%s table...", name)
+    sql = " CREATE TABLE pos_tokens_%s (identifier INTEGER PRIMARY KEY, token TEXT UNIQUE)" % (name, )
     c.execute(sql)
 
     logging.info("Committing changes...")
@@ -92,6 +152,10 @@ def create_sqlite_poslisttable(name, src, conn):
     conn.commit()
 
 def create_sqlite_classificationtable(name, conn):
+    """
+        Classification tables hold the certainty of an classification
+        produced by a machine-learning environment such as Weka.
+    """
 
     logging.info("Creating classification_%s table...", name)
 
