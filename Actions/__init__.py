@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from annotators import SubjectivityAnnotator
+
 from metadata import fetch_metadata, push_metadata, get_git_version
 
 from basic import BasicFilter, BasicNotFilter, LineBreakFilter
