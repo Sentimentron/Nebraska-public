@@ -53,7 +53,7 @@ public class WekaBenchmark {
     String posTable = Utils.getOption("T", args);
     String labelTable = Utils.getOption("L", args);
 
-    String queryTemplate = "SELECT tokenized_form AS document, label FROM pos_%1$s NATURAL JOIN label_%2$s";
+    String queryTemplate = "SELECT tokenized_form AS document, label FROM pos_%1$s NATURAL JOIN temporary_label_%2$s";
     String query = String.format(queryTemplate, posTable, labelTable);
 
     Instances data = DataSource.read("data.arff");
@@ -145,6 +145,14 @@ public class WekaBenchmark {
     System.out.println("Seed: " + seed);
     System.out.println();
     System.out.println(eval.toSummaryString("=== " + folds + "-fold Cross-validation ===", false));
-    System.out.print("Area under curve: " + eval.areaUnderROC(1) + "\n");
+    System.out.println("Area under curve: " + eval.areaUnderROC(0) + " (with respect to class index 0)");
+    System.out.println("False Positive Rate: " + eval.falsePositiveRate(0) + " (with respect to class index 0)");
+    System.out.println("False Negative Rate: " + eval.falseNegativeRate(0) + " (with respect to class index 0)");
+    System.out.println("F Measure: " + eval.fMeasure(0) + " (with respect to class index 0)");
+    System.out.println("Precision: " + eval.precision(0) + " (with respect to class index 0)");
+    System.out.println("Recall: " + eval.recall(0) + " (with respect to class index 0)");
+    System.out.println("True Negative Rate: " + eval.trueNegativeRate(0) + " (with respect to class index 0)");
+    System.out.println("True Positive Rate: " + eval.truePositiveRate(0) + " (with respect to class index 0)");
+    System.out.println();
   }
 }
