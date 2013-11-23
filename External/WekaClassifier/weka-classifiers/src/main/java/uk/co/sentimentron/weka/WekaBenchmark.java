@@ -49,12 +49,12 @@ public class WekaBenchmark {
       }
     }
 
-    // Parse command line arguments 
+    // Parse command line arguments
     String posTable = Utils.getOption("T", args);
     String labelTable = Utils.getOption("L", args);
 
-    String queryTemplate = "SELECT tokenized_form AS document, label FROM pos_%1$s NATURAL JOIN temporary_label_%2$s";
-    String query = String.format(queryTemplate, posTable, labelTable); 
+    String queryTemplate = "SELECT tokenized_form AS document, label FROM pos_%1$s NATURAL JOIN label_%2$s";
+    String query = String.format(queryTemplate, posTable, labelTable);
 
     Instances data = DataSource.read("data.arff");
     // Read in our data from the SQLite file whose path is specified from the -t parameter
@@ -100,7 +100,7 @@ public class WekaBenchmark {
     classname      = tmpOptions[0];
     tmpOptions[0]  = "";
     AbstractClassifier cls = (AbstractClassifier) Utils.forName(AbstractClassifier.class, classname, tmpOptions);
-; 
+;
     // other options
     int seed  = Integer.parseInt(Utils.getOption("s", args));
     int folds = Integer.parseInt(Utils.getOption("x", args));
@@ -145,5 +145,6 @@ public class WekaBenchmark {
     System.out.println("Seed: " + seed);
     System.out.println();
     System.out.println(eval.toSummaryString("=== " + folds + "-fold Cross-validation ===", false));
+    System.out.print("Area under curve: " + eval.areaUnderROC(1) + "\n");
   }
 }

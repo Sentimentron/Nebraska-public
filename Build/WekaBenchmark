@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-import sys 
+import sys
 import subprocess
 
 # Work out the directory
@@ -15,7 +15,7 @@ os.chdir(directory)
 args = sys.argv[1:]
 
 # Constant command used to launch entry class
-base_command = "java -cp weka-classifiers/target/weka-classifiers-1.0-SNAPSHOT-jar-with-dependencies.jar WekaBenchmark"
+base_command = "java -cp $CLASSPATH:weka-classifiers/target/weka-classifiers-1.0-SNAPSHOT-jar-with-dependencies.jar WekaBenchmark"
 
 # Join arguments with base command
 command = base_command + ' ' + ' '.join(args)
@@ -29,7 +29,7 @@ if "--version" in sys.argv:
         if len(line) == 0:
             continue
         if "??" in line:
-            continue 
+            continue
         if "weka-classifiers" in line:
             changes = True
 
