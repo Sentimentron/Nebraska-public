@@ -15,7 +15,7 @@
 
 #include "version.h"
 
-const char * const SELECT_QUERY = "SELECT document_identifier, label FROM temporary_label_%s ORDER BY label;"; 
+const char * const SELECT_QUERY = "SELECT DISTINCT document_identifier, label FROM temporary_label_%s ORDER BY label;";
 const char * const INSERT_QUERY = "INSERT INTO temporary_label_%s VALUES (?, ?);";
 const char * const TRUNCATE_QUERY = "DELETE FROM temporary_label_%s;";
 
@@ -113,9 +113,9 @@ std::map<const uint64_t, uint64_t> dbscan(const std::vector<std::vector<uint64_t
             // Visit each neighbour point...
             while(!neighbours.empty()) {
                 auto neighbour = neighbours.top();
-                // if (visited_neighbours.find(neighbour) != visited_neighbours.end()) continue;
-                visited_neighbours.insert(neighbour);
                 neighbours.pop();
+                if (visited_neighbours.find(neighbour) != visited_neighbours.end()) continue;
+                visited_neighbours.insert(neighbour);
                 // If neighbour hasn't been visited...
                 if (visited.find(neighbour) == visited.end()) {
                     visited.insert(neighbour); // Mark the point as visited
@@ -126,13 +126,12 @@ std::map<const uint64_t, uint64_t> dbscan(const std::vector<std::vector<uint64_t
                         while(!secondary_neighbours.empty()) {
                             auto n = secondary_neighbours.top();
                             secondary_neighbours.pop();
-                            if (visited_neighbours.find(n) != visited_neighbours.end()) continue;
                             neighbours.push(n);
                         }
                     }
                 }
                 if (clustered.find(neighbour) == clustered.end()) {
-                    ret[neighbour] = cluster_counter;
+                    ret[neighbour] = cluster_counter;	
                     clustered.insert(neighbour);
                 }
             }
@@ -160,29 +159,21 @@ std::vector<uint64_t> get_domains(sqlite3 *db) {
     return domains;
 }
 
-std::vector<std::vector<uint64_t>> get_domain_combos(std::vector<uint64_t> domains) {
+std::vector<std::vector<uint64_t>> get_domain_combos(std::map<uint64_t, std::vector<uint64_t>> doc_map) {
     // Generates the combinations of labels which are possible
     // Shameless copy from http://stackoverflow.com/questions/9430568/generating-combinations-in-c
     
     std::vector<std::vector<uint64_t>> ret;
-    size_t cur = 1;
-    size_t max = domains.size();
-    for (cur = 1; cur < max; cur++) {
-        // Create a selector array
-        std::vector<bool> v(max);
-        std::fill(v.begin() + max - cur, v.end(), true);
-        int counter = 0;
-        do {
-            std::vector<uint64_t> *permutation_set = &ret[counter];
-            for (size_t i = 0; i < max; ++i) {
-                if (!v[i]) {
-                    permutation_set->push_back(domains[i]);
-                }
-            }
-            counter++;
+    for (auto &kv : doc_map) {
+        bool matching = false;
+        for (auto candidate : ret) {
+            matching |= candidate == kv.second;
+            if (matching) break;
         }
-        while (std::next_permutation(v.begin(), v.end()));
+        if (matching) continue;
+        ret.push_back(kv.second);
     }
+    
     return ret;
 }
 
@@ -253,22 +244,32 @@ std::map<uint64_t, std::vector<uint64_t>> generate_doc_label_map(sqlite3 *db, ch
 
 std::map<uint64_t, uint64_t> cluster(sqlite3 *db, char *src_table, float epsilon, int minpoints) {
     std::vector<uint64_t> domains = get_domains(db);
-    std::vector<std::vector<uint64_t>> combos = get_domain_combos(domains);
     std::map<uint64_t, std::vector<uint64_t>> doc_map = generate_doc_domain_map(db);
     std::map<uint64_t, std::vector<uint64_t>> label_map = generate_doc_label_map(db, src_table);
+    std::vector<std::vector<uint64_t>> combos = get_domain_combos(doc_map);
+
     std::map<uint64_t, uint64_t> ret;
     unsigned int cluster_counter = 0;
     for (auto combo : combos) {
+        std::vector<uint64_t> identifiers; 
         std::map<uint64_t, std::vector<uint64_t>> points, filtered;
         std::vector<bool> distances;
         int cluster_item_map_offset = 0;
         std::map<uint64_t, uint64_t> cluster_item_map;
         std::vector<std::vector<uint64_t>> cluster_items;
+        fprintf(stderr, "Filtering...\n");
         for (auto &kv : doc_map) {
             if (kv.second == combo) {
-                points.insert(kv);
+                identifiers.push_back(kv.first);
             }
         }
+        for (auto &kv : label_map) {
+            auto id = kv.first;
+            auto it = std::find(identifiers.begin(), identifiers.end(), id);
+            if (it == identifiers.end()) continue;
+            points.insert(kv);
+        }
+        
         // Points now contains everything with this combination of domains
         // Now get rid of everything with only one label
         for (auto it = points.begin(); it != points.end(); ++it) {
@@ -283,6 +284,7 @@ std::map<uint64_t, uint64_t> cluster(sqlite3 *db, char *src_table, float epsilon
         // Now compute distances
         distances = compute_distances(cluster_items, epsilon);
         // Now cluster
+        fprintf(stderr, "Clustering...\n");
         std::map<const uint64_t, uint64_t> result = dbscan(cluster_items, distances, minpoints);
         // Transcribe the result
         std::map<uint64_t, uint64_t> cluster_map;
@@ -299,7 +301,7 @@ std::map<uint64_t, uint64_t> cluster(sqlite3 *db, char *src_table, float epsilon
                     mapped_cluster_id = cluster_counter;
                 }
                 else {
-                    mapped_cluster_id = it->first;
+                    mapped_cluster_id = cluster_map[it->first];
                 }
             }
             ret.insert(std::pair<uint64_t, uint64_t>(cluster_item_map[kv.first], mapped_cluster_id));
