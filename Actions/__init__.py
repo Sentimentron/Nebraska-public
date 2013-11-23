@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from annotators import SubjectivityAnnotator
+
 from metadata import fetch_metadata, push_metadata, get_git_version
 
 from basic import BasicFilter, BasicNotFilter, LineBreakFilter
 from unique import UniqueFilter, UniqueTextFilter
 
-from twitter import TwitterInputSource
+from twitter import TwitterInputSource, SaschaInputSource
+from sanders import SandersInputSource
 
 from templabeller import HashTagLabeller, AtMentionLabeller, BasicWordLabeller, BigramLabeller, LengthLabeller, SpecialCharacterLengthLabeller, ProbablySpamUnicodeLabeller, EmoticonLabeller, TrainingTestSplitLabeller
 from ml import ClusterLabeller
@@ -22,5 +25,5 @@ from previous import PreviousWorkflow
 
 from gimpel import GimpelPOSTagger
 
-from weka import WekaBenchmark, WekaClassify
+from weka import WekaBenchmark, WekaClassify, WekaResultsExport
 from posfilter import RewritePOSFilter, POSWhiteListUnpopularTags, POSRewriteFromWhiteList

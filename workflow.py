@@ -1,41 +1,74 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+    Process a sentiment analysis workflow.
+
+    This file coordinates the activities of Nebraska, reading
+      the workflow XML file, creating and setting up databases,
+      and importing the appropriate modules to execute the
+      workflow.
+
+    Usage: workflow.py /path/to/workflow.xml
+
+"""
+
 import os
 import sys
 import shutil
 import logging
 import sqlite3
-import tempfile
 import subprocess
 import traceback
 
-from Actions import *
-from Actions import db
+# from Actions import *
+from Actions import db, fetch_metadata, push_metadata, get_git_version
 
 from lxml import etree
 
-LOG_FORMAT='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
 def print_usage_exit():
+    """
+        Prints a message on how to use the workflow environment,
+        usage and exits with an error code.
+    """
     logging.error("Incorrect number of arguments")
     logging.info("Usage: workflow.py /path/to/workflow.xml")
     sys.exit(1)
 
 def setup_environment():
+    """
+        Checks that the Build/ directory is in the users path
+        Prints an error message if it's not.
+    """
     path = os.environ.get("PATH")
     if "Nebraska/Build" not in path:
         logging.error("Nebraska/Build is not in your PATH variable.")
-        logging.info("Nebraska/Build contains external compiled programs which aren't part of workflow.py")
+        logging.info(
+            "Nebraska/Build contains external compiled "
+            "programs which aren't part of workflow.py"
+        )
         logging.info("Add a line like the following to your ~/.bashrc file:")
         logging.info("\texport PATH=$HOME/Nebraska/Build:$PATH")
         logging.info("Don't forget to restart your shell.")
         sys.exit(1)
 
 def check_gitinfo():
+    """
+        Retrieves the current git hash which applies to the files which
+        make up the workflow environment.
+
+        Returns:
+            A boolean indicating if the working copy is dirty
+            The current git hash
+    """
+
     # Check for untracked files within the tree
-    process = subprocess.Popen("git status --porcelain", stdout=subprocess.PIPE, stderr=None, shell=True)
-    output, errors = process.communicate()
+    process = subprocess.Popen("git status --porcelain",
+        stdout=subprocess.PIPE, stderr=None, shell=True
+    )
+    output, _ = process.communicate()
     changes = False
     for line in output.split("\n"):
         if len(line) == 0:
@@ -44,17 +77,50 @@ def check_gitinfo():
         changes = True
 
     # Get the git version
-    process = subprocess.Popen("git rev-parse HEAD", stdout=subprocess.PIPE, stderr=None, shell=True)
+    process = subprocess.Popen("git rev-parse HEAD",
+        stdout=subprocess.PIPE, stderr=None, shell=True
+    )
     output = process.communicate()
+
     return changes, output[0].strip()
 
 
 def check_versions():
+    """
+        Checks the reported versions of everything in the
+        Build/ directory.
+
+        The goal of this method is to avoid unrepeatable results
+        by making sure that all of the external tools in the Build/
+        directory have been built from the same version of the
+        source code that is currently running.
+
+        An external tool is defined as a file within the Build/
+        directory without a file extension. Permissions errors
+        may occur if files without extensions in that directory
+        aren't executable.
+
+        The version is checked by running /path/to/tool --version
+        When receiving the --version flag, tools are expected to
+        output the git hash they were built from, exit with a
+        normal return code, and print no other output.
+
+        Raises:
+            Exception: if the reported git hash of the external
+            tool is not the same as that of the current tree.
+    """
     # Check that we're in Nebraska's root
     if "Build" not in os.listdir(os.getcwd()):
-        logging.error("Nebraska/Build is not in the current directory")
-        logging.info("Nebraska/Build contains external compiled programs which aren't part of workflow.py")
-        logging.info("To correct this problem, change into the root of Nebraska")
+        logging.error(
+            "Nebraska/Build is not in the current directory"
+        )
+        logging.info(
+            "Nebraska/Build contains external compiled "
+            "programs which aren't part of workflow.py"
+        )
+        logging.info(
+            "To correct this problem, change into the root of Nebraska"
+        )
         sys.exit(1)
 
     # Retrieve the git version
@@ -74,19 +140,22 @@ def check_versions():
         extension = os.path.splitext(filename)[1][1:]
         if len(extension) > 0:
             continue
-        args = [filename.replace(" ", "\ "), "--version"]
+        args = [filename.replace(" ", "\\ "), "--version"]
         args = ' '.join(args)
         pipe = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE)
-        text, err = pipe.communicate()
+        text, _ = pipe.communicate()
         if "CHANGES" in text:
             assert changes == True
         text = text.strip()
-        tool_version,junk,junk = text.partition('+')
+        tool_version, _, _ = text.partition('+')
         tool_version = tool_version.strip()
         if version != tool_version:
             raise Exception(("Invalid version", filename, text, version))
 
 def parse_arguments():
+    """
+        This method is deprecated.
+    """
     # Check number of parameters
     if not (len(sys.argv) == 2 or len(sys.argv) == 3):
         print_usage_exit()
@@ -106,13 +175,37 @@ def parse_arguments():
     return os.path.abspath(sys.argv[1])
 
 def assert_workflow_file_exists(path):
+    """
+        Stops the workflow if the input file doesn't exist.
+
+        Raises:
+            IOError: if the workflow file doesn't exist
+    """
     if not os.path.exists(path):
         raise IOError("'%s' does not exist" % (path,))
 
 def configure_logging():
+    """
+        Sets up the logging format.
+
+        By default, this is logging.DEBUG, but it may be
+        too verbose for production environments.
+    """
     logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 def get_workflow_task(task_name):
+    """
+        Retrieves a workflow task from the Actions/ sub-module.
+
+        Workflow tasks must have an __init__(self, xml) constructor
+
+        Args:
+            task_name: The classname of the task to execute
+        Returns:
+            The imported class from Actions/ with name task_name
+        Raises:
+            ImportError: if the class doesn't exist?
+    """
     module_name = "Actions"
     return getattr (
         __import__(module_name, globals(), locals(), [task_name], -1),
@@ -120,6 +213,26 @@ def get_workflow_task(task_name):
     )
 
 def execute_workflow(workflow, workflow_path, sqlite_path):
+    """
+        Executes an XML workflow file.
+
+        This method parses the WorkflowOptions tag in the workflow,
+        verifies that the options are valid, executes the workflow tasks,
+        and then optionally moves the output file from its temporary
+        location to the RetainOutputFile location specified.
+
+        Args:
+            workflow: the XML string which describes the workflow
+            workflow_path:
+                The path of the workflow file that the workflow
+                string came from. This is for metadata.
+            sqlite_path:
+                Path to the database currently being used.
+        Raises:
+            Exception if it was not possible to move the output file
+            to the specified output
+
+    """
 
     # Parse the workflow
     document = etree.fromstring(workflow)
@@ -130,7 +243,8 @@ def execute_workflow(workflow, workflow_path, sqlite_path):
     # Start off with a default set of options
     options = {
         "retain_output" : False,
-        "check_untracked": True
+        "check_untracked": True,
+        "log_metadata": True
     }
 
     # Retrieve the WorkflowOptions node and update
@@ -157,21 +271,38 @@ def execute_workflow(workflow, workflow_path, sqlite_path):
     except Exception:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-        print >> sys.stderr, ''.join('\t' + line for line in lines)  # Log it or whatever here
+        # Print exception details
+        print >> sys.stderr, ''.join('\t' + l for l in lines)
     finally:
         if not options["retain_output"]:
             logging.info("Removing output file %s...", sqlite_path)
             os.remove(sqlite_path)
-            return 
-        try:
-            logging.info("Moving output file from %s to %s...", sqlite_path, options["output_file"]);
-            shutil.move(sqlite_path, options["output_file"])
-        except Exception as ex:
-            logging.error("FAILED TO MOVE OUTPUT FILE");
-            raise ex
+        else:
+            try:
+                logging.info(
+                    "Moving output file from %s to %s...",
+                    sqlite_path, options["output_file"]
+                )
+                shutil.move(sqlite_path, options["output_file"])
+            except Exception as ex:
+                logging.error("FAILED TO MOVE OUTPUT FILE")
+                raise ex
 
 def _execute_workflow(document, sqlite_path, options, workflow_path):
+    """
+        Internal method called by execute_workflow
 
+        This method copies in the source data, sorts out metadata,
+        creates any new tables, and executes the workflow tasks.
+
+        Args:
+            document: Parsed workflow XML document
+            sqlite_path: Path to the current database
+            options: dict containing workflow options
+            workflow_path: path to the workflow XML file
+        Raises:
+            Exception: if something went wrong
+    """
     # Open a database connection
     sqlite_conn = db.create_sqlite_connection(sqlite_path)
 
@@ -184,24 +315,33 @@ def _execute_workflow(document, sqlite_path, options, workflow_path):
         task = get_workflow_task(x_node.tag)
         logging.debug(task)
         task = task(x_node)
-        task_status, sqlite_conn = task.execute(sqlite_path, sqlite_conn)
+        _, sqlite_conn = task.execute(sqlite_path, sqlite_conn)
 
     # Push any information we have about the workflow into the database
-    push_workflow_metadata(workflow_path, sqlite_conn)
+    if options["log_metadata"]:
+        push_workflow_metadata(workflow_path, sqlite_conn)
 
     # Create the tables
     for x_node in document.find("Tables").getchildren():
         if x_node.tag is etree.Comment:
             continue
         if x_node.tag == "TemporaryLabelTable":
-            db.create_sqlite_temporary_label_table(x_node.get("name"), sqlite_conn)
+            db.create_sqlite_temporary_label_table(
+                x_node.get("name"), sqlite_conn
+            )
         elif x_node.tag == "PartOfSpeechTable":
-            db.create_sqlite_postables(x_node.get("name"), sqlite_conn)
+            db.create_sqlite_postables(
+                x_node.get("name"), sqlite_conn
+            )
         elif x_node.tag == "PartOfSpeechListTable":
-            db.create_sqlite_poslisttable(x_node.get("name"), x_node.get("ref"), sqlite_conn)
+            db.create_sqlite_poslisttable(
+                x_node.get("name"), x_node.get("ref"),
+                sqlite_conn
+            )
         elif x_node.tag == "ClassificationTable":
-            db.create_sqlite_classificationtable(x_node.get("name"), sqlite_conn)
-
+            db.create_sqlite_classificationtable(
+                x_node.get("name"), sqlite_conn
+            )
     #
     # APPLY WORKFLOW ACTIONS
     for x_node in document.find("WorkflowTasks").getchildren():
@@ -210,33 +350,25 @@ def _execute_workflow(document, sqlite_path, options, workflow_path):
         task = get_workflow_task(x_node.tag)
         logging.debug(task)
         task = task(x_node)
-        task_status, sqlite_conn = task.execute(sqlite_path, sqlite_conn)
-
-def read_workflow_file(src):
-    # If we've got a workflow file
-    if type(src) == sqlite3.Connection:
-        # Fetch the XML document stored earlier
-        metadata = fetch_metadata("WORKFLOW", db_conn)
-        if metadata is None:
-            raise Exception("Workflow file has no WORKFLOW metadata key!")
-        return metadata
-    with open(src, 'r') as src:
-        return src.read()
-
-def parse_workflow_sqlite(db_conn):
-    metadata = fetch_metadata("WORKFLOW", db_conn)
-    if metadata is None:
-        raise Exception("Workflow file has no WORKFLOW metadata key!")
-    return parse_workflow_xml_doc(etree.fromstring(metadata))
+        _, sqlite_conn = task.execute(sqlite_path, sqlite_conn)
 
 def verify_options(options):
+    """
+        Verifies whether the options specified in the workflow
+        are valid.
+    """
     if options["retain_output"]:
         assert "output_file" in options
 
 def push_workflow_metadata(workflow_file, db_conn):
+    """
+        This method pushes the workflow XML text, path,
+        and git hash into the database file for future
+        reference.
+    """
     logging.debug("Pushing workflow contents...")
-    with open(workflow_file, 'r') as f:
-        content = f.read()
+    with open(workflow_file, 'r') as workflow_fp:
+        content = workflow_fp.read()
         push_metadata("WORKFLOW", content, db_conn)
 
     # Push the path of the workflow file
@@ -249,13 +381,37 @@ def push_workflow_metadata(workflow_file, db_conn):
 
     if False:
         # Check for untracked files within the tree
-        process = subprocess.Popen("git status --porcelain", stdout=subprocess.PIPE, stderr=None, shell=True)
-        output, errors = process.communicate()
-        for line in output.split("\n"):
-            raise Exception("Untracked files present in working tree %s"% (output,))
+        process = subprocess.Popen(
+            "git status --porcelain", stdout=subprocess.PIPE,
+            stderr=None, shell=True
+        )
+        output, _ = process.communicate()
+        for _ in output.split("\n"):
+            raise Exception(
+                "Untracked files present in working tree %s"% (output,)
+            )
+def read_workflow_file(src):
+    """
+        Reads the the workflow information either from a file, or
+        from a database output previously by another workflow.
 
+        Args:
+            src: Either a sqlite3.Connection or a string representing a path
+        Raises:
+            Exception: if the workflow database has corrupt metadata
+    """
+    # If we've got a workflow file
+    if type(src) == sqlite3.Connection:
+        # Fetch the XML document stored earlier
+        metadata = fetch_metadata("WORKFLOW", src)
+        if metadata is None:
+            raise Exception("Workflow file has no WORKFLOW metadata key!")
+        return metadata
+    with open(src, 'r') as src:
+        return src.read()
 
 def main():
+    """Entrypoint for the Workflow system"""
     configure_logging()
 
     # Check the tree is up to date, things are in the path
