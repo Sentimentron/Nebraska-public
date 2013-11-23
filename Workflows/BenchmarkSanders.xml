@@ -1,0 +1,29 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>Benchmark Sascha</WorkflowName>
+        <WorkflowDescription> Import all tweets from the Sascha corpus and then try to classify them using WEKA. Note that you'll need to modify data.arff to set the class valuese to 1,2,3,4</WorkflowDescription>
+        <RetainOutputFile path="sanderstweets.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <SaschaInputTable />
+        <PartOfSpeechTable name="test"/>
+    </Tables>
+
+    <InputSources>
+        <SandersInputSource dir="Data/Intrinsic/Sanders" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <WhiteSpacePOSTagger dest="test"/>
+        <WekaBenchmark id="SVM" posSrc="test" labelSrc="sanders" folds="4" classifier="wlsvm.WLSVM" />
+        <WekaBenchmark id="DecisionTree" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.trees.J48" />
+        <WekaBenchmark id="Bayes" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.bayes.NaiveBayes" />
+        <WekaBenchmark id="RuleInduction" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.rules.JRip" />
+        <WekaBenchmark id="Logistic" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.Logistic" />
+        <WekaBenchmark id="KNN" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.lazy.IBk" />
+    </WorkflowTasks>
+
+</Workflow>
