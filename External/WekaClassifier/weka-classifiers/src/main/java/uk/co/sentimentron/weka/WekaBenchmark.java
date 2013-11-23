@@ -11,6 +11,7 @@ import weka.classifiers.AbstractClassifier;
 import java.util.Random;
 import java.sql.*;
 import weka.core.DenseInstance;
+import java.sql.PreparedStatement;
 import weka.core.Attribute;
 import java.util.ArrayList;
 
@@ -29,6 +30,7 @@ import java.util.ArrayList;
  *    "last" is used by default</li>
  *    <li>-W classifier - classname and options, enclosed by double quotes;
  *    the classifier to cross-validate</li>
+ *    <li>-R String - The name of the results table</li>
  *    <li>--version - print git SHA1 hash and exits
  * </ul>
  *
@@ -69,8 +71,12 @@ public class WekaBenchmark {
 
     Statement stmt = c.createStatement();
     ResultSet rs = stmt.executeQuery(query);
-
+    int count = 0;
     while ( rs.next() ) {
+      count++;
+      if(count>100) {
+        break;
+      }
       DenseInstance temp = new DenseInstance(2);
       temp.setDataset(data);
       String label = rs.getString("label");
@@ -81,7 +87,6 @@ public class WekaBenchmark {
     }
     rs.close();
     stmt.close();
-    c.close();
 
     String clsIndex = Utils.getOption("c", args);
     if (clsIndex.length() == 0)
@@ -154,5 +159,32 @@ public class WekaBenchmark {
     System.out.println("True Negative Rate: " + eval.trueNegativeRate(0) + " (with respect to class index 0)");
     System.out.println("True Positive Rate: " + eval.truePositiveRate(0) + " (with respect to class index 0)");
     System.out.println();
+
+    // Insert the results into the database
+    String results = "INSERT INTO results(classifier, folds, seed, correctly_classified_instances, incorrectly_classified_instances, percent_correctly_classified, percent_incorrectly_classified, mean_absolute_error, root_mean_squared_error, relative_absolute_error, root_relative_squared_error, total_number_of_instances, area_under_curve, false_positive_rate, false_negative_rate, f_measure, precision, recall, true_negative_rate, true_positive_rate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    PreparedStatement insertResults = c.prepareStatement(results);
+    insertResults.setString(1, cls.getClass().getName() + " " + Utils.joinOptions(cls.getOptions()));
+    insertResults.setInt(2, folds);
+    insertResults.setInt(3,seed);
+    insertResults.setDouble(4, eval.correct());
+    insertResults.setDouble(5, eval.incorrect());
+    insertResults.setDouble(6, eval.pctCorrect());
+    insertResults.setDouble(7, eval.pctIncorrect());
+    insertResults.setDouble(8, eval.meanAbsoluteError());
+    insertResults.setDouble(9, eval.rootMeanSquaredError());
+    insertResults.setDouble(10, eval.relativeAbsoluteError());
+    insertResults.setDouble(11, eval.rootRelativeSquaredError());
+    insertResults.setDouble(12, eval.numInstances());
+    insertResults.setDouble(13, eval.areaUnderROC(0));
+    insertResults.setDouble(14, eval.falsePositiveRate(0));
+    insertResults.setDouble(15, eval.falseNegativeRate(0));
+    insertResults.setDouble(16, eval.fMeasure(0));
+    insertResults.setDouble(17, eval.precision(0));
+    insertResults.setDouble(18, eval.recall(0));
+    insertResults.setDouble(19, eval.trueNegativeRate(0));
+    insertResults.setDouble(20, eval.truePositiveRate(0));
+    insertResults.executeUpdate();
+    insertResults.close();
+    c.close();
   }
 }

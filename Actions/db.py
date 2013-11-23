@@ -178,3 +178,15 @@ def create_labelled_input_table(conn):
 
     logging.info("Committing changes...")
     conn.commit()
+
+def create_resultstable(conn):
+
+    logging.info("Creating results table...")
+
+    cursor = conn.cursor()
+    sql = "CREATE TABLE results (identifier INTEGER PRIMARY KEY, classifier VARCHAR(255) NOT NULL, folds INT NOT NULL, seed INT NOT NULL, correctly_classified_instances INT NOT NULL, incorrectly_classified_instances INT NOT NULL, percent_correctly_classified REAL NOT NULL, percent_incorrectly_classified REAL NOT NULL, mean_absolute_error REAL NOT NULL, root_mean_squared_error REAL NOT NULL, relative_absolute_error REAL NOT NULL, root_relative_squared_error REAL NOT NULL, total_number_of_instances INT NOT NULL, area_under_curve REAL, false_positive_rate REAL, false_negative_rate REAL, f_measure REAL, precision REAL, recall REAL, true_negative_rate REAL, true_positive_rate REAL)"
+    logging.debug(sql)
+    cursor.execute(sql)
+
+    logging.info("Committing changes...")
+    conn.commit()
