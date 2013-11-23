@@ -12,6 +12,7 @@ import subprocess
 import random
 from metadata import push_metadata
 import csv
+from db import create_resultstable
 
 class WekaBenchmark(object):
 
@@ -55,6 +56,7 @@ class WekaBenchmark(object):
         assert self.folds > 0
 
     def execute(self, path, conn):
+        create_resultstable(conn)
         args = ["WekaBenchmark",
             "-t", path,
             "-T", self.pos_table,

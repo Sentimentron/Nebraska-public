@@ -1,0 +1,27 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>Benchmark Emoticon Labeller</WorkflowName>
+        <WorkflowDescription> Labels our tweets using emoticons and then benchmarks classification performance in WEKA.</WorkflowDescription>
+        <RetainOutputFile path="emoticontweets.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+
+    </Tables>
+
+    <InputSources>
+        <PreviousWorkflow path="Workflows/WhiteSpaceTagger.xml" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <WekaBenchmark id="SVM" posSrc="test" labelSrc="emoticons" folds="4" classifier="wlsvm.WLSVM" />
+        <WekaBenchmark id="DecisionTree" posSrc="test" labelSrc="emoticons" folds="4" classifier="weka.classifiers.trees.J48" />
+        <WekaBenchmark id="Bayes" posSrc="test" labelSrc="emoticons" folds="4" classifier="weka.classifiers.bayes.NaiveBayes" />
+        <WekaBenchmark id="RuleInduction" posSrc="test" labelSrc="emoticons" folds="4" classifier="weka.classifiers.rules.JRip" />
+        <WekaBenchmark id="Logistic" posSrc="test" labelSrc="emoticons" folds="4" classifier="weka.classifiers.functions.Logistic" />
+        <WekaBenchmark id="KNN" posSrc="test" labelSrc="emoticons" folds="4" classifier="weka.classifiers.lazy.IBk" />
+    </WorkflowTasks>
+
+</Workflow>
