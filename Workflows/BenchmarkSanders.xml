@@ -1,14 +1,14 @@
 <Workflow>
 
     <WorkflowOptions>
-        <WorkflowName>Benchmark Sascha</WorkflowName>
-        <WorkflowDescription> Import all tweets from the Sascha corpus and then try to classify them using WEKA. Note that you'll need to modify data.arff to set the class valuese to 1,2,3,4</WorkflowDescription>
+        <WorkflowName>Benchmark Sanders</WorkflowName>
+        <WorkflowDescription> Import all tweets from the Sanders corpus and then try to classify them using WEKA. Note that you'll need to modify data.arff to set the class valuese to 1,2,3,4</WorkflowDescription>
         <RetainOutputFile path="sanderstweets.sqlite"/>
         <DisableUntrackedFileCheck />
     </WorkflowOptions>
 
     <Tables>
-        <SaschaInputTable />
+        <SandersInputTable />
         <PartOfSpeechTable name="test"/>
     </Tables>
 
