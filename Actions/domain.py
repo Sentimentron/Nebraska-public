@@ -80,6 +80,8 @@ class DomainLabeller(Labeller):
 		intersecting_terms = tokens & domain_term_set
 		if len(intersecting_terms) > 0:
 			labels.add(domain)
+			for word in intersecting_terms:
+				labels.add(word)
 
 		# Walk the tree from here 
 		for subdomain in subdomains:
