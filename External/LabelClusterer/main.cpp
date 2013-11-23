@@ -15,21 +15,21 @@
 
 #include "version.h"
 
-const char * const SELECT_QUERY = "SELECT document_identifier, label FROM temporary_label_%s;"; 
+const char * const SELECT_QUERY = "SELECT document_identifier, label FROM temporary_label_%s ORDER BY label;"; 
 const char * const INSERT_QUERY = "INSERT INTO temporary_label_%s VALUES (?, ?);";
 const char * const TRUNCATE_QUERY = "DELETE FROM temporary_label_%s;";
 
 void compute_bloom_filter(std::vector<uint64_t> &bloom, std::vector<uint64_t> &bloom_count, std::vector<std::unordered_set<uint64_t>> &d, unsigned int hash_functions);
 
-inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
-                           const std::unordered_set<uint64_t> &second) {
+inline float _dbscan_dist (const std::vector<uint64_t> &first,
+                           const std::vector<uint64_t> &second) {
     unsigned int u, i = 0;
 
     u = first.size();
     if (second.size() > u) u = second.size();
     
     for (auto it = first.begin(); it != first.end(); ++it) {
-        if (second.find(*it) != second.end()) {
+        if (std::find(second.begin(), second.end(), *it) != second.end()) {
             i++;
         }
     }
@@ -37,30 +37,8 @@ inline float _dbscan_dist (const std::unordered_set<uint64_t> &first,
     return 1.0 - (1.0*i)/u;
 }
 
-inline int popcount(uint64_t x) {
-    int count;
-    for (count=0; x; count++)
-        x &= x-1;
-    return count;
-}
 
-const float BM_ELEMENT_ESTIMATE[64] = {0., 0.503947, 1.01596, 1.5363, 2.06523, 2.60306, 3.15008, 3.70662, 
-4.273, 4.8496, 5.43677, 6.03492, 6.64446, 7.26584, 7.89952, 8.54601, 
-9.20583, 9.87954, 10.5677, 11.2711, 11.9902, 12.7259, 13.4788, 14.25, 
-15.0401, 15.8503, 16.6815, 17.5349, 18.4117, 19.3131, 20.2407, 
-21.196, 22.1807, 23.1967, 24.2459, 25.3308, 26.4537, 27.6175, 
-28.8252, 30.0802, 31.3865, 32.7484, 34.1709, 35.6595, 37.2208, 
-38.8622, 40.5924, 42.4214, 44.3614, 46.4267, 48.6344, 51.0059, 
-53.5672, 56.3516, 59.4015, 62.7731, 66.5421, 70.8151, 75.748, 
-81.5822, 88.7228, 97.9287, 110.904, 133.084};
-
-inline float estimate_bm_element_count(uint64_t b, unsigned int hash_functions) {
-    int c = __builtin_popcount(b);
-    // fprintf(stderr, "%d\n", c);
-    return -64.0 / hash_functions * logf(1.0f - (c/64.0f));
-}
-
-std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d, float epsilon, unsigned int hash_functions) {
+std::vector<bool> compute_distances(std::vector<std::vector<uint64_t>> &d, float epsilon) {
     size_t width = d.size();
     unsigned int i;
     std::vector<bool> ret (width * width); 
@@ -70,26 +48,11 @@ std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d
     }
     
     std::vector<uint64_t> bloom(d.size()), bloom_count(d.size());
-    compute_bloom_filter(bloom, bloom_count, d, hash_functions);
-    
-    const float epsilon_comp_const = (2.0f - epsilon);
-    
+        
     for (i = 0; i < d.size(); i++) {
-        unsigned int j = i + 1;
+        unsigned int j;
         if (! ( i % 100)) std::cerr << "Compute distances: " << 100.0f * i / d.size() << "% done \r";
         for (j = i + 1; j < d.size(); j++) {
-            if (!(bloom[i] & bloom[j])) continue;
-            uint64_t a = bloom_count[i];
-            uint64_t b = bloom_count[j];
-            float c = estimate_bm_element_count(bloom[i] | bloom[j], hash_functions); 
-            
-            //fprintf(stderr, "a: %d\tb: %d\tc: %f\te: %f\t", a, b, c, epsilon_comp_const);
-            
-            // if (a + b > epsilon_comp_const * c) continue;
-            
-            // if ((logf(-(a-64)*(b-64)*(c-64)/262144.0f)/logf(1.0f-c/64.0f)) > epsilon - 1.0f) continue;
-            // if ((a - 64) *(b - 64) * (c - 64) > powf(1-c/64.0f, epsilon-1.0f) * -262144) continue;
-
             off_t o;
             float distance;
             
@@ -99,7 +62,7 @@ std::vector<bool> compute_distances(std::vector<std::unordered_set<uint64_t>> &d
             
             ret[o] = distance < epsilon;
             o = (j * width) + i;
-            ret[i] = distance < epsilon;
+            ret[o] = distance < epsilon;
         }
     }
 
@@ -121,7 +84,7 @@ void dbscan_region_query (std::stack<uint64_t> &neighbours,
     
 }
 
-std::map<const uint64_t, uint64_t> dbscan(const std::vector<std::unordered_set<uint64_t>> &d,
+std::map<const uint64_t, uint64_t> dbscan(const std::vector<std::vector<uint64_t>> &d,
                                           const std::vector<bool> distances,
                                           const unsigned int min_points) {
     std::map<const uint64_t, uint64_t> ret;
@@ -178,6 +141,173 @@ std::map<const uint64_t, uint64_t> dbscan(const std::vector<std::unordered_set<u
     return ret;
 }
 
+static int query_callback_domains(void *domains_raw, int argc, char **argv, char **col) {
+    auto *domains = (std::vector<uint64_t> *)domains_raw;
+    uint64_t domain = strtoul(argv[0], NULL, 10);
+    domains->push_back(domain);
+    return 0;
+}
+
+std::vector<uint64_t> get_domains(sqlite3 *db) {
+    char *zErrMsg = NULL;
+    std::vector<uint64_t> domains;
+    int rc = sqlite3_exec(db, "SELECT DISTINCT label FROM label_domains ORDER BY label ASC", query_callback_domains, &domains, &zErrMsg);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_close(db);
+        exit(1);
+    }
+    return domains;
+}
+
+std::vector<std::vector<uint64_t>> get_domain_combos(std::vector<uint64_t> domains) {
+    // Generates the combinations of labels which are possible
+    // Shameless copy from http://stackoverflow.com/questions/9430568/generating-combinations-in-c
+    
+    std::vector<std::vector<uint64_t>> ret;
+    size_t cur = 1;
+    size_t max = domains.size();
+    for (cur = 1; cur < max; cur++) {
+        // Create a selector array
+        std::vector<bool> v(max);
+        std::fill(v.begin() + max - cur, v.end(), true);
+        int counter = 0;
+        do {
+            std::vector<uint64_t> *permutation_set = &ret[counter];
+            for (size_t i = 0; i < max; ++i) {
+                if (!v[i]) {
+                    permutation_set->push_back(domains[i]);
+                }
+            }
+            counter++;
+        }
+        while (std::next_permutation(v.begin(), v.end()));
+    }
+    return ret;
+}
+
+static int callback_doc_domains(void *map, int argc, char **argv, char **col) {
+    auto *points = (std::map<uint64_t, std::vector<uint64_t>> *)map;
+    uint64_t identifier, label;
+    
+    identifier = strtoul(argv[0], NULL, 10);
+    label      = strtoul(argv[1], NULL, 10);
+    
+    auto it = points->find(identifier);
+    if (it == points->end()) {
+        auto set = std::vector<uint64_t>();
+        set.push_back(label);
+        points->insert(std::pair<uint64_t,std::vector<uint64_t>>(identifier, set));
+    }
+    else {
+        it->second.push_back(label);
+    }
+    
+    return 0;
+}
+
+std::map<uint64_t, std::vector<uint64_t>> generate_doc_domain_map(sqlite3 *db) {
+    int rc;
+    char *zErrMsg = NULL;
+    std::map<uint64_t, std::vector<uint64_t>> ret;
+    
+    rc = sqlite3_exec(db, "SELECT DISTINCT document_identifier, label FROM label_domains", callback_doc_domains, &ret, &zErrMsg);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL Error: %s\n", zErrMsg);
+        sqlite3_close(db);
+        exit(1);
+    }
+    
+    return ret;
+}
+
+std::map<uint64_t, std::vector<uint64_t>> generate_doc_label_map(sqlite3 *db, char *src_table) {
+    size_t query_len;
+    char *query;
+    int rc;
+    char *zErrMsg = NULL;
+    std::map<uint64_t, std::vector<uint64_t>> ret;
+    // Create the query string
+    query_len = strlen(SELECT_QUERY);
+    query = (char *)calloc(query_len + 1, 1);
+    if (query == NULL) {
+        fprintf(stderr, "Allocation error\n");
+        exit(2);
+    }
+    memcpy(query, SELECT_QUERY, query_len);
+    query_len = snprintf(query, 0, SELECT_QUERY, src_table) + 1;
+    query = (char *)realloc(query, query_len);
+    snprintf(query, query_len, SELECT_QUERY, src_table);
+    
+    fprintf(stderr, "Executing '%s'...\n", query);
+    rc = sqlite3_exec(db, query, callback_doc_domains, &ret, &zErrMsg);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+        sqlite3_close(db);
+        exit(1);
+    }
+    free(query);
+    return ret;
+}
+
+std::map<uint64_t, uint64_t> cluster(sqlite3 *db, char *src_table, float epsilon, int minpoints) {
+    std::vector<uint64_t> domains = get_domains(db);
+    std::vector<std::vector<uint64_t>> combos = get_domain_combos(domains);
+    std::map<uint64_t, std::vector<uint64_t>> doc_map = generate_doc_domain_map(db);
+    std::map<uint64_t, std::vector<uint64_t>> label_map = generate_doc_label_map(db, src_table);
+    std::map<uint64_t, uint64_t> ret;
+    unsigned int cluster_counter = 0;
+    for (auto combo : combos) {
+        std::map<uint64_t, std::vector<uint64_t>> points, filtered;
+        std::vector<bool> distances;
+        int cluster_item_map_offset = 0;
+        std::map<uint64_t, uint64_t> cluster_item_map;
+        std::vector<std::vector<uint64_t>> cluster_items;
+        for (auto &kv : doc_map) {
+            if (kv.second == combo) {
+                points.insert(kv);
+            }
+        }
+        // Points now contains everything with this combination of domains
+        // Now get rid of everything with only one label
+        for (auto it = points.begin(); it != points.end(); ++it) {
+            if (it->second.size() < 2) continue;
+            filtered[it->first] = it->second;
+        }
+        
+        for (auto it = filtered.begin(); it != filtered.end(); ++it) {
+            cluster_items.push_back(it->second);
+            cluster_item_map[cluster_item_map_offset++] = it->first;
+        }
+        // Now compute distances
+        distances = compute_distances(cluster_items, epsilon);
+        // Now cluster
+        std::map<const uint64_t, uint64_t> result = dbscan(cluster_items, distances, minpoints);
+        // Transcribe the result
+        std::map<uint64_t, uint64_t> cluster_map;
+        for (auto& kv : result) {
+            int mapped_cluster_id = 0;
+            // Cluster outputs doc_id -> cluster
+            if (kv.second) {
+                // See if this cluster has already been seen
+                auto it = cluster_map.find(kv.second);
+                if (it == cluster_map.end()) {
+                    // If it hasn't, make a note of it
+                    cluster_counter++;
+                    cluster_map.insert(std::pair<uint64_t, uint64_t>(kv.second, cluster_counter));
+                    mapped_cluster_id = cluster_counter;
+                }
+                else {
+                    mapped_cluster_id = it->first;
+                }
+            }
+            ret.insert(std::pair<uint64_t, uint64_t>(cluster_item_map[kv.first], mapped_cluster_id));
+        }
+    }
+    return ret;
+}
+
 static int query_callback(void *map, int argc, char **argv, char **col) {
     auto *points = (std::map<uint64_t, std::unordered_set<uint64_t>> *)map;
     uint64_t identifier, label;
@@ -221,7 +351,6 @@ int main(int argc, char **argv) {
     sqlite3_stmt *insert_statement = NULL;
     float epsilon = 0.5f;
     unsigned int minpoints = 2; 
-    unsigned int hash_functions = 0;
     
     // Stored as identifier -> [labels]
     std::map<const uint64_t, std::unordered_set<uint64_t>> points;
@@ -261,23 +390,6 @@ int main(int argc, char **argv) {
             printf("%s\n", VERSION);
             exit(0);
         }
-	else if (!strcmp(argv[i], "--hashfunctions")) {
-            _as_ltargv(i+1, argc);
-            if(!sscanf(argv[i+1], "%u", &hash_functions)) {
-                fprintf(stderr, "--hashfunctions [unsigned int]\n");
-                return 1;
-            }
-	}
-    }
-
-    if (!hash_functions) {
-        fprintf(stderr, "Error: --hashfunctions must be specified.\n");
-        return 1;
-    }
-
-    if (hash_functions > 64) { 
-        fprintf(stderr, "Error: number of hash functions doesn't make sense!\n");
-        return 1;
     }
     
     // Open the database 
@@ -310,45 +422,7 @@ int main(int argc, char **argv) {
         }
         free(query);
     }
-    
-    // Switch off synchronization otherwise it's REEEAAALY slow
-    /*fprintf(stderr, "Switching off pragma...\n");
-    rc = sqlite3_exec(db, "PRAGMA synchronous = 0", NULL, NULL, &zErrMsg);
-    if (rc != SQLITE_OK) {
-         fprintf(stderr, "SQL error: %s\n", zErrMsg);
-         sqlite3_free(zErrMsg);
-         sqlite3_close(db);
-         return 1;
-    }*/
-    
-    // Create the query string
-    query_len = strlen(SELECT_QUERY);
-    query = (char *)calloc(query_len + 1, 1);
-    if (query == NULL) {
-        fprintf(stderr, "Allocation error\n");
-        return 2;
-    }
-    memcpy(query, SELECT_QUERY, query_len);
-    query_len = snprintf(query, 0, SELECT_QUERY, src_table) + 1;
-    query = (char *)realloc(query, query_len);
-    snprintf(query, query_len, SELECT_QUERY, src_table);
-    
-    fprintf(stderr, "Executing '%s'...\n", query);
-    rc = sqlite3_exec(db, query, query_callback, &points, &zErrMsg);
-    if (rc != SQLITE_OK) {
-         fprintf(stderr, "SQL error: %s\n", zErrMsg);
-         sqlite3_free(zErrMsg);
-         sqlite3_close(db);
-         return 1;
-    }
-    free(query);
         
-    std::vector<bool> distances;
-    std::vector<std::unordered_set<uint64_t>> cluster_items; 
-    // Stores the relationship between offset in cluster_items
-    // and document_id (document_id -> cluster_items_offset)
-    std::map<uint64_t, uint64_t> cluster_item_map;
-    unsigned int cluster_item_map_offset = 0;
     
     fprintf(stderr, "Preparing insert query...\n");
     // Create the insert string
@@ -369,28 +443,12 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    fprintf(stderr, "Filtering...\n");
-    std::map<const uint64_t, std::unordered_set<uint64_t>> filtered;
-    for (auto it = points.begin(); it != points.end(); ++it) {
-        if (it->second.size() < 2) continue;
-        filtered[it->first] = it->second;
-    }
-    
-    fprintf(stderr, "Inverting...\n");
-    for (auto it = points.begin(); it != points.end(); ++it) {
-        cluster_items.push_back(it->second);
-        cluster_item_map[cluster_item_map_offset++] = it->first;
-    }
-    
-    fprintf(stderr, "Computing distance matrix...\n");
-    distances = compute_distances(cluster_items, epsilon, hash_functions); 
-    
     fprintf(stderr, "Clustering...\n");
-    auto result = dbscan(cluster_items, distances, minpoints);
+    auto result = cluster(db, src_table, epsilon, minpoints);
     fprintf(stderr, "Outputting...\n");
     for (auto it = result.begin(); it != result.end(); ++it) {
         // std::cout << it.first << "\t" << cluster_item_map[it.first] <<   "\t" << it.second << "\n";
-        rc = sqlite3_bind_int64(insert_statement, 1, cluster_item_map[it->first]);
+        rc = sqlite3_bind_int64(insert_statement, 1, it->first);
         if (rc != SQLITE_OK) {
             fprintf(stderr, "ERROR: Failed to bind identifier parameter. Reason given '%s'\n", sqlite3_errmsg(db));
             return 1;
@@ -407,15 +465,6 @@ int main(int argc, char **argv) {
             return 1;
         }
     }
-    
-    /*fprintf(stderr, "Committing...\n");
-    rc = sqlite3_exec(db, "COMMIT;", NULL, NULL, &zErrMsg); 
-    if (rc != SQLITE_OK) {
-         fprintf(stderr, "SQL error: %s\n", zErrMsg);
-         sqlite3_free(zErrMsg);
-         sqlite3_close(db);
-         return 1;
-    }*/
     
     sqlite3_close(db);
 }
