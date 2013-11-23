@@ -32,9 +32,9 @@
 					<DomainTerm>Twitter</DomainTerm>
 					<DomainTerm>Facebook</DomainTerm>
 					<Domain name="Apple">
-						<DomainTerm>Apple</Domain> <!--Documents containing Apple will be tagged with both the domain Apple, techstocks, and technology-->
-						<DomainTerm>iPad</Domain>
-						<DomainTerm>iPad mini</Domain>
+						<DomainTerm>Apple</DomainTerm> <!--Documents containing Apple will be tagged with both the domain Apple, techstocks, and technology-->
+						<DomainTerm>iPad</DomainTerm>
+						<DomainTerm>iPad mini</DomainTerm>
 						<DomainTerm>iPhone</DomainTerm>
 						<DomainTerm>iPod</DomainTerm>
 						<DomainTerm>iTunes</DomainTerm>
@@ -85,7 +85,7 @@
 				<DomainTerm>MacWorld</DomainTerm>
 				<DomainTerm>MegaUpload</DomainTerm>
 				<DomainTerm>Mozilla</DomainTerm>
-				<DomainTerm>Myspace</Domain>
+				<DomainTerm>Myspace</DomainTerm>
 			</Domain>
 
 			<Domain name="politics">

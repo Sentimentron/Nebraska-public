@@ -27,3 +27,5 @@ from gimpel import GimpelPOSTagger
 
 from weka import WekaBenchmark, WekaClassify, WekaResultsExport
 from posfilter import RewritePOSFilter, POSWhiteListUnpopularTags, POSRewriteFromWhiteList
+
+from domain import DomainLabeller
