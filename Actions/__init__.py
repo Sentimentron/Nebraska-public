@@ -31,3 +31,4 @@ from weka import WekaBenchmark, WekaClassify, WekaResultsExport, WekaCrossDomain
 from posfilter import RewritePOSFilter, POSWhiteListUnpopularTags, POSRewriteFromWhiteList
 
 from domain import DomainLabeller
+from pythonclassifiers import PythonClassifiers
