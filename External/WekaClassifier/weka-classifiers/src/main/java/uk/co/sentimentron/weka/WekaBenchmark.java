@@ -55,7 +55,7 @@ public class WekaBenchmark {
     String posTable = Utils.getOption("T", args);
     String labelTable = Utils.getOption("L", args);
 
-    String queryTemplate = "SELECT tokenized_form AS document, label FROM pos_%1$s NATURAL JOIN label_%2$s";
+    String queryTemplate = "SELECT tokenized_form AS document, label FROM pos_%1$s NATURAL JOIN temporary_label_%2$s";
     String query = String.format(queryTemplate, posTable, labelTable);
 
     Instances data = DataSource.read("data.arff");
