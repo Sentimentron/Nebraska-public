@@ -13,10 +13,11 @@ import weka.classifiers.AbstractClassifier;
 import java.util.Random;
 import java.sql.*;
 import weka.core.DenseInstance;
+import weka.core.SparseInstance;
 import java.sql.PreparedStatement;
 import weka.core.Attribute;
 import java.util.ArrayList;
-
+import weka.core.Instance;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.filters.unsupervised.attribute.Remove;
 
@@ -131,7 +132,6 @@ public class WekaCrossDomainBenchmark {
         // Create the classifier
         AbstractClassifier userClsBase = (AbstractClassifier) Utils.forName(AbstractClassifier.class, className, tmpOptions);
 
-        Instances data = DataSource.read("data.arff");
         // Read in our data from the SQLite file whose path is specified from the -t parameter
         Connection c = null;
         try {
@@ -155,9 +155,9 @@ public class WekaCrossDomainBenchmark {
                 Set<Integer> trainingIds = findDocIdsMatchingDomain(src_domain, docDomainMap);
                 Set<Integer> testIds = findDocIdsMatchingDomain(dest_domain, docDomainMap);
                 // Create a total set of instances for filtering
-                Instances trainingInstances = DataSource.read("datawithid.arff");
-                Instances evaluationInstances = DataSource.read("datawithid.arff");
-                Instances allInstances = DataSource.read("datawithid.arff");
+                Instances trainingInstances = DataSource.read("data.arff");
+                Instances evaluationInstances = DataSource.read("data.arff");
+                Instances allInstances = DataSource.read("data.arff");
                 queryTemplate = "SELECT document_identifier, tokenized_form AS document, label FROM pos_%1$s NATURAL JOIN temporary_label_%2$s";
                 query = String.format(queryTemplate, posTable, labelTable);
                 Statement stmt = c.createStatement();
@@ -171,64 +171,38 @@ public class WekaCrossDomainBenchmark {
                     label = rs.getString("label");
                     identifier = rs.getString("document_identifier");
                     // Construct the instance
-                    tmp = new DenseInstance(3);
-                    tmp.setDataset(trainingInstances);
-                    tmp.setValue(0, identifier);
-                    tmp.setValue(1, document);
-                    tmp.setValue(2, label);
+                    tmp = new DenseInstance(2);
+                    tmp.setDataset(allInstances);
+                    tmp.setValue(0, document);
+                    tmp.setValue(1, label);
                     int intVal = rs.getInt("document_identifier");
                     if (trainingIds.contains(intVal)) {
-                        System.err.printf("TRAINING: %d\n", intVal);
                         trainingInstances.add(tmp);
                     }
                     if (testIds.contains(intVal)) {
-                        System.err.printf("TESTING: %d\n", intVal);
                         evaluationInstances.add(tmp);
                     }
                 }
-                Classifier userCls = AbstractClassifier.makeCopy(userClsBase);
+                AbstractClassifier cls = (AbstractClassifier)AbstractClassifier.makeCopy(userClsBase);
                 // Mark the nominal class
                 trainingInstances.setClassIndex(trainingInstances.numAttributes() - 1);
                 evaluationInstances.setClassIndex(evaluationInstances.numAttributes() - 1);
 
-                StringToWordVector stwFilt = new StringToWordVector();
-                stwFilt.setInputFormat(trainingInstances);
-                FilteredClassifier vectorCls = new FilteredClassifier();
-                vectorCls.setFilter(stwFilt);
-                vectorCls.setClassifier(userCls);
+                FilteredClassifier filteredClassifier = new FilteredClassifier(); 
+                filteredClassifier.setFilter(new StringToWordVector()); 
+                filteredClassifier.setClassifier(cls);
 
-                Remove rngFilt = new Remove();
-                rngFilt.setInputFormat(trainingInstances);
-                rngFilt.setAttributeIndices("first");
-                FilteredClassifier cls = new FilteredClassifier();
-                cls.setClassifier(vectorCls);
-                cls.setFilter(rngFilt);
-
-                // Randomize training data
-                StringToWordVector filter = new StringToWordVector();
-                Random rand = new Random(seed);
-                trainingInstances.randomize(rand);
-
-                // Build the classifier
-                System.err.println("Building classifier...");
-                cls.buildClassifier(trainingInstances);
+                filteredClassifier.buildClassifier(trainingInstances); 
 
                 // Test the classifier
-                rngFilt = new Remove();
-                rngFilt.setInputFormat(evaluationInstances);
-                rngFilt.setAttributeIndices("first");
-                stwFilt = new StringToWordVector();
-                Instances filteredRangeInstances = Filter.useFilter(evaluationInstances, rngFilt);
-                stwFilt.setInputFormat(filteredRangeInstances);
-                Instances tokenizedEvaluationInstances = Filter.useFilter(filteredRangeInstances, stwFilt);
-                Evaluation eval = new Evaluation(tokenizedEvaluationInstances);
+                Evaluation eval = new Evaluation(allInstances);
                 eval.evaluateModel(cls, evaluationInstances);
 
                 // output evaluation
                 System.out.println();
                 System.out.println("=== Setup ===");
                 System.out.println("Classifier: " + cls.getClass().getName() + " " + Utils.joinOptions(cls.getOptions()));
-                System.out.println("Dataset: " + data.relationName());
+                System.out.println("Dataset: " + trainingInstances.relationName());
                 System.out.println("Seed: " + seed);
                 System.out.println("Instances (training):" + trainingInstances.size());
                 System.out.println("Instances (evaluation):" + evaluationInstances.size());
