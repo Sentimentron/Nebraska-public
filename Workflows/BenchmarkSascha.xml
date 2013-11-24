@@ -10,6 +10,7 @@
     <Tables>
         <SaschaInputTable />
         <PartOfSpeechTable name="test"/>
+        <ResultsTable />
     </Tables>
 
     <InputSources>

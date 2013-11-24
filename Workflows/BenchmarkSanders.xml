@@ -10,6 +10,7 @@
     <Tables>
         <SandersInputTable />
         <PartOfSpeechTable name="test"/>
+        <ResultsTable />
     </Tables>
 
     <InputSources>
