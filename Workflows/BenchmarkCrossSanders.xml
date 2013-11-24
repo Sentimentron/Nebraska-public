@@ -24,6 +24,7 @@
         <WekaCrossDomainBenchmark id="RuleInduction" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.rules.JRip" />
         <WekaCrossDomainBenchmark id="Logistic" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.Logistic" />
         <WekaCrossDomainBenchmark id="KNN" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.lazy.IBk" />
+        <WekaBenchmarkExport name="crossdomain.csv" />
     </WorkflowTasks>
 
 </Workflow>
