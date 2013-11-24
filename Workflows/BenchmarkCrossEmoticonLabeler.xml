@@ -1,0 +1,22 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>Benchmark Emoticon Labeller</WorkflowName>
+        <WorkflowDescription> Labels our tweets using emoticons and then benchmarks classification performance in WEKA.</WorkflowDescription>
+        <RetainOutputFile path="emoticontweets.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <ResultsTable />
+    </Tables>
+
+    <InputSources>
+        <PreviousWorkflow path="Workflows/WhiteSpaceTagger.xml" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <WekaCrossDomainBenchmark id="DecisionTree" posSrc="test" labelSrc="emoticons" folds="4" classifier="weka.classifiers.trees.J48" />
+    </WorkflowTasks>
+
+</Workflow>

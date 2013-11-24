@@ -45,7 +45,7 @@ import weka.filters.unsupervised.attribute.Remove;
  *
  */
 
-public class WekaCrossDomainTest {
+public class WekaCrossDomainBenchmark {
 
     public static Map<Integer, String> getDomainMap(Connection c) throws Exception {
         // Return a list of domains in the database
@@ -100,6 +100,7 @@ public class WekaCrossDomainTest {
     public static Set<Integer> findDocIdsMatchingDomain(List<Integer> domain, Map<Integer, List<Integer>> docDomainMap) {
         Set<Integer> ret = new HashSet<Integer>();
         for (Map.Entry<Integer, List<Integer>> entry : docDomainMap.entrySet()) {
+            //System.err.printf("%s %s %b\n", entry.getValue(), domain, entry.getValue().equals(domain));
             if (!entry.getValue().equals(domain)) continue;
             ret.add(entry.getKey());
         }
@@ -122,6 +123,14 @@ public class WekaCrossDomainTest {
         String queryTemplate = "SELECT tokenized_form AS document, label FROM pos_%1$s NATURAL JOIN temporary_label_%2$s";
         String query = String.format(queryTemplate, posTable, labelTable);
 
+        // Parse classifier options
+        String[] tmpOptions = Utils.splitOptions(Utils.getOption("W", args));
+        String className = tmpOptions[0];
+        tmpOptions[0] = "";
+
+        // Create the classifier
+        AbstractClassifier userClsBase = (AbstractClassifier) Utils.forName(AbstractClassifier.class, className, tmpOptions);
+
         Instances data = DataSource.read("data.arff");
         // Read in our data from the SQLite file whose path is specified from the -t parameter
         Connection c = null;
@@ -132,6 +141,9 @@ public class WekaCrossDomainTest {
           System.err.println( e.getClass().getName() + ": " + e.getMessage() + "\nDo you have the SQLite JDBC in your classpath? get it at: https://bitbucket.org/xerial/sqlite-jdbc/downloads" );
           System.exit(1);
         }
+
+        // Parse other options
+        int seed = Integer.parseInt(Utils.getOption("s", args));
 
         // Read the human-readable domain names
         Map<Integer, String> domainNames = getDomainMap(c);
@@ -145,6 +157,7 @@ public class WekaCrossDomainTest {
                 // Create a total set of instances for filtering
                 Instances trainingInstances = DataSource.read("datawithid.arff");
                 Instances evaluationInstances = DataSource.read("datawithid.arff");
+                Instances allInstances = DataSource.read("datawithid.arff");
                 queryTemplate = "SELECT document_identifier, tokenized_form AS document, label FROM pos_%1$s NATURAL JOIN temporary_label_%2$s";
                 query = String.format(queryTemplate, posTable, labelTable);
                 Statement stmt = c.createStatement();
@@ -154,8 +167,8 @@ public class WekaCrossDomainTest {
                     String document, label, identifier;
                     DenseInstance tmp;
                     // Read database values
-                    document = rs.getString("tokenized_form");
-                    label = rs.getString("class_label");
+                    document = rs.getString("document");
+                    label = rs.getString("label");
                     identifier = rs.getString("document_identifier");
                     // Construct the instance
                     tmp = new DenseInstance(3);
@@ -163,23 +176,20 @@ public class WekaCrossDomainTest {
                     tmp.setValue(0, identifier);
                     tmp.setValue(1, document);
                     tmp.setValue(2, label);
-                    if (trainingIds.contains(identifier)) {
+                    int intVal = rs.getInt("document_identifier");
+                    if (trainingIds.contains(intVal)) {
+                        System.err.printf("TRAINING: %d\n", intVal);
                         trainingInstances.add(tmp);
                     }
-                    else if (testIds.contains(identifier)) {
+                    if (testIds.contains(intVal)) {
+                        System.err.printf("TESTING: %d\n", intVal);
                         evaluationInstances.add(tmp);
                     }
                 }
+                Classifier userCls = AbstractClassifier.makeCopy(userClsBase);
                 // Mark the nominal class
                 trainingInstances.setClassIndex(trainingInstances.numAttributes() - 1);
                 evaluationInstances.setClassIndex(evaluationInstances.numAttributes() - 1);
-                // Parse classifier options
-                String[] tmpOptions = Utils.splitOptions(Utils.getOption("W", args));
-                String className = tmpOptions[0];
-                tmpOptions[0] = "";
-
-                // Create the classifier
-                AbstractClassifier userCls = (AbstractClassifier) Utils.forName(AbstractClassifier.class, className, tmpOptions);
 
                 StringToWordVector stwFilt = new StringToWordVector();
                 stwFilt.setInputFormat(trainingInstances);
@@ -194,9 +204,6 @@ public class WekaCrossDomainTest {
                 cls.setClassifier(vectorCls);
                 cls.setFilter(rngFilt);
 
-                // Parse other options
-                int seed = Integer.parseInt(Utils.getOption("s", args));
-
                 // Randomize training data
                 StringToWordVector filter = new StringToWordVector();
                 Random rand = new Random(seed);
@@ -207,7 +214,14 @@ public class WekaCrossDomainTest {
                 cls.buildClassifier(trainingInstances);
 
                 // Test the classifier
-                Evaluation eval = new Evaluation(evaluationInstances);
+                rngFilt = new Remove();
+                rngFilt.setInputFormat(evaluationInstances);
+                rngFilt.setAttributeIndices("first");
+                stwFilt = new StringToWordVector();
+                Instances filteredRangeInstances = Filter.useFilter(evaluationInstances, rngFilt);
+                stwFilt.setInputFormat(filteredRangeInstances);
+                Instances tokenizedEvaluationInstances = Filter.useFilter(filteredRangeInstances, stwFilt);
+                Evaluation eval = new Evaluation(tokenizedEvaluationInstances);
                 eval.evaluateModel(cls, evaluationInstances);
 
                 // output evaluation
@@ -216,6 +230,8 @@ public class WekaCrossDomainTest {
                 System.out.println("Classifier: " + cls.getClass().getName() + " " + Utils.joinOptions(cls.getOptions()));
                 System.out.println("Dataset: " + data.relationName());
                 System.out.println("Seed: " + seed);
+                System.out.println("Instances (training):" + trainingInstances.size());
+                System.out.println("Instances (evaluation):" + evaluationInstances.size());
                 System.out.println();
                 System.out.println("Area under curve: " + eval.areaUnderROC(0) + " (with respect to class index 0)");
                 System.out.println("False Positive Rate: " + eval.falsePositiveRate(0) + " (with respect to class index 0)");

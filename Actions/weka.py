@@ -69,6 +69,22 @@ class WekaBenchmark(object):
         subprocess.check_call(args, shell=True)
         return True, conn
 
+class WekaCrossDomainBenchmark(WekaBenchmark):
+    def execute(self, path, conn):
+        args = ["WekaCrossDomainBenchmark",
+            "-t", path,
+            "-T", self.pos_table,
+            "-L", self.label_table,
+            "-x", str(self.folds),
+            "-s", str(self.seed),
+            "-W", self.classifier
+        ]
+        args = ' '.join(args)
+        logging.debug(args)
+        subprocess.check_call(args, shell=True)
+        return True, conn
+
+
 class WekaClassify(object):
 
     def assert_option(self, option, message):
