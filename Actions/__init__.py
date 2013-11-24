@@ -26,7 +26,7 @@ from previous import PreviousWorkflow
 
 from gimpel import GimpelPOSTagger
 
-from weka import WekaBenchmark, WekaClassify, WekaResultsExport
+from weka import WekaBenchmark, WekaClassify, WekaResultsExport, WekaCrossDomainBenchmark
 from posfilter import RewritePOSFilter, POSWhiteListUnpopularTags, POSRewriteFromWhiteList
 
 from domain import DomainLabeller
