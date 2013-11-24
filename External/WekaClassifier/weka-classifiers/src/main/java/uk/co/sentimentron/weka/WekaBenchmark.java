@@ -71,12 +71,7 @@ public class WekaBenchmark {
 
     Statement stmt = c.createStatement();
     ResultSet rs = stmt.executeQuery(query);
-    int count = 0;
     while ( rs.next() ) {
-      count++;
-      if(count>100) {
-        break;
-      }
       DenseInstance temp = new DenseInstance(2);
       temp.setDataset(data);
       String label = rs.getString("label");
