@@ -1,0 +1,29 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>Benchmark Sanders</WorkflowName>
+        <WorkflowDescription> Import all tweets from the Sanders corpus and then try to classify them using WEKA. Note that you'll need to modify data.arff to set the class valuese to 1,2,3,4</WorkflowDescription>
+        <RetainOutputFile path="sanderstweets.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <SandersInputTable />
+        <PartOfSpeechTable name="test"/>
+        <ResultsTable />
+    </Tables>
+
+    <InputSources>
+        <SandersInputSource dir="Data/Intrinsic/Sanders" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <WhiteSpacePOSTagger dest="test"/>
+        <WekaCrossDomainBenchmark id="DecisionTree" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.trees.J48" />
+        <WekaCrossDomainBenchmark id="Bayes" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.bayes.NaiveBayes" />
+        <WekaCrossDomainBenchmark id="RuleInduction" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.rules.JRip" />
+        <WekaCrossDomainBenchmark id="Logistic" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.Logistic" />
+        <WekaCrossDomainBenchmark id="KNN" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.lazy.IBk" />
+    </WorkflowTasks>
+
+</Workflow>
