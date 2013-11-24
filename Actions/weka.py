@@ -142,6 +142,30 @@ class WekaClassify(object):
         subprocess.check_call(args, shell=True)
         return True, conn
 
+class WekaBenchmarkExport(object):
+
+    def __init__(self, xml):
+        self.output_file = xml.get("name")
+
+    def execute(self, path, conn):
+        logging.info("Exporting results to %s" % self.output_file)
+        # Retrieve a cursor
+        c = conn.cursor()
+        sql = "SELECT * FROM results" 
+        data = c.execute(sql)
+        with open(self.output_file, 'wb') as f:
+            writer = csv.writer(f)
+            writer.writerow(['identifier', 'classifier',
+             'folds', 'seed', 'correct', 'incorrect',
+             'percent correct', 'percent incorrect',
+             'mean abs error', 'root mean square error',
+             'relative absolute error', 'root relative squared error',
+             'total instances', 'area under curve',
+             'false positive rate', 'false negative rate',
+             'f_measure', 'precision', 'recall', 'true negative rate',
+             'true positive rate', 'train domain', 'test domain'])
+            writer.writerows(data)
+        return True,conn
 class WekaResultsExport(object):
     def __init__(self, xml):
         self.input_table = xml.get("table")
