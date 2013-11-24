@@ -1,0 +1,21 @@
+<Workflow>
+
+	<WorkflowOptions>
+		<WorkflowName>Import Semval</WorkflowName>
+		<WorkflowDescription> Import all tweets from the Semval corpus.</WorkflowDescription>
+		<RetainOutputFile path="semvaltweets.sqlite"/>
+		<DisableUntrackedFileCheck />
+	</WorkflowOptions>
+
+    <Tables>
+        <SaschaInputTable />
+    </Tables>
+
+	<InputSources>
+		<SemvalInputSource dir="Data/Intrinsic/Semval" />
+	</InputSources>
+
+    <WorkflowTasks>
+    </WorkflowTasks>
+
+</Workflow>
