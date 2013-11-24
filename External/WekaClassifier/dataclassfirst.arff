@@ -1,0 +1,6 @@
+@relation sentiment
+@attribute class {-1, 1}
+@attribute document string
+
+@DATA
+
