@@ -5,7 +5,7 @@ import os
 import csv
 import logging
 
-from Actions.db import create_sqlite_label_table
+from Actions.db import create_sqlite_label_table, create_sqlite_temporary_label_table
 from Actions.label import Labeller
 
 class SandersInputSource(object):
@@ -37,8 +37,11 @@ class SandersInputSource(object):
         return ret
 
     def execute(self, path, conn):
+        create_sqlite_temporary_label_table("sanders", conn)
+        create_sqlite_label_table("domains", conn)
         create_sqlite_label_table("sanders", conn)
         labeller = Labeller("sanders")
+        domain_labeller = Labeller("domains")
         input_sources = self.get_import_files()
         conn.text_factory = str
         c = conn.cursor()
@@ -49,12 +52,26 @@ class SandersInputSource(object):
                 for row in csvin:
                     document = row[4]
                     label = row[1]
+                    domain = row[0]
                     c.execute(
                         "INSERT INTO input(document) VALUES(?)",
                         (document,)
                     )
                     inserted = c.lastrowid;
+                    if label == 'positive':
+                        c.execute(
+                            "INSERT INTO temporary_label_sanders VALUES (?, ?)",
+                            (inserted, 1)
+                        )
+                        conn.commit()
+                    elif label == 'negative':
+                        c.execute(
+                            "INSERT INTO temporary_label_sanders VALUES (?, ?)",
+                            (inserted, -1)
+                        )
+                        conn.commit()
                     labeller.associate(inserted, label, conn)
+                    domain_labeller.associate(inserted, domain, conn)
 
         logging.info("Committing sanders input documents...")
         conn.commit()

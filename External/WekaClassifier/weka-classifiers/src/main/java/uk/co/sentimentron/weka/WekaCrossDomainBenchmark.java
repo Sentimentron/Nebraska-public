@@ -250,6 +250,36 @@ public class WekaCrossDomainBenchmark {
                 System.out.println("True Negative Rate: " + eval.trueNegativeRate(0) + " (with respect to class index 0)");
                 System.out.println("True Positive Rate: " + eval.truePositiveRate(0) + " (with respect to class index 0)");
                 System.out.println();
+                System.out.println("Training domain: " + domainNames.get(src_domain));
+                System.out.println("Testing domain: " + domainNames.get(dest_domain));
+
+                String results = "INSERT INTO results(classifier, folds, seed, correctly_classified_instances, incorrectly_classified_instances, percent_correctly_classified, percent_incorrectly_classified, mean_absolute_error, root_mean_squared_error, relative_absolute_error, root_relative_squared_error, total_number_of_instances, area_under_curve, false_positive_rate, false_negative_rate, f_measure, precision, recall, true_negative_rate, true_positive_rate, train_domain, test_domain) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                PreparedStatement insertResults = c.prepareStatement(results);
+                insertResults.setString(1, cls.getClass().getName() + " " + Utils.joinOptions(cls.getOptions()));
+                insertResults.setInt(2, 0);
+                insertResults.setInt(3, seed);
+                insertResults.setDouble(4, eval.correct());
+                insertResults.setDouble(5, eval.incorrect());
+                insertResults.setDouble(6, eval.pctCorrect());
+                insertResults.setDouble(7, eval.pctIncorrect());
+                insertResults.setDouble(8, eval.meanAbsoluteError());
+                insertResults.setDouble(9, eval.rootMeanSquaredError());
+                insertResults.setDouble(10, eval.relativeAbsoluteError());
+                insertResults.setDouble(11, eval.rootRelativeSquaredError());
+                insertResults.setDouble(12, eval.numInstances());
+                insertResults.setDouble(13, eval.areaUnderROC(0));
+                insertResults.setDouble(14, eval.falsePositiveRate(0));
+                insertResults.setDouble(15, eval.falseNegativeRate(0));
+                insertResults.setDouble(16, eval.fMeasure(0));
+                insertResults.setDouble(17, eval.precision(0));
+                insertResults.setDouble(18, eval.recall(0));
+                insertResults.setDouble(19, eval.trueNegativeRate(0));
+                insertResults.setDouble(20, eval.truePositiveRate(0));
+                insertResults.setString(21, domainNames.get(src_domain));
+                insertResults.setString(22, domainNames.get(dest_domain));
+                insertResults.executeUpdate();
+                insertResults.close();
+
             }
         }
     }
