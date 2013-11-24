@@ -65,7 +65,7 @@ public class WekaCrossDomainBenchmark {
 
     public static Map<Integer, List<Integer>> getDocDomainMap(Connection c) throws Exception {
         System.err.println("Reading domain map...");
-        String query = "SELECT document_identifier, label FROM label_domains ORDER BY document_identifier, label ASC";
+        String query = "SELECT document_identifier, label FROM label_domains ORDER BY label ASC";
         Statement s = c.createStatement();
         ResultSet rs = s.executeQuery(query);
         Map<Integer, List<Integer>> ret = new HashMap<Integer, List<Integer>>();
@@ -98,14 +98,41 @@ public class WekaCrossDomainBenchmark {
         return ret;
     }
 
-    public static Set<Integer> findDocIdsMatchingDomain(List<Integer> domain, Map<Integer, List<Integer>> docDomainMap) {
+    public static Set<Integer> findDocIdsMatchingDomain(int domain, Map<Integer, List<Integer>> docDomainMap) {
         Set<Integer> ret = new HashSet<Integer>();
         for (Map.Entry<Integer, List<Integer>> entry : docDomainMap.entrySet()) {
             //System.err.printf("%s %s %b\n", entry.getValue(), domain, entry.getValue().equals(domain));
-            if (!entry.getValue().equals(domain)) continue;
+            if (!entry.getValue().contains(domain)) continue;
             ret.add(entry.getKey());
         }
         return ret;
+    }
+
+    public static Map<Integer, String> getPosTags(Connection c, String posTable) throws Exception {
+        System.err.println("Reading pos map...");
+        String queryTemplate = "SELECT identifier, token FROM pos_tokens_%1$s ASC";
+        String query = String.format(queryTemplate, posTable);
+        Statement s = c.createStatement();
+        Map<Integer, String> ret = new HashMap<Integer, String>();
+        ResultSet rs = s.executeQuery(query);
+        while (rs.next()) {
+            int identifier = rs.getInt("identifier");
+            String token = rs.getString("token");
+            ret.put(identifier, token);
+        }
+        return ret;
+    }
+
+    public static void copyInstanceToInstances(Instances raw, String cls, String document) {
+        double[] instanceValue = new double[raw.numAttributes()];
+        instanceValue[1] = raw.attribute(1).addStringValue(document);
+        if (cls.equals("-1")) {
+            instanceValue[0] = 0;
+        }
+        else {
+            instanceValue[0] = 1;
+        }
+        raw.add(new DenseInstance(1.0, instanceValue));
     }
 
     public static void main(String[] args) throws Exception {
@@ -149,15 +176,19 @@ public class WekaCrossDomainBenchmark {
         Map<Integer, String> domainNames = getDomainMap(c);
         Map<Integer, List<Integer>> docDomainMap = getDocDomainMap(c);
         List<List<Integer>> domainCombos = getDomainCombos(docDomainMap);
+        Map<Integer, String> posMap = getPosTags(c, posTable);
 
-        for (List<Integer> src_domain : domainCombos) {
-            for (List<Integer> dest_domain : domainCombos) {
+        for (int src_domain : domainNames.keySet()) {
+            for (int dest_domain : domainNames.keySet()) {
                 Set<Integer> trainingIds = findDocIdsMatchingDomain(src_domain, docDomainMap);
                 Set<Integer> testIds = findDocIdsMatchingDomain(dest_domain, docDomainMap);
+
+                if (trainingIds.size() < 100 || testIds.size() < 100) continue;
+
                 // Create a total set of instances for filtering
-                Instances trainingInstances = DataSource.read("data.arff");
-                Instances evaluationInstances = DataSource.read("data.arff");
-                Instances allInstances = DataSource.read("data.arff");
+                Instances trainingInstances = DataSource.read("dataclassfirst.arff");
+                Instances evaluationInstances = DataSource.read("dataclassfirst.arff");
+                Instances allInstances = DataSource.read("dataclassfirst.arff");
                 queryTemplate = "SELECT document_identifier, tokenized_form AS document, label FROM pos_%1$s NATURAL JOIN temporary_label_%2$s";
                 query = String.format(queryTemplate, posTable, labelTable);
                 Statement stmt = c.createStatement();
@@ -169,33 +200,35 @@ public class WekaCrossDomainBenchmark {
                     // Read database values
                     document = rs.getString("document");
                     label = rs.getString("label");
-                    identifier = rs.getString("document_identifier");
-                    // Construct the instance
-                    tmp = new DenseInstance(2);
-                    tmp.setDataset(allInstances);
-                    tmp.setValue(0, document);
-                    tmp.setValue(1, label);
                     int intVal = rs.getInt("document_identifier");
+
                     if (trainingIds.contains(intVal)) {
-                        trainingInstances.add(tmp);
+                        copyInstanceToInstances(trainingInstances, label, document);
                     }
-                    if (testIds.contains(intVal)) {
-                        evaluationInstances.add(tmp);
+                    else if (testIds.contains(intVal)) { 
+                        copyInstanceToInstances(evaluationInstances, label, document);
                     }
                 }
-                AbstractClassifier cls = (AbstractClassifier)AbstractClassifier.makeCopy(userClsBase);
+
+                if (trainingInstances.size() < 100 || evaluationInstances.size() < 100) continue;
+
+                AbstractClassifier cls = (AbstractClassifier) Utils.forName(AbstractClassifier.class, className, tmpOptions);
                 // Mark the nominal class
-                trainingInstances.setClassIndex(trainingInstances.numAttributes() - 1);
-                evaluationInstances.setClassIndex(evaluationInstances.numAttributes() - 1);
+                trainingInstances.setClassIndex(0);
+                evaluationInstances.setClassIndex(0);
 
                 FilteredClassifier filteredClassifier = new FilteredClassifier(); 
-                filteredClassifier.setFilter(new StringToWordVector()); 
+                StringToWordVector filter = new StringToWordVector(1);
+                filter.setInputFormat(trainingInstances);
+                filteredClassifier.setFilter(filter); 
                 filteredClassifier.setClassifier(cls);
 
+                System.err.println("Building classifier...");
+                trainingInstances.randomize(new Random(seed));
                 filteredClassifier.buildClassifier(trainingInstances); 
 
                 // Test the classifier
-                Evaluation eval = new Evaluation(allInstances);
+                Evaluation eval = new Evaluation(evaluationInstances);
                 eval.evaluateModel(cls, evaluationInstances);
 
                 // output evaluation
@@ -207,6 +240,7 @@ public class WekaCrossDomainBenchmark {
                 System.out.println("Instances (training):" + trainingInstances.size());
                 System.out.println("Instances (evaluation):" + evaluationInstances.size());
                 System.out.println();
+                System.out.println(eval.toSummaryString());
                 System.out.println("Area under curve: " + eval.areaUnderROC(0) + " (with respect to class index 0)");
                 System.out.println("False Positive Rate: " + eval.falsePositiveRate(0) + " (with respect to class index 0)");
                 System.out.println("False Negative Rate: " + eval.falseNegativeRate(0) + " (with respect to class index 0)");
