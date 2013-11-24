@@ -39,7 +39,8 @@ def print_usage_exit():
 
 def setup_environment():
     """
-        Checks that the Build/ directory is in the users path
+        Checks that the Build/ directory is in the user's path
+        and the appropriate JARs are in the CLASSPATH
         Prints an error message if it's not.
     """
     path = os.environ.get("PATH")
@@ -53,6 +54,31 @@ def setup_environment():
         logging.info("\texport PATH=$HOME/Nebraska/Build:$PATH")
         logging.info("Don't forget to restart your shell.")
         sys.exit(1)
+
+    classpath = os.environ.get("CLASSPATH")
+    if "wlsvm.jar" not in classpath:
+        logging.error("wlsvm.jar is not in your CLASSPATH variable")
+        logging.info(
+            "wlsvm.jar provides the WEKA SVM implementation for WekaTest"
+        )
+        logging.info("Add a line like the following to your ~/.bashrc file:")
+        logging.info(
+            "\texport CLASSPATH=$HOME/Nebraska/External/wlsvm.jar:$CLASSPATH"
+        )
+        logging.info("Don't forget to restart your shell")
+        exit(1)
+    if "libsvm.jar" not in classpath:
+        logging.error("libsvm.jar is not in your CLASSPATH variable")
+        logging.info(
+            "libsvm.jar provides the WEKA SVM implementation for WekaTest"
+        )
+        logging.info("Add a line like the following to your ~/.bashrc file:")
+        logging.info(
+            "\texport CLASSPATH=$HOME/Nebraska/External/libsvm.jar:$CLASSPATH"
+        )
+        logging.info("Don't forget to restart your shell")
+        exit(1)
+
 
 def check_gitinfo():
     """
@@ -342,6 +368,9 @@ def _execute_workflow(document, sqlite_path, options, workflow_path):
             db.create_sqlite_classificationtable(
                 x_node.get("name"), sqlite_conn
             )
+        elif x_node.tag == "ResultsTable":
+            db.create_resultstable(sqlite_conn)
+
     #
     # APPLY WORKFLOW ACTIONS
     for x_node in document.find("WorkflowTasks").getchildren():

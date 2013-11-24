@@ -8,7 +8,7 @@
     </WorkflowOptions>
 
     <Tables>
-
+        <ResultsTable />
     </Tables>
 
     <InputSources>

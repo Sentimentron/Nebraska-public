@@ -56,7 +56,6 @@ class WekaBenchmark(object):
         assert self.folds > 0
 
     def execute(self, path, conn):
-        create_resultstable(conn)
         args = ["WekaBenchmark",
             "-t", path,
             "-T", self.pos_table,
