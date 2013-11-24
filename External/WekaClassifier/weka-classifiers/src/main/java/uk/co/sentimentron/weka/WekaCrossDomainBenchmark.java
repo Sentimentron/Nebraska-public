@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import weka.core.Instance;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.filters.unsupervised.attribute.Remove;
+import weka.filters.supervised.instance.SpreadSubsample;
 
 /**
  * Tests every domain in the database against every other using the classifier specified. 
@@ -209,13 +210,18 @@ public class WekaCrossDomainBenchmark {
                         copyInstanceToInstances(evaluationInstances, label, document);
                     }
                 }
+                // Mark the nominal class
+                trainingInstances.setClassIndex(0);
+                evaluationInstances.setClassIndex(0);
+
+                SpreadSubsample filtSample = new SpreadSubsample();
+                filtSample.setInputFormat(trainingInstances);
+                filtSample.setDistributionSpread(1);
+                trainingInstances = Filter.useFilter(trainingInstances, filtSample);
 
                 if (trainingInstances.size() < 100 || evaluationInstances.size() < 100) continue;
 
                 AbstractClassifier cls = (AbstractClassifier) Utils.forName(AbstractClassifier.class, className, tmpOptions);
-                // Mark the nominal class
-                trainingInstances.setClassIndex(0);
-                evaluationInstances.setClassIndex(0);
 
                 FilteredClassifier filteredClassifier = new FilteredClassifier(); 
                 StringToWordVector filter = new StringToWordVector(1);
