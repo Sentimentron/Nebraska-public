@@ -178,9 +178,13 @@ public class WekaCrossDomainBenchmark {
         Map<Integer, List<Integer>> docDomainMap = getDocDomainMap(c);
         List<List<Integer>> domainCombos = getDomainCombos(docDomainMap);
         Map<Integer, String> posMap = getPosTags(c, posTable);
+        int max = domainNames.size() * domainNames.size();
+        int cur = 0;
 
         for (int src_domain : domainNames.keySet()) {
             for (int dest_domain : domainNames.keySet()) {
+                cur++;
+                System.err.printf("Progress: %.2f %%\n", cur * 100.0 / max);
                 Set<Integer> trainingIds = findDocIdsMatchingDomain(src_domain, docDomainMap);
                 Set<Integer> testIds = findDocIdsMatchingDomain(dest_domain, docDomainMap);
 
@@ -202,14 +206,17 @@ public class WekaCrossDomainBenchmark {
                     document = rs.getString("document");
                     label = rs.getString("label");
                     int intVal = rs.getInt("document_identifier");
-
-                    if (trainingIds.contains(intVal)) {
-                        copyInstanceToInstances(trainingInstances, label, document);
-                    }
-                    else if (testIds.contains(intVal)) { 
+                    
+                    if (testIds.contains(intVal)) { 
                         copyInstanceToInstances(evaluationInstances, label, document);
                     }
+                    else if (trainingIds.contains(intVal)) {
+                        copyInstanceToInstances(trainingInstances, label, document);
+                    }
+
                 }
+                if (trainingInstances.size() < 100 || evaluationInstances.size() < 100) continue;
+
                 // Mark the nominal class
                 trainingInstances.setClassIndex(0);
                 evaluationInstances.setClassIndex(0);
