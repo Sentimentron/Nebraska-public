@@ -76,6 +76,7 @@ class DomainLabeller(Labeller):
                 domain: the current domain we're looking at
         """
 
+        ret = False
         subdomains, domain_term_set = tree
         # Intersect the domain and the document terms sets
         intersecting_terms = tokens & domain_term_set
@@ -83,20 +84,34 @@ class DomainLabeller(Labeller):
             labels.add(domain)
             for word in intersecting_terms:
                 labels.add(word)
+                ret = True
 
         # Walk the tree from here
         for subdomain in subdomains:
             sub_domain_tree = subdomains[subdomain]
-            self._determine_labels(tokens, labels, sub_domain_tree, subdomain)
+            if self._determine_labels(tokens, labels, sub_domain_tree, subdomain):
+                labels.add(subdomain)
+                ret = True
+
+        return ret
+
+    def sanitize(self, word):
+        if word[0] == '#':
+            return word[1:]
+        if word[0] == '@':
+            return word[1:]
+        return word
 
     def determine_labels(self, text, stack=[]):
         # Output setup
         labels = set([])
         # Basic tokenization
-        words = set([w.lower() for w in text.split(' ')])
+        words = [w.lower() for w in text.split(' ') if len(w.strip()) > 0]
+        words = set([self.sanitize(w) for w in words])
         # Walk the domain tree
         for domain in self.domain_tree:
-            self._determine_labels(words, labels, self.domain_tree[domain], domain)
+            if self._determine_labels(words, labels, self.domain_tree[domain], domain):
+                labels.add(domain)
             if domain in words:
                 labels.add(domain)
 
