@@ -14,6 +14,7 @@
 """
 
 import os
+import csv
 import sys
 import shutil
 import logging
@@ -270,7 +271,8 @@ def execute_workflow(workflow, workflow_path, sqlite_path):
     options = {
         "retain_output" : False,
         "check_untracked": True,
-        "log_metadata": True
+        "log_metadata": True,
+        "output_count": None
     }
 
     # Retrieve the WorkflowOptions node and update
@@ -287,6 +289,8 @@ def execute_workflow(workflow, workflow_path, sqlite_path):
             options["output_file"] = x_node.get("path")
         elif x_node.tag == "DisableUntrackedFileCheck":
             options["check_untracked"] = False
+        elif x_node.tag == "DebugDocumentCount":
+            options["output_count"] = x_node.get("path")
 
     # Check that the options are correct
     verify_options(options)
@@ -371,6 +375,9 @@ def _execute_workflow(document, sqlite_path, options, workflow_path):
         elif x_node.tag == "ResultsTable":
             db.create_resultstable(sqlite_conn)
 
+    if options["output_count"] is not None:
+        output_count = []
+
     #
     # APPLY WORKFLOW ACTIONS
     for x_node in document.find("WorkflowTasks").getchildren():
@@ -379,7 +386,23 @@ def _execute_workflow(document, sqlite_path, options, workflow_path):
         task = get_workflow_task(x_node.tag)
         logging.debug(task)
         task = task(x_node)
+        if options["output_count"] is not None:
+            output_count.append((count_documents(sqlite_conn), task))
         _, sqlite_conn = task.execute(sqlite_path, sqlite_conn)
+
+    if options["output_count"] is not None:
+        output_count.append((count_documents(sqlite_conn), "FINISH"))
+        with open(options["output_count"], "wb") as f:
+            writer = csv.writer(f)
+            writer.writerow(["count", "activity"])
+            writer.writerows(output_count)
+
+def count_documents(db_conn):
+    cursor = db_conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM input")
+    for count, in cursor.fetchall():
+        logging.info("%d document(s) in the database", count)
+        return count
 
 def verify_options(options):
     """

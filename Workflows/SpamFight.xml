@@ -5,8 +5,9 @@
 		<WorkflowDescription>Apply some heuristics to try and reduce spam volume.</WorkflowDescription>
 		<RetainOutputFile path="spam.sqlite"/>
 		<DisableUntrackedFileCheck />
+		<DebugDocumentCount path="counts.csv" />
 	</WorkflowOptions>
-    
+
     <Tables>
         <TemporaryLabelTable name="lengths" />
         <TemporaryLabelTable name="special" />
@@ -18,7 +19,7 @@
 	<InputSources>
 		<PreviousWorkflow path="Workflows/ImportTwitter.xml" />
 	</InputSources>
-    
+
     <WorkflowTasks>
         <BasicFilter filterText="http" />
         <LineBreakFilter />
