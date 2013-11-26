@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+
 from annotators import SubjectivityAnnotator
 
 from metadata import fetch_metadata, push_metadata, get_git_version
@@ -31,4 +33,7 @@ from weka import WekaBenchmark, WekaClassify, WekaResultsExport, WekaCrossDomain
 from posfilter import RewritePOSFilter, POSWhiteListUnpopularTags, POSRewriteFromWhiteList
 
 from domain import DomainLabeller
-from pythonclassifiers import PythonClassifiers
+try:
+    from pythonclassifiers import PythonClassifiers
+except ImportError:
+    print >> sys.stderr, "python classifiers aren't available"
