@@ -38,10 +38,10 @@ class SandersInputSource(object):
 
     def execute(self, path, conn):
         create_sqlite_temporary_label_table("sanders", conn)
-        create_sqlite_label_table("domains", conn)
+        #create_sqlite_label_table("domains", conn)
         create_sqlite_label_table("sanders", conn)
         labeller = Labeller("sanders")
-        domain_labeller = Labeller("domains")
+        #domain_labeller = Labeller("domains")
         input_sources = self.get_import_files()
         conn.text_factory = str
         c = conn.cursor()
@@ -71,7 +71,7 @@ class SandersInputSource(object):
                         )
                         conn.commit()
                     labeller.associate(inserted, label, conn)
-                    domain_labeller.associate(inserted, domain, conn)
+                    #domain_labeller.associate(inserted, domain, conn)
 
         logging.info("Committing sanders input documents...")
         conn.commit()

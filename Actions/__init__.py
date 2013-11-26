@@ -33,6 +33,9 @@ from weka import WekaBenchmark, WekaClassify, WekaResultsExport, WekaCrossDomain
 from posfilter import RewritePOSFilter, POSWhiteListUnpopularTags, POSRewriteFromWhiteList
 
 from domain import DomainLabeller
+
+from sentiwordnet import SentiWordNetStrengthLabeller
+
 try:
     from pythonclassifiers import PythonClassifiers
 except ImportError:
