@@ -10,6 +10,8 @@ from db import create_sqlite_temp_path, create_sqlite_label_table
 import csv
 import unicodedata
 
+import gc
+
 class TwitterCompressedDBInputSource(object):
 
     def __assert_path_exists(self):
@@ -22,22 +24,14 @@ class TwitterCompressedDBInputSource(object):
 
     def decompress(self):
         tmp = create_sqlite_temp_path()
-        try:
-            logging.info("Decompressing '%s' to '%s'...", self.path, tmp)
-            # Open the decompression output
-            tmp_fp = open(tmp, 'w')
-            # Open the decompression input
-            src_fp = open(self.path, 'r')
-            # Decompress the file
-            p = subprocess.Popen(["xz", "-d"], stdin=src_fp, stdout=tmp_fp)
-            p.communicate()
-            # Close the input
-            tmp_fp.close()
-            src_fp.close()
-            return tmp
-        except Exception as ex:
-            os.remove(tmp)
-            raise ex
+        logging.info("Decompressing '%s' to '%s'...", self.path, tmp)
+        # Open decompression output
+        with open(tmp, 'w') as tmp_fp:
+            # Open decompression input
+            with open(self.path, 'r') as src_fp:
+                subprocess.call(["xz", "-d"], stdin=src_fp, stdout=tmp_fp, close_fds=True)
+        gc.collect()
+        return tmp
 
     def run_import(self):
         tmp = self.decompress()

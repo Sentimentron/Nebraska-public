@@ -22,6 +22,7 @@ def create_sqlite_temp_path():
         hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix="/dev/shm/")
     else:
         hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix=os.getcwd()+"/")
+    os.close(hnd)
     logging.info("SQLite path: %s", tmp)
     return tmp
 
