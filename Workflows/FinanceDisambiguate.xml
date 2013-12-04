@@ -11,51 +11,53 @@
     </Tables>
 
     <InputSources>
+        <PreviousWorkflow path="Workflows/GimpelPOSTagAMCorpus.xml"  />
     </InputSources>
 
     <WorkflowTasks>
-        <FinancialDistanceAnnotator/>
-        <Synset>depository_financial_institution.n.01 </Synset>
-        <Synset>alliance.n.02 </Synset>
-        <Synset>credit.n.02 </Synset>
-        <Synset>credit.n.03</Synset>
-        <Synset>credit.n.06</Synset>
-        <Synset>credit.v.03</Synset>
-        <Synset>acquisition.n.01</Synset>
-        <Synset>american_stock_exchange.n.01</Synset>
-        <Synset>bear.n.02</Synset>
-        <Synset>bankrupt.n.01</Synset>
-        <Synset>bankrupt.v.01</Synset>
-        <Synset>bankrupt.s.01</Synset>
-        <Synset>barter.n.01</Synset>
-        <Synset> barter.v.01</Synset>
-        <Synset>beneficiary.n.01</Synset>
-        <Synset>agent.n.04</Synset>
-        <Synset>broker.v.01</Synset>
-        <Synset>broke.s.01</Synset>
-        <Synset>brokerage.n.01</Synset>
-        <Synset>brokerage.n.02</Synset>
-        <Synset>brokerage_house.n.01</Synset>
-        <Synset>bull.n.06</Synset>
-        <Synset>bull.v.02</Synset>
-        <Synset>buying.n.01</Synset>
-        <Synset>buy.v.03</Synset>
-        <Synset>collateral.n.01</Synset>
-        <Synset>commodity.n.01</Synset>
-        <Synset>debit.n.01</Synset>
-        <Synset>debit.v.01</Synset>
-        <Synset>debt.n.01</Synset>
-        <Synset>debt.n.02</Synset>
-        <Synset>debt.n.03</Synset>
-        <Synset>demand.n.02</Synset>
-        <Synset>depression.n.02</Synset>
-        <Synset>liquidity.n.03</Synset>
-        <Synset>amalgamation.n.01</Synset>
-        <Synset>security.n.02</Synset>
-        <Synset>security.n.04</Synset>
-        <Synset>new_york_stock_exchange.n.01</Synset>
-        <Synset>over-the-counter.s.02</Synset>
-        <Synset>indebtedness.n.01</Synset>
+        <FinancialDistanceAnnotator pos="gimpel">
+            <Synset>depository_financial_institution.n.01 </Synset>
+            <Synset>alliance.n.02 </Synset>
+            <Synset>credit.n.02 </Synset>
+            <Synset>credit.n.03</Synset>
+            <Synset>credit.n.06</Synset>
+            <Synset>credit.v.03</Synset>
+            <Synset>acquisition.n.01</Synset>
+            <Synset>american_stock_exchange.n.01</Synset>
+            <Synset>bear.n.02</Synset>
+            <Synset>bankrupt.n.01</Synset>
+            <Synset>bankrupt.v.01</Synset>
+            <Synset>bankrupt.s.01</Synset>
+            <Synset>barter.n.01</Synset>
+            <Synset>barter.v.01</Synset>
+            <Synset>beneficiary.n.01</Synset>
+            <Synset>agent.n.04</Synset>
+            <Synset>broker.v.01</Synset>
+            <Synset>broke.s.01</Synset>
+            <Synset>brokerage.n.01</Synset>
+            <Synset>brokerage.n.02</Synset>
+            <Synset>brokerage_house.n.01</Synset>
+            <Synset>bull.n.06</Synset>
+            <Synset>bull.v.02</Synset>
+            <Synset>buying.n.01</Synset>
+            <Synset>buy.v.03</Synset>
+            <Synset>collateral.n.01</Synset>
+            <Synset>commodity.n.01</Synset>
+            <Synset>debit.n.01</Synset>
+            <Synset>debit.v.01</Synset>
+            <Synset>debt.n.01</Synset>
+            <Synset>debt.n.02</Synset>
+            <Synset>debt.n.03</Synset>
+            <Synset>demand.n.02</Synset>
+            <Synset>depression.n.02</Synset>
+            <Synset>liquidity.n.03</Synset>
+            <Synset>amalgamation.n.01</Synset>
+            <Synset>security.n.02</Synset>
+            <Synset>security.n.04</Synset>
+            <Synset>new_york_stock_exchange.n.01</Synset>
+            <Synset>over-the-counter.s.02</Synset>
+            <Synset>indebtedness.n.01</Synset>
+        </FinancialDistanceAnnotator>
     </WorkflowTasks>
 
 </Workflow>
