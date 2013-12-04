@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
 import sys
 
 from annotators import SubjectivityAnnotator
@@ -39,4 +40,4 @@ from sentiwordnet import SentiWordNetStrengthLabeller
 try:
     from pythonclassifiers import PythonClassifiers
 except ImportError:
-    print >> sys.stderr, "python classifiers aren't available"
+    logging.error("python classifiers aren't available")
