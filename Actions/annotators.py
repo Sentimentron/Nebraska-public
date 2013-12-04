@@ -104,7 +104,41 @@ class Annotator(object):
         del identifier, text, db_conn
         raise NotImplementedError()
 
-class FinancialDistanceAnnotator(Annotator):
+class DomainSpecificAnnotator(Annotator):
+
+    def __init__(self, domain, column_name, column_type):
+        super(DomainSpecificAnnotator, self).__init__(
+            column_name, column_type
+        )
+
+        self.domain = domain
+
+    def get_input_set(self, db_conn):
+        """
+            Returns a list of documents suitable for annotation
+            (i.e. the ones in the domain)
+        """
+
+        cursor = db_conn.cursor()
+
+        # Resolve the domain
+        cursor.execute(
+            "SELECT label_identifier FROM label_names_domains WHERE label = ?",
+            (self.domain, )
+        )
+        for domain_identifier, in cursor.fetchall():
+            pass
+
+        annotation_set = set([])
+        cursor = db_conn.cursor()
+        cursor.execute("""SELECT identifier, document
+            FROM input JOIN label_domains ON document_identifier = identifier
+            WHERE label = ?""", (domain_identifier,))
+        for row in cursor.fetchall():
+            annotation_set.add(row)
+        return annotation_set
+
+class FinancialDistanceAnnotator(DomainSpecificAnnotator):
     """
         Annotates tweets with the average distance measure of each synset
         from a set of target synsets.
@@ -126,7 +160,7 @@ class FinancialDistanceAnnotator(Annotator):
                         V/starred
         """
         super(FinancialDistanceAnnotator, self).__init__(
-            "financial", types.FloatType
+            "finance", "financial", types.FloatType
         )
         self.synsets = set([])
         for child in xml:
@@ -179,7 +213,8 @@ class FinancialDistanceAnnotator(Annotator):
         Returns the distance measure between a source_synset and
         a target_synset
         """
-        return source_synset.shortest_path_distance(target_synset)
+        return source_synset.path_similarity(target_synset)
+        #return source_synset.shortest_path_distance(target_synset)
 
     @classmethod
     def retrieve_filter_word_synsets(cls, source_synset, tag):
@@ -214,7 +249,7 @@ class FinancialDistanceAnnotator(Annotator):
         tags = set(
             [self.retrieve_tag(db_conn, i) for i in tokenized_identifiers]
         )
-        totals = []
+        target_similarities = []
         for target_synset in self.synsets:
             candidate_tags = [
                 i for i in tags if self.filter_tag_based_on_synset(
@@ -223,18 +258,24 @@ class FinancialDistanceAnnotator(Annotator):
             ]
             if len(candidate_tags) == 0:
                 continue
+            best = 0
             for tag in candidate_tags:
                 for source_synset in self.retrieve_filter_word_synsets(target_synset, tag):
                     distance = self.compute_distance_measure(source_synset, target_synset)
                     if distance is None:
                         continue
-                    #logging.debug((target_synset, source_synset, distance, tag))
-                    totals.append(distance)
+                    if distance > best:
+                        best = distance
 
+            target_similarities.append(best)
         # Return the total average distance
         distance = None
-        if len(totals) > 0:
-            distance = sum(totals) / len(totals)
+        if len(target_similarities) > 0:
+            logging.debug(target_similarities)
+            logging.debug(sum(target_similarities))
+            logging.debug(len(target_similarities))
+            distance = sum(target_similarities) / len(target_similarities)
+
         logging.debug((text, distance))
         return distance
 
