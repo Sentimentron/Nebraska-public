@@ -4,6 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include <unordered_set>
+#include <list>
 #include <math.h>
 
 #include <errno.h>
@@ -15,11 +16,9 @@
 
 #include "version.h"
 
-const char * const SELECT_QUERY = "SELECT DISTINCT document_identifier, label FROM temporary_label_%s ORDER BY label;";
+const char * const SELECT_QUERY = "SELECT document_identifier, label FROM temporary_label_%s";
 const char * const INSERT_QUERY = "INSERT INTO temporary_label_%s VALUES (?, ?);";
 const char * const TRUNCATE_QUERY = "DELETE FROM temporary_label_%s;";
-
-void compute_bloom_filter(std::vector<uint64_t> &bloom, std::vector<uint64_t> &bloom_count, std::vector<std::unordered_set<uint64_t>> &d, unsigned int hash_functions);
 
 inline float _dbscan_dist (const std::vector<uint64_t> &first,
                            const std::vector<uint64_t> &second) {
@@ -37,106 +36,100 @@ inline float _dbscan_dist (const std::vector<uint64_t> &first,
     return 1.0 - (1.0*i)/u;
 }
 
+double distance(const uint64_t src_identifier, const uint64_t dest_identifier,
+    const std::map<uint64_t, std::vector<uint64_t>> &doc_map
+    ) {
+    const std::vector<uint64_t> first = doc_map.at(src_identifier);
+    const std::vector<uint64_t> second = doc_map.at(dest_identifier);
+    return _dbscan_dist(first, second);
+}
 
-std::vector<bool> compute_distances(std::vector<std::vector<uint64_t>> &d, float epsilon) {
-    size_t width = d.size();
-    unsigned int i;
-    std::vector<bool> ret (width * width);
-    // 0s on the diagonal!
-    for (i = 0; i < width; i++) {
-        ret[i*width + i] = true;
-    }
+void dbscan_region_query (std::list<uint64_t> &neighbours,
+    const uint64_t src_identifier,
+    const std::map<uint64_t, std::vector<uint64_t>> &doc_map,
+    const std::map<uint64_t, std::vector<uint64_t>> &label_map,
+    const float epsilon
+    ) {
 
-    std::vector<uint64_t> bloom(d.size()), bloom_count(d.size());
-
-    for (i = 0; i < d.size(); i++) {
-        unsigned int j;
-        if (! ( i % 100)) std::cerr << "Compute distances: " << 100.0f * i / d.size() << "% done \r";
-        for (j = i + 1; j < d.size(); j++) {
-            off_t o;
-            float distance;
-
-            o = (i * width) + j;
-            distance = _dbscan_dist(d[i], d[j]);
-            //fprintf(stderr, "d:%f\n", distance);
-
-            ret[o] = distance < epsilon;
-            o = (j * width) + i;
-            ret[o] = distance < epsilon;
+    std::unordered_set<uint64_t> candidates;
+    std::vector<uint64_t> labels = doc_map.at(src_identifier);
+    for (auto label : labels) {
+        std::vector<uint64_t> doc_identifiers = label_map.at(label);
+        for (auto identifier : doc_identifiers) {
+            candidates.insert(identifier);
         }
     }
 
-    std::cerr << "\n";
-    return ret;
-}
-
-void dbscan_region_query (std::stack<uint64_t> &neighbours,
-    const off_t point_offset,
-    const std::vector<bool> &distances,
-    const off_t max_offset) {
-
-    off_t offset = point_offset;
-    for (off_t i = offset; i < max_offset; i++) {
-        if (distances[offset * max_offset + i]) {
-            neighbours.push(i);
+    for (auto candidate : candidates) {
+        if (distance(src_identifier, candidate, doc_map) < epsilon) {
+            neighbours.push_back(candidate);
         }
     }
 
 }
 
-std::map<const uint64_t, uint64_t> dbscan(const std::vector<std::vector<uint64_t>> &d,
-                                          const std::vector<bool> distances,
+std::map<const uint64_t, uint64_t> dbscan(std::list<uint64_t> identifiers,
+                                          // identifiers is a list of document identifiers we're clustering
+                                          const std::map<uint64_t, std::vector<uint64_t>> doc_map,
+                                          // this is a list of document_identifiers -> cluster source labels
+                                          const std::map<uint64_t, std::vector<uint64_t>> label_map,
+                                          // This is the inverse of the above
+                                          const float epsilon,
                                           const unsigned int min_points) {
     std::map<const uint64_t, uint64_t> ret;
     std::unordered_set<uint64_t> visited, clustered;
     uint64_t cluster_counter = 0;
-    for (uint64_t point_offset = 0; point_offset < d.size(); point_offset++) {
-        auto point = d[point_offset];
-        if (visited.find(point_offset) != visited.end()) continue;
-        // For each unvisited point...
-        // Mark this point as visited
-        visited.insert(point_offset);
-        // Get neighbours to this point
-        std::stack<uint64_t> neighbours;
-        std::unordered_set<uint64_t> visited_neighbours;
-        dbscan_region_query(neighbours, point_offset, distances, d.size());
-        // If less than the minum number of points...
+    while (visited.size() < doc_map.size()) {
+        //fprintf(stderr, "MAIN LOOP %d\t%d\n", visited.size(), doc_map.size());
+        fprintf(stderr, "Clustering... %f\r", visited.size() * 100.0 / doc_map.size());
+        uint64_t cluster_identifier;
+        std::list<uint64_t> neighbours;
+        // Get the next identifier
+        uint64_t cur = identifiers.back();
+        identifiers.pop_back();
+        visited.insert(cur);
+        // Should be there for one anooooother!
+        dbscan_region_query(neighbours, cur, doc_map, label_map, epsilon);
+        //fprintf(stderr, "neighbours %d\t%d\n", neighbours.size(), min_points);
         if (neighbours.size() < min_points) {
-            ret[point_offset] = 0; // Noise
+            // Mark as noise
+            while(neighbours.size() > 0) {
+                auto neigbour = neighbours.back();
+                neighbours.pop_back();
+                ret[neigbour] = 0;
+            }
+            continue;
         }
-        // Otherwise expand the cluster...
-        else {
-            // Allocate a new cluster and assign it
-            cluster_counter++;
-            ret[point_offset] = cluster_counter;
-            clustered.insert(point_offset);
-            // Visit each neighbour point...
-            while(!neighbours.empty()) {
-                auto neighbour = neighbours.top();
-                neighbours.pop();
-                if (visited_neighbours.find(neighbour) != visited_neighbours.end()) continue;
-                visited_neighbours.insert(neighbour);
-                // If neighbour hasn't been visited...
-                if (visited.find(neighbour) == visited.end()) {
-                    visited.insert(neighbour); // Mark the point as visited
-                    // Retrieve secondary neighbours...
-                    std::stack<uint64_t> secondary_neighbours;
-                    dbscan_region_query(secondary_neighbours, neighbour, distances, d.size());
-                    if (secondary_neighbours.size() >= min_points) {
-                        while(!secondary_neighbours.empty()) {
-                            auto n = secondary_neighbours.top();
-                            secondary_neighbours.pop();
-                            neighbours.push(n);
-                        }
+        // Not noise - allocate new cluster and add cur to it
+        cluster_counter++;
+        ret[cur] = cluster_counter;
+        // Go through the neighbours and do a range query for them
+        while (neighbours.size() > 0) {
+            //fprintf(stderr, "neighbours loop %d\n", neighbours.size());
+            uint64_t cur = neighbours.back();
+            neighbours.pop_back();
+            // Search for cur in visited
+            if (visited.find(cur) == visited.end()) {
+                std::list<uint64_t> neighbours2;
+                // Not yet visited
+                visited.insert(cur);
+                // Look at the neighbouring region
+                dbscan_region_query(neighbours2, cur, doc_map, label_map, epsilon);
+                //fprintf(stderr, "neighbours2 loop %d\t%d\n", neighbours2.size(), min_points);
+                if (neighbours2.size() >= min_points) {
+                    for (auto neighbour : neighbours2) {
+                        if (std::find(neighbours.begin(), neighbours.end(), neighbour) == neighbours.end()) continue;
+                        neighbours.push_back(neighbour);
                     }
+                    //fprintf(stderr, "neighbours2 merge %d\t%d\n", neighbours2.size(), neighbours.size());
                 }
-                if (clustered.find(neighbour) == clustered.end()) {
-                    ret[neighbour] = cluster_counter;
-                    clustered.insert(neighbour);
-                }
+            }
+            if (ret.find(cur) == ret.end()) {
+                ret[cur] = cluster_counter;
             }
         }
     }
+    fprintf(stderr, "Clustering... %f\n", visited.size() * 100.0 / doc_map.size());
     return ret;
 }
 
@@ -150,7 +143,7 @@ static int query_callback_domains(void *domains_raw, int argc, char **argv, char
 std::vector<uint64_t> get_domains(sqlite3 *db) {
     char *zErrMsg = NULL;
     std::vector<uint64_t> domains;
-    int rc = sqlite3_exec(db, "SELECT DISTINCT label FROM label_domains ORDER BY label ASC", query_callback_domains, &domains, &zErrMsg);
+    int rc = sqlite3_exec(db, "SELECT label_identifier FROM label_names_domains", query_callback_domains, &domains, &zErrMsg);
     if (rc != SQLITE_OK) {
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
         sqlite3_close(db);
@@ -177,6 +170,7 @@ std::vector<std::vector<uint64_t>> get_domain_combos(std::map<uint64_t, std::vec
     return ret;
 }
 
+// These two functions handle getting documents in a particular domain
 static int callback_doc_domains(void *map, int argc, char **argv, char **col) {
     auto *points = (std::map<uint64_t, std::vector<uint64_t>> *)map;
     uint64_t identifier, label;
@@ -202,7 +196,7 @@ std::map<uint64_t, std::vector<uint64_t>> generate_doc_domain_map(sqlite3 *db) {
     char *zErrMsg = NULL;
     std::map<uint64_t, std::vector<uint64_t>> ret;
 
-    rc = sqlite3_exec(db, "SELECT DISTINCT document_identifier, label FROM label_domains", callback_doc_domains, &ret, &zErrMsg);
+    rc = sqlite3_exec(db, "SELECT document_identifier, label FROM label_domains", callback_doc_domains, &ret, &zErrMsg);
     if (rc != SQLITE_OK) {
         fprintf(stderr, "SQL Error: %s\n", zErrMsg);
         sqlite3_close(db);
@@ -212,6 +206,7 @@ std::map<uint64_t, std::vector<uint64_t>> generate_doc_domain_map(sqlite3 *db) {
     return ret;
 }
 
+// This produces the forward document_id -> labels map
 std::map<uint64_t, std::vector<uint64_t>> generate_doc_label_map(sqlite3 *db, char *src_table) {
     size_t query_len;
     char *query;
@@ -242,50 +237,65 @@ std::map<uint64_t, std::vector<uint64_t>> generate_doc_label_map(sqlite3 *db, ch
     return ret;
 }
 
+void filter_documents_to_cluster_combo(std::vector<uint64_t> &filtered,
+                                       std::vector<uint64_t> combo,
+                                       std::map<uint64_t, std::vector<uint64_t>> doc_map) {
+    for (auto &kv : doc_map) {
+        if(kv.second == combo) {
+            filtered.push_back(kv.first);
+        }
+    }
+}
+
+std::map<uint64_t, std::vector<uint64_t>> invert_docid_to_label_map(std::map<uint64_t, std::vector<uint64_t>> &input) {
+    std::map<uint64_t, std::vector<uint64_t>> output;
+    for (auto &kv : input) {
+        for (auto label : kv.second) {
+            output[label].push_back(kv.first);
+        }
+    }
+    return output;
+}
+
 std::map<uint64_t, uint64_t> cluster(sqlite3 *db, char *src_table, float epsilon, int minpoints) {
+    fprintf(stderr, "Fetching domains...\n");
     std::vector<uint64_t> domains = get_domains(db);
-    std::map<uint64_t, std::vector<uint64_t>> doc_map = generate_doc_domain_map(db);
-    std::map<uint64_t, std::vector<uint64_t>> label_map = generate_doc_label_map(db, src_table);
-    std::vector<std::vector<uint64_t>> combos = get_domain_combos(doc_map);
+    fprintf(stderr, "Generating document id -> domain map...\n");
+    std::map<uint64_t, std::vector<uint64_t>> doc_domain_map = generate_doc_domain_map(db);
+    // This is a label_identifier -> list of document identifiers mapping
+    fprintf(stderr, "Generating document_id -> labels map...\n");
+    std::map<uint64_t, std::vector<uint64_t>> doc_idlabel_map = generate_doc_label_map(db, src_table);
+    fprintf(stderr, "Inverting to get the label -> document_ids map...\n");
+    std::map<uint64_t, std::vector<uint64_t>> doc_labelid_map = invert_docid_to_label_map(doc_idlabel_map);
+    fprintf(stderr, "Generating domain combinations...\n");
+    std::vector<std::vector<uint64_t>> combos = get_domain_combos(doc_domain_map    );
 
     std::map<uint64_t, uint64_t> ret;
     unsigned int cluster_counter = 0;
     for (auto combo : combos) {
         std::vector<uint64_t> identifiers;
-        std::map<uint64_t, std::vector<uint64_t>> points, filtered;
-        std::vector<bool> distances;
+        std::map<uint64_t, std::vector<uint64_t>> points;
+        std::vector<uint64_t> filtered;
+        std::list<uint64_t> filtered2;
         int cluster_item_map_offset = 0;
         std::map<uint64_t, uint64_t> cluster_item_map;
-        std::vector<std::vector<uint64_t>> cluster_items;
-        fprintf(stderr, "Filtering...\n");
-        for (auto &kv : doc_map) {
-            if (kv.second == combo) {
-                identifiers.push_back(kv.first);
-            }
-        }
-        for (auto &kv : label_map) {
-            auto id = kv.first;
-            auto it = std::find(identifiers.begin(), identifiers.end(), id);
-            if (it == identifiers.end()) continue;
-            points.insert(kv);
-        }
+        std::list<uint64_t> cluster_items;
+
+        fprintf(stderr, "Filtering documents based on domain...\n");
+        filter_documents_to_cluster_combo(filtered, combo, doc_domain_map);
 
         // Points now contains everything with this combination of domains
         // Now get rid of everything with only one label
-        for (auto it = points.begin(); it != points.end(); ++it) {
-            if (it->second.size() < 2) continue;
-            filtered[it->first] = it->second;
+        fprintf(stderr, "Filtering documents based on label count...\n");
+        for (auto identifier : filtered) {
+            auto labels = doc_idlabel_map[identifier];
+            if (labels.size() < 2) continue;
+            filtered2.push_back(identifier);
         }
 
-        for (auto it = filtered.begin(); it != filtered.end(); ++it) {
-            cluster_items.push_back(it->second);
-            cluster_item_map[cluster_item_map_offset++] = it->first;
-        }
-        // Now compute distances
-        distances = compute_distances(cluster_items, epsilon);
         // Now cluster
         fprintf(stderr, "Clustering...\n");
-        std::map<const uint64_t, uint64_t> result = dbscan(cluster_items, distances, minpoints);
+        std::map<const uint64_t, uint64_t> result = dbscan(filtered2, doc_idlabel_map, doc_labelid_map, epsilon, minpoints);
         // Transcribe the result
         std::map<uint64_t, uint64_t> cluster_map;
         for (auto& kv : result) {
@@ -304,7 +314,7 @@ std::map<uint64_t, uint64_t> cluster(sqlite3 *db, char *src_table, float epsilon
                     mapped_cluster_id = cluster_map[it->first];
                 }
             }
-            ret.insert(std::pair<uint64_t, uint64_t>(cluster_item_map[kv.first], mapped_cluster_id));
+            ret.insert(std::pair<uint64_t, uint64_t>(kv.first, mapped_cluster_id));
         }
     }
     return ret;
@@ -402,6 +412,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    // Truncate the output table if we've been asked to
     if (truncate) {
         // If truncating the table, need to create the query
         query_len = strlen(TRUNCATE_QUERY);
@@ -425,7 +436,7 @@ int main(int argc, char **argv) {
         free(query);
     }
 
-
+    // Create the insert query
     fprintf(stderr, "Preparing insert query...\n");
     // Create the insert string
     query_len = strlen(INSERT_QUERY);
@@ -446,6 +457,7 @@ int main(int argc, char **argv) {
     }
 
     fprintf(stderr, "Clustering...\n");
+    //  Run the clustering algorithm
     auto result = cluster(db, src_table, epsilon, minpoints);
     fprintf(stderr, "Outputting...\n");
     for (auto it = result.begin(); it != result.end(); ++it) {
