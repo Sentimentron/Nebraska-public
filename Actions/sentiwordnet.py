@@ -8,10 +8,30 @@
 import logging
 from templabeller import LiteralLabeller
 
-class SentiWordNetStrengthLabeller(LiteralLabeller):
+class SentiWordNetPositiveStrengthLabeller(LiteralLabeller):
 
     def __init__(self, xml):
-        super(SentiWordNetStrengthLabeller, self).__init__(xml)
+        super(SentiWordNetPositiveStrengthLabeller, self).__init__(xml)
+        self.threshold = float(xml.get("threshold"))
+        self.swr = SentiWordNetReader()
+
+    def label(self, document):
+        for word in document.split(' '):
+            word = word.lower().strip()
+            if len(word) == 0:
+                continue
+            score = self.swr.get_max_tuple(word)
+            if score is None:
+                continue
+            pos, neg = score
+            if pos >= self.threshold:
+                return 1
+        return 0
+
+class SentiWordNetPositiveOrNegativeStrengthLabeller(LiteralLabeller):
+
+    def __init__(self, xml):
+        super(SentiWordNetPositiveOrNegativeStrengthLabeller, self).__init__(xml)
         self.threshold = float(xml.get("threshold"))
         self.swr = SentiWordNetReader()
 
