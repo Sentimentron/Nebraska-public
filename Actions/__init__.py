@@ -35,7 +35,7 @@ from posfilter import RewritePOSFilter, POSWhiteListUnpopularTags, POSRewriteFro
 
 from domain import DomainLabeller
 
-from sentiwordnet import SentiWordNetStrengthLabeller
+from sentiwordnet import SentiWordNetPositiveOrNegativeStrengthLabeller, SentiWordNetPositiveStrengthLabeller
 
 try:
     from pythonclassifiers import PythonClassifiers
