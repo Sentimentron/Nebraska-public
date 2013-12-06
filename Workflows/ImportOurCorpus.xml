@@ -1,0 +1,22 @@
+<Workflow>
+
+	<WorkflowOptions>
+		<WorkflowName>Imports our Corpus</WorkflowName>
+		<WorkflowDescription>Imports tweets from our corpus that have a majority aggreement on classification.</WorkflowDescription>
+		<RetainOutputFile path="ourtweets.sqlite"/>
+		<DisableUntrackedFileCheck />
+	</WorkflowOptions>
+
+    <Tables>
+        <SaschaInputTable />
+    </Tables>
+
+	<InputSources>
+		<OurInputSource dir="Data/Intrinsic/Ours" />
+	</InputSources>
+
+    <WorkflowTasks>
+
+    </WorkflowTasks>
+
+</Workflow>
