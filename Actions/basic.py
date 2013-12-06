@@ -5,6 +5,8 @@
     This module contains basic string filtering tasks
 """
 
+import logging
+
 class BasicFilter(object):
     """
         BasicFilter deletes any documents which match the filterText
@@ -72,6 +74,9 @@ class BasicFilter(object):
         like_string = self.construct_like_string()
         cursor.execute(sql, (like_string,))
         conn.commit()
+        logging.info("Vacuuming...");
+        cursor.execute("VACUUM");
+        conn.commit();
         return True, conn
 
 class BasicNotFilter(BasicFilter):
@@ -87,6 +92,9 @@ class BasicNotFilter(BasicFilter):
         like_string = self.construct_like_string()
         cursor.execute(sql, (like_string,))
         conn.commit()
+        logging.info("Vacuuming...");
+        cursor.execute("VACUUM");
+        conn.commit();
         return True, conn
 
 class LineBreakFilter(object):
@@ -111,4 +119,7 @@ class LineBreakFilter(object):
 %'"""
         cursor.execute(sql)
         conn.commit()
+        logging.info("Vacuuming...");
+        cursor.execute("VACUUM");
+        conn.commit();
         return True, conn

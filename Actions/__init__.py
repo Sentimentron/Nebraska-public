@@ -19,7 +19,7 @@ from semval import SemvalInputSource
 from templabeller import HashTagLabeller, AtMentionLabeller, BasicWordLabeller, BigramLabeller, LengthLabeller, SpecialCharacterLengthLabeller, ProbablySpamUnicodeLabeller, EmoticonLabeller, TrainingTestSplitLabeller
 from ml import ClusterLabeller
 
-from filter import LabelFilter, HasLabelFilter
+from filter import LabelFilter, HasLabelFilter, HasNoLabelFilter
 
 from db import create_sqlite_temp_path, create_sqlite_connection
 
