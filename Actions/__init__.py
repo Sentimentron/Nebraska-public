@@ -37,6 +37,7 @@ from domain import DomainLabeller
 
 from sentiwordnet import SentiWordNetPositiveOrNegativeStrengthLabeller, SentiWordNetPositiveStrengthLabeller
 
+from ourinput import OurInputSource
 try:
     from pythonclassifiers import PythonClassifiers
 except ImportError:
