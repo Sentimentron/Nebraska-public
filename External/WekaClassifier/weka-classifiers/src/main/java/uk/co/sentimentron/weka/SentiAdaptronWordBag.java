@@ -21,22 +21,22 @@ import java.util.Map.Entry;
 
 public class SentiAdaptronWordBag {
 
-    public static void main(String args[]) {
-        // Open connection to SQLite database
-        Connection c = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:turkgimpel.sqlite");
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() + "\nDo you have the SQLite JDBC in your classpath? get it at: https://bitbucket.org/xerial/sqlite-jdbc/downloads" );
-            System.exit(1);
-        }
-        SentiAdaptronWordBag temp = new SentiAdaptronWordBag(true);
-        int[] ids = {16,20,33};
-        temp.constructInstances(c, ids);
-        temp.keepTopN(3);
-        temp.printInstances();
-    }
+    // public static void main(String args[]) {
+    //     // Open connection to SQLite database
+    //     Connection c = null;
+    //     try {
+    //         Class.forName("org.sqlite.JDBC");
+    //         c = DriverManager.getConnection("jdbc:sqlite:turkgimpel.sqlite");
+    //     } catch ( Exception e ) {
+    //         System.err.println( e.getClass().getName() + ": " + e.getMessage() + "\nDo you have the SQLite JDBC in your classpath? get it at: https://bitbucket.org/xerial/sqlite-jdbc/downloads" );
+    //         System.exit(1);
+    //     }
+    //     SentiAdaptronWordBag temp = new SentiAdaptronWordBag("sanders", "gimpel", true);
+    //     int[] ids = {1,20,295};
+    //     temp.constructInstances(c, ids);
+    //     temp.keepTopN(3);
+    //     temp.printInstances();
+    // }
 
     Instances data_set;
     int num_tokens;
@@ -47,9 +47,15 @@ public class SentiAdaptronWordBag {
     // Tree map for storing word index -> frequency
     TreeMap<String,Integer> frequencies;
     boolean debug;
+    // What corpus the data comes from (needed to determine the name of the labels table)
+    String corpus;
+    // What POS tagger was used (needed to determine the name of the pos table)
+    String pos_tagger;
 
-    public SentiAdaptronWordBag(boolean debug) {
+    public SentiAdaptronWordBag(String corpus, String pos_tagger, boolean debug) {
         this.debug = debug;
+        this.corpus = corpus;
+        this.pos_tagger = pos_tagger;
         stop_words = new TreeSet<String>();
         remove_names = new LinkedList<String>();
         frequencies = new TreeMap<String, Integer>();
@@ -67,14 +73,17 @@ public class SentiAdaptronWordBag {
         }
         try {
             for(int i=0; i<document_identifiers.length; i++) {
-                query = "SELECT tokenized_form FROM pos_gimpel WHERE document_identifier = " + document_identifiers[i];
+                query = "SELECT tokenized_form, label FROM pos_"+pos_tagger+" NATURAL JOIN temporary_label_"+corpus+" WHERE document_identifier = " + document_identifiers[i];
+                //query = "SELECT tokenized_form FROM pos_gimpel WHERE document_identifier = " + document_identifiers[i];
+                System.out.println(query);
                 Statement stmt = c.createStatement();
                 ResultSet rs = stmt.executeQuery(query);
                 tokenised_form = rs.getString("tokenized_form");
+                String class_label = rs.getString("label");
                 SparseInstance inst = new SparseInstance(num_tokens);
                 inst.setDataset(data_set);
-                // Set the class index to 0 until we figure out how to do it properly
-                inst.setClassValue("1");
+                // Note that to save space the sparse instance class doesn't store the first nominal attribute so attributes with a class label of -1 wont show up in print statements
+                inst.setClassValue(class_label);
                 for(String token : tokenised_form.split(" ")) {
                     // Dont keep frequency counts of stop words
                     if(!remove_names.contains(token) ) {
@@ -187,7 +196,7 @@ public class SentiAdaptronWordBag {
     // Add all of the tokens as attributes to our Instances object as we filter them out later.
     public void determineAttributes(Connection c) {
         try {
-            String query = "SELECT identifier, token FROM pos_tokens_gimpel";
+            String query = "SELECT identifier, token FROM pos_tokens_"+pos_tagger;
             Statement stmt = c.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             ArrayList<Attribute> attributes = new ArrayList<Attribute>();
@@ -250,7 +259,7 @@ public class SentiAdaptronWordBag {
         Statement stmt;
         ResultSet rs;
         try {
-            query = "SELECT COUNT(*) AS token_count FROM pos_tokens_gimpel";
+            query = "SELECT COUNT(*) AS token_count FROM pos_tokens_"+pos_tagger;
             stmt = c.createStatement();
             rs = stmt.executeQuery(query);
             num_tokens = rs.getInt("token_count");
