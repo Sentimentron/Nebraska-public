@@ -15,6 +15,9 @@ import java.util.TreeSet;
 import java.util.LinkedList;
 import java.util.Enumeration;
 import java.util.*;
+import java.util.Map;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map.Entry;
 
 public class SentiAdaptronWordBag {
 
@@ -29,9 +32,9 @@ public class SentiAdaptronWordBag {
             System.exit(1);
         }
         SentiAdaptronWordBag temp = new SentiAdaptronWordBag(true);
-        int[] ids = {16}; //{16,20,33};
+        int[] ids = {16,20,33};
         temp.constructInstances(c, ids);
-        //temp.keepTopN(4);
+        temp.keepTopN(3);
         temp.printInstances();
     }
 
@@ -74,7 +77,7 @@ public class SentiAdaptronWordBag {
                 inst.setClassValue("1");
                 for(String token : tokenised_form.split(" ")) {
                     // Dont keep frequency counts of stop words
-                    if(!stop_words.contains(token) ) {
+                    if(!remove_names.contains(token) ) {
                         updateFrequency(token);
                     }
                     inst.setValue(Integer.parseInt(token), 1);
@@ -93,21 +96,34 @@ public class SentiAdaptronWordBag {
         }
     }
 
+    Iterator valueIterator(TreeMap map) {
+        Set set = new TreeSet(new Comparator<Map.Entry<String, Integer>>() {
+            @Override
+            public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2) {
+                return  o1.getValue().compareTo(o2.getValue()) > 0 ? -1 : 1;
+            }
+        });
+        set.addAll(map.entrySet());
+        return set.iterator();
+    }
+
     // Removes all words but those with the N largest frequencies
     public void keepTopN(int n) {
-        NavigableSet<String> ordered = frequencies.descendingKeySet();
-        Iterator i = ordered.iterator();
+        Iterator i = valueIterator(frequencies);
         int count = 0;
         // Dont filter the class label
         String exp = "(label|";
         boolean broke_early = false;
         while(i.hasNext()) {
+            Entry<String,Integer> temp = (Entry<String,Integer>)i.next();
             if(count >= n) {
                 broke_early=true;
                 break;
             }
-            String x = (String)i.next();
-            exp = exp + x + "|";
+            if(debug) {
+                System.out.println("Keeping " + temp.getKey() + " with frequency of " + temp.getValue());
+            }
+            exp = exp + temp.getKey() + "|";
             count++;
         }
         if(!broke_early) {
@@ -134,10 +150,17 @@ public class SentiAdaptronWordBag {
     public void updateFrequency(String index) {
         if(frequencies.get(index) == null ) {
             frequencies.put(index, 1);
+            if(debug) {
+                System.out.println("Frequency of " + index +" is 1");
+            }
         } else {
             Integer current = frequencies.get(index);
             frequencies.remove(index);
-            frequencies.put(index, new Integer(current+1));
+            current = current +1;
+            frequencies.put(index, current);
+            if(debug) {
+                System.out.println("Frequency of " + index + " is " + current);
+            }
         }
     }
 
@@ -150,7 +173,6 @@ public class SentiAdaptronWordBag {
                 // For reasons unknown to me the RemoveByName filter increments each index by 1 so decrement it here by 1
                 int ind = Integer.parseInt(name);
                 exp = exp + "|(" + ind + ")";
-
             }
             exp = exp + ")";
             filter.setExpression(exp);
