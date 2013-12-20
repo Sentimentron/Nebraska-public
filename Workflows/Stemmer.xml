@@ -1,0 +1,21 @@
+<Workflow>
+
+	<WorkflowOptions>
+		<WorkflowName>Stemmer</WorkflowName>
+		<WorkflowDescription> Stems words in the input table</WorkflowDescription>
+		<RetainOutputFile path="stemmed.sqlite"/>
+		<DisableUntrackedFileCheck />
+	</WorkflowOptions>
+
+    <Tables>
+    </Tables>
+
+	<InputSources>
+		<PreviousWorkflow path="Workflows/ImportTwitter.xml"  />
+	</InputSources>
+
+    <WorkflowTasks>
+		<Stemmer dest="test" verbose="true" />
+    </WorkflowTasks>
+
+</Workflow>
