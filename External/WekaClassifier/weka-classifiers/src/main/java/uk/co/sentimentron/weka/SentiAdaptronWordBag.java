@@ -179,7 +179,6 @@ public class SentiAdaptronWordBag {
             BetterRemoveByName filter = new BetterRemoveByName();
             String exp = "(";
             for(String name: remove_names) {
-                // For reasons unknown to me the RemoveByName filter increments each index by 1 so decrement it here by 1
                 int ind = Integer.parseInt(name);
                 exp = exp + "|(" + ind + ")";
             }
