@@ -1,9 +1,10 @@
 source 'https://rubygems.org'
 
 group :development do
-  gem 'tweetstream' # For working with the twitter streaming API
+ # gem 'tweetstream' # For working with the twitter streaming API
   gem 'mysql'
   gem 'whatlanguage'
   gem 'feedzirra'
   gem 'nokogiri'
+  gem 'twitter', '5.0.0.rc.1'
 end
