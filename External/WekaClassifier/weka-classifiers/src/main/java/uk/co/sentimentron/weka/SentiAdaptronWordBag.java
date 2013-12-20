@@ -46,11 +46,17 @@ public class SentiAdaptronWordBag {
     LinkedList<String> remove_names;
     // Tree map for storing word index -> frequency
     TreeMap<String,Integer> frequencies;
+    // HashMap for storing attribute -> attributeData
+    HashMap<String, AttributeData> att_data;
     boolean debug;
     // What corpus the data comes from (needed to determine the name of the labels table)
     String corpus;
     // What POS tagger was used (needed to determine the name of the pos table)
     String pos_tagger;
+    // Keep track of the number of each class we have
+    int positive;
+    int negative;
+    int neutral;
 
     public SentiAdaptronWordBag(String corpus, String pos_tagger, boolean debug) {
         this.debug = debug;
@@ -59,6 +65,10 @@ public class SentiAdaptronWordBag {
         stop_words = new TreeSet<String>();
         remove_names = new LinkedList<String>();
         frequencies = new TreeMap<String, Integer>();
+        att_data = new HashMap<String, AttributeData>();
+        positive = 0;
+        negative = 0;
+        neutral = 0;
         loadStopWords();
 
     }
@@ -84,6 +94,7 @@ public class SentiAdaptronWordBag {
                 inst.setDataset(data_set);
                 // Note that to save space the sparse instance class doesn't store the first nominal attribute so attributes with a class label of -1 wont show up in print statements
                 inst.setClassValue(class_label);
+                updateLabelCount(class_label);
                 for(String token : tokenised_form.split(" ")) {
                     // Dont keep frequency counts of stop words
                     if(!remove_names.contains(token) ) {
@@ -142,12 +153,38 @@ public class SentiAdaptronWordBag {
         filterAllExcept(exp);
     }
 
+    public void keepWithEntropyBelow(double n) {
+        // Get all of the values in the hashmap
+        ArrayList<AttributeData> atts = (ArrayList)att_data.values();
+        Iterator<AttributeData> it = atts.iterator();
+        String remove = "";
+        while(it.hasNext()) {
+            AttributeData temp = it.next();
+            if(temp.getEntropy(positive, negative, neutral) > n) {
+                remove += temp.getToken() + "|";
+            }
+        }
+        filterAll(remove);
+    }
+
     // Removes all of the attributes from the instances object except those specified in the regular expression
     private void filterAllExcept(String exp) {
         try {
             BetterRemoveByName filter = new BetterRemoveByName();
             filter.setExpression(exp);
             filter.setInvertSelection(true);
+            filter.setInputFormat(data_set);
+            data_set = Filter.useFilter(data_set, filter);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Removes all of the attributes from the instances object specified in the regular expression
+    private void filterAll(String exp) {
+        try {
+            BetterRemoveByName filter = new BetterRemoveByName();
+            filter.setExpression(exp);
             filter.setInputFormat(data_set);
             data_set = Filter.useFilter(data_set, filter);
         } catch(Exception e) {
@@ -218,6 +255,9 @@ public class SentiAdaptronWordBag {
                     // If this token is a stop word note the index and we'll remove it later
                     if( (stop_words.contains(word[1]) ))  {
                         remove_names.add(Integer.toString(index));
+                    } else {
+                        // If its not a stop word create an attribute data object for it
+                        att_data.put(Integer.toString(index), new AttributeData(Integer.toString(index)));
                     }
                 } catch(Exception e) {}
                 // The attribute is the index of the token
@@ -288,6 +328,16 @@ public class SentiAdaptronWordBag {
             count++;
         }
         return count;
+    }
+
+    private void updateLabelCount(String label) {
+        if(label.equals("1")) {
+            positive++;
+        } else if(label.equals("0")) {
+            neutral++;
+        } else if(label.equals("-1")) {
+            negative++;
+        }
     }
 
 }
