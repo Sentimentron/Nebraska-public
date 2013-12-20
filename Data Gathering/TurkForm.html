@@ -1,0 +1,57 @@
+<script>
+
+function printTweet() {
+    //var tweet = "This is my tweet with many words in it.";
+    var element = document.getElementById('tweet');
+    var tweet = element.textContent || element.innerText;
+    var words = tweet.split(" ");
+    var index = 1;
+    document.getElementById("tweet").innerHTML = "";
+    for (var i = 0; i < words.length; i++) {
+        document.write( words[i] + "<sup>" + index + "</sup> ");
+    }
+}
+
+</script>
+<p>The Tweet is -</p>
+
+<div id="tweet">${tweet}</div>
+<script> printTweet() </script>
+
+<p><br />
+The overal sentiment of Tweet is:</p>
+
+<p><input name="sentiment" type="radio" value="positive" /> Positive<br />
+<input name="sentiment" type="radio" value="negative" /> Negative<br />
+<input name="sentiment" type="radio" value="neutral" /> Neutral<br />
+<input name="sentiment" type="radio" value="irrelevant" /> Irrelevant<br />
+<br />
+
+Subjective Phrase 1: <input name="phrase1begin" placeholder="start index" type="text" /> to
+<input name="phrase1end" placeholder="end index" type="text" />
+<input name="phrase1words" placeholder="phrase words" size="50" type="text" />
+<input name="sentimentphrase1" type="radio" value="positive" /> Positive
+<input name="sentimentphrase1" type="radio" value="negative" /> Negative
+<input name="sentimentphrase1" type="radio" value="neutral" /> Neutral<br />
+
+
+Subjective Phrase 2: <input name="phrase2begin" placeholder="start index" type="text" /> to
+<input name="phrase2end" placeholder="end index" type="text" />
+<input name="phrase2words" placeholder="phrase words" size="50" type="text" />
+<input name="sentimentphrase2" type="radio" value="positive" /> Positive
+<input name="sentimentphrase2" type="radio" value="negative" /> Negative
+<input name="sentimentphrase2" type="radio" value="neutral" /> Neutral<br />
+
+Subjective Phrase 3: <input name="phrase3begin" placeholder="start index" type="text" /> to
+<input name="phrase3end" placeholder="end index" type="text" />
+<input name="phrase3words" placeholder="phrase words" size="50" type="text" />
+<input name="sentimentphrase3" type="radio" value="positive" /> Positive
+<input name="sentimentphrase3" type="radio" value="negative" /> Negative
+<input name="sentimentphrase3" type="radio" value="neutral" /> Neutral<br />
+
+Subjective Phrase 4: <input name="phrase4begin" placeholder="start index" type="text" /> to
+<input name="phrase4end" placeholder="end index" type="text" />
+<input name="phrase4words" placeholder="phrase words" size="50" type="text" />
+<input name="sentimentphrase4" type="radio" value="positive" /> Positive
+<input name="sentimentphrase4" type="radio" value="negative" /> Negative
+<input name="sentimentphrase4" type="radio" value="neutral" /> Neutral<br />
