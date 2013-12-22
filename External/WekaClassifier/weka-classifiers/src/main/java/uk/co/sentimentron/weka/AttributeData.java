@@ -1,9 +1,10 @@
 public class AttributeData {
 
-    private int positive;
-    private int negative;
-    private int neutral;
+    private double positive;
+    private double negative;
+    private double neutral;
     private String token;
+    private double entropy;
 
 
     AttributeData(String token) {
@@ -26,23 +27,49 @@ public class AttributeData {
     }
 
     public double getEntropy(int total_pos, int total_neut, int total_neg) {
-        double pos_proportion = (positive / total_pos);
-        double pos_ent = - pos_proportion * log2(pos_proportion);
+        double pos_ent;
+        double neut_ent;
+        double negative_ent;
 
-        double neutral_proportion = (neutral / total_neut);
-        double neut_ent = - neutral_proportion * log2(neutral_proportion);
+        if(total_pos == 0) {
+            System.out.println("Warning: Total number of positive instances was 0");
+            pos_ent = 0;
+        } else {
+            double pos_proportion = (positive / total_pos);
+            pos_ent = (pos_proportion*-1) * log2(pos_proportion);
+        }
 
-        double negative_proportion = (negative / total_neg);
-        double negative_ent = - negative_proportion * log2(negative_proportion);
+        if(total_neut == 0) {
+            System.out.println("Warning: Total number of neutral instances was 0");
+            neut_ent = 0;
+        } else {
+            double neutral_proportion = (neutral / total_neut);
+            neut_ent = (neutral_proportion*-1) * log2(neutral_proportion);
+        }
 
+        if(total_neg == 0) {
+            System.out.println("Warning: Total number of negative instances was 0");
+            negative_ent = 0;
+        } else {
+            double negative_proportion = (negative / total_neg);
+            negative_ent = (negative_proportion*-1) * log2(negative_proportion);
+        }
+        entropy = pos_ent + neut_ent + negative_ent;
         return pos_ent + neut_ent + negative_ent;
     }
 
     private double log2(double num) {
+        if(num == 0) {
+            return 0;
+        }
         return Math.log(num)/Math.log(2);
     }
 
     public String getToken() {
         return token;
+    }
+
+    public String toString() {
+        return "Token " + token + " Positive occurences " + positive + " Negative occurences " + negative + " Neutral occurences " + neutral + " with entropy of " + entropy;
     }
 }
