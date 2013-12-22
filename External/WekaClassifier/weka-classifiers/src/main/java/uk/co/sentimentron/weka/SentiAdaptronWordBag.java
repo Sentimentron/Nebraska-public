@@ -21,22 +21,24 @@ import java.util.Map.Entry;
 
 public class SentiAdaptronWordBag {
 
-    // public static void main(String args[]) {
-    //     // Open connection to SQLite database
-    //     Connection c = null;
-    //     try {
-    //         Class.forName("org.sqlite.JDBC");
-    //         c = DriverManager.getConnection("jdbc:sqlite:turkgimpel.sqlite");
-    //     } catch ( Exception e ) {
-    //         System.err.println( e.getClass().getName() + ": " + e.getMessage() + "\nDo you have the SQLite JDBC in your classpath? get it at: https://bitbucket.org/xerial/sqlite-jdbc/downloads" );
-    //         System.exit(1);
-    //     }
-    //     SentiAdaptronWordBag temp = new SentiAdaptronWordBag("sanders", "gimpel", true);
-    //     int[] ids = {1,20,295};
-    //     temp.constructInstances(c, ids);
-    //     temp.keepTopN(3);
-    //     temp.printInstances();
-    // }
+    public static void main(String args[]) {
+        // Open connection to SQLite database
+        Connection c = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:turkgimpel.sqlite");
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() + "\nDo you have the SQLite JDBC in your classpath? get it at: https://bitbucket.org/xerial/sqlite-jdbc/downloads" );
+            System.exit(1);
+        }
+        SentiAdaptronWordBag temp = new SentiAdaptronWordBag("sanders", "gimpel", false);
+        //int[] ids = {1,20,295};
+        int[] ids = {1,2,3, 4};
+        temp.constructInstances(c, ids);
+        //temp.keepTopN(10);
+        //temp.keepWithEntropyAbove(0.4);
+        temp.printInstances();
+    }
 
     Instances data_set;
     int num_tokens;
@@ -84,8 +86,6 @@ public class SentiAdaptronWordBag {
         try {
             for(int i=0; i<document_identifiers.length; i++) {
                 query = "SELECT tokenized_form, label FROM pos_"+pos_tagger+" NATURAL JOIN temporary_label_"+corpus+" WHERE document_identifier = " + document_identifiers[i];
-                //query = "SELECT tokenized_form FROM pos_gimpel WHERE document_identifier = " + document_identifiers[i];
-                System.out.println(query);
                 Statement stmt = c.createStatement();
                 ResultSet rs = stmt.executeQuery(query);
                 tokenised_form = rs.getString("tokenized_form");
@@ -100,6 +100,8 @@ public class SentiAdaptronWordBag {
                     if(!remove_names.contains(token) ) {
                         updateFrequency(token);
                     }
+                    // We need to update the count of the positive, negative and neutral instances for each attribute
+                    updateAttributeLabelCounts(token, class_label);
                     inst.setValue(Integer.parseInt(token), 1);
                 }
                 data_set.add(inst);
@@ -112,7 +114,21 @@ public class SentiAdaptronWordBag {
                 System.out.println(countAttributes() + " attributes after removing stop words");
             }
         } catch(Exception e) {
+            // Chances are if we end up here we couldn't find a label for the tweet
+            System.out.println("Error finding a label for instance");
             e.printStackTrace();
+        }
+    }
+
+    private void updateAttributeLabelCounts(String token, String label) {
+        // Get the right attribute object from the hash table
+        AttributeData temp = att_data.get(token);
+        if(label.equals("1")) {
+            temp.addPositive();
+        } else if(label.equals("0")) {
+            temp.addNeutral();
+        } else if(label.equals("-1")) {
+            temp.addNegative();
         }
     }
 
@@ -152,15 +168,50 @@ public class SentiAdaptronWordBag {
         exp = exp + ")";
         filterAllExcept(exp);
     }
-
+    // Keeps all the attributes with an entropy below n
     public void keepWithEntropyBelow(double n) {
         // Get all of the values in the hashmap
-        ArrayList<AttributeData> atts = (ArrayList)att_data.values();
+        Collection<AttributeData> atts = att_data.values();
         Iterator<AttributeData> it = atts.iterator();
         String remove = "";
         while(it.hasNext()) {
             AttributeData temp = it.next();
-            if(temp.getEntropy(positive, negative, neutral) > n) {
+            double entropy = temp.getEntropy(positive, negative, neutral);
+            if(debug) {
+                if(entropy >= 0) {
+                    System.out.println("Entropy of " + temp.getToken() + " is " + entropy);
+                }
+            }
+            // If the entropy of this attribute is greater than n remove it
+            if(entropy > n) {
+                if(debug) {
+                    System.out.println("Removing " + temp.getToken() + " with entropy of " + entropy);
+                }
+                remove += temp.getToken() + "|";
+            }
+        }
+        filterAll(remove);
+    }
+
+    // Keeps all the attributes with an entropy above n
+    public void keepWithEntropyAbove(double n) {
+        // Get all of the values in the hashmap
+        Collection<AttributeData> atts = att_data.values();
+        Iterator<AttributeData> it = atts.iterator();
+        String remove = "";
+        while(it.hasNext()) {
+            AttributeData temp = it.next();
+            double entropy = temp.getEntropy(positive, negative, neutral);
+            if(debug) {
+                if(entropy >= 0) {
+                    System.out.println("Entropy of " + temp.getToken() + " is " + entropy);
+                }
+            }
+            // If the entropy of this attribute is less than n remove it
+            if(entropy < n) {
+                if(debug) {
+                    System.out.println("Removing " + temp.getToken() + " with entropy of " + entropy);
+                }
                 remove += temp.getToken() + "|";
             }
         }
@@ -255,10 +306,9 @@ public class SentiAdaptronWordBag {
                     // If this token is a stop word note the index and we'll remove it later
                     if( (stop_words.contains(word[1]) ))  {
                         remove_names.add(Integer.toString(index));
-                    } else {
-                        // If its not a stop word create an attribute data object for it
-                        att_data.put(Integer.toString(index), new AttributeData(Integer.toString(index)));
                     }
+                    // If its not a stop word create an attribute data object for it
+                    att_data.put(Integer.toString(index), new AttributeData(Integer.toString(index)));
                 } catch(Exception e) {}
                 // The attribute is the index of the token
                 Attribute temp = new Attribute(Integer.toString(index));
