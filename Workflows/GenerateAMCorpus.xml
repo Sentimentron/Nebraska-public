@@ -1,0 +1,25 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>Mechanical Turk Corpus Generator</WorkflowName>
+        <WorkflowDescription>Filters SpamFight documents using SentiWordNet</WorkflowDescription>
+        <RetainOutputFile path="turk.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <TemporaryLabelTable name="strength" />
+    </Tables>
+
+    <InputSources>
+        <PreviousWorkflow path="Workflows/SpamFight.xml"  />
+    </InputSources>
+
+    <WorkflowTasks>
+        <SentiWordNetPositiveOrNegativeStrengthLabeller threshold="0.3" dest="strength" />
+        <LabelFilter src="strength" temporary="true" delete="true">
+            <RetainLabel id="1" />
+        </LabelFilter>
+    </WorkflowTasks>
+
+</Workflow>

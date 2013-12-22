@@ -10,6 +10,8 @@ from db import create_sqlite_temp_path, create_sqlite_label_table
 import csv
 import unicodedata
 
+import gc
+
 class TwitterCompressedDBInputSource(object):
 
     def __assert_path_exists(self):
@@ -22,22 +24,14 @@ class TwitterCompressedDBInputSource(object):
 
     def decompress(self):
         tmp = create_sqlite_temp_path()
-        try:
-            logging.info("Decompressing '%s' to '%s'...", self.path, tmp)
-            # Open the decompression output
-            tmp_fp = open(tmp, 'w')
-            # Open the decompression input
-            src_fp = open(self.path, 'r')
-            # Decompress the file
-            p = subprocess.Popen(["xz", "-d"], stdin=src_fp, stdout=tmp_fp)
-            p.communicate()
-            # Close the input
-            tmp_fp.close()
-            src_fp.close()
-            return tmp
-        except Exception as ex:
-            os.remove(tmp)
-            raise ex
+        logging.info("Decompressing '%s' to '%s'...", self.path, tmp)
+        # Open decompression output
+        with open(tmp, 'w') as tmp_fp:
+            # Open decompression input
+            with open(self.path, 'r') as src_fp:
+                subprocess.call(["xz", "-d"], stdin=src_fp, stdout=tmp_fp, close_fds=True)
+        gc.collect()
+        return tmp
 
     def run_import(self):
         tmp = self.decompress()
@@ -103,44 +97,3 @@ class TwitterInputSource(object):
         logging.info("Committing input documents...")
         conn.commit()
         return True, conn
-
-class SaschaInputSource(object):
-
-    def __init__(self, xml):
-        self.xml = xml
-        self.directory = xml.get("dir")
-        self.__assert_directory_exists()
-
-
-    def __assert_directory_exists(self):
-        if not os.path.exists(self.directory):
-            raise IOError("SaschaInputSource: directory '%s' does not exist!", (self.directory, ))
-
-    def get_import_files(self):
-        ret = set([])
-        # Get suitable files in the directory
-        for root, _, files in os.walk(self.directory):
-            for filename in files:
-                extension = os.path.splitext(filename)[1][1:].strip()
-                if extension != "tsv":
-                    continue
-                ret.add(os.path.join(root, filename))
-        return ret
-
-    def execute(self, path, conn):
-        create_labelled_input_table(conn)
-        input_sources = self.get_import_files()
-        conn.text_factory = str
-        c = conn.cursor()
-        for source in input_sources:
-            with open(source,'rb') as tsvin:
-                tsvin = csv.reader(tsvin, delimiter='\t')
-                next(tsvin, None)
-                for row in tsvin:
-                    document = unicodedata.normalize('NFKD', unicode(row[0])).encode('ascii', 'ignore')
-                    label = row[3]
-                    c.execute("INSERT INTO labelled_input(document, label) VALUES(?, ?)", (document, label))
-
-        logging.info("Committing sascha input documents...")
-        conn.commit()
-        return True,conn

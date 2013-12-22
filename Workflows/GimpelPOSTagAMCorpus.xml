@@ -1,0 +1,22 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>Mechanical Turk Corpus Generator</WorkflowName>
+        <WorkflowDescription>Filters SpamFight documents using SentiWordNet</WorkflowDescription>
+        <RetainOutputFile path="turkgimpel.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <PartOfSpeechTable name="gimpel" />
+    </Tables>
+
+    <InputSources>
+        <PreviousWorkflow path="Workflows/GenerateAMCorpus.xml"  />
+    </InputSources>
+
+    <WorkflowTasks>
+       <GimpelPOSTagger dest="gimpel" verbose="true" />
+    </WorkflowTasks>
+
+</Workflow>

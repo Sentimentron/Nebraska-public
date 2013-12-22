@@ -4,13 +4,13 @@
 import os
 import csv
 import logging
-
-from Actions.db import create_sqlite_label_table, create_sqlite_temporary_label_table
+import unicodedata
+from Actions.db import create_sqlite_label_table
 from Actions.label import Labeller
 
-class SandersInputSource(object):
+class SaschaInputSource(object):
     """
-        Imports documents from the Sanders corpus
+        Imports documents from the Sascha corpus
     """
 
     def __init__(self, xml):
@@ -21,7 +21,7 @@ class SandersInputSource(object):
     def __assert_directory_exists(self):
         if not os.path.exists(self.directory):
             raise IOError(
-                "SandersInputSource: directory '%s' does not exist!",
+                "SaschaInputSource: directory '%s' does not exist!",
                 (self.directory, )
             )
 
@@ -31,47 +31,30 @@ class SandersInputSource(object):
         for root, _, files in os.walk(self.directory):
             for filename in files:
                 extension = os.path.splitext(filename)[1][1:].strip()
-                if extension != "csv":
+                if extension != "tsv":
                     continue
                 ret.add(os.path.join(root, filename))
         return ret
 
     def execute(self, path, conn):
-        create_sqlite_temporary_label_table("sanders", conn)
-        #create_sqlite_label_table("domains", conn)
-        create_sqlite_label_table("sanders", conn)
-        labeller = Labeller("sanders")
-        #domain_labeller = Labeller("domains")
+        create_sqlite_label_table("sascha", conn)
+        labeller = Labeller("sascha")
         input_sources = self.get_import_files()
         conn.text_factory = str
         c = conn.cursor()
         for source in input_sources:
             with open(source,'rb') as csvin:
-                csvin = csv.reader(csvin, delimiter=',')
+                csvin = csv.reader(csvin, delimiter='\t')
                 next(csvin, None)
                 for row in csvin:
-                    document = row[4]
-                    label = row[1]
-                    domain = row[0]
+                    document = row[3]
+                    label = row[0]
                     c.execute(
                         "INSERT INTO input(document) VALUES(?)",
                         (document,)
                     )
                     inserted = c.lastrowid;
-                    if label == 'positive':
-                        c.execute(
-                            "INSERT INTO temporary_label_sanders VALUES (?, ?)",
-                            (inserted, 1)
-                        )
-                        conn.commit()
-                    elif label == 'negative':
-                        c.execute(
-                            "INSERT INTO temporary_label_sanders VALUES (?, ?)",
-                            (inserted, -1)
-                        )
-                        conn.commit()
                     labeller.associate(inserted, label, conn)
-                    #domain_labeller.associate(inserted, domain, conn)
 
         logging.info("Committing sanders input documents...")
         conn.commit()

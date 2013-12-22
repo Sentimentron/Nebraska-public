@@ -12,6 +12,7 @@ import subprocess
 import random
 from metadata import push_metadata
 import csv
+from db import create_resultstable
 
 class WekaBenchmark(object):
 
@@ -67,6 +68,22 @@ class WekaBenchmark(object):
         logging.debug(args)
         subprocess.check_call(args, shell=True)
         return True, conn
+
+class WekaCrossDomainBenchmark(WekaBenchmark):
+    def execute(self, path, conn):
+        args = ["WekaCrossDomainBenchmark",
+            "-t", path,
+            "-T", self.pos_table,
+            "-L", self.label_table,
+            "-x", str(self.folds),
+            "-s", str(self.seed),
+            "-W", self.classifier
+        ]
+        args = ' '.join(args)
+        logging.debug(args)
+        subprocess.check_call(args, shell=True)
+        return True, conn
+
 
 class WekaClassify(object):
 
@@ -125,6 +142,30 @@ class WekaClassify(object):
         subprocess.check_call(args, shell=True)
         return True, conn
 
+class WekaBenchmarkExport(object):
+
+    def __init__(self, xml):
+        self.output_file = xml.get("name")
+
+    def execute(self, path, conn):
+        logging.info("Exporting results to %s" % self.output_file)
+        # Retrieve a cursor
+        c = conn.cursor()
+        sql = "SELECT * FROM results" 
+        data = c.execute(sql)
+        with open(self.output_file, 'wb') as f:
+            writer = csv.writer(f)
+            writer.writerow(['identifier', 'classifier',
+             'folds', 'seed', 'correct', 'incorrect',
+             'percent correct', 'percent incorrect',
+             'mean abs error', 'root mean square error',
+             'relative absolute error', 'root relative squared error',
+             'total instances', 'area under curve',
+             'false positive rate', 'false negative rate',
+             'f_measure', 'precision', 'recall', 'true negative rate',
+             'true positive rate', 'train domain', 'test domain'])
+            writer.writerows(data)
+        return True,conn
 class WekaResultsExport(object):
     def __init__(self, xml):
         self.input_table = xml.get("table")

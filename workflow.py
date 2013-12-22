@@ -14,6 +14,7 @@
 """
 
 import os
+import csv
 import sys
 import shutil
 import logging
@@ -39,7 +40,8 @@ def print_usage_exit():
 
 def setup_environment():
     """
-        Checks that the Build/ directory is in the users path
+        Checks that the Build/ directory is in the user's path
+        and the appropriate JARs are in the CLASSPATH
         Prints an error message if it's not.
     """
     path = os.environ.get("PATH")
@@ -53,6 +55,31 @@ def setup_environment():
         logging.info("\texport PATH=$HOME/Nebraska/Build:$PATH")
         logging.info("Don't forget to restart your shell.")
         sys.exit(1)
+
+    classpath = os.environ.get("CLASSPATH")
+    if "wlsvm.jar" not in classpath:
+        logging.error("wlsvm.jar is not in your CLASSPATH variable")
+        logging.info(
+            "wlsvm.jar provides the WEKA SVM implementation for WekaTest"
+        )
+        logging.info("Add a line like the following to your ~/.bashrc file:")
+        logging.info(
+            "\texport CLASSPATH=$HOME/Nebraska/External/wlsvm.jar:$CLASSPATH"
+        )
+        logging.info("Don't forget to restart your shell")
+        exit(1)
+    if "libsvm.jar" not in classpath:
+        logging.error("libsvm.jar is not in your CLASSPATH variable")
+        logging.info(
+            "libsvm.jar provides the WEKA SVM implementation for WekaTest"
+        )
+        logging.info("Add a line like the following to your ~/.bashrc file:")
+        logging.info(
+            "\texport CLASSPATH=$HOME/Nebraska/External/libsvm.jar:$CLASSPATH"
+        )
+        logging.info("Don't forget to restart your shell")
+        exit(1)
+
 
 def check_gitinfo():
     """
@@ -244,7 +271,8 @@ def execute_workflow(workflow, workflow_path, sqlite_path):
     options = {
         "retain_output" : False,
         "check_untracked": True,
-        "log_metadata": True
+        "log_metadata": True,
+        "output_count": None
     }
 
     # Retrieve the WorkflowOptions node and update
@@ -261,6 +289,8 @@ def execute_workflow(workflow, workflow_path, sqlite_path):
             options["output_file"] = x_node.get("path")
         elif x_node.tag == "DisableUntrackedFileCheck":
             options["check_untracked"] = False
+        elif x_node.tag == "DebugDocumentCount":
+            options["output_count"] = x_node.get("path")
 
     # Check that the options are correct
     verify_options(options)
@@ -342,6 +372,12 @@ def _execute_workflow(document, sqlite_path, options, workflow_path):
             db.create_sqlite_classificationtable(
                 x_node.get("name"), sqlite_conn
             )
+        elif x_node.tag == "ResultsTable":
+            db.create_resultstable(sqlite_conn)
+
+    if options["output_count"] is not None:
+        output_count = []
+
     #
     # APPLY WORKFLOW ACTIONS
     for x_node in document.find("WorkflowTasks").getchildren():
@@ -350,7 +386,23 @@ def _execute_workflow(document, sqlite_path, options, workflow_path):
         task = get_workflow_task(x_node.tag)
         logging.debug(task)
         task = task(x_node)
+        if options["output_count"] is not None:
+            output_count.append((count_documents(sqlite_conn), task))
         _, sqlite_conn = task.execute(sqlite_path, sqlite_conn)
+
+    if options["output_count"] is not None:
+        output_count.append((count_documents(sqlite_conn), "FINISH"))
+        with open(options["output_count"], "wb") as f:
+            writer = csv.writer(f)
+            writer.writerow(["count", "activity"])
+            writer.writerows(output_count)
+
+def count_documents(db_conn):
+    cursor = db_conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM input")
+    for count, in cursor.fetchall():
+        logging.info("%d document(s) in the database", count)
+        return count
 
 def verify_options(options):
     """
