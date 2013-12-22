@@ -44,3 +44,5 @@ try:
     from pythonclassifiers import PythonClassifiers
 except ImportError:
     logging.error("python classifiers aren't available")
+
+from workflow_action_types import WorkflowActionWithOptions

@@ -23,11 +23,12 @@ import subprocess
 import traceback
 
 # from Actions import *
-from Actions import db, fetch_metadata, push_metadata, get_git_version
+from Actions import db, fetch_metadata, push_metadata, get_git_version, WorkflowActionWithOptions
 
 from lxml import etree
 
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+options = {}
 
 def print_usage_exit():
     """
@@ -261,6 +262,8 @@ def execute_workflow(workflow, workflow_path, sqlite_path):
 
     """
 
+    global options
+
     # Parse the workflow
     document = etree.fromstring(workflow)
 
@@ -272,7 +275,8 @@ def execute_workflow(workflow, workflow_path, sqlite_path):
         "retain_output" : False,
         "check_untracked": True,
         "log_metadata": True,
-        "output_count": None
+        "output_count": None,
+        "refresh_output_on_hash_change": False
     }
 
     # Retrieve the WorkflowOptions node and update
@@ -345,7 +349,10 @@ def _execute_workflow(document, sqlite_path, options, workflow_path):
         task = get_workflow_task(x_node.tag)
         logging.debug(task)
         task = task(x_node)
-        _, sqlite_conn = task.execute(sqlite_path, sqlite_conn)
+        if isinstance(task, WorkflowActionWithOptions):
+            _, sqlite_conn = task.execute(sqlite_path, sqlite_conn, options)
+        else: 
+            _, sqlite_conn = task.execute(sqlite_path, sqlite_conn)
 
     # Push any information we have about the workflow into the database
     if options["log_metadata"]:
@@ -388,7 +395,11 @@ def _execute_workflow(document, sqlite_path, options, workflow_path):
         task = task(x_node)
         if options["output_count"] is not None:
             output_count.append((count_documents(sqlite_conn), task))
-        _, sqlite_conn = task.execute(sqlite_path, sqlite_conn)
+        logging.debug((type(task),isinstance(task,WorkflowActionWithOptions)))
+        if isinstance(task, WorkflowActionWithOptions):
+            _,sqlite_conn = task.execute(sqlite_path, sqlite_conn, options)
+        else:
+            _, sqlite_conn = task.execute(sqlite_path, sqlite_conn)
 
     if options["output_count"] is not None:
         output_count.append((count_documents(sqlite_conn), "FINISH"))
