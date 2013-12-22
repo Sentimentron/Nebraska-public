@@ -13,7 +13,9 @@ from db import create_sqlite_connection
 
 from lxml import etree
 
-class PreviousWorkflow(object):
+from workflow_action_types import WorkflowActionWithOptions
+
+class PreviousWorkflow(WorkflowActionWithOptions):
     
     def __init__(self, xml):
         
@@ -42,8 +44,11 @@ class PreviousWorkflow(object):
         if self.strict_hash_check is None:
             self.strict_hash_check = False
    
-    def __determine_rerun_needed(self):
+    def __determine_rerun_needed(self, options):
         
+        if not options["refresh_output_on_hash_change"]:
+            return False
+
         if "--rerun-everything" in sys.argv:
             return True 
            
@@ -105,9 +110,9 @@ class PreviousWorkflow(object):
         finally:
             conn.close()
     
-    def execute(self, path, conn):
+    def execute(self, path, conn, options):
         
-        if self.__determine_rerun_needed():
+        if self.__determine_rerun_needed(options):
             logging.info("Previous workflow needs to be re-run") # Rerun logic goes here
             self.rerun()
         
