@@ -1,0 +1,35 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>Benchmark Emoticon Labeller</WorkflowName>
+        <WorkflowDescription> Labels our tweets using emoticons and then benchmarks classification performance in WEKA.</WorkflowDescription>
+        <RetainOutputFile path="emoticontweets.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <ResultsTable />
+    </Tables>
+
+    <InputSources>
+        <PreviousWorkflow path="Workflows/WhiteSpaceTagger.xml" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <RewritePOSFilter src="test" tag=":)" />
+        <RewritePOSFilter src="test" tag=";)" />
+        <RewritePOSFilter src="test" tag=":-)" />
+        <RewritePOSFilter src="test" tag=";-)" />
+        <RewritePOSFilter src="test" tag=":D" />
+        <RewritePOSFilter src="test" tag=":-D" />
+        <RewritePOSFilter src="test" tag=":(" />
+        <RewritePOSFilter src="test" tag=":-(" />
+        <RewritePOSFilter src="test" tag="D:" /> 
+        <WekaCrossDomainBenchmark id="DecisionTree" posSrc="test" labelSrc="emoticons" folds="4" classifier="weka.classifiers.trees.J48" />
+        <WekaCrossDomainBenchmark id="Bayes" posSrc="test" labelSrc="emoticons" folds="4" classifier="weka.classifiers.bayes.NaiveBayes" />
+        <WekaCrossDomainBenchmark id="RuleInduction" posSrc="test" labelSrc="emoticons" folds="4" classifier="weka.classifiers.rules.JRip" />
+        <WekaCrossDomainBenchmark id="Logistic" posSrc="test" labelSrc="emoticons" folds="4" classifier="weka.classifiers.functions.Logistic" />
+        <WekaCrossDomainBenchmark id="KNN" posSrc="test" labelSrc="emoticons" folds="4" classifier="weka.classifiers.lazy.IBk" />
+    </WorkflowTasks>
+
+</Workflow>

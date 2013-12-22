@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import string 
+import string
 import logging
 import nltk
 
@@ -70,8 +70,8 @@ class WhiteSpacePOSTagger(WorkflowNativePOSTagger):
                 break
         # If it's all punctuation, may be an emoticon
         if end_position == 0:
-            return token 
-            
+            return token
+
         return token[0:end_position]
 
     def tokenize(self, document):
@@ -93,7 +93,7 @@ class NLTKPOSTagger(WorkflowNativePOSTagger):
         # Make sure to run nltk.download('maxent_treebank_pos_tagger') first, you'll also need numpy
         tokens = nltk.word_tokenize(document)
         for word, tag in self.tagger.tag(tokens):
-            yield "%s" % (tag)
+            yield "%s/%s" % (word, tag)
 
 class StanfordTagger(WorkflowNativePOSTagger):
 
@@ -110,6 +110,6 @@ class StanfordTagger(WorkflowNativePOSTagger):
         # Non ASCII characters makes the stanford tagger go crazy and run out of heap space
         if self.is_ascii(document):
             for word, tag in self.tagger.tag(document):
-                    yield "%s" % (tag)
+                    yield "%s/%s" % (word, tag)
 
 

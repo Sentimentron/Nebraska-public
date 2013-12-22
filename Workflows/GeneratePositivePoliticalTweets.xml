@@ -1,0 +1,25 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>Generates Positive Political Tweets</WorkflowName>
+        <WorkflowDescription>Returns spam filetered tweets with positive words from SentiWordNet</WorkflowDescription>
+        <RetainOutputFile path="positivepolitical.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <TemporaryLabelTable name="strength" />
+    </Tables>
+
+    <InputSources>
+        <PreviousWorkflow path="Workflows/SpamFight.xml"  />
+    </InputSources>
+
+    <WorkflowTasks>
+        <SentiWordNetPositiveStrengthLabeller threshold="0.6" dest="strength" />
+        <LabelFilter src="strength" temporary="true" delete="true">
+            <RetainLabel id="1" />
+        </LabelFilter>
+    </WorkflowTasks>
+
+</Workflow>

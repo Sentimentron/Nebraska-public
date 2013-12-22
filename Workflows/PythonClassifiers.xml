@@ -1,0 +1,29 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>Python Classifiers</WorkflowName>
+        <WorkflowDescription> Run the python classifiers</WorkflowDescription>
+        <RetainOutputFile path="pythonclassifiers.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <SandersInputTable />
+        <PartOfSpeechTable name="test"/>
+        <ResultsTable />
+    </Tables>
+
+    <InputSources>
+        <SandersInputSource dir="Data/Intrinsic/Sanders" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <WhiteSpacePOSTagger dest="test"/>
+        <PythonClassifiers  posSrc="test" labelSrc="sanders" folds="4" classifier="GaussianNB()" />
+        <PythonClassifiers  posSrc="test" labelSrc="sanders" folds="4" classifier="tree.DecisionTreeClassifier()" />
+        <PythonClassifiers  posSrc="test" labelSrc="sanders" folds="4" classifier="svm.SVC()" />
+        <PythonClassifiers  posSrc="test" labelSrc="sanders" folds="4" classifier="LogisticRegression()" />
+        <PythonClassifiers  posSrc="test" labelSrc="sanders" folds="4" classifier="neighbors.KNeighborsClassifier()" />
+    </WorkflowTasks>
+
+</Workflow>
