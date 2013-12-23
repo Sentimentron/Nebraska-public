@@ -49,7 +49,7 @@ function endIndexCheck(box) {
     var start = document.getElementById(name+"begin").value;
     if(index > words.length) {
         alert("End index must be less than " + words.length);
-    } else if(index < start ) {
+    } else if(index < start && index != "") {
         alert("End index must be greater than or equal to the start index");
     }
     // Now replace the phrase word box with the phrase they selected
