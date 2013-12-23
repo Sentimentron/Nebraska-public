@@ -32,7 +32,7 @@ function keyUpHandlerBegin(phrase) {
 function startIndexCheck(box) {
     // Get the index entered
     var index = box.value;
-    if(index < 0) {
+    if(index <= 0) {
         alert("Start index must be greater than 0");
     } else if(index > words.length) {
         alert("Start index must be less than " + words.length);
