@@ -1,15 +1,79 @@
 <script>
+// Keeps track of how long its been since the user pressed a key so we can detect if they've stopped typing
+var timer;
+// The tweet were displaying
+var words;
 
+// Replaces the tweet on the screen with one with superscript numbers
 function printTweet() {
-    //var tweet = "This is my tweet with many words in it.";
+    // Get the tweet which will always be in the div called tweet
     var element = document.getElementById('tweet');
-    var tweet = element.textContent || element.innerText;
-    var words = tweet.split(" ");
-    var index = 1;
+    // Get the text from the div
+    //var tweet = element.textContent || element.innerText;
+    var tweet = "hello this is my tweet";
+    // Split it into individual words
+    words = tweet.split(" ");
+    // Clear the unnumbered tweet
     document.getElementById("tweet").innerHTML = "";
+    // Print it superscriped with numbers
+    var index = 1;
     for (var i = 0; i < words.length; i++) {
         document.write( words[i] + "<sup>" + index + "</sup> ");
+        index++;
     }
+}
+
+// When a key is released start a timer
+function keyUpHandlerBegin(phrase) {
+    timer = setTimeout(phrase, 3000)
+}
+
+// Check the start index of a word is greater than 0 and less than the tweet length
+function startIndexCheck(box) {
+    // Get the index entered
+    var index = box.value;
+    if(index < 0) {
+        alert("Start index must be greater than 0");
+    } else if(index > words.length) {
+        alert("Start index must be less than " + words.length);
+    }
+}
+
+// Checks the end index entered is less than the max length of the tweet and greater than the start index
+function endIndexCheck(box) {
+    // Get the index entered
+    var index = box.value;
+    // Get the name of the input box this came from and extract the start e.g. phrase1, phrase2 etc
+    var name = box.name.substring(0,7);
+    // Get the start index
+    var start = document.getElementById(name+"begin").value;
+    if(index > words.length) {
+        alert("End index must be less than " + words.length);
+    } else if(index < start ) {
+        alert("End index must be greater than or equal to the start index");
+    }
+    // Now replace the phrase word box with the phrase they selected
+    fillInTweet(start, index, name+"words");
+}
+
+// Replaces the phrase box with the phrase entered
+function fillInTweet(start, end, id) {
+    var phrase = "";
+    for(i = start-1; i<=end-1; i++) {
+        if(i >= words.length) {
+            break;
+        }
+        phrase += words[i] + " ";
+    }
+    // Get the box to put the phrase in
+    var box = document.getElementById(id);
+    // Enter it
+    box.value = phrase;
+}
+
+// When a key is pressed down restart the timer
+function keyDownHandler() {
+    clearTimeout(timer);
 }
 
 </script>
@@ -27,31 +91,32 @@ The overal sentiment of Tweet is:</p>
 <input name="sentiment" type="radio" value="irrelevant" /> Irrelevant<br />
 <br />
 
-Subjective Phrase 1: <input name="phrase1begin" placeholder="start index" type="text" /> to
-<input name="phrase1end" placeholder="end index" type="text" />
-<input name="phrase1words" placeholder="phrase words" size="50" type="text" />
-<input name="sentimentphrase1" type="radio" value="positive" /> Positive
-<input name="sentimentphrase1" type="radio" value="negative" /> Negative
-<input name="sentimentphrase1" type="radio" value="neutral" /> Neutral<br />
+Subjective Phrase 1: <input name="phrase1begin" id="phrase1begin" placeholder="start index" type="text" size="6" onkeyup="keyUpHandlerBegin(startIndexCheck(phrase1begin))" onkeydown="keyDownHandler()"> to
+<input name="phrase1end" id="phrase1end" placeholder="end index" type="text" size="6" onkeyup="keyUpHandlerBegin(endIndexCheck(phrase1end))" onkeydown="keyDownHandler()">
+<input name="phrase1words" id="phrase1words" placeholder="phrase words" size="50" type="text" />
+ <input name="sentimentphrase1" type="radio" value="positive" /> Positive
+ <input name="sentimentphrase1" type="radio" value="negative" /> Negative
+ <input name="sentimentphrase1" type="radio" value="neutral" /> Neutral<br />
 
+Subjective Phrase 2: <input name="phrase2begin" id="phrase2begin" placeholder="start index" type="text" size="6" onkeyup="keyUpHandlerBegin(startIndexCheck(phrase2begin))" onkeydown="keyDownHandler()"> to
+<input name="phrase2end" id="phrase2end" placeholder="end index" type="text" size="6" onkeyup="keyUpHandlerBegin(endIndexCheck(phrase2end))" onkeydown="keyDownHandler()">
+<input name="phrase2words" id="phrase2words" placeholder="phrase words" size="50" type="text" />
+ <input name="sentimentphrase1" type="radio" value="positive" /> Positive
+ <input name="sentimentphrase1" type="radio" value="negative" /> Negative
+ <input name="sentimentphrase1" type="radio" value="neutral" /> Neutral<br />
 
-Subjective Phrase 2: <input name="phrase2begin" placeholder="start index" type="text" /> to
-<input name="phrase2end" placeholder="end index" type="text" />
-<input name="phrase2words" placeholder="phrase words" size="50" type="text" />
-<input name="sentimentphrase2" type="radio" value="positive" /> Positive
-<input name="sentimentphrase2" type="radio" value="negative" /> Negative
-<input name="sentimentphrase2" type="radio" value="neutral" /> Neutral<br />
+Subjective Phrase 3: <input name="phrase2begin" id="phrase3begin" placeholder="start index" type="text" size="6" onkeyup="keyUpHandlerBegin(startIndexCheck(phrase3begin))" onkeydown="keyDownHandler()"> to
+<input name="phrase3end" id="phrase3end" placeholder="end index" type="text" size="6" onkeyup="keyUpHandlerBegin(endIndexCheck(phrase3end))" onkeydown="keyDownHandler()">
+<input name="phrase3words" id="phrase3words" placeholder="phrase words" size="50" type="text" />
+ <input name="sentimentphrase1" type="radio" value="positive" /> Positive
+ <input name="sentimentphrase1" type="radio" value="negative" /> Negative
+ <input name="sentimentphrase1" type="radio" value="neutral" /> Neutral<br />
 
-Subjective Phrase 3: <input name="phrase3begin" placeholder="start index" type="text" /> to
-<input name="phrase3end" placeholder="end index" type="text" />
-<input name="phrase3words" placeholder="phrase words" size="50" type="text" />
-<input name="sentimentphrase3" type="radio" value="positive" /> Positive
-<input name="sentimentphrase3" type="radio" value="negative" /> Negative
-<input name="sentimentphrase3" type="radio" value="neutral" /> Neutral<br />
+Subjective Phrase 4: <input name="phrase2begin" id="phrase4begin" placeholder="start index" type="text" size="6" onkeyup="keyUpHandlerBegin(startIndexCheck(phrase4begin))" onkeydown="keyDownHandler()"> to
+<input name="phrase4end" id="phrase4end" placeholder="end index" type="text" size="6" onkeyup="keyUpHandlerBegin(endIndexCheck(phrase4end))" onkeydown="keyDownHandler()">
+<input name="phrase4words" id="phrase4words" placeholder="phrase words" size="50" type="text" />
+ <input name="sentimentphrase1" type="radio" value="positive" /> Positive
+ <input name="sentimentphrase1" type="radio" value="negative" /> Negative
+ <input name="sentimentphrase1" type="radio" value="neutral" /> Neutral<br />
 
-Subjective Phrase 4: <input name="phrase4begin" placeholder="start index" type="text" /> to
-<input name="phrase4end" placeholder="end index" type="text" />
-<input name="phrase4words" placeholder="phrase words" size="50" type="text" />
-<input name="sentimentphrase4" type="radio" value="positive" /> Positive
-<input name="sentimentphrase4" type="radio" value="negative" /> Negative
-<input name="sentimentphrase4" type="radio" value="neutral" /> Neutral<br />
+<input name="id" type="hidden" value=${id} />
