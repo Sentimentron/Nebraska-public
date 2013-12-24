@@ -49,6 +49,8 @@ public class GimpelTagger {
         // Itterate over each document in the input database and tag it
         String query = "SELECT * FROM " + input_table;
         try {
+
+            conn.setAutoCommit(false);
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             // Yes we really have to do this to count how many results we have :(
@@ -99,6 +101,7 @@ public class GimpelTagger {
                 Statement insert_tagged_string_statement = conn.createStatement();
                 insert_tagged_string_statement.execute(pos_tagged_document_query);
             }
+            conn.commit();
         } catch(Exception e) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() + "\n");
             e.printStackTrace();
