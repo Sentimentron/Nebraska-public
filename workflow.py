@@ -276,7 +276,7 @@ def execute_workflow(workflow, workflow_path, sqlite_path):
         "check_untracked": True,
         "log_metadata": True,
         "output_count": None,
-        "refresh_output_on_hash_change": False
+        "refresh_output_on_hash_change": True
     }
 
     # Retrieve the WorkflowOptions node and update

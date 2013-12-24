@@ -18,10 +18,7 @@ def create_sqlite_temp_path():
         If we're on a Linux system, there's usually a RAM-disk at /dev/shm
         which we use to make database operations as fast as possible.
     """
-    if "Linux" in platform.system():
-        hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix="/dev/shm/")
-    else:
-        hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix=os.getcwd()+"/")
+    hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix=os.getcwd()+"/")
     os.close(hnd)
     logging.info("SQLite path: %s", tmp)
     return tmp
@@ -34,7 +31,11 @@ def create_sqlite_connection(path):
     conn = sqlite3.connect(path)
     conn.text_factory = unicode
     conn.execute("PRAGMA foreign_keys = ON;")
-    conn.execute("PRAGMA journal_mode = OFF")
+    conn.execute("PRAGMA main.page_size = 4096")
+    conn.execute("PRAGMA main.cache_size = 5000")
+#    conn.execute("PRAGMA main.journal_mode = WAL")
+#    conn.execute("PRAGMA main.synchronous = NORMAL")
+#   conn.execute("PRAGMA journal_mode = OFF")
     logging.debug("Connection open")
     return conn
 
