@@ -81,7 +81,7 @@ class Annotator(object):
         # Read the input documents
         annotation_set = self.get_input_set(db_conn)
 
-        for identifier, text in annotation_set:
+        for count, (identifier, text) in enumerate(annotation_set):
             # Annotate each input document
             value = self.produce_annotation(identifier, text, db_conn)
             if value is None:
@@ -89,6 +89,8 @@ class Annotator(object):
                 logging.debug("Annotation failed: %d", identifier)
             # Save the annotation
             cursor.execute(update_sql, (value, identifier))
+            if count % 20 == 0:
+                logging.debug("Annotation %.2f%% complete", count * 100.0 / len(annotation_set))
 
         if len(failed) != 0:
             logging.info("Failed to annotate %d entries", len(failed))
@@ -173,7 +175,14 @@ class FinancialDistanceAnnotator(DomainSpecificAnnotator):
         self.pos_tokens = "pos_tokens_%s" % (self.pos_name, )
         self._tag_database_initialized = False
         self.tag_database = {}
-
+        # This option controls whether tweets containing "$STOCK" are 
+        # annotated as very relevant
+        self.annotate_stocks = xml.get("annotateStockTweets")
+        if self.annotate_stocks == "true":
+            self.annotate_stocks = True
+        else:
+            self.annotate_stocks = False 
+    
     def initialize_tag_database(self, db_conn):
         """
             Creates the identifier -> token map in memory
@@ -205,6 +214,8 @@ class FinancialDistanceAnnotator(DomainSpecificAnnotator):
         tag_pos, _, _ = tag.partition('/')
         if syn_pos == tag_pos.lower():
             return True
+        if syn_pos == "s" and tag_pos == "A":
+            return True
         return False
 
     @classmethod
@@ -220,11 +231,29 @@ class FinancialDistanceAnnotator(DomainSpecificAnnotator):
     def retrieve_filter_word_synsets(cls, source_synset, tag):
         """Return a set of matching synsets based on POS tags"""
         _, _, word = tag.partition('/')
-        synsets = wn.synsets(word)
+        word_type = None 
+        if source_synset.pos == 'a':
+            word_type = wn.ADJ
+        elif source_synset.pos == 's':
+            word_type = wn.ADJ
+        elif source_synset.pos == 'n':
+            word_type = wn.NOUN
+        elif source_synset.pos == 'r':
+            word_type = wn.ADV
+        elif source_synset.pos == 'v':
+            word_type = wn.VERB
+        else:
+            raise ValueError(source_synset)
+        synsets = wn.synsets(word, pos=word_type)
         return [s for s in synsets if s.pos == source_synset.pos]
 
     def produce_annotation(self, identifier, text, db_conn):
         cursor = db_conn.cursor()
+
+        if self.annotate_stocks:
+            if "$" in text:
+                return 1.0
+
         # Load the POS tagged tweet
         cursor.execute(
             "SELECT tokenized_form FROM %s WHERE document_identifier = ?" % (
