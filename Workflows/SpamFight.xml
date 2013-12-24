@@ -32,13 +32,6 @@
         <LabelFilter src="unicode" temporary="true" delete="true">
             <RetainLabel id="0" />
         </LabelFilter>
-        <LengthLabeller dest="clustering" binSize="2" />
-        <HashTagLabeller dest="clustering" />
-        <AtMentionLabeller dest="clustering" />
-        <ClusterLabeller src="clustering" dest="clusters" epsilon="0.55" minSize="2" />
-        <LabelFilter src="clusters" temporary="true" delete="false">
-            <RetainMostPopularLabels count="2" />
-        </LabelFilter>
     </WorkflowTasks>
 
 </Workflow>
