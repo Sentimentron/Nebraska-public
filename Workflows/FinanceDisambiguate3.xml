@@ -3,7 +3,7 @@
     <WorkflowOptions>
         <WorkflowName>Finance Disambiguation Workflow</WorkflowName>
         <WorkflowDescription> Disambiguate finance terms</WorkflowDescription>
-        <RetainOutputFile path="finance333.sqlite"/>
+        <RetainOutputFile path="finance3.sqlite"/>
         <DisableUntrackedFileCheck />
     </WorkflowOptions>
 
