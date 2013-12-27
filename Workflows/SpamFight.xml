@@ -17,7 +17,7 @@
     </Tables>
 
 	<InputSources>
-		<PreviousWorkflow path="Workflows/ImportTwitter.xml" />
+		<PreviousWorkflow path="Workflows/DomainTag.xml" />
 	</InputSources>
 
     <WorkflowTasks>
