@@ -12,8 +12,6 @@
         <TemporaryLabelTable name="lengths" />
         <TemporaryLabelTable name="special" />
         <TemporaryLabelTable name="unicode" />
-        <TemporaryLabelTable name="clustering" />
-        <TemporaryLabelTable name="clusters" />
     </Tables>
 
 	<InputSources>
