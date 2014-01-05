@@ -4,14 +4,25 @@ var timer;
 // The tweet were displaying
 var words;
 var times_pressed;
-
+var delay = 300;
+//Set all the keyup handlers
+window.onload = function() {
+    document.getElementById('phrase1begin').onkeyup = function() { timer = setTimeout(function(){startIndexCheck("phrase1begin");}, delay) };
+    document.getElementById('phrase1end').onkeyup = function() { timer = setTimeout(function(){ endIndexCheck("phrase1end");}, delay) };
+    document.getElementById('phrase2begin').onkeyup = function() { timer = setTimeout(function(){startIndexCheck("phrase2begin");}, delay) };
+    document.getElementById('phrase2end').onkeyup = function() { timer = setTimeout(function(){ endIndexCheck("phrase2end");}, delay) };
+    document.getElementById('phrase3begin').onkeyup = function() { timer = setTimeout(function(){startIndexCheck("phrase3begin");}, delay) };
+    document.getElementById('phrase3end').onkeyup = function() { timer = setTimeout(function(){ endIndexCheck("phrase3end");}, delay) };
+    document.getElementById('phrase4begin').onkeyup = function() { timer = setTimeout(function(){startIndexCheck("phrase4begin");}, delay) };
+    document.getElementById('phrase4end').onkeyup = function() { timer = setTimeout(function(){ endIndexCheck("phrase4end");}, delay) };
+}
 // Replaces the tweet on the screen with one with superscript numbers
 function printTweet() {
     // Get the tweet which will always be in the div called tweet
     var element = document.getElementById('tweet');
     // Get the text from the div
     //var tweet = element.textContent || element.innerText;
-    var tweet = "hello this is my tweet";
+    var tweet = "Never!! Do! That! Bank mutuals are the worst! Terrible fees, limited options, etc Sorry for your losses.";
     // Split it into individual words
     words = tweet.split(" ");
     // Clear the unnumbered tweet
@@ -24,43 +35,46 @@ function printTweet() {
     }
 }
 
-// When a key is released start a timer
-function keyUpHandlerBegin(phrase) {
-    timer = setTimeout(phrase, 3000);
-
-}
-
 // Check the start index of a word is greater than 0 and less than the tweet length
 function startIndexCheck(box) {
     // Get the index entered
-    var index = box.value;
-    if(index <= 0 && times_pressed == 0) {
+    var index = document.getElementById(box).value;
+    if(index <= 0 && times_pressed == 0 && index != "") {
         alert("Start index must be greater than 0");
         times_pressed++;
+
     } else if(index > words.length && times_pressed == 0) {
         alert("Start index must be less than " + words.length);
+        clearTimeout(timer);
     }
 }
 
 // Checks the end index entered is less than the max length of the tweet and greater than the start index
 function endIndexCheck(box) {
+    var box = document.getElementById(box);
     // Get the index entered
-    var index = box.value;
+    var index = parseInt(box.value);
     // Get the name of the input box this came from and extract the start e.g. phrase1, phrase2 etc
     var name = box.name.substring(0,7);
     // Get the start index
-    var start = document.getElementById(name+"begin").value;
-    if(index > words.length && times_pressed == 0) {
+    var start = parseInt(document.getElementById(name+"begin").value);
+    if(index > words.length  && times_pressed == 0) {
         alert("End index must be less than " + words.length);
-    } else if(index < start && index != "" && times_pressed == 0) {
-        alert("End index must be greater than or equal to the start index");
+        var div_element = document.getElementById(name+"div").style.background='red';
     }
-    // Now replace the phrase word box with the phrase they selected
-    fillInTweet(start, index, name+"words");
+    if(index < start && index != ""  && times_pressed == 0) {
+        alert("End index must be greater than the start index");
+        var div_element = document.getElementById(name+"div").style.background='red';
+    }
+    if(index > start && index <= words.length) {
+        // Now replace the phrase word box with the phrase they selected
+        fillInTweet(start, index, name+"words");
+    }
 }
 
 // Replaces the phrase box with the phrase entered
 function fillInTweet(start, end, id) {
+    document.getElementById(id.substring(0,7)+"div").style.background='white';
     var phrase = "";
     for(i = start-1; i<=end-1; i++) {
         if(i >= words.length) {
@@ -72,6 +86,7 @@ function fillInTweet(start, end, id) {
     var box = document.getElementById(id);
     // Enter it
     box.value = phrase;
+    clearTimeout(timer);
 }
 
 // When a key is pressed down restart the timer
@@ -81,6 +96,28 @@ function keyDownHandler() {
 }
 
 </script>
+
+<br />
+<br />
+<div style="border:1px solid black;padding:2em;">
+
+<p> <b>Instructions </b><p>
+The annotation task consists of two parts. The first task is to determine the overall sentiment of the tweet and then click the appropriate radio button. <b>Positive</b> tweets often show joy & excitement. An example is "Love the new iPad. Apple is the greatest tech company ever". A <b>neutral</b> tweet such as "I Just ate a bowl of cornflakes for breakfast" shows
+no emotion. Positive and neutral tweets may also contain negative phrases but the overall sentiment should be positive or neutral. A <b>negative</b> tweet shows disgust, doubt or anger . E.g. "I Don't like the look of the new iPad" and may contain both positive and negative emotions
+but overall the main opinion is negative. </p>
+
+<p> The second task is to identify the phrases in the tweet which bear opinions which are positive, negative or neutral. Identify any subjective phrases
+and then enter the index of the first and last word in the Subjective Phrase Boxes. The indices of the words are shown above them. An example of this is
+"Stocks seen higher on stimulus hopes: U.S. stock index futures pointed to a higher open on Friday on hopes that the Federal R...  #stocks" where words 'Stocks seen higher' and 'higher open'
+should be annotated as positive subjective phrases.
+<br><br>
+<a href="http://www.sentimentron.co.uk/guidelines.pdf" target="_blank">Click here</a> for full list of examples.</p>
+
+An example of how to complete the task: <br > <br>
+<img src="http://www.sentimentron.co.uk/example.png" border="1">
+</div>
+
+
 <p>The Tweet is -</p>
 
 <div id="tweet">${tweet}</div>
@@ -92,35 +129,36 @@ The overal sentiment of Tweet is:</p>
 <p><input name="sentiment" type="radio" value="positive" /> Positive<br />
 <input name="sentiment" type="radio" value="negative" /> Negative<br />
 <input name="sentiment" type="radio" value="neutral" /> Neutral<br />
-<input name="sentiment" type="radio" value="irrelevant" /> Irrelevant<br />
 <br />
 
-Subjective Phrase 1: <input name="phrase1begin" id="phrase1begin" placeholder="start index" type="text" size="6" onkeyup="keyUpHandlerBegin(startIndexCheck(phrase1begin))" onkeydown="keyDownHandler()"> to
-<input name="phrase1end" id="phrase1end" placeholder="end index" type="text" size="6" onkeyup="keyUpHandlerBegin(endIndexCheck(phrase1end))" onkeydown="keyDownHandler()">
+See <a href="http://www.sentimentron.co.uk/guidelines.pdf" target="_blank">section two of the guidelines</a> for help on completing this section. <br> <br>
+
+<div id="phrase1div" style="background-color:white">Subjective Phrase 1: <input name="phrase1begin" id="phrase1begin" placeholder="start index" type="text" size="6" onkeydown="keyDownHandler()"> to
+<input name="phrase1end" id="phrase1end" placeholder="end index" type="text" size="6" onkeydown="keyDownHandler()">
 <input name="phrase1words" id="phrase1words" placeholder="phrase words" size="50" type="text" />
  <input name="sentimentphrase1" type="radio" value="positive" /> Positive
  <input name="sentimentphrase1" type="radio" value="negative" /> Negative
- <input name="sentimentphrase1" type="radio" value="neutral" /> Neutral<br />
+ <input name="sentimentphrase1" type="radio" value="neutral" /> Neutral<br /></div>
 
-Subjective Phrase 2: <input name="phrase2begin" id="phrase2begin" placeholder="start index" type="text" size="6" onkeyup="keyUpHandlerBegin(startIndexCheck(phrase2begin))" onkeydown="keyDownHandler()"> to
-<input name="phrase2end" id="phrase2end" placeholder="end index" type="text" size="6" onkeyup="keyUpHandlerBegin(endIndexCheck(phrase2end))" onkeydown="keyDownHandler()">
+<div id="phrase2div" style="background-color:white">Subjective Phrase 2: <input name="phrase2begin" id="phrase2begin" placeholder="start index" type="text" size="6" onkeydown="keyDownHandler()"> to
+<input name="phrase2end" id="phrase2end" placeholder="end index" type="text" size="6" onkeydown="keyDownHandler()">
 <input name="phrase2words" id="phrase2words" placeholder="phrase words" size="50" type="text" />
  <input name="sentimentphrase2" type="radio" value="negative" /> Positive
  <input name="sentimentphrase2" type="radio" value="neutral" /> Negative
- <input name="sentimentphrase2" type="radio" value="positive" /> Neutral <br />
+ <input name="sentimentphrase2" type="radio" value="positive" /> Neutral <br /></div>
 
-Subjective Phrase 3: <input name="phrase2begin" id="phrase3begin" placeholder="start index" type="text" size="6" onkeyup="keyUpHandlerBegin(startIndexCheck(phrase3begin))" onkeydown="keyDownHandler()"> to
-<input name="phrase3end" id="phrase3end" placeholder="end index" type="text" size="6" onkeyup="keyUpHandlerBegin(endIndexCheck(phrase3end))" onkeydown="keyDownHandler()">
+<div id="phrase3div" style="background-color:white">Subjective Phrase 3: <input name="phrase2begin" id="phrase3begin" placeholder="start index" type="text" size="6" onkeydown="keyDownHandler()"> to
+<input name="phrase3end" id="phrase3end" placeholder="end index" type="text" size="6" onkeydown="keyDownHandler()">
 <input name="phrase3words" id="phrase3words" placeholder="phrase words" size="50" type="text" />
  <input name="sentimentphrase3" type="radio" value="positive" /> Positive
  <input name="sentimentphrase3" type="radio" value="negative" /> Negative
- <input name="sentimentphrase3" type="radio" value="neutral" /> Neutral<br />
+ <input name="sentimentphrase3" type="radio" value="neutral" /> Neutral<br /></div>
 
-Subjective Phrase 4: <input name="phrase2begin" id="phrase4begin" placeholder="start index" type="text" size="6" onkeyup="keyUpHandlerBegin(startIndexCheck(phrase4begin))" onkeydown="keyDownHandler()"> to
-<input name="phrase4end" id="phrase4end" placeholder="end index" type="text" size="6" onkeyup="keyUpHandlerBegin(endIndexCheck(phrase4end))" onkeydown="keyDownHandler()">
+<div id="phrase4div" style="background-color:white">Subjective Phrase 4: <input name="phrase2begin" id="phrase4begin" placeholder="start index" type="text" size="6" onkeydown="keyDownHandler()"> to
+<input name="phrase4end" id="phrase4end" placeholder="end index" type="text" size="6" onkeydown="keyDownHandler()">
 <input name="phrase4words" id="phrase4words" placeholder="phrase words" size="50" type="text" />
  <input name="sentimentphrase4" type="radio" value="positive" /> Positive
  <input name="sentimentphrase4" type="radio" value="negative" /> Negative
- <input name="sentimentphrase4" type="radio" value="neutral" /> Neutral<br />
+ <input name="sentimentphrase4" type="radio" value="neutral" /> Neutral<br /></div>
 
 <input name="id" type="hidden" value=${id} />
