@@ -4,7 +4,7 @@ var timer;
 // The tweet were displaying
 var words;
 var times_pressed;
-var delay = 300;
+var delay = 100;
 //Set all the keyup handlers
 window.onload = function() {
     document.getElementById('phrase1begin').onkeyup = function() { timer = setTimeout(function(){startIndexCheck("phrase1begin");}, delay) };
@@ -15,6 +15,15 @@ window.onload = function() {
     document.getElementById('phrase3end').onkeyup = function() { timer = setTimeout(function(){ endIndexCheck("phrase3end");}, delay) };
     document.getElementById('phrase4begin').onkeyup = function() { timer = setTimeout(function(){startIndexCheck("phrase4begin");}, delay) };
     document.getElementById('phrase4end').onkeyup = function() { timer = setTimeout(function(){ endIndexCheck("phrase4end");}, delay) };
+
+    document.getElementById('phrase1beginsecond').onkeyup = function() { timer = setTimeout(function(){startIndexCheck2("phrase1beginsecond");}, delay) };
+    document.getElementById('phrase1endsecond').onkeyup = function() { timer = setTimeout(function(){ endIndexCheck2("phrase1endsecond");}, delay) };
+    document.getElementById('phrase2beginsecond').onkeyup = function() { timer = setTimeout(function(){startIndexCheck2("phrase2beginsecond");}, delay) };
+    document.getElementById('phrase2endsecond').onkeyup = function() { timer = setTimeout(function(){ endIndexCheck2("phrase2endsecond");}, delay) };
+    document.getElementById('phrase3beginsecond').onkeyup = function() { timer = setTimeout(function(){startIndexCheck2("phrase3beginsecond");}, delay) };
+    document.getElementById('phrase3endsecond').onkeyup = function() { timer = setTimeout(function(){ endIndexCheck2("phrase3endsecond");}, delay) };
+    document.getElementById('phrase4beginsecond').onkeyup = function() { timer = setTimeout(function(){startIndexCheck2("phrase4beginsecond");}, delay) };
+    document.getElementById('phrase4endsecond').onkeyup = function() { timer = setTimeout(function(){ endIndexCheck2("phrase4endsecond");}, delay) };
 }
 // Replaces the tweet on the screen with one with superscript numbers
 function printTweet() {
@@ -66,7 +75,7 @@ function endIndexCheck(box) {
         alert("End index must be greater than the start index");
         var div_element = document.getElementById(name+"div").style.background='red';
     }
-    if(index > start && index <= words.length) {
+    if(index >= start && index <= words.length) {
         // Now replace the phrase word box with the phrase they selected
         fillInTweet(start, index, name+"words");
     }
@@ -93,6 +102,93 @@ function fillInTweet(start, end, id) {
 function keyDownHandler() {
     clearTimeout(timer);
     times_pressed = 0;
+}
+
+// Code for the second tweet
+
+// Keeps track of how long its been since the user pressed a key so we can detect if they've stopped typing
+var timer2;
+// The tweet were displaying
+var words2;
+var times_pressed2;
+var delay2 = 100;
+
+// Replaces the tweet on the screen with one with superscript numbers
+function printTweet2() {
+    // Get the tweet which will always be in the div called tweet
+    var element2 = document.getElementById('tweet2');
+    // Get the text from the div
+    var tweet2 = element2.textContent || element2.innerText;
+    // Split it into individual words
+    words2 = tweet2.split(" ");
+    // Clear the unnumbered tweet
+    document.getElementById("tweet2").innerHTML = "";
+    // Print it superscriped with numbers
+    var index2 = 1;
+    for (var i = 0; i < words2.length; i++) {
+        document.write( words2[i] + "<sup>" + index2 + "</sup> ");
+        index2++;
+    }
+}
+
+// Check the start index of a word is greater than 0 and less than the tweet length
+function startIndexCheck2(box) {
+    // Get the index entered
+    var index2 = document.getElementById(box).value;
+    if(index2 <= 0 && times_pressed2 == 0 && index2 != "") {
+        alert("Start index must be greater than 0");
+        times_pressed2++;
+
+    } else if(index2 > words2.length && times_pressed2 == 0) {
+        alert("Start index must be less than " + words2.length);
+        clearTimeout(timer2);
+    }
+}
+
+// Checks the end index entered is less than the max length of the tweet and greater than the start index
+function endIndexCheck2(box) {
+    var box2 = document.getElementById(box);
+    // Get the index entered
+    var index2 = parseInt(box2.value);
+    // Get the name of the input box this came from and extract the start e.g. phrase1, phrase2 etc
+    var name2 = box2.name.substring(0,7);
+    // Get the start index
+    var start2 = parseInt(document.getElementById(name2+"beginsecond").value);
+    if(index2 > words2.length  && times_pressed2 == 0) {
+        alert("End index must be less than " + words2.length);
+        var div_element2 = document.getElementById(name2+"divsecond").style.background='red';
+    }
+    if(index2 < start2 && index2 != ""  && times_pressed2 == 0) {
+        alert("End index must be greater than the start index");
+        var div_element2 = document.getElementById(name2+"divsecond").style.background='red';
+    }
+    if(index2 >= start2 && index2 <= words2.length) {
+        // Now replace the phrase word box with the phrase they selected
+        fillInTweet2(start2, index2, name2+"wordssecond");
+    }
+}
+
+// Replaces the phrase box with the phrase entered
+function fillInTweet2(start, end, id) {
+    document.getElementById(id.substring(0,7)+"divsecond").style.background='white';
+    var phrase2 = "";
+    for(i = start-1; i<=end-1; i++) {
+        if(i >= words2.length) {
+            break;
+        }
+        phrase2 += words2[i] + " ";
+    }
+    // Get the box to put the phrase in
+    var box = document.getElementById(id);
+    // Enter it
+    box.value = phrase2;
+    clearTimeout(timer2);
+}
+
+// When a key is pressed down restart the timer
+function keyDownHandler2() {
+    clearTimeout(timer2);
+    times_pressed2 = 0;
 }
 
 </script>
@@ -122,7 +218,7 @@ An example of how to complete the task: <br > <br>
 
 <div id="tweet">${tweet}</div>
 <script> printTweet() </script>
-
+<input name="id" type="hidden" value=${id} />
 <p><br />
 The overal sentiment of Tweet is:</p>
 
@@ -161,4 +257,58 @@ See <a href="http://www.sentimentron.co.uk/guidelines.pdf" target="_blank">secti
  <input name="sentimentphrase4" type="radio" value="negative" /> Negative
  <input name="sentimentphrase4" type="radio" value="neutral" /> Neutral<br /></div>
 
-<input name="id" type="hidden" value=${id} />
+
+
+
+
+<script>
+// BEGIN SECOND TWEET FORM
+</script>
+
+<br />
+<br />
+
+<p>The Tweet is -</p>
+
+<div id="tweet2">${tweet2}</div>
+<script> printTweet2() </script>
+<input name="idsecond" type="hidden" value=${id2} />
+<p><br />
+The overal sentiment of Tweet is:</p>
+
+<p><input name="sentiment" type="radio" value="positive" /> Positive<br />
+<input name="sentiment" type="radio" value="negative" /> Negative<br />
+<input name="sentiment" type="radio" value="neutral" /> Neutral<br />
+<br />
+
+See <a href="http://www.sentimentron.co.uk/guidelines.pdf" target="_blank">section two of the guidelines</a> for help on completing this section. <br> <br>
+
+<div id="phrase1divsecond" style="background-color:white">Subjective Phrase 1: <input name="phrase1beginsecond" id="phrase1beginsecond" placeholder="start index" type="text" size="6" onkeydown="keyDownHandler2()"> to
+<input name="phrase1endsecond" id="phrase1endsecond" placeholder="end index" type="text" size="6" onkeydown="keyDownHandler2()">
+<input name="phrase1words" id="phrase1wordssecond" placeholder="phrase words" size="50" type="text" />
+ <input name="sentimentphrase1second" type="radio" value="positive" /> Positive
+ <input name="sentimentphrase1second" type="radio" value="negative" /> Negative
+ <input name="sentimentphrase1second" type="radio" value="neutral" /> Neutral<br /></div>
+
+<div id="phrase2divsecond" style="background-color:white">Subjective Phrase 2: <input name="phrase2beginsecond" id="phrase2beginsecond" placeholder="start index" type="text" size="6" onkeydown="keyDownHandler2()"> to
+<input name="phrase2endsecond" id="phrase2endsecond" placeholder="end index" type="text" size="6" onkeydown="keyDownHandler2()">
+<input name="phrase2wordssecond" id="phrase2wordssecond" placeholder="phrase words" size="50" type="text" />
+ <input name="sentimentphrase2second" type="radio" value="negative" /> Positive
+ <input name="sentimentphrase2second" type="radio" value="neutral" /> Negative
+ <input name="sentimentphrase2second" type="radio" value="positive" /> Neutral <br /></div>
+
+<div id="phrase3divsecond" style="background-color:white">Subjective Phrase 3: <input name="phrase2beginsecond" id="phrase3beginsecond" placeholder="start index" type="text" size="6" onkeydown="keyDownHandler2()"> to
+<input name="phrase3endsecond" id="phrase3endsecond" placeholder="end index" type="text" size="6" onkeydown="keyDownHandler2()">
+<input name="phrase3wordssecond" id="phrase3wordssecond" placeholder="phrase words" size="50" type="text" />
+ <input name="sentimentphrase3second" type="radio" value="positive" /> Positive
+ <input name="sentimentphrase3second" type="radio" value="negative" /> Negative
+ <input name="sentimentphrase3second" type="radio" value="neutral" /> Neutral<br /></div>
+
+<div id="phrase4divsecond" style="background-color:white">Subjective Phrase 4: <input name="phrase2beginsecond" id="phrase4beginsecond" placeholder="start index" type="text" size="6" onkeydown="keyDownHandler2()"> to
+<input name="phrase4endsecond" id="phrase4endsecond" placeholder="end index" type="text" size="6" onkeydown="keyDownHandler2()">
+<input name="phrase4wordssecond" id="phrase4wordssecond" placeholder="phrase words" size="50" type="text" />
+ <input name="sentimentphrase4second" type="radio" value="positive" /> Positive
+ <input name="sentimentphrase4second" type="radio" value="negative" /> Negative
+ <input name="sentimentphrase4second" type="radio" value="neutral" /> Neutral<br /></div>
+
+
