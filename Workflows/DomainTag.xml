@@ -166,6 +166,14 @@
 				<DomainTerm>Securities</DomainTerm>
 				<DomainTerm>Takeover</DomainTerm>
 				<DomainTerm>Underwriter</DomainTerm>
+                <DomainTerm>btc</DomainTerm>
+                <DomainTerm>Natwest</DomainTerm>
+                <DomainTerm>RBS</DomainTerm>
+                <DomainTerm>Halifax</DomainTerm>
+                <DomainTerm>Goldmans</DomainTerm>
+                <DomainTerm>Goldman Sachs</DomainTerm>
+                <DomainTerm>Barclays</DomainTerm>
+                <DomainTerm>HSBC</DomainTerm>
 			</Domain>
 
 		</DomainLabeller>
