@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
 import sys
 
-from annotators import SubjectivityAnnotator
+from annotators import SubjectivityAnnotator, FinancialDistanceAnnotator
 
 from metadata import fetch_metadata, push_metadata, get_git_version
 
@@ -18,7 +19,7 @@ from semval import SemvalInputSource
 from templabeller import HashTagLabeller, AtMentionLabeller, BasicWordLabeller, BigramLabeller, LengthLabeller, SpecialCharacterLengthLabeller, ProbablySpamUnicodeLabeller, EmoticonLabeller, TrainingTestSplitLabeller
 from ml import ClusterLabeller
 
-from filter import LabelFilter, HasLabelFilter
+from filter import LabelFilter, HasLabelFilter, HasNoLabelFilter
 
 from db import create_sqlite_temp_path, create_sqlite_connection
 
@@ -34,9 +35,14 @@ from posfilter import RewritePOSFilter, POSWhiteListUnpopularTags, POSRewriteFro
 
 from domain import DomainLabeller
 
-from sentiwordnet import SentiWordNetStrengthLabeller
+from sentiwordnet import SentiWordNetPositiveOrNegativeStrengthLabeller, SentiWordNetPositiveStrengthLabeller
 
+from ourinput import OurInputSource
+
+from stemmer import Stemmer
 try:
     from pythonclassifiers import PythonClassifiers
 except ImportError:
-    print >> sys.stderr, "python classifiers aren't available"
+    logging.error("python classifiers aren't available")
+
+from workflow_action_types import WorkflowActionWithOptions

@@ -12,12 +12,10 @@
         <TemporaryLabelTable name="lengths" />
         <TemporaryLabelTable name="special" />
         <TemporaryLabelTable name="unicode" />
-        <TemporaryLabelTable name="clustering" />
-        <TemporaryLabelTable name="clusters" />
     </Tables>
 
 	<InputSources>
-		<PreviousWorkflow path="Workflows/ImportTwitter.xml" />
+		<PreviousWorkflow path="Workflows/DomainTag.xml" />
 	</InputSources>
 
     <WorkflowTasks>
@@ -31,13 +29,6 @@
         <ProbablySpamUnicodeLabeller dest="unicode" />
         <LabelFilter src="unicode" temporary="true" delete="true">
             <RetainLabel id="0" />
-        </LabelFilter>
-        <LengthLabeller dest="clustering" binSize="2" />
-        <HashTagLabeller dest="clustering" />
-        <AtMentionLabeller dest="clustering" />
-        <ClusterLabeller src="clustering" dest="clusters" epsilon="0.55" minSize="2" />
-        <LabelFilter src="clusters" temporary="true" delete="false">
-            <RetainMostPopularLabels count="2" />
         </LabelFilter>
     </WorkflowTasks>
 
