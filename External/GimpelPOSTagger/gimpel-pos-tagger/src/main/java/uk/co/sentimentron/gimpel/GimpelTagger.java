@@ -49,6 +49,8 @@ public class GimpelTagger {
         // Itterate over each document in the input database and tag it
         String query = "SELECT * FROM " + input_table;
         try {
+
+            conn.setAutoCommit(false);
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             // Yes we really have to do this to count how many results we have :(
@@ -68,19 +70,22 @@ public class GimpelTagger {
                 // For each token we got store it in the DB and build up the tokenised version of the document
                 Iterator itt = tokens.iterator();
                 while(itt.hasNext()) {
+                    // Retrieve the next token from the iterator 
                     cmu.arktweetnlp.Tagger.TaggedToken temp = (cmu.arktweetnlp.Tagger.TaggedToken)itt.next();
-                    Integer index = stored_tokens.get(temp.tag);
+                    String taggedToken = String.format("%1$s/%2$s", temp.tag, temp.token);
+                    // Stored tokens contains the tokens already stored 
+                    Integer index = stored_tokens.get(taggedToken);
                     if( index == null) {
                         // We dont already have this token so throw it in the database
                         String insert_tag = "INSERT INTO %1$s(token) VALUES(?)";
                         String insert_tag_query = String.format(insert_tag, token_table);
                         PreparedStatement insert_tag_query_with_variable = conn.prepareStatement(insert_tag_query);
-                        insert_tag_query_with_variable.setString(1, temp.tag);
+                        insert_tag_query_with_variable.setString(1, taggedToken);
                         insert_tag_query_with_variable.executeUpdate();
                         ResultSet meta = insert_tag_query_with_variable.getGeneratedKeys();
                         int id = meta.getInt("last_insert_rowid()");
-
-                        stored_tokens.put(temp.tag, id);
+                        // Add the token to the ouput string
+                        stored_tokens.put(taggedToken, id);
                         tagged_string.append(id);
                         tagged_string.append(" ");
                     } else {
@@ -96,6 +101,7 @@ public class GimpelTagger {
                 Statement insert_tagged_string_statement = conn.createStatement();
                 insert_tagged_string_statement.execute(pos_tagged_document_query);
             }
+            conn.commit();
         } catch(Exception e) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() + "\n");
             e.printStackTrace();

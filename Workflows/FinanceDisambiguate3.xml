@@ -1,0 +1,35 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>Finance Disambiguation Workflow</WorkflowName>
+        <WorkflowDescription> Disambiguate finance terms</WorkflowDescription>
+        <RetainOutputFile path="finance3.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+    </Tables>
+
+    <InputSources>
+        <PreviousWorkflow path="Workflows/GimpelPOSTagAMCorpus.xml"  />
+    </InputSources>
+
+    <WorkflowTasks>
+        <FinancialDistanceAnnotator pos="gimpel">
+            <Synset>stock.n.01</Synset>
+            <Synset>capital.n.02</Synset>
+            <Synset>inflation.n.01</Synset>
+            <Synset>currency.n.01</Synset>
+            <Synset>dividend.n.01</Synset>
+            <Synset>equity.n.02</Synset>
+            <Synset>ebitda.n.01</Synset>
+            <Synset>initial_public_offering.n.01</Synset>
+            <Synset>analyst.n.02</Synset>
+            <Synset>fiscal.a.01</Synset>
+            <Synset>fluid.s.04</Synset>
+            <Synset>valuable.a.01</Synset>
+            <Synset>dependable.s.04</Synset>
+        </FinancialDistanceAnnotator>
+    </WorkflowTasks>
+
+</Workflow>
