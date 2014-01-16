@@ -74,9 +74,6 @@ class BasicFilter(object):
         like_string = self.construct_like_string()
         cursor.execute(sql, (like_string,))
         conn.commit()
-        logging.info("Vacuuming...");
-        cursor.execute("VACUUM");
-        conn.commit();
         return True, conn
 
 class BasicNotFilter(BasicFilter):
@@ -119,7 +116,4 @@ class LineBreakFilter(object):
 %'"""
         cursor.execute(sql)
         conn.commit()
-        logging.info("Vacuuming...");
-        cursor.execute("VACUUM");
-        conn.commit();
         return True, conn

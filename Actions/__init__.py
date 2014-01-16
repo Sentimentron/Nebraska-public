@@ -38,7 +38,11 @@ from domain import DomainLabeller
 from sentiwordnet import SentiWordNetPositiveOrNegativeStrengthLabeller, SentiWordNetPositiveStrengthLabeller
 
 from ourinput import OurInputSource
+
+from stemmer import Stemmer
 try:
     from pythonclassifiers import PythonClassifiers
 except ImportError:
     logging.error("python classifiers aren't available")
+
+from workflow_action_types import WorkflowActionWithOptions

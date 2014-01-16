@@ -106,9 +106,6 @@ class LabelFilter(object):
             logging.info("Deleting input table...")
             c.execute("DROP TABLE %s" % (table,))
 
-        logging.info("Vacuuming...")
-        c.execute("VACUUM");
-
         logging.info("Committing changes...")
         conn.commit()
 
