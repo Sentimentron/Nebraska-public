@@ -143,11 +143,17 @@ class DomainLabeller(Labeller):
                 continue
             for label in labels:
                 self.associate(identifier, label, db_conn)
+            # Delete tweets with no labels: no point in keeping them
+            if len(labels) == 0:
+                cursor.execute("DELETE FROM input WHERE identifier = ?", (identifier,))
 
             if current % 10 == 0:
-                print("Determining domain labels (%.2f %% done)\r" % (current * 100.0/rowcount,))
+                print "Determining domain labels (%.2f %% done)\r" % (current * 100.0/rowcount,),
 
         logging.info("Commiting domain labels...")
         db_conn.commit()
+
+        logging.info("Vacuuming")
+        cursor.execute("VACUUM")
 
         return True, db_conn
