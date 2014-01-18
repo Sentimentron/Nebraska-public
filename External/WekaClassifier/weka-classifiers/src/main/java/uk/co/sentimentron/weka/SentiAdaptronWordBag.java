@@ -18,6 +18,10 @@ import java.util.*;
 import java.util.Map;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
+import weka.attributeSelection.PrincipalComponents;
+import weka.attributeSelection.*;
+import weka.attributeSelection.Ranker;
+
 
 public class SentiAdaptronWordBag {
 
@@ -35,6 +39,7 @@ public class SentiAdaptronWordBag {
         //int[] ids = {1,20,295};
         int[] ids = {1,2,3, 4};
         temp.constructInstances(c, ids);
+        temp.performPCA(false, -1, 0.95);
         //temp.keepTopN(10);
         //temp.keepWithEntropyAbove(0.4);
         temp.printInstances();
@@ -74,7 +79,7 @@ public class SentiAdaptronWordBag {
         loadStopWords();
 
     }
-    // TO DO: Add class label to instances
+
     public void constructInstances(Connection c, int[] document_identifiers) {
         String query;
         String tokenised_form;
@@ -117,6 +122,24 @@ public class SentiAdaptronWordBag {
             // Chances are if we end up here we couldn't find a label for the tweet
             System.out.println("Error finding a label for instance");
             e.printStackTrace();
+        }
+    }
+
+    // Default options would be to pass false, -1, 0.95
+    public void performPCA(boolean center_data, int max_attributes, double variance_covered) {
+        AttributeSelection selector = new AttributeSelection();
+        PrincipalComponents pca = new PrincipalComponents();
+        pca.setCenterData(center_data);
+        pca.setMaximumAttributeNames(max_attributes);
+        pca.setVarianceCovered(variance_covered);
+        Ranker ranker = new Ranker();
+        selector.setEvaluator(pca);
+        selector.setSearch(ranker);
+        try {
+            selector.SelectAttributes(data_set);
+            data_set = selector.reduceDimensionality(data_set);
+        } catch (Exception e ) {
+          e.printStackTrace();
         }
     }
 
