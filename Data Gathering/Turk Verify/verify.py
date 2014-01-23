@@ -2,7 +2,7 @@
 import csv
 import fileinput
 import sys
-import Levenshtein
+# import Levenshtein
 import re
 
 class Verify(object):
@@ -14,7 +14,29 @@ class Verify(object):
         self.REJECT = 34
         self.black_list = self.loadBlackList()
         self.masterAnnotations = self.loadMasterAnnotations()
+        self.scoreMap = self.loadScoreMap()
         pass
+
+    def loadScoreMap(self):
+        #make new hashmap of 2 letter combination
+        myMap = {}
+        myMap["qq"] = 0
+        myMap["qp"] = -1
+        myMap["qn"] = -1
+        myMap["qe"] = -0.1
+        myMap["pq"] = -1
+        myMap["pp"] = 0
+        myMap["nn"] = 0
+        myMap["pn"] = -1
+        myMap["pe"] = -0.5
+        myMap["nq"] = -0.1
+        myMap["np"] = -1
+        myMap["ne"] = -0.5
+        myMap["eq"] = -1
+        myMap["ep"] = -0.5
+        myMap["en"] = -0.1
+        myMap["ee"] = 0
+        return myMap
 
     def loadBlackList(self):
         return set(line.strip() for line in open('blacklist.txt'))
@@ -70,6 +92,43 @@ class Verify(object):
             return False
         return True
 
+    def setScore(self, row):
+        #Method gets one row from turk results and accesses the annotation.
+        #It then calculates a score based on our annotation and user's.
+        #p&p=0 n&n=0 e&e=0 p&e = -0.5 n&e=-0.5 p&n=-1
+
+        annotation = row[self.SUB_PHRASE]
+        ourAnnotation = self.masterAnnotations[row[self.TWEET]]
+
+        if(len(annotation)!=len(ourAnnotation)):
+            #add insignificant letters to end of annotation
+            annotation = self.padAnnotation(ourAnnotation, annotation)
+
+        #use regex to replace all non key letters to q
+        annotation = re.sub("[^p|^n|^e]", "q", annotation)
+        ourAnnotation = re.sub("[^p|^n|^e]", "q", ourAnnotation)
+
+        finalScore = 0
+
+        for i in range(0,len(ourAnnotation)-1):
+            finalScore = finalScore + self.getScore(annotation[i], ourAnnotation[i])
+
+        return finalScore
+
+    def getScore(self, letter1, letter2):
+        return self.scoreMap[letter1+letter2]
+
+    def padAnnotation(self, ourAnnotation, annotation):
+        difference = abs(len(ourAnnotation) - len(annotation))
+
+        if(len(ourAnnotation)>len(annotation)):
+            for i in range(1,difference):
+                annotation=annotation+'q'
+        else:
+            annotation = annotation[0:len(ourAnnotation)]
+
+        return annotation
+
 
 def main():
     file_name = sys.argv[1]
@@ -78,9 +137,10 @@ def main():
     APPROVE = 33
     for row in rows:
         good = 1
-        result = checker.computeDistanceToMasterAnnotation(row)
+        # result = checker.computeDistanceToMasterAnnotation(row)
         # result =  checker.isSubphrasePresent(row)
-        result = result & good
+        print(checker.setScore(row))
+        # result = result & good
         # result =  checker.isWorkerAllowed(row)
         # result = result & good
 
