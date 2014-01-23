@@ -10,7 +10,7 @@
     <Tables />
 
 	<InputSources>
-		<TwitterInputSource dir="/home/cs407/Corpora" />
+	    <TwitterInputSource dir="Data/Corpora" />
 	</InputSources>
     
     <WorkflowTasks>
