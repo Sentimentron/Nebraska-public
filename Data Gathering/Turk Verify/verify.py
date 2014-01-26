@@ -13,8 +13,9 @@ class Verify(object):
         self.WORKER_ID = 15
         self.REJECT = 34
         self.black_list = self.loadBlackList()
-        self.masterAnnotations = self.loadMasterAnnotations()
-        self.scoreMap = self.loadScoreMap()
+        self.minLengthToCheck = 10
+        # self.masterAnnotations = self.loadMasterAnnotations()
+        # self.scoreMap = self.loadScoreMap()
         pass
 
     def loadScoreMap(self):
@@ -80,6 +81,40 @@ class Verify(object):
         else:
             return True
 
+    def arePositiveSubphrasesTheCorrectLength(self, row):
+        tweet_length = len(row[self.TWEET])
+        number_of_p = row[self.SUB_PHRASE].count("p")
+        percent_positive = number_of_p / tweet_length
+        if(percent_positive >6 && tweet_length > self.minLengthToCheck):
+            row[self.REJECT] = "Your positive subphrase(s) are too long please read our guidelines to see what we expect and contact us if you are unsure."
+            self.writeRow(row)
+            return False
+        else:
+            return True
+
+    def areNegativeSubphrasesTheCorrectLength(self, row):
+        tweet_length = len(row[self.TWEET])
+        number_of_p = row[self.SUB_PHRASE].count("n")
+        percent_positive = number_of_p / tweet_length
+        if(percent_positive >20 && tweet_length > self.minLengthToCheck):
+            row[self.REJECT] = "Your negative subphrase(s) are too long please read our guidelines to see what we expect and contact us if you are unsure."
+            self.writeRow(row)
+            return False
+        else:
+            return True
+
+    def areNeutralSubphrasesTheCorrectLength(self, row):
+        tweet_length = len(row[self.TWEET])
+        number_of_p = row[self.SUB_PHRASE].count("n")
+        percent_positive = number_of_p / tweet_length
+        if(percent_positive >5 && tweet_length > self.minLengthToCheck):
+            row[self.REJECT] = "Your neutral subphrase(s) are too long please read our guidelines to see what we expect and contact us if you are unsure."
+            self.writeRow(row)
+            return False
+        else:
+            return True
+
+
     def computeDistanceToMasterAnnotation(self, row):
         # Get the master annotation for this tweet
         master = self.masterAnnotations[row[self.TWEET]]
@@ -137,12 +172,16 @@ def main():
     APPROVE = 33
     for row in rows:
         good = 1
-        # result = checker.computeDistanceToMasterAnnotation(row)
-        # result =  checker.isSubphrasePresent(row)
-        print(checker.setScore(row))
-        # result = result & good
-        # result =  checker.isWorkerAllowed(row)
-        # result = result & good
+        result =  checker.isSubphrasePresent(row)
+        result = result & good
+        result =  checker.isWorkerAllowed(row)
+        result = result & good
+        result  = checker.arePositiveSubphrasesTheCorrectLength(row)
+        result = result & good
+        result  = checker.areNegativeSubphrasesTheCorrectLength(row)
+        result = result & good
+        result  = checker.areNeutralSubphrasesTheCorrectLength(row)
+        result = result & good
 
         if(good):
             row[APPROVE] = "x"
