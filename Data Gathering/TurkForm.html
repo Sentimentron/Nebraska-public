@@ -100,10 +100,30 @@ p {
 
             anns = subphrases.split("|").join("");
             anns = anns.split(" ").join("").split("");
+            var tweet_length = tweet.split(" ").length;
+            var positive_percent = ((subphrases.match(/p/g)||[]).length / tweet_length)*100;
+            var negative_percent = ((subphrases.match(/n/g)||[]).length / tweet_length)*100;
+            var neutral_percent = ((subphrases.match(/e/g)||[]).length  / tweet_length)*100;
+            var min_length_to_display_warning = 10;
             tweet = tweet.split(" ");
 
             if (tweet.length > anns.length) {
                 displayErrorMessage("Please enter enough characters in the subphrase box to cover the whole tweet.");
+            }
+
+            // Check if the subphrases look too long
+            if(positive_percent > 6 && tweet_length > min_length_to_display_warning) {
+                console.log(positive_percent);
+                console.log(subphrases.split("p"));
+                displayErrorMessage("Your positive subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            }
+            if(negative_percent > 20 && tweet_length > min_length_to_display_warning) {
+                console.log(negative_percent);
+                displayErrorMessage("Your negative subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            }
+            if(neutral_percent > 5 && tweet_length > min_length_to_display_warning) {
+                console.log(neutral_percent);
+                displayErrorMessage("Your neutral subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
             }
 
 
