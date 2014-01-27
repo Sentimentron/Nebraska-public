@@ -9,19 +9,19 @@ $(document).ready(function() {
             window.location.href = 'next';
         }
         if(code == 97) {
-            window.location.href = 'next?tweet='+$("#tweet").text().trim()+'&status=accept'+'&annotation='+subphrase.join("");
+            window.location.href = encodeURIComponent('next?tweet='+$("#tweet").text().trim()+'&status=accept'+'&annotation='+subphrase.join(""));
         }
         if(code == 114) {
-            window.location.href = 'next?tweet='+$("#tweet").text().trim()+'&status=reject'+'&annotation='+subphrase.join("");
+            window.location.href = encodeURIComponent'next?tweet='+$("#tweet").text().trim()+'&status=reject'+'&annotation='+subphrase.join(""));
         }
         if(code == 101) {
-            window.location.href = 'next?tweet='+$("#tweet").text().trim()+'&status=reject-empty'+'&annotation='+subphrase.join("");
+            window.location.href = encodeURIComponent'next?tweet='+$("#tweet").text().trim()+'&status=reject-empty'+'&annotation='+subphrase.join(""));
         }
         if(code == 108) {
-            window.location.href = 'next?tweet='+$("#tweet").text().trim()+'&status=reject-too-long'+'&annotation='+subphrase.join("");
+            window.location.href = encodeURIComponent('next?tweet='+$("#tweet").text().trim()+'&status=reject-too-long'+'&annotation='+subphrase.join(""));
         }
         if(code == 110) {
-            window.location.href = 'next?tweet='+$("#tweet").text().trim()+'&status=reject-too-neutral'+'&annotation='+subphrase.join("");
+            window.location.href = encodeURIComponent'next?tweet='+$("#tweet").text().trim()+'&status=reject-too-neutral'+'&annotation='+subphrase.join(""));
         }
 
     });

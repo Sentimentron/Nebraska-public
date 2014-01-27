@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import division
 import csv
 import fileinput
 import sys
@@ -13,9 +14,9 @@ class Verify(object):
         self.WORKER_ID = 15
         self.REJECT = 34
         self.black_list = self.loadBlackList()
-        self.minLengthToCheck = 10
-        # self.masterAnnotations = self.loadMasterAnnotations()
-        # self.scoreMap = self.loadScoreMap()
+        self.minLengthToCheck = 1
+        self.masterAnnotations = self.loadMasterAnnotations()
+        self.scoreMap = self.loadScoreMap()
         pass
 
     def loadScoreMap(self):
@@ -83,9 +84,10 @@ class Verify(object):
 
     def arePositiveSubphrasesTheCorrectLength(self, row):
         tweet_length = len(row[self.TWEET])
-        number_of_p = row[self.SUB_PHRASE].count("p")
-        percent_positive = number_of_p / tweet_length
-        if(percent_positive >6 && tweet_length > self.minLengthToCheck):
+        subphrase = row[self.SUB_PHRASE]
+        number_of_p = subphrase.count("p")
+        percent_positive = (number_of_p / tweet_length) *100
+        if(percent_positive >6 and tweet_length > self.minLengthToCheck):
             row[self.REJECT] = "Your positive subphrase(s) are too long please read our guidelines to see what we expect and contact us if you are unsure."
             self.writeRow(row)
             return False
@@ -94,9 +96,10 @@ class Verify(object):
 
     def areNegativeSubphrasesTheCorrectLength(self, row):
         tweet_length = len(row[self.TWEET])
-        number_of_p = row[self.SUB_PHRASE].count("n")
-        percent_positive = number_of_p / tweet_length
-        if(percent_positive >20 && tweet_length > self.minLengthToCheck):
+        subphrase = row[self.SUB_PHRASE]
+        number_of_n = subphrase.count("n")
+        percent_negative = (number_of_n / tweet_length) *100
+        if(percent_negative >20 and tweet_length > self.minLengthToCheck):
             row[self.REJECT] = "Your negative subphrase(s) are too long please read our guidelines to see what we expect and contact us if you are unsure."
             self.writeRow(row)
             return False
@@ -105,10 +108,24 @@ class Verify(object):
 
     def areNeutralSubphrasesTheCorrectLength(self, row):
         tweet_length = len(row[self.TWEET])
-        number_of_p = row[self.SUB_PHRASE].count("n")
-        percent_positive = number_of_p / tweet_length
-        if(percent_positive >5 && tweet_length > self.minLengthToCheck):
+        subphrase = row[self.SUB_PHRASE]
+        number_of_e = subphrase.count("e")
+        percent_neutral = (number_of_e / tweet_length) *100
+        if(percent_neutral >5 and tweet_length > self.minLengthToCheck):
             row[self.REJECT] = "Your neutral subphrase(s) are too long please read our guidelines to see what we expect and contact us if you are unsure."
+            self.writeRow(row)
+            return False
+        else:
+            return True
+
+    def isWholeTweetAnnotated(self, row):
+        tweet_length = len(row[self.TWEET].split())
+        subphrase = row[self.SUB_PHRASE]
+        number_of_e = subphrase.count("e")
+        number_of_n = subphrase.count("n")
+        number_of_p = subphrase.count("p")
+        if(number_of_p >= tweet_length or number_of_n >= tweet_length or number_of_e >= tweet_length):
+            row[self.REJECT] = "You have annotated the whole tweet as a subphrase please read our guidelines to ensure you understand what we require and contact us if you are unsure."
             self.writeRow(row)
             return False
         else:
@@ -171,21 +188,27 @@ def main():
     rows = checker.readInData(file_name)
     APPROVE = 33
     for row in rows:
-        good = 1
         result =  checker.isSubphrasePresent(row)
-        result = result & good
+        if(not result):
+            continue
         result =  checker.isWorkerAllowed(row)
-        result = result & good
+        if(not result):
+            continue
         result  = checker.arePositiveSubphrasesTheCorrectLength(row)
-        result = result & good
+        if(not result):
+            continue
         result  = checker.areNegativeSubphrasesTheCorrectLength(row)
-        result = result & good
+        if(not result):
+            continue
         result  = checker.areNeutralSubphrasesTheCorrectLength(row)
-        result = result & good
+        if(not result):
+            continue
+        result = checker.isWholeTweetAnnotated(row)
+        if(not result):
+            continue
 
-        if(good):
-            row[APPROVE] = "x"
-            checker.writeRow(row)
+        row[APPROVE] = "x"
+        checker.writeRow(row)
 
 
 if  __name__ =='__main__':
