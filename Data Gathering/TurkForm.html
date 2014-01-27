@@ -162,7 +162,18 @@ p {
             $("#box-subphrase").val("");
         }
 
-        $(document).ready(displayForm);
+        $(document).ready(function() {
+            displayForm();
+            var divs = $('div[id^="ann-"]').hide(),
+            i = 0;
+
+            (function cycle() {
+                divs.eq(i).fadeIn(400)
+                          .delay(5000)
+                          .fadeOut(400, cycle);
+                i = ++i % divs.length;
+            })();
+        });
 
     </script><noscript>
         <h2>To complete this HIT, check Javascript is enabled in your browser.</h2>
@@ -184,7 +195,31 @@ p {
 <p class="instructions"><br />
 Refer to the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">guidelines</a> and the examples below for help filling in this section and note that subjective phrases are rarely longer than a few words.</p>
 
-<img id="example" src="placeholder.jpg">
+<div id="ann-6" class="jumbotron">
+    <h3>AT&T was <span class="annotation-neutral">okay</span> but whenever they do something <span class="annotation-positive">nice</span> in the name of customer service it <span class="annotation-negative">seems like a favor</span>, while T-Mobile makes that a <span class="annotation-positive">normal everyday thin</span></h3>
+</div>
+
+<div id="ann-1" class="jumbotron">
+    <h3> Even though <span class="annotation-negative">it's too expensive</span> I think the new Surface tablet is <span class="annotation-positive">pretty neat</span> </h3>
+</div>
+
+<div id="ann-2" class="jumbotron">
+        <h3>i <span class="annotation-negative">love it</span> when my card <span class="annotation-negative">declines</span></h3>
+</div>
+
+<div id="ann-3" class="jumbotron">
+        <h3>I <span class="annotation-positive">love</span> Apple but they <span class="annotation-negative">got it wrong</span> with the new ipad <span class="annotation-negative">:(</span></h3>
+</div>
+
+<div id="ann-4" class="jumbotron">
+    <h3><span class="annotation-positive">Stocks seen higher</span> <span class="annotation-no-annotation">on stimulus hopes: U.S. stock index futures pointed to a</span> <span class="annotation-positive">
+    higher open</span> <span class="annotation-no-annotation">on Friday on hopes that the Federal R...  #stocks</span></h3>
+</div>
+
+<div id="ann-5" class="jumbotron">
+    <h3>obama should be <span class="annotation-negative">impeached</span> on <span class="annotation-negative">TREASON</span> charges. Our Nuclear arsenal was TOP Secret. Till HE told our enemies what we had. <span class="annotation-negative">#Coward #Traitor</span></h3>
+</div>
+
 
 <div id="div-error"> <br />
 <p class="instructions"><span class="label label-warning">Important</span> Your work <b>will be rejected</b> if you do not accurately annotate the subjective phrases. Please read the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">guidelines</a> to ensure you understand how to annotate subjective phrases</p> <br />
