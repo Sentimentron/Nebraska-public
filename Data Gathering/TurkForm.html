@@ -83,7 +83,7 @@ p {
 
             function displayErrorMessage(errorText) {
                 $('#div-error').show();
-                $('#error-text').html(errorText);
+                $('#error-message-text').html(errorText);
             }
 
             $('#div-error').hide();
@@ -112,10 +112,6 @@ p {
             var max_run_of_e = (countRunOfE(subphrases) / tweet_length) * 100;
                         console.log(max_run_of_n);
 
-            if (tweet.length > anns.length) {
-                displayErrorMessage("Please enter enough characters in the subphrase box to cover the whole tweet.");
-            }
-
             // Check if the subphrases look too long
             if(positive_percent > 35 && tweet_length > min_length_to_display_warning) {
                 $('#error-text').show();
@@ -126,6 +122,9 @@ p {
             } else if(neutral_percent > 31 && tweet_length > min_length_to_display_warning) {
                 $('#error-text').show();
                 displayErrorMessage("Your neutral subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if (tweet.length > anns.length) {
+                $('#error-text').show();
+                displayErrorMessage("Please enter enough characters in the subphrase box to cover the whole tweet.");
             } else {
                 $('#error-text').hide();
             }
@@ -140,6 +139,9 @@ p {
             } else if(max_run_of_n > 55 && tweet_length > min_length_to_display_warning) {
                 $('#error-text').show();
                 displayErrorMessage("Your negative subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if (tweet.length > anns.length) {
+                $('#error-text').show();
+                displayErrorMessage("Please enter enough characters in the subphrase box to cover the whole tweet.");
             } else {
                 $('#error-text').hide();
             }
@@ -282,7 +284,7 @@ Refer to the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" targe
 <div id="div-error"> <br />
 <p class="instructions"><span class="label label-warning">Important</span> Your work <b>will be rejected</b> if you do not accurately annotate the subjective phrases. Please read the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">guidelines</a> to ensure you understand how to annotate subjective phrases</p> <br />
 
-<p id="error-text"><span class="label label-warning">Warning</span> Please enter enough into the subjective phrases box to cover the entire tweet.</span></p>
+<p id="error-text"><span class="label label-warning">Warning</span> <span id="error-message-text">Please enter enough into the subjective phrases box to cover the entire tweet.</span></p>
 </div>
 
 </div>
