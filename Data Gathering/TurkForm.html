@@ -100,30 +100,31 @@ p {
 
             anns = subphrases.split("|").join("");
             anns = anns.split(" ").join("").split("");
-            var tweet_length = tweet.split(" ").length;
+            var tweet_length = subphrases.length;
             var positive_percent = ((subphrases.match(/p/g)||[]).length / tweet_length)*100;
             var negative_percent = ((subphrases.match(/n/g)||[]).length / tweet_length)*100;
             var neutral_percent = ((subphrases.match(/e/g)||[]).length  / tweet_length)*100;
             var min_length_to_display_warning = 10;
             tweet = tweet.split(" ");
-
+            console.log("Number of p:" + (subphrases.match(/p/g)||[]).length);
+            console.log("Tweet Length:" + tweet_length);
+            console.log("Positive Percent: " + positive_percent);
             if (tweet.length > anns.length) {
                 displayErrorMessage("Please enter enough characters in the subphrase box to cover the whole tweet.");
             }
 
             // Check if the subphrases look too long
             if(positive_percent > 6 && tweet_length > min_length_to_display_warning) {
-                console.log(positive_percent);
-                console.log(subphrases.split("p"));
+                $('#error-text').show();
                 displayErrorMessage("Your positive subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
-            }
-            if(negative_percent > 20 && tweet_length > min_length_to_display_warning) {
+            } else if (negative_percent > 20 && tweet_length > min_length_to_display_warning) {
                 console.log(negative_percent);
                 displayErrorMessage("Your negative subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
-            }
-            if(neutral_percent > 5 && tweet_length > min_length_to_display_warning) {
+            } else if(neutral_percent > 5 && tweet_length > min_length_to_display_warning) {
                 console.log(neutral_percent);
                 displayErrorMessage("Your neutral subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else {
+                $('#error-text').hide();
             }
 
 
@@ -224,7 +225,7 @@ Refer to the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" targe
 <div id="div-error"> <br />
 <p class="instructions"><span class="label label-warning">Important</span> Your work <b>will be rejected</b> if you do not accurately annotate the subjective phrases. Please read the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">guidelines</a> to ensure you understand how to annotate subjective phrases</p> <br />
 
-<p id="error-text">Please enter enough into the subjective phrases box to cover the entire tweet.</p>
+<p id="error-text"><span class="label label-warning">Please enter enough into the subjective phrases box to cover the entire tweet.</span></p>
 </div>
 
 </div>
