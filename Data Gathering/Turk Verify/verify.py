@@ -14,7 +14,7 @@ class Verify(object):
         self.WORKER_ID = 15
         self.REJECT = 34
         self.black_list = self.loadBlackList()
-        self.minLengthToCheck = 1
+        self.minLengthToCheck = 5
         self.masterAnnotations = self.loadMasterAnnotations()
         self.scoreMap = self.loadScoreMap()
         pass
@@ -83,7 +83,7 @@ class Verify(object):
             return True
 
     def arePositiveSubphrasesTheCorrectLength(self, row):
-        tweet_length = len(row[self.TWEET])
+        tweet_length = len(row[self.TWEET].split())
         subphrase = row[self.SUB_PHRASE]
         number_of_p = subphrase.count("p")
         percent_positive = (number_of_p / tweet_length) *100
@@ -95,7 +95,7 @@ class Verify(object):
             return True
 
     def areNegativeSubphrasesTheCorrectLength(self, row):
-        tweet_length = len(row[self.TWEET])
+        tweet_length = len(row[self.TWEET].split())
         subphrase = row[self.SUB_PHRASE]
         number_of_n = subphrase.count("n")
         percent_negative = (number_of_n / tweet_length) *100
@@ -107,7 +107,7 @@ class Verify(object):
             return True
 
     def areNeutralSubphrasesTheCorrectLength(self, row):
-        tweet_length = len(row[self.TWEET])
+        tweet_length = len(row[self.TWEET].split())
         subphrase = row[self.SUB_PHRASE]
         number_of_e = subphrase.count("e")
         percent_neutral = (number_of_e / tweet_length) *100
@@ -180,6 +180,9 @@ class Verify(object):
             annotation = annotation[0:len(ourAnnotation)]
 
         return annotation
+
+    def normaliseNonSentimentCharacter(self, row):
+        row[self.SUB_PHRASE] = re.sub("[^p|^n|^e]", "q", row[self.SUB_PHRASE])
 
 
 def main():
