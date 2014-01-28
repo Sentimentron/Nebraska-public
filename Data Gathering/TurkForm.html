@@ -100,33 +100,49 @@ p {
 
             anns = subphrases.split("|").join("");
             anns = anns.split(" ").join("").split("");
-            var tweet_length = subphrases.length;
+            var tweet_length = tweet.split(" ").length;
             var positive_percent = ((subphrases.match(/p/g)||[]).length / tweet_length)*100;
             var negative_percent = ((subphrases.match(/n/g)||[]).length / tweet_length)*100;
             var neutral_percent = ((subphrases.match(/e/g)||[]).length  / tweet_length)*100;
             var min_length_to_display_warning = 10;
             tweet = tweet.split(" ");
-            console.log("Number of p:" + (subphrases.match(/p/g)||[]).length);
-            console.log("Tweet Length:" + tweet_length);
-            console.log("Positive Percent: " + positive_percent);
+
+            var max_run_of_p = (countRunOfP(subphrases) / tweet_length) * 100;
+            var max_run_of_n = (countRunOfN(subphrases) / tweet_length) * 100;
+            var max_run_of_e = (countRunOfE(subphrases) / tweet_length) * 100;
+                        console.log(max_run_of_n);
+
             if (tweet.length > anns.length) {
                 displayErrorMessage("Please enter enough characters in the subphrase box to cover the whole tweet.");
             }
 
             // Check if the subphrases look too long
-            if(positive_percent > 6 && tweet_length > min_length_to_display_warning) {
+            if(positive_percent > 35 && tweet_length > min_length_to_display_warning) {
                 $('#error-text').show();
                 displayErrorMessage("Your positive subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
-            } else if (negative_percent > 20 && tweet_length > min_length_to_display_warning) {
+            } else if (negative_percent > 72 && tweet_length > min_length_to_display_warning) {
                 $('#error-text').show();
                 displayErrorMessage("Your negative subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
-            } else if(neutral_percent > 5 && tweet_length > min_length_to_display_warning) {
+            } else if(neutral_percent > 31 && tweet_length > min_length_to_display_warning) {
                 $('#error-text').show();
                 displayErrorMessage("Your neutral subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
             } else {
                 $('#error-text').hide();
             }
 
+            // Check if the runs were too long
+            if(max_run_of_p > 40 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your positive subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if (max_run_of_e > 30 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your neutral subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if(max_run_of_n > 55 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your negative subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else {
+                $('#error-text').hide();
+            }
 
             for (var i = 0; i < tweet.length; i++) {
                 var word = tweet[i];
@@ -146,7 +162,48 @@ p {
                 $("#big_tweet").append(spans[i]);
                 $("#big_tweet").append(" ");
             }
+        }
 
+        function countRunOfP(subphrase, letter) {
+            matches = subphrase.match(/(p+p)/g);
+            max = 0;
+            if(matches == null) {
+                return 0;
+            }
+            for(i=0; i<matches.length; i++) {
+                if(matches[i].length > max) {
+                    max = matches[i].length;
+                }
+            }
+            return max;
+        }
+
+        function countRunOfE(subphrase, letter) {
+            matches = subphrase.match(/(e+e)/g);
+            max = 0;
+            if(matches == null) {
+                return 0;
+            }
+            for(i=0; i<matches.length; i++) {
+                if(matches[i].length > max) {
+                    max = matches[i].length;
+                }
+            }
+            return max;
+        }
+
+        function countRunOfN(subphrase, letter) {
+            matches = subphrase.match(/(n+n)/g);
+            max = 0;
+            if(matches == null) {
+                return 0;
+            }
+            for(i=0; i<matches.length; i++) {
+                if(matches[i].length > max) {
+                    max = matches[i].length;
+                }
+            }
+            return max;
         }
 
         function displayForm() {
@@ -185,7 +242,7 @@ p {
 </div>
 
 <p class="instructions">Please help us determine this tweet&#39;s sentiment. <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">View instructions &raquo;</a></p>
-<input name="tweet_id" type="hidden" value="${id}" /> <input id="box-tweet-text" name="tweet_text" type="hidden" value="${tweet}" />
+<input name="tweet_id" type="hidden" value="${id}" /> <input id="box-tweet-text" name="tweet_text" type="hidden" value="This is my super awesome amazing tweet that is long enough to work lol olo ll o l" />
 <div>
 <p><input id="radio-neutral" name="sentiment" type="radio" value="neutral" /><label for="radio-neutral"> <span class="annotation-neutral">Neutral </span></label> <input id="radio-negative" name="sentiment" type="radio" value="negative" /><label for="radio-negative"><span class="annotation-negative">Negative</span></label> <input id="radio-positive" name="sentiment" type="radio" value="positive" /><label for="radio-positive"><span class="annotation-positive">Positive</span></label></p>
 </div>
