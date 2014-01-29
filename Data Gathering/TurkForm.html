@@ -83,7 +83,7 @@ p {
 
             function displayErrorMessage(errorText) {
                 $('#div-error').show();
-                $('#error-text').html(errorText);
+                $('#error-message-text').html(errorText);
             }
 
             $('#div-error').hide();
@@ -100,12 +100,51 @@ p {
 
             anns = subphrases.split("|").join("");
             anns = anns.split(" ").join("").split("");
+            var tweet_length = tweet.split(" ").length;
+            var positive_percent = ((subphrases.match(/p/g)||[]).length / tweet_length)*100;
+            var negative_percent = ((subphrases.match(/n/g)||[]).length / tweet_length)*100;
+            var neutral_percent = ((subphrases.match(/e/g)||[]).length  / tweet_length)*100;
+            var min_length_to_display_warning = 10;
             tweet = tweet.split(" ");
 
-            if (tweet.length > anns.length) {
+            var max_run_of_p = (countRunOfP(subphrases) / tweet_length) * 100;
+            var max_run_of_n = (countRunOfN(subphrases) / tweet_length) * 100;
+            var max_run_of_e = (countRunOfE(subphrases) / tweet_length) * 100;
+                        console.log(max_run_of_n);
+
+            // Check if the subphrases look too long
+            if(positive_percent > 35 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your positive subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if (negative_percent > 72 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your negative subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if(neutral_percent > 31 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your neutral subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if (tweet.length > anns.length) {
+                $('#error-text').show();
                 displayErrorMessage("Please enter enough characters in the subphrase box to cover the whole tweet.");
+            } else {
+                $('#error-text').hide();
             }
 
+            // Check if the runs were too long
+            if(max_run_of_p > 40 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your positive subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if (max_run_of_e > 30 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your neutral subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if(max_run_of_n > 55 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your negative subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if (tweet.length > anns.length) {
+                $('#error-text').show();
+                displayErrorMessage("Please enter enough characters in the subphrase box to cover the whole tweet.");
+            } else {
+                $('#error-text').hide();
+            }
 
             for (var i = 0; i < tweet.length; i++) {
                 var word = tweet[i];
@@ -125,7 +164,48 @@ p {
                 $("#big_tweet").append(spans[i]);
                 $("#big_tweet").append(" ");
             }
+        }
 
+        function countRunOfP(subphrase, letter) {
+            matches = subphrase.match(/(p+p)/g);
+            max = 0;
+            if(matches == null) {
+                return 0;
+            }
+            for(i=0; i<matches.length; i++) {
+                if(matches[i].length > max) {
+                    max = matches[i].length;
+                }
+            }
+            return max;
+        }
+
+        function countRunOfE(subphrase, letter) {
+            matches = subphrase.match(/(e+e)/g);
+            max = 0;
+            if(matches == null) {
+                return 0;
+            }
+            for(i=0; i<matches.length; i++) {
+                if(matches[i].length > max) {
+                    max = matches[i].length;
+                }
+            }
+            return max;
+        }
+
+        function countRunOfN(subphrase, letter) {
+            matches = subphrase.match(/(n+n)/g);
+            max = 0;
+            if(matches == null) {
+                return 0;
+            }
+            for(i=0; i<matches.length; i++) {
+                if(matches[i].length > max) {
+                    max = matches[i].length;
+                }
+            }
+            return max;
         }
 
         function displayForm() {
@@ -142,7 +222,18 @@ p {
             $("#box-subphrase").val("");
         }
 
-        $(document).ready(displayForm);
+        $(document).ready(function() {
+            displayForm();
+            var divs = $('div[id^="ann-"]').hide(),
+            i = 0;
+
+            (function cycle() {
+                divs.eq(i).fadeIn(400)
+                          .delay(5000)
+                          .fadeOut(400, cycle);
+                i = ++i % divs.length;
+            })();
+        });
 
     </script><noscript>
         <h2>To complete this HIT, check Javascript is enabled in your browser.</h2>
@@ -164,12 +255,36 @@ p {
 <p class="instructions"><br />
 Refer to the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">guidelines</a> and the examples below for help filling in this section and note that subjective phrases are rarely longer than a few words.</p>
 
-<img id="example" src="placeholder.jpg">
+<div id="ann-6" class="jumbotron">
+    <h3>AT&T was <span class="annotation-neutral">okay</span> but whenever they do something <span class="annotation-positive">nice</span> in the name of customer service it <span class="annotation-negative">seems like a favor</span>, while T-Mobile makes that a <span class="annotation-positive">normal everyday thin</span></h3>
+</div>
+
+<div id="ann-1" class="jumbotron">
+    <h3> Even though <span class="annotation-negative">it's too expensive</span> I think the new Surface tablet is <span class="annotation-positive">pretty neat</span> </h3>
+</div>
+
+<div id="ann-2" class="jumbotron">
+        <h3>i <span class="annotation-negative">love it</span> when my card <span class="annotation-negative">declines</span></h3>
+</div>
+
+<div id="ann-3" class="jumbotron">
+        <h3>I <span class="annotation-positive">love</span> Apple but they <span class="annotation-negative">got it wrong</span> with the new ipad <span class="annotation-negative">:(</span></h3>
+</div>
+
+<div id="ann-4" class="jumbotron">
+    <h3><span class="annotation-positive">Stocks seen higher</span> <span class="annotation-no-annotation">on stimulus hopes: U.S. stock index futures pointed to a</span> <span class="annotation-positive">
+    higher open</span> <span class="annotation-no-annotation">on Friday on hopes that the Federal R...  #stocks</span></h3>
+</div>
+
+<div id="ann-5" class="jumbotron">
+    <h3>obama should be <span class="annotation-negative">impeached</span> on <span class="annotation-negative">TREASON</span> charges. Our Nuclear arsenal was TOP Secret. Till HE told our enemies what we had. <span class="annotation-negative">#Coward #Traitor</span></h3>
+</div>
+
 
 <div id="div-error"> <br />
 <p class="instructions"><span class="label label-warning">Important</span> Your work <b>will be rejected</b> if you do not accurately annotate the subjective phrases. Please read the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">guidelines</a> to ensure you understand how to annotate subjective phrases</p> <br />
 
-<p id="error-text">Please enter enough into the subjective phrases box to cover the entire tweet.</p>
+<p id="error-text"><span class="label label-warning">Warning</span> <span id="error-message-text">Please enter enough into the subjective phrases box to cover the entire tweet.</span></p>
 </div>
 
 </div>
