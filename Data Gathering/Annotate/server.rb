@@ -1,7 +1,8 @@
 require 'sinatra'
 require 'uri'
 require 'csv'
-require_relative 'CSVHandler'
+require './CSVHandler'
+
 @@all_tweets = CSVHandler.new('results.csv')
 get '/' do
     @tweet = @@all_tweets.getTweet

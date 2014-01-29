@@ -1,5 +1,5 @@
 require 'csv'
-require_relative 'Tweet'
+require './Tweet'
 class CSVHandler
 
     def initialize filename
