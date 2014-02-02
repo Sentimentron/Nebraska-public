@@ -14,6 +14,7 @@ import weka.core.DenseInstance;
 import java.sql.PreparedStatement;
 import weka.core.Attribute;
 import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Performs a single run of cross-validation and adds the prediction on the
@@ -51,15 +52,7 @@ public class WekaBenchmark {
       }
     }
 
-    // Parse command line arguments
-    String posTable = Utils.getOption("T", args);
-    String labelTable = Utils.getOption("L", args);
-
-    String queryTemplate = "SELECT tokenized_form AS document, label FROM pos_%1$s NATURAL JOIN temporary_label_%2$s";
-    String query = String.format(queryTemplate, posTable, labelTable);
-
-    Instances data = DataSource.read("data.arff");
-    // Read in our data from the SQLite file whose path is specified from the -t parameter
+    // Get a database connection so we can insert results later
     Connection c = null;
     try {
       Class.forName("org.sqlite.JDBC");
@@ -69,29 +62,29 @@ public class WekaBenchmark {
       System.exit(1);
     }
 
-    Statement stmt = c.createStatement();
+    // Parse command line arguments
+    String posTable = Utils.getOption("T", args);
+    String labelTable = Utils.getOption("L", args);
+
+    // Get a list of documents to use in the BOW
+    String queryTemplate = "SELECT document_identifier FROM temporary_label_%2$s";
+    String query = String.format(queryTemplate, posTable, labelTable);Statement stmt = c.createStatement();
     ResultSet rs = stmt.executeQuery(query);
+    LinkedList documents = new LinkedList();
     while ( rs.next() ) {
-      DenseInstance temp = new DenseInstance(2);
-      temp.setDataset(data);
-      String label = rs.getString("label");
-      String  document = rs.getString("document");
-      temp.setValue(0, document);
-      temp.setValue(1, label);
-      data.add(temp);
+      documents.add(rs.getInt("document_identifier"));
     }
     rs.close();
     stmt.close();
 
-    String clsIndex = Utils.getOption("c", args);
-    if (clsIndex.length() == 0)
-      clsIndex = "last";
-    if (clsIndex.equals("first"))
-      data.setClassIndex(0);
-    else if (clsIndex.equals("last"))
-      data.setClassIndex(data.numAttributes() - 1);
-    else
-      data.setClassIndex(Integer.parseInt(clsIndex) - 1);
+    // Make a new BagOfWords and let it handle constructing the instances object. (The final parameter turns debugging on, flip it to false to turn it off.)
+    SentiAdaptronWordBag wordBag = new SentiAdaptronWordBag(c, labelTable, posTable, false);
+    wordBag.buildWordBag(documents);
+    // Possible options to reduce attribute count
+    // wordBag.keepTopN(10);
+    // wordBag.keepWithEntropyAbove(0.4);
+    // wordBag.keepWithEntropyBelow(0.4);
+    Instances data = wordBag.getData();
 
     // classifier
     String[] tmpOptions;
@@ -100,23 +93,14 @@ public class WekaBenchmark {
     classname      = tmpOptions[0];
     tmpOptions[0]  = "";
     AbstractClassifier cls = (AbstractClassifier) Utils.forName(AbstractClassifier.class, classname, tmpOptions);
-;
+
     // other options
     int seed  = Integer.parseInt(Utils.getOption("s", args));
     int folds = Integer.parseInt(Utils.getOption("x", args));
 
-    StringToWordVector filter = new StringToWordVector();
-
     // randomize data
     Random rand = new Random(seed);
     Instances randData = new Instances(data);
-    try {
-      filter.setInputFormat(randData);
-      filter.setAttributeIndices("1");
-      randData = Filter.useFilter(randData, filter);
-    } catch (Exception e) {
-      System.out.println(e.toString());
-    }
 
     randData.randomize(rand);
     if (randData.classAttribute().isNominal())
