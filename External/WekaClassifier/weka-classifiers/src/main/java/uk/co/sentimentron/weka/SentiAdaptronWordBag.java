@@ -22,28 +22,28 @@ import weka.attributeSelection.PrincipalComponents;
 import weka.attributeSelection.*;
 import weka.attributeSelection.Ranker;
 
-
+// Note the Word Bag assumes labels are 0,1,-1 anything else will make it cry.
 public class SentiAdaptronWordBag {
 
-    public static void main(String args[]) {
-        // Open connection to SQLite database
-        Connection c = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:turkgimpel.sqlite");
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() + "\nDo you have the SQLite JDBC in your classpath? get it at: https://bitbucket.org/xerial/sqlite-jdbc/downloads" );
-            System.exit(1);
-        }
-        SentiAdaptronWordBag temp = new SentiAdaptronWordBag("sanders", "gimpel", false);
-        //int[] ids = {1,20,295};
-        int[] ids = {1,2,3, 4};
-        temp.constructInstances(c, ids);
-        temp.performPCA(false, -1, 0.95);
-        //temp.keepTopN(10);
-        //temp.keepWithEntropyAbove(0.4);
-        temp.printInstances();
-    }
+    // public static void main(String args[]) {
+    //     // Open connection to SQLite database
+    //     Connection c = null;
+    //     try {
+    //         Class.forName("org.sqlite.JDBC");
+    //         c = DriverManager.getConnection("jdbc:sqlite:turkgimpel.sqlite");
+    //     } catch ( Exception e ) {
+    //         System.err.println( e.getClass().getName() + ": " + e.getMessage() + "\nDo you have the SQLite JDBC in your classpath? get it at: https://bitbucket.org/xerial/sqlite-jdbc/downloads" );
+    //         System.exit(1);
+    //     }
+    //     SentiAdaptronWordBag temp = new SentiAdaptronWordBag("sanders", "gimpel", false);
+    //     //int[] ids = {1,20,295};
+    //     int[] ids = {1,2,3, 4};
+    //     temp.constructInstances(c, ids);
+    //     temp.performPCA(false, -1, 0.95);
+    //     //temp.keepTopN(10);
+    //     //temp.keepWithEntropyAbove(0.4);
+    //     temp.printInstances();
+    // }
 
     Instances data_set;
     int num_tokens;
@@ -64,8 +64,11 @@ public class SentiAdaptronWordBag {
     int positive;
     int negative;
     int neutral;
+    // Connection object
+    Connection c;
 
-    public SentiAdaptronWordBag(String corpus, String pos_tagger, boolean debug) {
+    public SentiAdaptronWordBag(Connection c, String corpus, String pos_tagger, boolean debug) {
+        this.c = c;
         this.debug = debug;
         this.corpus = corpus;
         this.pos_tagger = pos_tagger;
@@ -77,20 +80,23 @@ public class SentiAdaptronWordBag {
         negative = 0;
         neutral = 0;
         loadStopWords();
-
     }
 
-    public void constructInstances(Connection c, int[] document_identifiers) {
+    public void buildWordBag(LinkedList document_identifiers) {
+        constructInstances(c, document_identifiers);
+    }
+
+    public void constructInstances(Connection c, LinkedList document_identifiers) {
         String query;
         String tokenised_form;
         // Scan through all of our tokens and determine which ones to keep
         determineAttributes(c);
         if(debug) {
-            System.out.println("Building Bag of Words from " + document_identifiers.length + " documents");
+            System.out.println("Building Bag of Words from " + document_identifiers.size() + " documents");
         }
         try {
-            for(int i=0; i<document_identifiers.length; i++) {
-                query = "SELECT tokenized_form, label FROM pos_"+pos_tagger+" NATURAL JOIN temporary_label_"+corpus+" WHERE document_identifier = " + document_identifiers[i];
+            for(int i=0; i<document_identifiers.size(); i++) {
+                query = "SELECT tokenized_form, label FROM pos_"+pos_tagger+" NATURAL JOIN temporary_label_"+corpus+" WHERE document_identifier = " + document_identifiers.get(i);
                 Statement stmt = c.createStatement();
                 ResultSet rs = stmt.executeQuery(query);
                 tokenised_form = rs.getString("tokenized_form");
@@ -125,23 +131,24 @@ public class SentiAdaptronWordBag {
         }
     }
 
-    // Default options would be to pass false, -1, 0.95
-    public void performPCA(boolean center_data, int max_attributes, double variance_covered) {
-        AttributeSelection selector = new AttributeSelection();
-        PrincipalComponents pca = new PrincipalComponents();
-        pca.setCenterData(center_data);
-        pca.setMaximumAttributeNames(max_attributes);
-        pca.setVarianceCovered(variance_covered);
-        Ranker ranker = new Ranker();
-        selector.setEvaluator(pca);
-        selector.setSearch(ranker);
-        try {
-            selector.SelectAttributes(data_set);
-            data_set = selector.reduceDimensionality(data_set);
-        } catch (Exception e ) {
-          e.printStackTrace();
-        }
-    }
+    // THIS IS UNFINISHED AND DOES NOT WORK
+    // // Default options would be to pass false, -1, 0.95
+    // public void performPCA(boolean center_data, int max_attributes, double variance_covered) {
+    //     AttributeSelection selector = new AttributeSelection();
+    //     PrincipalComponents pca = new PrincipalComponents();
+    //     pca.setCenterData(center_data);
+    //     pca.setMaximumAttributeNames(max_attributes);
+    //     pca.setVarianceCovered(variance_covered);
+    //     Ranker ranker = new Ranker();
+    //     selector.setEvaluator(pca);
+    //     selector.setSearch(ranker);
+    //     try {
+    //         selector.SelectAttributes(data_set);
+    //         data_set = selector.reduceDimensionality(data_set);
+    //     } catch (Exception e ) {
+    //       e.printStackTrace();
+    //     }
+    // }
 
     private void updateAttributeLabelCounts(String token, String label) {
         // Get the right attribute object from the hash table
@@ -320,19 +327,20 @@ public class SentiAdaptronWordBag {
             // Itterate over every token in the database and add it as an attribute
             while ( rs.next() ) {
                 int index = rs.getInt("identifier");
-
                 String token = rs.getString("token");
 
                 String word[] = token.split("/");
                 // Try catch is here due to tokens representing a / messing it up
                 try {
                     // If this token is a stop word note the index and we'll remove it later
-                    if( (stop_words.contains(word[1]) ))  {
+                    if( (word.length == 2) && (stop_words.contains(word[1]) ))  {
                         remove_names.add(Integer.toString(index));
                     }
                     // If its not a stop word create an attribute data object for it
                     att_data.put(Integer.toString(index), new AttributeData(Integer.toString(index)));
-                } catch(Exception e) {}
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
                 // The attribute is the index of the token
                 Attribute temp = new Attribute(Integer.toString(index));
                 attributes.add(temp);
@@ -384,6 +392,7 @@ public class SentiAdaptronWordBag {
 
     // Returns the instances object
     public Instances getData() {
+        // Randomise the instances then return them
         return data_set;
     }
 
