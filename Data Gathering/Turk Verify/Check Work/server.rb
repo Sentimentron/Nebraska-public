@@ -15,16 +15,15 @@ get '/next' do
     reject_column = 35
     # If we confirmed this result then do nothing otherwise update the approval / rejection
     id = params[:id].to_i
-    puts @@csv_file[id][34]
-    puts @@csv_file[id][35]
+
     if params[:accept] == 'false'
         # If we had originally rejected this work now accept it
-        if @@csv_file[34][id] = ''
-            @@csv_file[34][id] = 'x'
-            @@csv_file[35][id] = ''
-        elsif csv_file[34][id] = 'x'
-            @@csv_file[34][id] = ''
-            @@csv_file[35][id] = URI.unescape(params[:feedback])
+        if @@csv_file[id][accept_column] == nil
+            @@csv_file[id][accept_column] = 'x'
+            @@csv_file[id][reject_column] = ''
+        elsif @@csv_file[id][accept_column]  == 'x'
+            @@csv_file[id][accept_column] = ''
+            @@csv_file[id][reject_column] = URI.unescape(params[:feedback])
         end
     end
     File.open('new_results.csv','w'){ |f| f << @@csv_file.map(&:to_csv).join() }

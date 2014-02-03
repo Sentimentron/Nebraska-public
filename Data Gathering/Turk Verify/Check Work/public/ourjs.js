@@ -38,10 +38,11 @@ function printAnnotatedTweet(tweet, subphrase) {
     }
     $("#tweet").html(str);
     if(tweet.length != subphrase.length) {
-        $("#subphrases").text("Subphrases and tweet different lengths");
+        // Do nothing
     } else {
         $("#subphrases").remove();
     }
+    $("#row_id").remove();
 }
 
 

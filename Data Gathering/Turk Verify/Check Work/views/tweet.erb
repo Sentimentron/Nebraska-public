@@ -9,9 +9,12 @@
         <div id="tweet">
             <h1><%= @tweet['Input.tweet'] %>!</h1>
         </div>
-    </div
-<
+    </div>
+
     <h3> Overall: <%= @tweet['Answer.sentiment'] %> </h3> <br />
+    <h3> Annotation: <%= @tweet['Answer.subphrases'] %> </h3> <br />
+    <h3> Worker ID: <%= @tweet['WorkerId'] %> </h3> <br />
+    <h3> Currently: <% if @tweet['Approve'] == 'x' %> <%= "Approved" %> <% else %> <%= "Rejected because: " + @tweet['Reject'] %> <%end%>
 
     <div id="subphrases">
         <%= @tweet['Answer.subphrases'] %>
