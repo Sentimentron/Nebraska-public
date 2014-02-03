@@ -103,16 +103,68 @@ class Verify(object):
 
     def isAnnotationStyleCorrect(self, row):
         # Check they haven't entered phrases here
-        pass
-
+        currentTweet = row[self.Tweet]
+        sequence = row[self.SUB_PHRASE]
+        
+        if(sequence in currentTweet):
+            row[self.REJECT] = "You have entered the actual subphrase. Please use the characters 'p','n' & 'e' to highlight the 'positive', 'negative' & 'neutral' subphrases. Please read our guidelines to ensure ou understand the requirments and contact us if unsure"
+            self.writeRow(row)
+            return False
+    	else:
+    	    return True
+    
+    
+    def areNegativeSubphrasesRunsTheCorrectLength(self, row):
+        # Check the runs of subphrases are not too long
+        sequence = row[self.SUB_PHRASE]
+        currentTweet = row[self.Tweet]
+        match = re.findall("n+n", sequence, flags = 0)
+        #iterate over all matches to check if no. of p is > 40% of tweet length
+        for i in len(match):
+        	m = match[i]
+            if((len(m) >= (0.55*len(currentTweet))) && (len(currentTweet)>self.minLengthToCheck)):
+               row[self.REJECT] = "You have highlighted to many words as negative. Please check again your annotation or refer to our guidelines for more help. If unsure, please contact us."
+       	       return False
+    	    else:
+    	       return True
+    	       
+    def areNeutralSubphrasesRunsTheCorrectLength(self, row):
+        # Check the runs of subphrases are not too long
+        sequence = row[self.SUB_PHRASE]
+        currentTweet = row[self.Tweet]
+        match = re.findall("e+e", sequence, flags = 0)
+        #iterate over all matches to check if no. of p is > 40% of tweet length
+        for i in len(match):
+        	m = match[i]
+            if((len(m) >= (0.3*len(currentTweet))) && (len(currentTweet)>self.minLengthToCheck)):
+               row[self.REJECT] = "You have highlighted to many words as neutral. Please check again your annotation or refer to our guidelines for more help. If unsure, please contact us."
+       	       return False
+    	    else:
+    	       return True
+       	       
+        
     def arePositiveSubphrasesRunsTheCorrectLength(self, row):
         # Check the runs of subphrases are not too long
-        pass
+        sequence = row[self.SUB_PHRASE]
+        currentTweet = row[self.Tweet]
+        match = re.findall("p+p", sequence, flags = 0)
+        #iterate over all matches to check if no. of p is > 40% of tweet length
+        for i in len(match):
+        	m = match[i]
+            if((len(m) >= (0.4*len(currentTweet))) && (len(currentTweet)>self.minLengthToCheck)):
+               row[self.REJECT] = "You have highlighted to many words as positive. Please check again your annotation or refer to our guidelines for more help. If unsure, please contact us."
+       	       return False
+    	    else:
+    	       return True
+       	       
+        
 
     def isSubphraseTooShort(self, row):
         # Need to determine a min % of the tweet that needs to be annotated on average
         pass
 
+    
+	
 
 def main():
     file_name = sys.argv[1]
@@ -138,7 +190,18 @@ def main():
         result = checker.isWholeTweetAnnotated(row)
         if(not result):
             continue
-
+        result = checker.isisAnnotationStyleCorrect(row)
+        if(not result):
+            continue
+        result = areNegativeSubphrasesRunsTheCorrectLength(row)
+        if(not result):
+            continue
+        result = arePositiveSubphrasesRunsTheCorrectLength(row)
+        if(not result):
+            continue
+        result = areNeutralSubphrasesRunsTheCorrectLength(row)
+        if(not result):
+            continue
         row[APPROVE] = "x"
         checker.writeRow(row)
 
