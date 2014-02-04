@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 import weka.core.Attribute;
 import java.util.ArrayList;
 import java.util.*;
+import java.text.SimpleDateFormat;
 
 /**
  * Performs a single run of cross-validation and adds the prediction on the
@@ -94,7 +95,7 @@ public class WekaBenchmark {
     classname      = tmpOptions[0];
     tmpOptions[0]  = "";
     AbstractClassifier cls = (AbstractClassifier) Utils.forName(AbstractClassifier.class, classname, tmpOptions);
-
+    Classifier clsCopy = null;
     // other options
     int seed  = Integer.parseInt(Utils.getOption("s", args));
     int folds = Integer.parseInt(Utils.getOption("x", args));
@@ -116,7 +117,7 @@ public class WekaBenchmark {
       Instances test = randData.testCV(folds, n);
 
       // build and evaluate classifier
-      Classifier clsCopy = AbstractClassifier.makeCopy(cls);
+      clsCopy = AbstractClassifier.makeCopy(cls);
       clsCopy.buildClassifier(train);
       eval.evaluateModel(clsCopy, test);
     }
@@ -166,5 +167,9 @@ public class WekaBenchmark {
     insertResults.executeUpdate();
     insertResults.close();
     c.close();
+
+    // Save the model
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyy-hhmmss.SSS");
+    weka.core.SerializationHelper.write(classname+ "-" +simpleDateFormat.format(new java.util.Date() ), clsCopy);
   }
 }
