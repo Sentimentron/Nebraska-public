@@ -15,7 +15,7 @@ get '/next' do
     reject_column = 35
     # If we confirmed this result then do nothing otherwise update the approval / rejection
     id = params[:id].to_i
-
+    puts @@csv_file[id][accept_column]
     if params[:accept] == 'false'
         # If we had originally rejected this work now accept it
         if @@csv_file[id][accept_column] == nil

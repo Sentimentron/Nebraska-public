@@ -79,7 +79,8 @@ public class WekaBenchmark {
 
     // Make a new BagOfWords and let it handle constructing the instances object. (The final parameter turns debugging on, flip it to false to turn it off.)
     SentiAdaptronWordBag wordBag = new SentiAdaptronWordBag(c, labelTable, posTable, false);
-    wordBag.buildWordBag(documents);
+    //wordBag.buildWordBag(documents, "unigrams");
+    wordBag.buildWordBag(documents, "bigrams");
     // Possible options to reduce attribute count
     // wordBag.keepTopN(10);
     // wordBag.keepWithEntropyAbove(0.4);

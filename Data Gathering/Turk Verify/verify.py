@@ -54,7 +54,7 @@ class Verify(object):
         subphrase = row[self.SUB_PHRASE]
         number_of_p = subphrase.count("p")
         percent_positive = (number_of_p / tweet_length) *100
-        if(percent_positive >6 and tweet_length > self.minLengthToCheck):
+        if(percent_positive >35 and tweet_length > self.minLengthToCheck):
             row[self.REJECT] = "Your positive subphrase(s) are too long please read our guidelines to see what we expect and contact us if you are unsure."
             self.writeRow(row)
             return False
@@ -66,7 +66,7 @@ class Verify(object):
         subphrase = row[self.SUB_PHRASE]
         number_of_n = subphrase.count("n")
         percent_negative = (number_of_n / tweet_length) *100
-        if(percent_negative >20 and tweet_length > self.minLengthToCheck):
+        if(percent_negative >72 and tweet_length > self.minLengthToCheck):
             row[self.REJECT] = "Your negative subphrase(s) are too long please read our guidelines to see what we expect and contact us if you are unsure."
             self.writeRow(row)
             return False
@@ -78,7 +78,7 @@ class Verify(object):
         subphrase = row[self.SUB_PHRASE]
         number_of_e = subphrase.count("e")
         percent_neutral = (number_of_e / tweet_length) *100
-        if(percent_neutral >5 and tweet_length > self.minLengthToCheck):
+        if(percent_neutral >31 and tweet_length > self.minLengthToCheck):
             row[self.REJECT] = "Your neutral subphrase(s) are too long please read our guidelines to see what we expect and contact us if you are unsure."
             self.writeRow(row)
             return False
@@ -103,15 +103,16 @@ class Verify(object):
 
     def isAnnotationStyleCorrect(self, row):
         # Check they haven't entered phrases here
-        currentTweet = row[self.TWEET]
-        sequence = row[self.SUB_PHRASE]
-        if(sequence in currentTweet):
-            row[self.REJECT] = "You have entered the actual subphrase. Please use the characters 'p','n' & 'e' to highlight the 'positive', 'negative' & 'neutral' subphrases. Please read our guidelines to ensure ou understand the requirments and contact us if unsure"
-            self.writeRow(row)
-            return False
+        currentTweet = row[self.TWEET].split(" ")
+        sequence = row[self.SUB_PHRASE].split(" ")
+        for i in sequence:
+            if(i in currentTweet):
+                row[self.REJECT] = "You have entered the actual subphrase. Please use the characters 'p','n' & 'e' to highlight the 'positive', 'negative' & 'neutral' subphrases. Please read our guidelines to ensure ou understand the requirments and contact us if unsure"
+                self.writeRow(row)
+                return False
         else:
             return True
-
+        return True
 
     def areNegativeSubphrasesRunsTheCorrectLength(self, row):
         # Check the runs of subphrases are not too long
@@ -122,9 +123,11 @@ class Verify(object):
         for i in match:
             if((len(i) >= (0.55*len(currentTweet))) and (len(currentTweet)>self.minLengthToCheck)):
                row[self.REJECT] = "You have highlighted to many words as negative. Please check again your annotation or refer to our guidelines for more help. If unsure, please contact us."
+               self.writeRow(row)
                return False
             else:
                return True
+        return True
 
     def areNeutralSubphrasesRunsTheCorrectLength(self, row):
         # Check the runs of subphrases are not too long
@@ -135,9 +138,11 @@ class Verify(object):
         for i in match:
             if((len(i) >= (0.3*len(currentTweet))) and (len(currentTweet)>self.minLengthToCheck)):
                row[self.REJECT] = "You have highlighted to many words as neutral. Please check again your annotation or refer to our guidelines for more help. If unsure, please contact us."
+               self.writeRow(row)
                return False
             else:
                return True
+        return True
 
     def arePositiveSubphrasesRunsTheCorrectLength(self, row):
         # Check the runs of subphrases are not too long
@@ -148,9 +153,11 @@ class Verify(object):
         for i in match:
             if((len(i) >= (0.4*len(currentTweet))) and (len(currentTweet)>self.minLengthToCheck)):
                row[self.REJECT] = "You have highlighted to many words as positive. Please check again your annotation or refer to our guidelines for more help. If unsure, please contact us."
+               self.writeRow(row)
                return False
             else:
                return True
+        return True
 
 def main():
     file_name = sys.argv[1]
@@ -188,6 +195,7 @@ def main():
         result = checker.areNeutralSubphrasesRunsTheCorrectLength(row)
         if(not result):
             continue
+
         row[APPROVE] = "x"
         checker.writeRow(row)
 

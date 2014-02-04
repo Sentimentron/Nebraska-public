@@ -21,6 +21,7 @@ import java.util.Map.Entry;
 import weka.attributeSelection.PrincipalComponents;
 import weka.attributeSelection.*;
 import weka.attributeSelection.Ranker;
+import weka.filters.unsupervised.attribute.ReplaceMissingWithUserConstant;
 
 // Note the Word Bag assumes labels are 0,1,-1 anything else will make it cry.
 public class SentiAdaptronWordBag {
@@ -35,13 +36,17 @@ public class SentiAdaptronWordBag {
     //         System.err.println( e.getClass().getName() + ": " + e.getMessage() + "\nDo you have the SQLite JDBC in your classpath? get it at: https://bitbucket.org/xerial/sqlite-jdbc/downloads" );
     //         System.exit(1);
     //     }
-    //     SentiAdaptronWordBag temp = new SentiAdaptronWordBag("sanders", "gimpel", false);
+    //     SentiAdaptronWordBag temp = new SentiAdaptronWordBag(c, "sanders", "gimpel", false);
     //     //int[] ids = {1,20,295};
-    //     int[] ids = {1,2,3, 4};
-    //     temp.constructInstances(c, ids);
-    //     temp.performPCA(false, -1, 0.95);
-    //     //temp.keepTopN(10);
-    //     //temp.keepWithEntropyAbove(0.4);
+    //     LinkedList ids = new LinkedList();
+    //     ids.add(1);
+    //     ids.add(2);
+    //     ids.add(3);
+    //     ids.add(4);
+    //     temp.constructBigramInstances(c, ids);
+    //     // temp.performPCA(false, -1, 0.95);
+    //     // temp.keepTopN(10);
+    //     // temp.keepWithEntropyAbove(0);
     //     temp.printInstances();
     // }
 
@@ -82,8 +87,14 @@ public class SentiAdaptronWordBag {
         loadStopWords();
     }
 
-    public void buildWordBag(LinkedList document_identifiers) {
-        constructInstances(c, document_identifiers);
+    public void buildWordBag(LinkedList document_identifiers, String ngram) {
+        if(ngram.equals("unigrams")) {
+            constructInstances(c, document_identifiers);
+        } else if(ngram.equals("bigrams")) {
+            constructBigramInstances(c, document_identifiers);
+        } else {
+            System.err.println("Unrecognised n-gram");
+        }
     }
 
     public void constructInstances(Connection c, LinkedList document_identifiers) {
@@ -124,6 +135,110 @@ public class SentiAdaptronWordBag {
             if(debug) {
                 System.out.println(countAttributes() + " attributes after removing stop words");
             }
+        } catch(Exception e) {
+            // Chances are if we end up here we couldn't find a label for the tweet
+            System.out.println("Error finding a label for instance");
+            e.printStackTrace();
+        }
+    }
+
+    public void constructBigramInstances(Connection c, LinkedList document_identifiers) {
+        String query;
+        String tokenised_form;
+
+        // ArrayList to temporarily store the instance objects in until we know enough to create the instances object
+        ArrayList<SparseInstance> instance_store = new ArrayList<SparseInstance>();
+        // Hastable to map the bigram to its position in the instances object so we know what index to insert at
+        Hashtable<String, Integer> attribute_mapping = new Hashtable<String, Integer>();
+
+        // ** Set up the instances object and add the class label attribute ** //
+        // ArrayList to store the attributes in
+        ArrayList<Attribute> attributes = new ArrayList<Attribute>();
+        // Add the class label attribute
+        ArrayList<String> nom_values = new ArrayList<String>();
+        nom_values.add("-1");
+        nom_values.add("0");
+        nom_values.add("1");
+        Attribute label = new Attribute("label", nom_values);
+        attributes.add(label);
+        data_set = new Instances("sentiment", attributes, 2);
+        data_set.setClassIndex(0);
+
+        // Counter of the position of the attribute, used later so we know where to mark the bigrams
+        Integer att_index = 1;
+        String keep = "((label)|";
+        if(debug) {
+            System.out.println("Building Bag of Words from " + document_identifiers.size() + " documents");
+        }
+        try {
+            for(int i=0; i<document_identifiers.size(); i++) {
+                // ** Get the rows from the database ** //
+                query = "SELECT tokenized_form, label FROM pos_"+pos_tagger+" NATURAL JOIN temporary_label_"+corpus+" WHERE document_identifier = " + document_identifiers.get(i);
+                Statement stmt = c.createStatement();
+                ResultSet rs = stmt.executeQuery(query);
+                tokenised_form = rs.getString("tokenized_form");
+                String class_label = rs.getString("label");
+
+                // ** A new SparseInstance to add the attributes to ** //
+                SparseInstance inst = new SparseInstance(tokenised_form.length()-1);
+                // Let WEKA know this instance belongs to the dataset
+                inst.setDataset(data_set);
+                // Note that to save space the sparse instance class doesn't store the first nominal attribute so attributes with a class label of -1 wont show up in print statements
+                // Set the class label of this instance and update the bags internal counts
+                inst.setClassValue(class_label);
+                updateLabelCount(class_label);
+                // Split the tweet into tokens on white space
+                String[] tokens = tokenised_form.split(" ");
+                for(int j=0; j<tokens.length-1; j++) {
+                    // Bigrams are this token and the one following it and we store them as the tokens with a - between them
+                    String bigram = tokens[j] + "-" + tokens[j+1];
+                    updateFrequency(bigram);
+                    // Keep track of this tokens index so we know what index to set to 1 later on
+                    int pos;
+                    // If its the first time we've seen this attribute then record its index and create a new attribute for it
+                    if(attribute_mapping.get(bigram) == null) {
+                        Attribute temp = new Attribute(bigram);
+                        // Add this attribute to the Instances object at the next available position
+                        data_set.insertAttributeAt(temp, att_index);
+                        // We need to increment att_index now so make a note of what it was for use later on
+                        pos = att_index;
+                        keep = keep + "(" + bigram +")"+ "|";
+                        // Keep track of what index this bigram was at so we can reuse it later
+                        attribute_mapping.put(bigram, pos);
+                        // Update att_index so we can slot a new attribute into the right place
+                        att_index = att_index +1;
+                    } else { // If we already had a record of this attribute grab its position so we can update the correct index
+                        pos = attribute_mapping.get(bigram);
+                    }
+                    // Create an attribute data object for it so we do things like calculate the entropy of this attribute
+                    att_data.put(bigram, new AttributeData(bigram));
+                    // We need to update the count of the positive, negative and neutral instances for each attribute
+                    updateAttributeLabelCounts(bigram, class_label);
+                    // Finally make a note that this bigram occurs in this instance
+                    inst.setValue(pos, 1);
+                }
+                // Now we've set all the attributes add it to our collection of instance objects so we can add it to the Instances object later
+                instance_store.add(inst);
+            }
+
+            // Add all of our instance objects to the Instances set now (we couldnt do it earlier as ... (I have no idea but it doesn't work if you do))
+            for(int i =0; i<instance_store.size(); i++) {
+                data_set.add(instance_store.get(i));
+            }
+            // Lots of magic below, I have no idea why you have to do most of it but you do.
+            try {
+                BetterRemoveByName filter = new BetterRemoveByName();
+                filter.setExpression(keep + ")");
+                filter.setInvertSelection(true);
+                filter.setInputFormat(data_set);
+                data_set = Filter.useFilter(data_set, filter);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+
+            ReplaceMissingWithUserConstant filter = new ReplaceMissingWithUserConstant();
+            filter.setInputFormat(data_set);
+            data_set = Filter.useFilter(data_set, filter);
         } catch(Exception e) {
             // Chances are if we end up here we couldn't find a label for the tweet
             System.out.println("Error finding a label for instance");
