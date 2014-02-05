@@ -1,0 +1,27 @@
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+<script type="text/javascript" src="ourjs.js"></script>
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="ourcss.css" type="text/css" />
+
+<div class="container" id="wrapper">
+
+    <div class="jumbotron">
+        <div id="tweet">
+            <h1><%= @tweet['Input.tweet'] %>!</h1>
+        </div>
+    </div>
+
+    <h3> Overall: <%= @tweet['Answer.sentiment'] %> </h3> <br />
+    <h3> Annotation: <%= @tweet['Answer.subphrases'] %> </h3> <br />
+    <h3> Worker ID: <%= @tweet['WorkerId'] %> </h3> <br />
+    <h3> Currently: <% if @tweet['Approve'] == 'x' %> <%= "Approved" %> <% else %> <%= "Rejected because: " + @tweet['Reject'] %> <%end%>
+
+    <div id="subphrases">
+        <%= @tweet['Answer.subphrases'] %>
+    </div>
+    <div id="row_id">
+        <%= @tweet['Index'] %>
+    </div>
+</div>
+
+
