@@ -1,0 +1,27 @@
+<Workflow>
+
+	<WorkflowOptions>
+		<WorkflowName>Twitter Spam Fighter</WorkflowName>
+		<WorkflowDescription>Apply some heuristics to try and reduce spam volume.</WorkflowDescription>
+		<RetainOutputFile path="cluster.sqlite"/>
+		<DisableUntrackedFileCheck />
+		<DebugDocumentCount path="counts.csv" />
+	</WorkflowOptions>
+
+    <Tables>
+        <TemporaryLabelTable name="clustering" />
+        <TemporaryLabelTable name="clusters" />
+    </Tables>
+
+	<InputSources>
+		<PreviousWorkflow path="Workflows/SpamFight.xml" />
+	</InputSources>
+
+    <WorkflowTasks>
+        <LengthLabeller dest="clustering" binSize="2" />
+        <HashTagLabeller dest="clustering" />
+        <AtMentionLabeller dest="clustering" />
+        <ClusterLabeller src="clustering" dest="clusters" epsilon="0.25" minSize="2" />
+    </WorkflowTasks>
+
+</Workflow>
