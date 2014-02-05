@@ -32,7 +32,7 @@ public class AttributeData {
         double negative_ent;
 
         if(total_pos == 0) {
-            System.out.println("Warning: Total number of positive instances was 0");
+            // System.out.println("Warning: Total number of positive instances was 0");
             pos_ent = 0;
         } else {
             double pos_proportion = (positive / total_pos);
@@ -40,7 +40,7 @@ public class AttributeData {
         }
 
         if(total_neut == 0) {
-            System.out.println("Warning: Total number of neutral instances was 0");
+            // System.out.println("Warning: Total number of neutral instances was 0");
             neut_ent = 0;
         } else {
             double neutral_proportion = (neutral / total_neut);
@@ -48,7 +48,7 @@ public class AttributeData {
         }
 
         if(total_neg == 0) {
-            System.out.println("Warning: Total number of negative instances was 0");
+            // System.out.println("Warning: Total number of negative instances was 0");
             negative_ent = 0;
         } else {
             double negative_proportion = (negative / total_neg);
@@ -70,6 +70,6 @@ public class AttributeData {
     }
 
     public String toString() {
-        return "Token " + token + " Positive occurences " + positive + " Negative occurences " + negative + " Neutral occurences " + neutral + " with entropy of " + entropy;
+        return "Token " + token + " Positive occurences " + positive + " Negative occurences " + negative + " Neutral occurences " + neutral;
     }
 }

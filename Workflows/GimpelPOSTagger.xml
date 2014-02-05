@@ -8,15 +8,15 @@
 	</WorkflowOptions>
 
     <Tables>
-        <PartOfSpeechTable name="test"/>
+        <PartOfSpeechTable name="gimpel"/>
     </Tables>
 
 	<InputSources>
-		<TwitterInputSource dir="Data/Corpora" />
+		<SandersInputSource dir="Data/Intrinsic/Sanders/" />
 	</InputSources>
 
     <WorkflowTasks>
-	<GimpelPOSTagger dest="test" verbose="true" />
+	<GimpelPOSTagger dest="gimpel" verbose="true" />
     </WorkflowTasks>
 
 </Workflow>
