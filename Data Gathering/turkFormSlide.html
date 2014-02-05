@@ -1,0 +1,265 @@
+<html>
+
+<head>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) --><script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" /><!-- Latest compiled and minified CSS -->
+<link href="netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" /><!-- Optional theme -->
+<link href="netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css" rel="stylesheet" /><!-- Latest compiled and minified JavaScript -->
+<script src="netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries --><!-- WARNING: Respond.js doesn't work if you view the page via file:// --><!--[if lt IE 9]-->
+<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<script type='text/javascript' src="http://imsky.github.io/holder/holder.js"></script>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+      
+    <!--[endif]-->
+<style type="text/css">body {
+    font-size: 20px;
+    text-align: center;¤
+}
+h4, h3, h2 {
+    text-align:center;
+}
+h4 {
+    font-size: 28px;
+}
+label {
+    margin-left: 5px;
+    margin-right: 15px;
+}
+p {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.col-ld-4 {
+    text-align: left;
+}
+.prefilled {
+    font-style: italic;
+    color: #666666;
+}
+
+.annotation-unknown {
+    color: gray;
+}
+.annotation-positive {
+    color: green;
+    font-weight: bold;
+}
+.annotation-negative {
+    color: red;
+    text-decoration: underline;
+}
+.annotation-neutral {
+    color: blue;
+    font-style: italic;
+}
+.annotation-no-annotation {
+}
+
+.annotation-invalid {
+    text-decoration: underline;
+    color: #FFCC00;
+}
+#div-error {
+}
+
+#carousel-example-generic {height: 400px; width: 600px;}
+
+</style>
+<script type="text/javascript">
+
+        function displayHighlighting() {
+
+            function determineActiveHighlight(wordpos, tweet, ann) {
+                if (wordpos >= ann.length) {
+                    return "unknown";
+                }
+                else if (wordpos >= 0) {
+                    if (ann[wordpos] == "p") {
+                        return "positive";
+                    }
+                    else if (ann[wordpos] == "n") {
+                        return "negative";
+                    }
+                    else if (ann[wordpos] == "e") {
+                        return "neutral";
+                    }
+                    else {
+                        return "no-annotation";
+                    }
+                }
+                return "invalid";
+            }
+
+            function displayErrorMessage(errorText) {
+                $('#div-error').show();
+                $('#error-text').html(errorText);
+            }
+
+            $('#div-error').hide();
+
+            var tweet = $("#box-tweet-text").val();
+            var subphrases = $("#box-subphrase").val();
+            var anns = [];
+            var spans = [];
+
+            $("#box-subphrase").removeClass("prefilled");
+
+            var buf = "";
+            var spacePreviously = false;
+
+            anns = subphrases.split("|").join("");
+            anns = anns.split(" ").join("").split("");
+            tweet = tweet.split(" ");
+
+            if (tweet.length > anns.length) {
+                displayErrorMessage("Please enter enough characters in the subphrase box to cover the whole tweet.");
+            }
+
+
+            for (var i = 0; i < tweet.length; i++) {
+                var word = tweet[i];
+                var wordspan = $("<span />");
+                var wordclass = determineActiveHighlight(i, tweet, anns);
+                if (wordclass == "invalid") {
+                    displayErrorMessage("There's something wrong. Please contact us to report this error.");
+                }
+                var wordWithSpace = word;
+                wordspan.html(wordWithSpace);
+                wordspan.addClass("annotation-"+wordclass);
+                spans.push(wordspan);
+            }
+
+            $("#big_tweet").html(" ");
+            for (var i = 0; i < spans.length; i++) {
+                $("#big_tweet").append(spans[i]);
+                $("#big_tweet").append(" ");
+            }
+
+        }
+
+        function displayForm() {
+
+            var tweet = $("#box-tweet-text").val()
+
+            $("#big_tweet").text(tweet);
+            $("#wrapper").show();
+
+            $("#radio-neutral").prop('checked', true);
+            $("#radio-neutral").focus();
+
+            $("#box-subphrase").keyup(displayHighlighting);
+            $("#box-subphrase").val("");
+        }
+        
+        $(document).ready(function() {        
+        	$('#myCarousel').carousel()  
+	});
+
+        $(document).ready(displayForm);
+        
+
+    </script><noscript>
+        <h2>To complete this HIT, check Javascript is enabled in your browser.</h2>
+    </noscript>
+    
+</head>
+
+<body>
+
+<div class="container" id="wrapper">
+<div class="jumbotron">
+<h3 id="big_tweet">Tweet should appear here.</h3>
+</div>
+
+<p class="instructions">Please help us determine this tweet&#39;s sentiment. <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">View instructions &raquo;</a></p>
+<input name="tweet_id" type="hidden" value="${id}" /> <input id="box-tweet-text" name="tweet_text" type="hidden" value="${tweet}" />
+<div>
+<p><input id="radio-neutral" name="sentiment" type="radio" value="neutral" /><label for="radio-neutral"> <span class="annotation-neutral">Neutral </span></label> <input id="radio-negative" name="sentiment" type="radio" value="negative" /><label for="radio-negative"><span class="annotation-negative">Negative</span></label> <input id="radio-positive" name="sentiment" type="radio" value="positive" /><label for="radio-positive"><span class="annotation-positive">Positive</span></label></p>
+</div>
+
+<p class="instructions">Identify any subjective phrases in this tweet using the keyboard. Type <span class="annotation-positive">p</span> (positive), <span class="annotation-negative">n</span> (negative), or <span class="annotation-neutral">e</span> (neutral). Use any other characters for non-subjective phrases. <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">View instructions &raquo;</a></p>
+<input class="prefilled" id="box-subphrase" name="subphrases" type="text" value="" />
+
+<p class="instructions"><br />
+Refer to the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">guidelines</a> and the examples below for help filling in this section and note that subjective phrases are rarely longer than a few words.</p>
+
+<div id="myCarousel" class="carousel slide">
+ <!-- Carousel items -->  
+  <div class="carousel-inner">  
+    <div class="active item"> Even though <span class="annotation-negative">it's too expensive</span> I think the <span class="annotation-positive">new Surface tablet is pretty neat</span> </div>  
+    <div class="item">I <span class="annotation-negative">love it</span> when my card <span class="annotation-negative">declines</span></h3></div>  
+    <div class="item">I <span class="annotation-positive">love</span> Apple but they <span class="annotation-negative">got it wrong</span> with the new ipad <span class="annotation-negative">:(</span></div>  
+  </div> 
+  
+  <!-- Carousel nav -->
+  <a class="carousel-control left" href="#myCarousel" data-slide="prev"></a>  
+  <a class="carousel-control right" href="#myCarousel" data-slide="next"></a>
+</div>
+      
+
+ <!-- Indicators 
+  <ol class="carousel-indicators">
+    <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+    <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+    <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+  </ol>
+
+  <!-- Wrapper for slides
+  <div class="carousel-inner">
+    <div class="item active">
+      <img src="http://placehold.it/900x500" alt="">
+      <div class="carousel-caption">
+        slide 1
+      </div>
+    </div>
+<div class="item">
+      <img src="http://placehold.it/900x500" alt="">
+      <div class="carousel-caption">
+        slide 2
+      </div>
+    </div>
+<div class="item">
+      <img src="http://placehold.it/900x500" alt="">
+      <div class="carousel-caption">
+        slide 3
+      </div>
+    </div>
+</div>
+
+  <!-- Controls 
+  <a class="left carousel-control" href="#carousel-example-generic" data-slide="prev">
+    <span class="icon-prev"></span>
+  </a>
+  <a class="right carousel-control" href="#carousel-example-generic" data-slide="next">
+    <span class="icon-next"></span>
+  </a>
+</div>
+
+<div class="#carousel-example-generic">
+        
+</div>
+
+<div class="#carouse2-example-generic">
+	<h3>i <span class="annotation-negative">love it</span> when my card <span class="annotation-negative">declines</span></h3>
+</div>
+
+<div class ="#carouse3-example-generic">
+	<h3>I <span class="annotation-positive">love</span> Apple but they <span class="annotation-negative">got it wrong</span> with the new ipad <span class="annotation-negative">:(</span></h3>
+</div>
+--> 
+
+
+<div id="div-error"> <br />
+<p class="instructions"><span class="label label-warning">Important</span> Your work <b>will be rejected</b> if you do not accurately annotate the subjective phrases. Please read the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">guidelines</a> to ensure you understand how to annotate subjective phrases</p> <br />
+
+<p id="error-text">Please enter enough into the subjective phrases box to cover the entire tweet.</p>
+</div>
+
+</div>
+
+</body>
+
+</html>

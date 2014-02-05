@@ -15,3 +15,4 @@ External/WekaClassifier/weka-classifiers/target
 *.csv
 *.sqlite-journal
 External/GimpelPOSTagger/gimpel-pos-tagger/target
+*.xz

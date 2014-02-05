@@ -1,0 +1,185 @@
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) --><script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" /><!-- Latest compiled and minified CSS -->
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" /><!-- Optional theme -->
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css" rel="stylesheet" /><!-- Latest compiled and minified JavaScript --><script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script><!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries --><!-- WARNING: Respond.js doesn't work if you view the page via file:// --><!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+<style type="text/css">body {
+    font-size: 20px;
+    text-align: center;
+}
+h4, h3, h2 {
+    text-align:center;
+}
+h4 {
+    font-size: 28px;
+}
+label {
+    margin-left: 5px;
+    margin-right: 15px;
+}
+p {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.col-ld-4 {
+    text-align: left;
+}
+.prefilled {
+    font-style: italic;
+    color: #666666;
+}
+
+.annotation-unknown {
+    color: gray;
+}
+.annotation-positive {
+    color: green;
+    font-weight: bold;
+}
+.annotation-negative {
+    color: red;
+    text-decoration: underline;
+}
+.annotation-neutral {
+    color: blue;
+    font-style: italic;
+}
+.annotation-no-annotation {
+}
+
+.annotation-invalid {
+    text-decoration: underline;
+    color: #FFCC00;
+}
+#div-error {
+}
+</style>
+<script type="text/javascript">
+
+        function displayHighlighting() {
+
+            function determineActiveHighlight(wordpos, tweet, ann) {
+                console.log(wordpos)
+                console.log(tweet)
+                console.log(ann)
+                if (wordpos >= ann.length) {
+                    return "unknown";
+                }
+                else if (wordpos >= 0) {
+                    if (ann[wordpos] == "p") {
+                        return "positive";
+                    }
+                    else if (ann[wordpos] == "n") {
+                        return "negative";
+                    }
+                    else if (ann[wordpos] == "e") {
+                        return "neutral";
+                    }
+                    else {
+                        return "no-annotation";
+                    }
+                }
+                return "invalid";
+            }
+
+            function displayErrorMessage(errorText) {
+                $('#div-error').show();
+                $('#error-text').html(errorText);
+            }
+
+            $('#div-error').hide();
+
+            var tweet = $("#temp").text();
+            var subphrases = $("#box-subphrase").val();
+            console.log(subphrases)
+            var anns = [];
+            var spans = [];
+
+            $("#box-subphrase").removeClass("prefilled");
+
+            var buf = "";
+            var spacePreviously = false;
+
+            anns = subphrases.split("|").join("");
+            anns = anns.split(" ").join("").split("");
+            console.log(anns)
+            tweet = tweet.split(" ");
+
+            if (tweet.length > anns.length) {
+                displayErrorMessage("Please enter enough characters in the subphrase box to cover the whole tweet.");
+            }
+
+
+            for (var i = 0; i < tweet.length; i++) {
+                var word = tweet[i];
+                var wordspan = $("<span />");
+                var wordclass = determineActiveHighlight(i, tweet, anns);
+                if (wordclass == "invalid") {
+                    displayErrorMessage("There's something wrong. Please contact us to report this error.");
+                }
+                var wordWithSpace = word;
+                wordspan.html(wordWithSpace);
+                wordspan.addClass("annotation-"+wordclass);
+                spans.push(wordspan);
+            }
+
+            $("#big_tweet").html(" ");
+            for (var i = 0; i < spans.length; i++) {
+                $("#big_tweet").append(spans[i]);
+                $("#big_tweet").append(" ");
+            }
+
+        }
+
+        function displayForm() {
+
+            var tweet = $("#temp").text();
+
+            $("#big_tweet").text(tweet);
+            $("#wrapper").show();
+
+            $("#radio-neutral").prop('checked', true);
+            $("#radio-neutral").focus();
+
+            $("#box-subphrase").keyup(displayHighlighting);
+            $("#box-subphrase").val("");
+
+            $(document).bind('keypress', function(e) {
+                var code = e.keyCode || e.which;
+                if(code == 13) {
+                    window.location.href = 'next?tweet='+$("#temp").text().trim()+'&annotation='+$("#box-subphrase").val();
+                }
+            });
+        }
+
+        $(document).ready(displayForm);
+
+    </script><noscript>
+        <h2>To complete this HIT, check Javascript is enabled in your browser.</h2>
+    </noscript>
+<div class="container" id="wrapper">
+<div class="jumbotron">
+<h3 id="big_tweet"></h3>
+</div>
+<div id="temp"><%= @tweet.tweet %></div>
+<p class="instructions">Please help us determine this tweet&#39;s sentiment. <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">View instructions &raquo;</a></p>
+<input name="tweet_id" type="hidden" value="${id}" /> <input id="box-tweet-text" name="tweet_text" type="hidden" value="" />
+<div>
+<p><input id="radio-neutral" name="sentiment" type="radio" value="neutral" /><label for="radio-neutral"> <span class="annotation-neutral">Neutral </span></label> <input id="radio-negative" name="sentiment" type="radio" value="negative" /><label for="radio-negative"><span class="annotation-negative">Negative</span></label> <input id="radio-positive" name="sentiment" type="radio" value="positive" /><label for="radio-positive"><span class="annotation-positive">Positive</span></label></p>
+</div>
+
+<p class="instructions">Identify any subjective phrases in this tweet using the keyboard. Type <span class="annotation-positive">p</span> (positive), <span class="annotation-negative">n</span> (negative), or <span class="annotation-neutral">e</span> (neutral). Use any other characters for non-subjective phrases. <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">View instructions &raquo;</a></p>
+<input class="prefilled" id="box-subphrase" name="subphrases" type="text" value="" />
+
+<p class="instructions"><br />
+Refer to the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">guidelines</a> and the examples below for help filling in this section and note that subjective phrases are rarely longer than a few words.</p>
+
+<div id="div-error"> <br />
+<p class="instructions"><span class="label label-warning">Important</span> Your work <b>will be rejected</b> if you do not accurately annotate the subjective phrases. Please read the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">guidelines</a> to ensure you understand how to annotate subjective phrases</p> <br />
+
+<p id="error-text">Please enter enough into the subjective phrases box to cover the entire tweet.</p>
+</div>
+
+</div>

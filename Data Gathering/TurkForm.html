@@ -1,126 +1,290 @@
-<script>
-// Keeps track of how long its been since the user pressed a key so we can detect if they've stopped typing
-var timer;
-// The tweet were displaying
-var words;
-var times_pressed;
-
-// Replaces the tweet on the screen with one with superscript numbers
-function printTweet() {
-    // Get the tweet which will always be in the div called tweet
-    var element = document.getElementById('tweet');
-    // Get the text from the div
-    //var tweet = element.textContent || element.innerText;
-    var tweet = "hello this is my tweet";
-    // Split it into individual words
-    words = tweet.split(" ");
-    // Clear the unnumbered tweet
-    document.getElementById("tweet").innerHTML = "";
-    // Print it superscriped with numbers
-    var index = 1;
-    for (var i = 0; i < words.length; i++) {
-        document.write( words[i] + "<sup>" + index + "</sup> ");
-        index++;
-    }
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) --><script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" /><!-- Latest compiled and minified CSS -->
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" /><!-- Optional theme -->
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css" rel="stylesheet" /><!-- Latest compiled and minified JavaScript --><script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script><!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries --><!-- WARNING: Respond.js doesn't work if you view the page via file:// --><!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+<style type="text/css">body {
+    font-size: 20px;
+    text-align: center;
+}
+h4, h3, h2 {
+    text-align:center;
+}
+h4 {
+    font-size: 28px;
+}
+label {
+    margin-left: 5px;
+    margin-right: 15px;
+}
+p {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.col-ld-4 {
+    text-align: left;
+}
+.prefilled {
+    font-style: italic;
+    color: #666666;
 }
 
-// When a key is released start a timer
-function keyUpHandlerBegin(phrase) {
-    timer = setTimeout(phrase, 3000);
-
+.annotation-unknown {
+    color: gray;
+}
+.annotation-positive {
+    color: green;
+    font-weight: bold;
+}
+.annotation-negative {
+    color: red;
+    text-decoration: underline;
+}
+.annotation-neutral {
+    color: blue;
+    font-style: italic;
+}
+.annotation-no-annotation {
 }
 
-// Check the start index of a word is greater than 0 and less than the tweet length
-function startIndexCheck(box) {
-    // Get the index entered
-    var index = box.value;
-    if(index <= 0 && times_pressed == 0) {
-        alert("Start index must be greater than 0");
-        times_pressed++;
-    } else if(index > words.length && times_pressed == 0) {
-        alert("Start index must be less than " + words.length);
-    }
+.annotation-invalid {
+    text-decoration: underline;
+    color: #FFCC00;
 }
-
-// Checks the end index entered is less than the max length of the tweet and greater than the start index
-function endIndexCheck(box) {
-    // Get the index entered
-    var index = box.value;
-    // Get the name of the input box this came from and extract the start e.g. phrase1, phrase2 etc
-    var name = box.name.substring(0,7);
-    // Get the start index
-    var start = document.getElementById(name+"begin").value;
-    if(index > words.length && times_pressed == 0) {
-        alert("End index must be less than " + words.length);
-    } else if(index < start && index != "" && times_pressed == 0) {
-        alert("End index must be greater than or equal to the start index");
-    }
-    // Now replace the phrase word box with the phrase they selected
-    fillInTweet(start, index, name+"words");
+#div-error {
 }
+</style>
+<script type="text/javascript">
 
-// Replaces the phrase box with the phrase entered
-function fillInTweet(start, end, id) {
-    var phrase = "";
-    for(i = start-1; i<=end-1; i++) {
-        if(i >= words.length) {
-            break;
+        function displayHighlighting() {
+
+            function determineActiveHighlight(wordpos, tweet, ann) {
+                if (wordpos >= ann.length) {
+                    return "unknown";
+                }
+                else if (wordpos >= 0) {
+                    if (ann[wordpos] == "p") {
+                        return "positive";
+                    }
+                    else if (ann[wordpos] == "n") {
+                        return "negative";
+                    }
+                    else if (ann[wordpos] == "e") {
+                        return "neutral";
+                    }
+                    else {
+                        return "no-annotation";
+                    }
+                }
+                return "invalid";
+            }
+
+            function displayErrorMessage(errorText) {
+                $('#div-error').show();
+                $('#error-message-text').html(errorText);
+            }
+
+            $('#div-error').hide();
+
+            var tweet = $("#box-tweet-text").val();
+            var subphrases = $("#box-subphrase").val();
+            var anns = [];
+            var spans = [];
+
+            $("#box-subphrase").removeClass("prefilled");
+
+            var buf = "";
+            var spacePreviously = false;
+
+            anns = subphrases.split("|").join("");
+            anns = anns.split(" ").join("").split("");
+            var tweet_length = tweet.split(" ").length;
+            var positive_percent = ((subphrases.match(/p/g)||[]).length / tweet_length)*100;
+            var negative_percent = ((subphrases.match(/n/g)||[]).length / tweet_length)*100;
+            var neutral_percent = ((subphrases.match(/e/g)||[]).length  / tweet_length)*100;
+            var min_length_to_display_warning = 10;
+            tweet = tweet.split(" ");
+
+            var max_run_of_p = (countRunOfP(subphrases) / tweet_length) * 100;
+            var max_run_of_n = (countRunOfN(subphrases) / tweet_length) * 100;
+            var max_run_of_e = (countRunOfE(subphrases) / tweet_length) * 100;
+                        console.log(max_run_of_n);
+
+            // Check if the subphrases look too long
+            if(positive_percent > 35 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your positive subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if (negative_percent > 72 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your negative subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if(neutral_percent > 31 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your neutral subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if (tweet.length > anns.length) {
+                $('#error-text').show();
+                displayErrorMessage("Please enter enough characters in the subphrase box to cover the whole tweet.");
+            } else {
+                $('#error-text').hide();
+            }
+
+            // Check if the runs were too long
+            if(max_run_of_p > 40 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your positive subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if (max_run_of_e > 30 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your neutral subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if(max_run_of_n > 55 && tweet_length > min_length_to_display_warning) {
+                $('#error-text').show();
+                displayErrorMessage("Your negative subphrases may be too long, your work will be rejected if it does not meet our guidelines.");
+            } else if (tweet.length > anns.length) {
+                $('#error-text').show();
+                displayErrorMessage("Please enter enough characters in the subphrase box to cover the whole tweet.");
+            } else {
+                $('#error-text').hide();
+            }
+
+            for (var i = 0; i < tweet.length; i++) {
+                var word = tweet[i];
+                var wordspan = $("<span />");
+                var wordclass = determineActiveHighlight(i, tweet, anns);
+                if (wordclass == "invalid") {
+                    displayErrorMessage("There's something wrong. Please contact us to report this error.");
+                }
+                var wordWithSpace = word;
+                wordspan.html(wordWithSpace);
+                wordspan.addClass("annotation-"+wordclass);
+                spans.push(wordspan);
+            }
+
+            $("#big_tweet").html(" ");
+            for (var i = 0; i < spans.length; i++) {
+                $("#big_tweet").append(spans[i]);
+                $("#big_tweet").append(" ");
+            }
         }
-        phrase += words[i] + " ";
-    }
-    // Get the box to put the phrase in
-    var box = document.getElementById(id);
-    // Enter it
-    box.value = phrase;
-}
 
-// When a key is pressed down restart the timer
-function keyDownHandler() {
-    clearTimeout(timer);
-    times_pressed = 0;
-}
+        function countRunOfP(subphrase, letter) {
+            matches = subphrase.match(/(p+p)/g);
+            max = 0;
+            if(matches == null) {
+                return 0;
+            }
+            for(i=0; i<matches.length; i++) {
+                if(matches[i].length > max) {
+                    max = matches[i].length;
+                }
+            }
+            return max;
+        }
 
-</script>
-<p>The Tweet is -</p>
+        function countRunOfE(subphrase, letter) {
+            matches = subphrase.match(/(e+e)/g);
+            max = 0;
+            if(matches == null) {
+                return 0;
+            }
+            for(i=0; i<matches.length; i++) {
+                if(matches[i].length > max) {
+                    max = matches[i].length;
+                }
+            }
+            return max;
+        }
 
-<div id="tweet">${tweet}</div>
-<script> printTweet() </script>
+        function countRunOfN(subphrase, letter) {
+            matches = subphrase.match(/(n+n)/g);
+            max = 0;
+            if(matches == null) {
+                return 0;
+            }
+            for(i=0; i<matches.length; i++) {
+                if(matches[i].length > max) {
+                    max = matches[i].length;
+                }
+            }
+            return max;
+        }
 
-<p><br />
-The overal sentiment of Tweet is:</p>
+        function displayForm() {
 
-<p><input name="sentiment" type="radio" value="positive" /> Positive<br />
-<input name="sentiment" type="radio" value="negative" /> Negative<br />
-<input name="sentiment" type="radio" value="neutral" /> Neutral<br />
-<input name="sentiment" type="radio" value="irrelevant" /> Irrelevant<br />
-<br />
+            var tweet = $("#box-tweet-text").val()
 
-Subjective Phrase 1: <input name="phrase1begin" id="phrase1begin" placeholder="start index" type="text" size="6" onkeyup="keyUpHandlerBegin(startIndexCheck(phrase1begin))" onkeydown="keyDownHandler()"> to
-<input name="phrase1end" id="phrase1end" placeholder="end index" type="text" size="6" onkeyup="keyUpHandlerBegin(endIndexCheck(phrase1end))" onkeydown="keyDownHandler()">
-<input name="phrase1words" id="phrase1words" placeholder="phrase words" size="50" type="text" />
- <input name="sentimentphrase1" type="radio" value="positive" /> Positive
- <input name="sentimentphrase1" type="radio" value="negative" /> Negative
- <input name="sentimentphrase1" type="radio" value="neutral" /> Neutral<br />
+            $("#big_tweet").text(tweet);
+            $("#wrapper").show();
 
-Subjective Phrase 2: <input name="phrase2begin" id="phrase2begin" placeholder="start index" type="text" size="6" onkeyup="keyUpHandlerBegin(startIndexCheck(phrase2begin))" onkeydown="keyDownHandler()"> to
-<input name="phrase2end" id="phrase2end" placeholder="end index" type="text" size="6" onkeyup="keyUpHandlerBegin(endIndexCheck(phrase2end))" onkeydown="keyDownHandler()">
-<input name="phrase2words" id="phrase2words" placeholder="phrase words" size="50" type="text" />
- <input name="sentimentphrase2" type="radio" value="negative" /> Positive
- <input name="sentimentphrase2" type="radio" value="neutral" /> Negative
- <input name="sentimentphrase2" type="radio" value="positive" /> Neutral <br />
+            $("#radio-neutral").prop('checked', true);
+            $("#radio-neutral").focus();
 
-Subjective Phrase 3: <input name="phrase2begin" id="phrase3begin" placeholder="start index" type="text" size="6" onkeyup="keyUpHandlerBegin(startIndexCheck(phrase3begin))" onkeydown="keyDownHandler()"> to
-<input name="phrase3end" id="phrase3end" placeholder="end index" type="text" size="6" onkeyup="keyUpHandlerBegin(endIndexCheck(phrase3end))" onkeydown="keyDownHandler()">
-<input name="phrase3words" id="phrase3words" placeholder="phrase words" size="50" type="text" />
- <input name="sentimentphrase3" type="radio" value="positive" /> Positive
- <input name="sentimentphrase3" type="radio" value="negative" /> Negative
- <input name="sentimentphrase3" type="radio" value="neutral" /> Neutral<br />
+            $("#box-subphrase").keyup(displayHighlighting);
+            $("#box-subphrase").val("");
+        }
 
-Subjective Phrase 4: <input name="phrase2begin" id="phrase4begin" placeholder="start index" type="text" size="6" onkeyup="keyUpHandlerBegin(startIndexCheck(phrase4begin))" onkeydown="keyDownHandler()"> to
-<input name="phrase4end" id="phrase4end" placeholder="end index" type="text" size="6" onkeyup="keyUpHandlerBegin(endIndexCheck(phrase4end))" onkeydown="keyDownHandler()">
-<input name="phrase4words" id="phrase4words" placeholder="phrase words" size="50" type="text" />
- <input name="sentimentphrase4" type="radio" value="positive" /> Positive
- <input name="sentimentphrase4" type="radio" value="negative" /> Negative
- <input name="sentimentphrase4" type="radio" value="neutral" /> Neutral<br />
+        $(document).ready(function() {
+            displayForm();
+            var divs = $('div[id^="ann-"]').hide(),
+            i = 0;
 
-<input name="id" type="hidden" value=${id} />
+            (function cycle() {
+                divs.eq(i).fadeIn(400)
+                          .delay(5000)
+                          .fadeOut(400, cycle);
+                i = ++i % divs.length;
+            })();
+        });
+
+    </script><noscript>
+        <h2>To complete this HIT, check Javascript is enabled in your browser.</h2>
+    </noscript>
+<div class="container" id="wrapper">
+<div class="jumbotron">
+<h3 id="big_tweet">Tweet should appear here.</h3>
+</div>
+
+<p class="instructions">Please help us determine this tweet&#39;s sentiment. <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">View instructions &raquo;</a></p>
+<input name="tweet_id" type="hidden" value="${id}" /> <input id="box-tweet-text" name="tweet_text" type="hidden" value="${tweet}" />
+<div>
+<p><input id="radio-neutral" name="sentiment" type="radio" value="neutral" /><label for="radio-neutral"> <span class="annotation-neutral">Neutral </span></label> <input id="radio-negative" name="sentiment" type="radio" value="negative" /><label for="radio-negative"><span class="annotation-negative">Negative</span></label> <input id="radio-positive" name="sentiment" type="radio" value="positive" /><label for="radio-positive"><span class="annotation-positive">Positive</span></label></p>
+</div>
+
+<p class="instructions">Identify any subjective phrases in this tweet using the keyboard. Type <span class="annotation-positive">p</span> (positive), <span class="annotation-negative">n</span> (negative), or <span class="annotation-neutral">e</span> (neutral). Use any other characters for non-subjective phrases. <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">View instructions &raquo;</a></p>
+<input class="prefilled" id="box-subphrase" name="subphrases" type="text" value="" />
+
+<p class="instructions"><br />
+Refer to the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">guidelines</a> and the examples below for help filling in this section and note that subjective phrases are rarely longer than a few words.</p>
+
+<div id="ann-6" class="jumbotron">
+    <h3>AT&T was <span class="annotation-neutral">okay</span> but whenever they do something <span class="annotation-positive">nice</span> in the name of customer service it <span class="annotation-negative">seems like a favor</span>, while T-Mobile makes that a <span class="annotation-positive">normal everyday thin</span></h3>
+</div>
+
+<div id="ann-1" class="jumbotron">
+    <h3> Even though <span class="annotation-negative">it's too expensive</span> I think the new Surface tablet is <span class="annotation-positive">pretty neat</span> </h3>
+</div>
+
+<div id="ann-2" class="jumbotron">
+        <h3>i <span class="annotation-negative">love it</span> when my card <span class="annotation-negative">declines</span></h3>
+</div>
+
+<div id="ann-3" class="jumbotron">
+        <h3>I <span class="annotation-positive">love</span> Apple but they <span class="annotation-negative">got it wrong</span> with the new ipad <span class="annotation-negative">:(</span></h3>
+</div>
+
+<div id="ann-4" class="jumbotron">
+    <h3><span class="annotation-positive">Stocks seen higher</span> <span class="annotation-no-annotation">on stimulus hopes: U.S. stock index futures pointed to a</span> <span class="annotation-positive">
+    higher open</span> <span class="annotation-no-annotation">on Friday on hopes that the Federal R...  #stocks</span></h3>
+</div>
+
+<div id="ann-5" class="jumbotron">
+    <h3>obama should be <span class="annotation-negative">impeached</span> on <span class="annotation-negative">TREASON</span> charges. Our Nuclear arsenal was TOP Secret. Till HE told our enemies what we had. <span class="annotation-negative">#Coward #Traitor</span></h3>
+</div>
+
+
+<div id="div-error"> <br />
+<p class="instructions"><span class="label label-warning">Important</span> Your work <b>will be rejected</b> if you do not accurately annotate the subjective phrases. Please read the <a href="http://www.sentimentron.co.uk/TurkInstructions.html" target="_blank">guidelines</a> to ensure you understand how to annotate subjective phrases</p> <br />
+
+<p id="error-text"><span class="label label-warning">Warning</span> <span id="error-message-text">Please enter enough into the subjective phrases box to cover the entire tweet.</span></p>
+</div>
+
+</div>
