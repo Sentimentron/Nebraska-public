@@ -3,7 +3,6 @@ from __future__ import division
 import csv
 import fileinput
 import sys
-# import Levenshtein
 import re
 
 class Verify(object):
@@ -15,42 +14,10 @@ class Verify(object):
         self.REJECT = 34
         self.black_list = self.loadBlackList()
         self.minLengthToCheck = 5
-        self.masterAnnotations = self.loadMasterAnnotations()
-        self.scoreMap = self.loadScoreMap()
         pass
-
-    def loadScoreMap(self):
-        #make new hashmap of 2 letter combination
-        myMap = {}
-        myMap["qq"] = 0
-        myMap["qp"] = -1
-        myMap["qn"] = -1
-        myMap["qe"] = -0.1
-        myMap["pq"] = -1
-        myMap["pp"] = 0
-        myMap["nn"] = 0
-        myMap["pn"] = -1
-        myMap["pe"] = -0.5
-        myMap["nq"] = -0.1
-        myMap["np"] = -1
-        myMap["ne"] = -0.5
-        myMap["eq"] = -1
-        myMap["ep"] = -0.5
-        myMap["en"] = -0.1
-        myMap["ee"] = 0
-        return myMap
 
     def loadBlackList(self):
         return set(line.strip() for line in open('blacklist.txt'))
-
-    def loadMasterAnnotations(self):
-        # Read the master annotations from the CSV and store in a hashmap of tweets -> master annotation
-        rows = {}
-        with open('masters.csv', 'rU') as csvfile:
-            masterreader = csv.reader(csvfile, delimiter=",")
-            for row in masterreader:
-                rows[row[0]] = row[1]
-        return rows
 
     def readInData(self, filename):
         rows = []
@@ -87,7 +54,7 @@ class Verify(object):
         subphrase = row[self.SUB_PHRASE]
         number_of_p = subphrase.count("p")
         percent_positive = (number_of_p / tweet_length) *100
-        if(percent_positive >6 and tweet_length > self.minLengthToCheck):
+        if(percent_positive >35 and tweet_length > self.minLengthToCheck):
             row[self.REJECT] = "Your positive subphrase(s) are too long please read our guidelines to see what we expect and contact us if you are unsure."
             self.writeRow(row)
             return False
@@ -99,7 +66,7 @@ class Verify(object):
         subphrase = row[self.SUB_PHRASE]
         number_of_n = subphrase.count("n")
         percent_negative = (number_of_n / tweet_length) *100
-        if(percent_negative >20 and tweet_length > self.minLengthToCheck):
+        if(percent_negative >72 and tweet_length > self.minLengthToCheck):
             row[self.REJECT] = "Your negative subphrase(s) are too long please read our guidelines to see what we expect and contact us if you are unsure."
             self.writeRow(row)
             return False
@@ -111,7 +78,7 @@ class Verify(object):
         subphrase = row[self.SUB_PHRASE]
         number_of_e = subphrase.count("e")
         percent_neutral = (number_of_e / tweet_length) *100
-        if(percent_neutral >5 and tweet_length > self.minLengthToCheck):
+        if(percent_neutral >31 and tweet_length > self.minLengthToCheck):
             row[self.REJECT] = "Your neutral subphrase(s) are too long please read our guidelines to see what we expect and contact us if you are unsure."
             self.writeRow(row)
             return False
@@ -131,59 +98,66 @@ class Verify(object):
         else:
             return True
 
-
-    def computeDistanceToMasterAnnotation(self, row):
-        # Get the master annotation for this tweet
-        master = self.masterAnnotations[row[self.TWEET]]
-        turker = row[self.SUB_PHRASE]
-        re.sub("[^p|^n|^e]","q", turker)
-        ratio = Levenshtein.ratio(master, turker)
-        if(ratio < 0.5):
-            print(ratio)
-            row[self.REJECT] = "Your annotation differs too much from our gold standard annotation, please read our guidelines to ensure you understand what we require"
-            return False
-        return True
-
-    def setScore(self, row):
-        #Method gets one row from turk results and accesses the annotation.
-        #It then calculates a score based on our annotation and user's.
-        #p&p=0 n&n=0 e&e=0 p&e = -0.5 n&e=-0.5 p&n=-1
-
-        annotation = row[self.SUB_PHRASE]
-        ourAnnotation = self.masterAnnotations[row[self.TWEET]]
-
-        if(len(annotation)!=len(ourAnnotation)):
-            #add insignificant letters to end of annotation
-            annotation = self.padAnnotation(ourAnnotation, annotation)
-
-        #use regex to replace all non key letters to q
-        annotation = re.sub("[^p|^n|^e]", "q", annotation)
-        ourAnnotation = re.sub("[^p|^n|^e]", "q", ourAnnotation)
-
-        finalScore = 0
-
-        for i in range(0,len(ourAnnotation)-1):
-            finalScore = finalScore + self.getScore(annotation[i], ourAnnotation[i])
-
-        return finalScore
-
-    def getScore(self, letter1, letter2):
-        return self.scoreMap[letter1+letter2]
-
-    def padAnnotation(self, ourAnnotation, annotation):
-        difference = abs(len(ourAnnotation) - len(annotation))
-
-        if(len(ourAnnotation)>len(annotation)):
-            for i in range(1,difference):
-                annotation=annotation+'q'
-        else:
-            annotation = annotation[0:len(ourAnnotation)]
-
-        return annotation
-
     def normaliseNonSentimentCharacter(self, row):
         row[self.SUB_PHRASE] = re.sub("[^p|^n|^e]", "q", row[self.SUB_PHRASE])
 
+    def isAnnotationStyleCorrect(self, row):
+        # Check they haven't entered phrases here
+        currentTweet = row[self.TWEET].split(" ")
+        sequence = row[self.SUB_PHRASE].split(" ")
+        for i in sequence:
+            if(i in currentTweet):
+                row[self.REJECT] = "You have entered the actual subphrase. Please use the characters 'p','n' & 'e' to highlight the 'positive', 'negative' & 'neutral' subphrases. Please read our guidelines to ensure ou understand the requirments and contact us if unsure"
+                self.writeRow(row)
+                return False
+        else:
+            return True
+        return True
+
+    def areNegativeSubphrasesRunsTheCorrectLength(self, row):
+        # Check the runs of subphrases are not too long
+        sequence = row[self.SUB_PHRASE]
+        currentTweet = row[self.TWEET]
+        match = re.findall("n+n", sequence, flags = 0)
+        #iterate over all matches to check if no. of p is > 40% of tweet length
+        for i in match:
+            if((len(i) >= (0.55*len(currentTweet))) and (len(currentTweet)>self.minLengthToCheck)):
+               row[self.REJECT] = "You have highlighted to many words as negative. Please check again your annotation or refer to our guidelines for more help. If unsure, please contact us."
+               self.writeRow(row)
+               return False
+            else:
+               return True
+        return True
+
+    def areNeutralSubphrasesRunsTheCorrectLength(self, row):
+        # Check the runs of subphrases are not too long
+        sequence = row[self.SUB_PHRASE]
+        currentTweet = row[self.TWEET]
+        match = re.findall("e+e", sequence, flags = 0)
+        #iterate over all matches to check if no. of p is > 40% of tweet length
+        for i in match:
+            if((len(i) >= (0.3*len(currentTweet))) and (len(currentTweet)>self.minLengthToCheck)):
+               row[self.REJECT] = "You have highlighted to many words as neutral. Please check again your annotation or refer to our guidelines for more help. If unsure, please contact us."
+               self.writeRow(row)
+               return False
+            else:
+               return True
+        return True
+
+    def arePositiveSubphrasesRunsTheCorrectLength(self, row):
+        # Check the runs of subphrases are not too long
+        sequence = row[self.SUB_PHRASE]
+        currentTweet = row[self.TWEET]
+        match = re.findall("p+p", sequence, flags = 0)
+        #iterate over all matches to check if no. of p is > 40% of tweet length
+        for i in match:
+            if((len(i) >= (0.4*len(currentTweet))) and (len(currentTweet)>self.minLengthToCheck)):
+               row[self.REJECT] = "You have highlighted to many words as positive. Please check again your annotation or refer to our guidelines for more help. If unsure, please contact us."
+               self.writeRow(row)
+               return False
+            else:
+               return True
+        return True
 
 def main():
     file_name = sys.argv[1]
@@ -207,6 +181,18 @@ def main():
         if(not result):
             continue
         result = checker.isWholeTweetAnnotated(row)
+        if(not result):
+            continue
+        result = checker.isAnnotationStyleCorrect(row)
+        if(not result):
+            continue
+        result = checker.areNegativeSubphrasesRunsTheCorrectLength(row)
+        if(not result):
+            continue
+        result = checker.arePositiveSubphrasesRunsTheCorrectLength(row)
+        if(not result):
+            continue
+        result = checker.areNeutralSubphrasesRunsTheCorrectLength(row)
         if(not result):
             continue
 
