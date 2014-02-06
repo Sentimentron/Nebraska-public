@@ -4,6 +4,7 @@
 import logging
 import sys
 
+from amt import AMTInputSource
 from annotators import SubjectivityAnnotator, FinancialDistanceAnnotator
 
 from metadata import fetch_metadata, push_metadata, get_git_version
