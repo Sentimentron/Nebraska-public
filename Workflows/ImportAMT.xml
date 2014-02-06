@@ -1,0 +1,21 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>AMT Corpus import test</WorkflowName>
+        <WorkflowDescription>Checks that everything is working correctly</WorkflowDescription>
+        <RetainOutputFile path="amt.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <ResultsTable />
+    </Tables>
+
+    <InputSources>
+        <AMTInputSource file="Data/MechanicalTurk/batch1.csv" />
+    </InputSources>
+
+    <WorkflowTasks>
+    </WorkflowTasks>
+
+</Workflow>
