@@ -56,6 +56,7 @@ class _AMTImport(object):
             If the tweets don't exist in the input table, this will insert them.
             This also inserts sentiment annotations and subjective phrases.
         """
+        logging.info("_AMTImport: Importing '%s'...", self.file)
         with open(self.file, 'rU') as inputfp:
             reader = csv.DictReader(inputfp)
             for row in reader:
@@ -68,9 +69,11 @@ class _AMTImport(object):
                     continue
                 identifier = self.tweet_exists(tweet, conn)
                 if identifier is None:
-                    logging.debug("Inserting tweet with text '%s'...", tweet)
+                    logging.debug(
+                        "_AMTImport: Inserting tweet with text '%s'...", tweet
+                    )
                     identifier = self.insert_tweet(tweet, conn)
-                logging.debug("Tweet identifier: %d", identifier)
+                logging.debug("_AMTImport: Tweet identifier: %d", identifier)
 
 
 class AMTInputSource(object):
@@ -108,10 +111,26 @@ class AMTInputSource(object):
             self.files = os.listdir(self.fname)
             self.import_agents = [_AMTImport(f) for f in self.files]
 
+    @classmethod
+    def create_subphrase_table(cls, conn):
+        """Create a table for subjective phrase annotations"""
+        cursor = conn.cursor()
+        sql = r"""CREATE TABLE subphrases (
+                identifier          INTEGER PRIMARY KEY,
+                document_identifier INTEGER NOT NULL,
+                annotation          TEXT NOT NULL,
+                FOREIGN KEY (document_identifier)
+                REFERENCES input(identifier)
+                ON DELETE CASCADE
+            )"""
+        logging.info("Creating subphrase annotations table...")
+        cursor.execute(sql)
+
     def execute(self, path, conn):
         """
             Import configured AMT corpus files into database
         """
+        self.create_subphrase_table(conn)
 
         for agent in self.import_agents:
             agent.execute(path, conn)
