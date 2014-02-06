@@ -106,7 +106,9 @@ class Verify(object):
         currentTweet = row[self.TWEET].split(" ")
         sequence = row[self.SUB_PHRASE].split(" ")
         for i in sequence:
-            if(i in currentTweet):
+            if len(i) < 2:
+                continue
+            if (i in currentTweet):
                 row[self.REJECT] = "You have entered the actual subphrase. Please use the characters 'p','n' & 'e' to highlight the 'positive', 'negative' & 'neutral' subphrases. Please read our guidelines to ensure ou understand the requirments and contact us if unsure"
                 self.writeRow(row)
                 return False
