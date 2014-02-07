@@ -1,0 +1,40 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>AMT Corpus Subjective Phrase Annotation test</WorkflowName>
+        <WorkflowDescription>Imports a corpus file, generates subjective phrase annotations.</WorkflowDescription>
+        <RetainOutputFile path="amt.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <ResultsTable />
+    </Tables>
+
+    <InputSources>
+        <AMTInputSource file="Data/MechanicalTurk/batch1.csv" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <FixedSubjectivePhraseAnnotator outputTable="fixed">
+            <EntryNodes>
+                <Word string="dont" prob="1.0" />
+                <Word string="rid" prob="1.0" />
+                <Word string="well" prob="1.0" />
+                <Word string="delete" prob="1.0" />
+                <Word string="spam" prob="1.0" />
+                <Word string="useful" prob="1.0" />
+                <Word string="deleted" prob="1.0" />
+                <Word string="fail" prob="1.0" />
+                <Word string="sex" prob="1.0" />
+                <Word string="bad" prob="1.0" />
+                <Word string="working" prob="1.0" />
+                <Word string="good" prob="1.0" />
+                <Word string="idick" prob="1.0" />
+                <Word string="charge" prob="1.0" />
+                <Word string="hate" prob="1.0" />
+            </EntryNodes>
+        </FixedSubjectivePhraseAnnotator>
+    </WorkflowTasks>
+
+</Workflow>
