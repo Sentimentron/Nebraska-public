@@ -170,6 +170,6 @@ public class WekaBenchmark {
 
     // Save the model
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyy-hhmmss.SSS");
-    weka.core.SerializationHelper.write(classname+ "-" +simpleDateFormat.format(new java.util.Date() ), clsCopy);
+    weka.core.SerializationHelper.write(classname+ "-" +simpleDateFormat.format(new java.util.Date() )+".model", clsCopy);
   }
 }
