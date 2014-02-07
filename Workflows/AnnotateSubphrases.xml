@@ -36,6 +36,12 @@
             </EntryNodes>
         </FixedSubjectivePhraseAnnotator>
         <EmpiricalSubjectivePhraseAnnotator outputTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="fixed" sourceTable="observed" />
+        <ResultPivotTableOutput bucket="subjective_phrase_results">
+            <Target>mse</Target>
+            <GroupOperation operation="sum" />
+            <Column>source</Column>
+        </ResultPivotTableOutput>
     </WorkflowTasks>
 
 </Workflow>

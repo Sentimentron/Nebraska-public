@@ -7,6 +7,7 @@
 import re
 import logging
 from collections import defaultdict
+from results import get_result_bucket
 
 class SubjectivePhraseAnnotator(object):
     """
@@ -179,3 +180,45 @@ class FixedSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
             first = False
             ret.append(self.entries[word])
         return ret
+
+class SubjectiveAnnotationEvaluator(object):
+
+    def __init__(self, xml):
+        self.source = xml.get("sourceTable")
+        self.predict = xml.get("predictedTable")
+        self.bucket = xml.get("bucket")
+
+        assert self.source is not None
+        assert self.predict is not None
+        assert self.bucket is not None
+
+    @classmethod
+    def calc_mse(cls, annotation1, annotation2):
+        annotation1 = [float(i) for i in annotation1.split(' ')]
+        annotation2 = [float(i) for i in annotation2.split(' ')]
+        return sum([
+            (a1 - a2)*(a1 - a2) 
+            for a1, a2 
+            in zip(annotation1, annotation2)
+        ])
+
+    def execute(self, _, conn):
+        bucket = get_result_bucket(self.bucket)
+
+        cursor = conn.cursor()
+        
+        sql = """SELECT subphrases_%s.annotation, subphrases_%s.annotation
+            FROM subphrases_%s JOIN subphrases_%s 
+            ON subphrases_%s.document_identifier = subphrases_%s.document_identifier"""
+        sql = sql % (self.source, self.predict, self.source, 
+            self.predict, self.source, self.predict)
+        logging.debug(sql)
+        cursor.execute(sql)
+
+        for annotation1, annotation2 in cursor.fetchall():
+            bucket.insert({"prediction": self.predict, 
+                "source": self.source,
+                "mse": self.calc_mse(annotation1, annotation2)
+            })
+            
+        return True, conn 
