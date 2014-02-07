@@ -39,7 +39,7 @@ from domain import DomainLabeller
 from sentiwordnet import SentiWordNetPositiveOrNegativeStrengthLabeller, SentiWordNetPositiveStrengthLabeller
 
 from ourinput import OurInputSource
-from sub import FixedSubjectivePhraseAnnotator
+from sub import FixedSubjectivePhraseAnnotator, EmpiricalSubjectivePhraseAnnotator
 
 
 from stemmer import Stemmer

@@ -18,6 +18,8 @@ class SubjectivePhraseAnnotator(object):
             Base constructor
         """
         self.output_table = output_table
+        assert self.output_table is not None
+
 
     def generate_annotation(self, tweet):
         """Abstract method"""
@@ -59,6 +61,55 @@ class SubjectivePhraseAnnotator(object):
             self.insert_annotation(
                 self.output_table, identifier, annotation, conn
             )
+
+        conn.commit()
+        return True, conn
+
+class EmpiricalSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
+    """
+        Probabilistically annotates subjective phases using the
+        data given by human annotators
+    """
+    def __init__(self, xml):
+        super(EmpiricalSubjectivePhraseAnnotator, self).__init__(
+            xml.get("outputTable")
+        )
+
+    def execute(self, _, conn):
+        self.generate_output_table(self.output_table, conn)
+        cursor = conn.cursor()
+        sql = """
+            SELECT
+                input.identifier, input.document, subphrases.annotation
+            FROM input JOIN subphrases
+                ON input.identifier = subphrases.document_identifier"""
+        cursor.execute(sql)
+        annotations = {}
+        # Read source annotations
+        for identifier, document, annotation in cursor.fetchall():
+            if identifier not in annotations:
+                annotations[identifier] = []
+            annotations[identifier].append(annotation)
+        # Compute annotation strings
+        for identifier in annotations:
+            # Initially zero
+            max_len = 0
+            for annotation in annotations[identifier]:
+                max_len = max(max_len, len(annotation))
+            probs = [0.0 for _ in range(max_len)]
+            print len(probs)
+            for annotation in annotations[identifier]:
+                logging.debug((len(annotation), len(probs)))
+                for i, a in enumerate(annotation):
+                    if a != 'q':
+                        # If this is part of a subjective phrase,
+                        # increment count at this position
+                        probs[i] += 1.0
+            # Then normalize so everything's <= 1.0
+            probs = [i/len(annotations[identifier]) for i in probs]
+            logging.debug(probs)
+            # Insert into the database
+            self.insert_annotation(self.output_table, identifier, probs, conn)
 
         conn.commit()
         return True, conn
