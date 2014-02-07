@@ -5,6 +5,7 @@
 """
 
 import os
+import re
 import csv
 import logging
 
@@ -49,6 +50,19 @@ class _AMTImport(object):
         )
         return cursor.lastrowid
 
+    @classmethod
+    def insert_anns(cls, anns, tweetid, conn):
+        """
+            Insert subjective phrase annotations
+        """
+        cursor = conn.cursor()
+        cursor.execute(
+            """INSERT INTO subphrases (
+                document_identifier, annotation
+            ) VALUES (?, ?)""", (tweetid, anns)
+        )
+        return cursor.lastrowid
+
     def execute(self, path, conn):
         """
             Imports an individual MT file into the database.
@@ -67,6 +81,7 @@ class _AMTImport(object):
                 if approve != "Approved":
                     # Don't bother reading stuff that isn't approved
                     continue
+                # Associate this tweet with something in the input table
                 identifier = self.tweet_exists(tweet, conn)
                 if identifier is None:
                     logging.debug(
@@ -74,12 +89,20 @@ class _AMTImport(object):
                     )
                     identifier = self.insert_tweet(tweet, conn)
                 logging.debug("_AMTImport: Tweet identifier: %d", identifier)
-
+                # Clean an insert subjective phrase annotations
+                anns = anns.replace("|", "")
+                anns = anns.replace(" ", "")
+                anns = re.sub("[^p|^q|^n]", "q", anns)
+                logging.debug(anns)
+                self.insert_anns(anns, identifier, conn)
 
 class AMTInputSource(object):
     """
         User-facing class for importing our Amazon
          Mechanical Turk corpus format.
+
+         Subjective annotations end up in `subphrases` table
+
     """
     def __init__(self, xml):
         """
@@ -135,5 +158,6 @@ class AMTInputSource(object):
         for agent in self.import_agents:
             agent.execute(path, conn)
 
+        conn.commit()
         return True, conn
 
