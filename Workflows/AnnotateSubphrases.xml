@@ -35,12 +35,59 @@
                 <Word string="hate" prob="1.0" />
             </EntryNodes>
         </FixedSubjectivePhraseAnnotator>
+        <FixedSubjectivePhraseAnnotator outputTable="forwards">
+            <EntryNodes>
+                <Word string="dont" prob="1.0" />
+                <Word string="rid" prob="1.0" />
+                <Word string="well" prob="1.0" />
+                <Word string="delete" prob="1.0" />
+                <Word string="spam" prob="1.0" />
+                <Word string="useful" prob="1.0" />
+                <Word string="deleted" prob="1.0" />
+                <Word string="fail" prob="1.0" />
+                <Word string="sex" prob="1.0" />
+                <Word string="bad" prob="1.0" />
+                <Word string="working" prob="1.0" />
+                <Word string="good" prob="1.0" />
+                <Word string="idick" prob="1.0" />
+                <Word string="charge" prob="1.0" />
+                <Word string="hate" prob="1.0" />
+            </EntryNodes>
+            <ForwardTransitionNodes>
+                <Word string="dump" prob="1.0" />
+                <Word string="efing" prob="1.0" />
+                <Word string="sex" prob="1.0" />
+                <Word string="doesnt" prob="1.0" />
+                <Word string="go" prob="1.0" />
+                <Word string="public" prob="1.0" />
+                <Word string="even" prob="1.0" />
+                <Word string="lame" prob="1.0" />
+                <Word string="multilayer" prob="1.0" />
+                <Word string="got" prob="1.0" />
+                <Word string="really" prob="1.0" />
+                <Word string="meeting" prob="1.0" />
+                <Word string="public" prob="1.0" />
+                <Word string="match" prob="1.0" />
+                <Word string="very" prob="1.0" />
+                <Word string="brand" prob="1.0" />
+                <Word string="inferiority" prob="1.0" />
+                <Word string="quite" prob="1.0" />
+                <Word string="soooooooo" prob="1.0" />
+                <Word string="ask" prob="1.0" />
+                <Word string="gets" prob="1.0" />
+                <Word string="spam" prob="1.0" />
+                <Word string="accidentally" prob="1.0" />
+                <Word string="hella" prob="1.0" />
+                <Word string="crossed" prob="1.0" />
+            </ForwardTransitionNodes>
+        </FixedSubjectivePhraseAnnotator>
         <EmpiricalSubjectivePhraseAnnotator outputTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="fixed" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="forwards" sourceTable="observed" />
         <ResultPivotTableOutput bucket="subjective_phrase_results">
             <Target>mse</Target>
             <GroupOperation operation="sum" />
-            <Column>source</Column>
+            <Row>prediction</Row>
         </ResultPivotTableOutput>
     </WorkflowTasks>
 
