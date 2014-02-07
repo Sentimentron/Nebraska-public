@@ -16,3 +16,4 @@ External/WekaClassifier/weka-classifiers/target
 *.sqlite-journal
 External/GimpelPOSTagger/gimpel-pos-tagger/target
 *.xz
+*.model
