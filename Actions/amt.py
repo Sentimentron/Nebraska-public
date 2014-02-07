@@ -54,19 +54,19 @@ class _AMTImport(object):
         return cursor.lastrowid
 
     @classmethod
-    def insert_anns(cls, anns, tweetid, conn):
+    def insert_anns(cls, tweetid, anns, sentiment, conn):
         """
             Insert subjective phrase annotations
         """
         cursor = conn.cursor()
         cursor.execute(
             """INSERT INTO subphrases (
-                document_identifier, annotation
-            ) VALUES (?, ?)""", (tweetid, anns)
+                document_identifier, annotation, sentiment
+            ) VALUES (?, ?, ?)""", (tweetid, anns, sentiment)
         )
         return cursor.lastrowid
 
-    def execute(self, path, conn):
+    def execute(self, _, conn):
         """
             Imports an individual MT file into the database.
 
@@ -97,7 +97,7 @@ class _AMTImport(object):
                 anns = anns.replace(" ", "")
                 anns = re.sub("[^p|^q|^n]", "q", anns)
                 logging.debug(anns)
-                self.insert_anns(anns, identifier, conn)
+                self.insert_anns(identifier, anns, sentiment, conn)
                 # Insert the sentiment
                 logging.debug("Inserting '%s' label...", sentiment)
                 self.labeller.associate(identifier, sentiment, conn)
@@ -148,6 +148,7 @@ class AMTInputSource(object):
                 identifier          INTEGER PRIMARY KEY,
                 document_identifier INTEGER NOT NULL,
                 annotation          TEXT NOT NULL,
+                sentiment           TEXT NOT NULL,
                 FOREIGN KEY (document_identifier)
                 REFERENCES input(identifier)
                 ON DELETE CASCADE
