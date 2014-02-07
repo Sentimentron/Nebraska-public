@@ -35,6 +35,7 @@
                 <Word string="hate" prob="1.0" />
             </EntryNodes>
         </FixedSubjectivePhraseAnnotator>
+        <EmpiricalSubjectivePhraseAnnotator outputTable="observed" />
     </WorkflowTasks>
 
 </Workflow>
