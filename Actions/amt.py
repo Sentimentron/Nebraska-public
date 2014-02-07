@@ -4,10 +4,13 @@
     Import Mechanical Turk output files
 """
 
+import db
 import os
 import re
 import csv
 import logging
+
+from label import Labeller
 
 class _AMTImport(object):
     """
@@ -19,7 +22,7 @@ class _AMTImport(object):
     def __init__(self, fname):
         """Initialise"""
         self.file = fname
-
+        self.labeller = Labeller("sentiment")
 
     @classmethod
     def tweet_exists(cls, tweet, conn):
@@ -95,6 +98,9 @@ class _AMTImport(object):
                 anns = re.sub("[^p|^q|^n]", "q", anns)
                 logging.debug(anns)
                 self.insert_anns(anns, identifier, conn)
+                # Insert the sentiment
+                logging.debug("Inserting '%s' label...", sentiment)
+                self.labeller.associate(identifier, sentiment, conn)
 
 class AMTInputSource(object):
     """
@@ -153,6 +159,7 @@ class AMTInputSource(object):
         """
             Import configured AMT corpus files into database
         """
+        db.create_sqlite_label_table("sentiment", conn)
         self.create_subphrase_table(conn)
 
         for agent in self.import_agents:
