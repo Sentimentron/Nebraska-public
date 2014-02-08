@@ -4,6 +4,7 @@
     Dealing with subjective phrase annotation/estimation
 """
 
+import math
 import re
 import logging
 from collections import defaultdict
@@ -297,8 +298,60 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
         for identifier in self.get_identifiers(conn):
             cursor.execute(sql, (identifier,))
             for text, anns in cursor.fetchall():
-                ret.append((text, anns))
+                ret.append((identifier, text, anns))
         return ret 
+
+    @classmethod 
+    def convert_annotation(cls, ann):
+        ann -= 0.001
+        ann = max(ann, 0)
+        ann = int(math.floor(ann*10))
+        return str(ann)
+
+    @classmethod 
+    def unconvert_annotation(cls, ann):
+        if ann in ["START", "END"]:
+            return 0.0 
+        ann = int(ann)
+        ann /= 10.0 
+        return ann 
+
+    def group_and_convert_text_anns(self, conn):
+        data = self.get_text_anns(conn)
+        annotations = {}
+        identifier_text = {}
+        ret = []
+        for identifier, text, ann in data:
+            logging.debug((identifier, text, ann))
+            identifier_text[identifier] = text 
+            if identifier not in annotations:
+                annotations[identifier] = []
+            annotations[identifier].append(ann)
+
+        # Compute annotation strings
+        for identifier in annotations:
+            # Initially zero
+            text = identifier_text[identifier]
+            max_len = len(text.split(' '))
+            for annotation in annotations[identifier]:
+                max_len = max(max_len, len(annotation))
+            probs = [0.0 for _ in range(max_len)]
+            print len(probs)
+            for annotation in annotations[identifier]:
+                logging.debug((len(annotation), len(probs)))
+                for i, a in enumerate(annotation):
+                    if a != 'q':
+                        # If this is part of a subjective phrase,
+                        # increment count at this position
+                        probs[i] += 1.0
+            # Then normalize so everything's <= 1.0
+            probs = [i/len(annotations[identifier]) for i in probs]
+            logging.debug(probs)
+            probs = [self.convert_annotation(i) for i in probs]
+            logging.debug((text, probs))
+            ret.append((text, probs))
+
+        return ret
 
     @classmethod
     def sanitize_annotation(cls, ann):
@@ -310,13 +363,6 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
         else:
             return 's'
 
-    @classmethod 
-    def convert_annotation(cls, ann):
-        if ann == 'q':
-            return 1.0
-        else:
-            return 0.0
-
     def generate_annotation(self, tweet):
         """
             Generates a list of probabilities that each word's
@@ -325,13 +371,23 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
             Adapted from: 
             http://www.katrinerk.com/courses/python-worksheets/hidden-markov-models-for-pos-tagging-in-python
         """
-        tweet = re.sub("[^a-zA-Z ]", "", tweet)
-        tweet = [t.lower() for t in tweet.split(' ') if len(t) > 0]
+        first = True 
+        tweetr = []
+        for word in tweet.split(' '):
+            if word[0].lower() != word[0] and not first:
+                continue
+            first = False 
+            word = word.lower()
+            word = re.sub('[^a-z]', '', word)
+            if len(word) == 0:
+                continue
+            tweetr.append(word)
+        tweet = tweetr
 
         viterbi = [ ]
         backpointer = [ ]
 
-        distinct_tags = ["START", 'q', 's', "END"]
+        distinct_tags = ["START", "END"] + [str(i) for i in range(10)]
 
         # For each tag, what is the probability it follows START?
         first_tag_seq = {}
@@ -343,6 +399,7 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
             first_tag_seq[tag] *= self.distwords[tag].prob(tweet[0])
             first_back_tag[tag] = "START"
 
+        logging.debug(first_tag_seq)
         viterbi.append(first_tag_seq)
         backpointer.append(first_back_tag)
 
@@ -362,7 +419,7 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
             viterbi.append(this_viterbi)
             backpointer.append(this_backpointer)
 
-        logging.debug(viterbi)
+        #logging.debug(viterbi)
         prev_viterbi = viterbi[-1]
         best_previous = max(prev_viterbi.keys(), key=lambda x: prev_viterbi[x] * self.disttags[x].prob("END"))
         prob_tagsequence = prev_viterbi[best_previous] * self.disttags[best_previous].prob("END")
@@ -376,21 +433,28 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
 
         best_tagsequence.reverse()
         logging.debug((' '.join(tweet), best_tagsequence, prob_tagsequence))
-        return [self.convert_annotation(i) for i in best_tagsequence]
+        #return [0.0 for i in best_tagsequence]
+        return [self.unconvert_annotation(i) for i in best_tagsequence]
 
     def execute(self, path, conn):
-        documents = self.get_text_anns(conn)
+        documents = self.group_and_convert_text_anns(conn)
         tags = []
         logging.info("Building probabilities....")
         for text, anns in documents:
-            text = re.sub('[^a-zA-Z0-9 ]', "", text)
-            text = [t.lower() for t in text.split(' ') if len(t) > 0]
-            anns = [self.sanitize_annotation(a) for a in anns]
+            text = text.split(' ')
             if len(text) != len(anns):
-                logging.error(("Wrong annotation length:", anns, text))
-                continue
+                logging.error(("Wrong annotation length:", anns, text, len(anns), len(text)))
             tags.append(("START", "START"))
-            tags.extend(zip(anns, text))
+            first = True
+            for ann, word in zip(anns, text):
+                if word[0].lower() != word[0] and not first:
+                    continue
+                first = False 
+                word = word.lower()
+                word = re.sub('[^a-z]', '', word)
+                if len(word) == 0:
+                    continue 
+                tags.append((ann, word))
             tags.append(("END", "END"))
 
         cfd_tagwords = nltk.ConditionalFreqDist(tags)
