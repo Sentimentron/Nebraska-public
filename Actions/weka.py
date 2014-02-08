@@ -33,6 +33,8 @@ class WekaBenchmark(object):
         # Number of folds to use
         self.folds = xml.get("folds")
 
+        self.path = xml.get("path")
+
         # Get or generate a random number seed
         self.seed = xml.get("seed")
         if self.seed is not None:
@@ -56,6 +58,9 @@ class WekaBenchmark(object):
         assert self.folds > 0
 
     def execute(self, path, conn):
+        if self.path is not None:
+            path = self.path
+
         args = ["WekaBenchmark",
             "-t", path,
             "-T", self.pos_table,
@@ -151,7 +156,7 @@ class WekaBenchmarkExport(object):
         logging.info("Exporting results to %s" % self.output_file)
         # Retrieve a cursor
         c = conn.cursor()
-        sql = "SELECT * FROM results" 
+        sql = "SELECT * FROM results"
         data = c.execute(sql)
         with open(self.output_file, 'wb') as f:
             writer = csv.writer(f)

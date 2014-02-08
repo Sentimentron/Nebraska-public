@@ -3,7 +3,7 @@
     <WorkflowOptions>
         <WorkflowName>Benchmark Sanders</WorkflowName>
         <WorkflowDescription> Import all tweets from the Sanders corpus and then try to classify them using WEKA. Note that you'll need to modify data.arff to set the class valuese to 1,2,3,4</WorkflowDescription>
-        <RetainOutputFile path="sanderstweets.sqlite"/>
+        <RetainOutputFile path="benchmarks.sqlite"/>
         <DisableUntrackedFileCheck />
     </WorkflowOptions>
 
@@ -14,17 +14,16 @@
     </Tables>
 
     <InputSources>
-        <SandersInputSource dir="Data/Intrinsic/Sanders" />
+        <!-- <SandersInputSource dir="Data/Intrinsic/Sanders" /> -->
     </InputSources>
 
     <WorkflowTasks>
-        <WhiteSpacePOSTagger dest="test"/>
-        <WekaBenchmark id="SVM" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.LibSVM" />
-        <WekaBenchmark id="DecisionTree" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.trees.J48" />
-        <WekaBenchmark id="Bayes" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.bayes.NaiveBayes" />
-        <WekaBenchmark id="RuleInduction" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.rules.JRip" />
-        <WekaBenchmark id="Logistic" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.Logistic" />
-        <WekaBenchmark id="KNN" posSrc="test" labelSrc="sanders" folds="4" classifier="weka.classifiers.lazy.IBk" />
+        <WekaBenchmark path="/Users/aaronkalair/Desktop/Nebraska/politics.sqlite" id="SVM" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.LibSVM" />
+        <WekaBenchmark path="/Users/aaronkalair/Desktop/Nebraska/politics.sqlite" id="DecisionTree" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.trees.J48" />
+        <WekaBenchmark path="/Users/aaronkalair/Desktop/Nebraska/politics.sqlite" id="Bayes" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.bayes.NaiveBayes" />
+        <WekaBenchmark path="/Users/aaronkalair/Desktop/Nebraska/politics.sqlite" id="RuleInduction" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.rules.JRip" />
+        <WekaBenchmark path="/Users/aaronkalair/Desktop/Nebraska/politics.sqlite" id="Logistic" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.Logistic" />
+        <WekaBenchmark path="/Users/aaronkalair/Desktop/Nebraska/politics.sqlite" id="KNN" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.lazy.IBk" />
     </WorkflowTasks>
 
 </Workflow>
