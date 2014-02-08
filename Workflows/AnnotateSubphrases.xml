@@ -12,7 +12,7 @@
     </Tables>
 
     <InputSources>
-        <AMTInputSource file="Data/MechanicalTurk/batch1.csv" />
+        <AMTInputSource dir="Data/MechanicalTurk" />
     </InputSources>
 
     <WorkflowTasks>
