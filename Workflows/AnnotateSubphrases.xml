@@ -16,6 +16,8 @@
     </InputSources>
 
     <WorkflowTasks>
+        <FixedSubjectivePhraseAnnotator outputTable="baseline" />
+
         <FixedSubjectivePhraseAnnotator outputTable="fixed">
             <EntryNodes>
                 <Word string="dont" prob="1.0" />
@@ -82,6 +84,8 @@
             </ForwardTransitionNodes>
         </FixedSubjectivePhraseAnnotator>
         <EmpiricalSubjectivePhraseAnnotator outputTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results"
+            predictedTable="baseline" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="fixed" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="forwards" sourceTable="observed" />
         <ResultPivotTableOutput bucket="subjective_phrase_results">
