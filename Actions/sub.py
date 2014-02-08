@@ -319,6 +319,24 @@ class SubjectiveAnnotationEvaluator(object):
 
         return True, conn 
 
+class MQPASubjectivityReader(object):
+    def __init__(self, path="Data/subjclueslen1-HLTEMNLP05.tff"):
+        self.data = {}
+        with open(path, 'rU') as src:
+            for line in src:
+                line = line.strip()
+                atoms = line.split(' ')
+                row = {i:j for i,_,j in [a.partition('=') for a in atoms]}
+                logging.debug(row)
+                self.data[row["word1"]] = row 
+
+    def get_subjectivity_pairs(self, strong_strength, weak_strength):
+        for word in self.data:
+            strength = weak_strength
+            if self.data[word]['type'] == 'strongsubj':
+                strength = strong_strength
+            yield (word, strength)
+
 class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator): 
 
     def __init__(self, xml):
@@ -332,6 +350,11 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
             self.use_sw = True 
         else:
             self.use_sw = False
+        self.use_mqpa = xml.get("useMQPA")
+        if self.use_mqpa == "true":
+            self.use_mqpa = True 
+        else:
+            self.use_mqpa = False
 
     def get_text_anns(self, conn):
         """
@@ -518,6 +541,11 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
                 if '_' in word:
                     continue
                 subjectivity = self.convert_annotation(subjectivity*0.5)
+                tags.append((subjectivity, word))
+
+        if self.use_mqpa:
+            mqpa = MQPASubjectivityReader()
+            for word, subjectivity in mqpa.get_subjectivity_pairs('1', '2'):
                 tags.append((subjectivity, word))
 
         print tags
