@@ -8,6 +8,7 @@ import re
 import logging
 from collections import defaultdict
 from results import get_result_bucket
+import nltk
 
 class SubjectivePhraseAnnotator(object):
     """
@@ -230,3 +231,172 @@ class SubjectiveAnnotationEvaluator(object):
             })
 
         return True, conn 
+
+class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator): 
+
+    def __init__(self, xml):
+        super(NTLKSubjectivePhraseMarkovAnnotator, self).__init__(
+            xml.get("outputTable")
+        )
+        self.distwords = None
+        self.disttags = None
+        self.sources = []
+        for node in xml.iterchildren():
+            if node.tag == "Sources":
+                for subnode in node.iterchildren():
+                    if subnode.tag == "Source":
+                        self.sources.append(subnode.text)
+
+    @classmethod
+    def get_all_identifiers(cls, conn):
+        """
+            No filtering in effect: just get everything from input
+        """
+        cursor = conn.cursor()
+        sql = "SELECT identifier FROM input"
+        cursor.execute(sql)
+        for row, in cursor:
+            yield row 
+
+
+    def get_sourced_identifiers(self, conn):
+        """
+            Lookup document source labels and get the identifiers
+        """
+        labcursor = conn.cursor()
+        sql = "SELECT label_identifier, label FROM label_names_amt"
+        labcursor.execute(sql)
+        for identifier, name in labcursor.fetchall():
+            if name not in self.sources:
+                continue 
+            idcursor = conn.cursor()
+            sql = """SELECT document_identifier FROM label_amt WHERE label = ?"""
+            idcursor.execute(sql, (identifier,))
+            for identifier, in idcursor.fetchall():
+                yield identifier
+
+    def get_identifiers(self, conn):
+        """
+            Return a list of applicable identifiers for this method
+        """
+        if self.sources == []:
+            return self.get_all_identifiers(conn)
+        else:
+            return self.get_sourced_identifiers(conn)
+
+    def get_text_anns(self, conn):
+        """
+            Generate a list of (text, annnotation) pairs
+        """
+        cursor = conn.cursor()
+        ret = []
+        sql = """SELECT input.document, subphrases.annotation
+        FROM input JOIN subphrases 
+        ON input.identifier = subphrases.document_identifier
+        WHERE input.identifier = ?"""
+        for identifier in self.get_identifiers(conn):
+            cursor.execute(sql, (identifier,))
+            for text, anns in cursor.fetchall():
+                ret.append((text, anns))
+        return ret 
+
+    @classmethod
+    def sanitize_annotation(cls, ann):
+        """
+            Discard sentiment annotation for the subjective phrase
+        """
+        if ann == 'q':
+            return 'q'
+        else:
+            return 's'
+
+    @classmethod 
+    def convert_annotation(cls, ann):
+        if ann == 'q':
+            return 1.0
+        else:
+            return 0.0
+
+    def generate_annotation(self, tweet):
+        """
+            Generates a list of probabilities that each word's
+            annotation.
+
+            Adapted from: 
+            http://www.katrinerk.com/courses/python-worksheets/hidden-markov-models-for-pos-tagging-in-python
+        """
+        tweet = re.sub("[^a-zA-Z ]", "", tweet)
+        tweet = [t.lower() for t in tweet.split(' ') if len(t) > 0]
+
+        viterbi = [ ]
+        backpointer = [ ]
+
+        distinct_tags = ["START", 'q', 's', "END"]
+
+        # For each tag, what is the probability it follows START?
+        first_tag_seq = {}
+        first_back_tag = {}
+        for tag in distinct_tags:
+            if tag == "START": 
+                continue 
+            first_tag_seq[tag] = self.disttags["START"].prob(tag)
+            first_tag_seq[tag] *= self.distwords[tag].prob(tweet[0])
+            first_back_tag[tag] = "START"
+
+        viterbi.append(first_tag_seq)
+        backpointer.append(first_back_tag)
+
+        for word in tweet[1:]:
+            this_viterbi = {}
+            this_backpointer = {}
+            prev_viterbi = viterbi[-1]
+            for tag in distinct_tags:
+                if tag == "START":
+                    continue 
+                best_prev = max(prev_viterbi.keys(), 
+                    key = lambda x: prev_viterbi[x] * self.disttags[x].prob(tag)
+                    * self.distwords[x].prob(word))
+                this_viterbi[tag] = prev_viterbi[best_prev] * self.disttags[best_prev].prob(tag) * self.distwords[tag].prob(word)
+                this_backpointer[tag] = best_prev 
+
+            viterbi.append(this_viterbi)
+            backpointer.append(this_backpointer)
+
+        logging.debug(viterbi)
+        prev_viterbi = viterbi[-1]
+        best_previous = max(prev_viterbi.keys(), key=lambda x: prev_viterbi[x] * self.disttags[x].prob("END"))
+        prob_tagsequence = prev_viterbi[best_previous] * self.disttags[best_previous].prob("END")
+        best_tagsequence = ["END", best_previous]
+        backpointer.reverse()
+
+        current_best_tag = best_previous
+        for bp in backpointer:
+            best_tagsequence.append(bp[current_best_tag])
+            current_best_tag = bp[current_best_tag]
+
+        best_tagsequence.reverse()
+        logging.debug((' '.join(tweet), best_tagsequence, prob_tagsequence))
+        return [self.convert_annotation(i) for i in best_tagsequence]
+
+    def execute(self, path, conn):
+        documents = self.get_text_anns(conn)
+        tags = []
+        logging.info("Building probabilities....")
+        for text, anns in documents:
+            text = re.sub('[^a-zA-Z0-9 ]', "", text)
+            text = [t.lower() for t in text.split(' ') if len(t) > 0]
+            anns = [self.sanitize_annotation(a) for a in anns]
+            if len(text) != len(anns):
+                logging.error(("Wrong annotation length:", anns, text))
+                continue
+            tags.append(("START", "START"))
+            tags.extend(zip(anns, text))
+            tags.append(("END", "END"))
+
+        cfd_tagwords = nltk.ConditionalFreqDist(tags)
+        cpd_tagwords = nltk.ConditionalProbDist(cfd_tagwords, nltk.MLEProbDist)
+        cfd_tags = nltk.ConditionalFreqDist(nltk.bigrams([tag for (tag, word) in tags]))
+        cpd_tags = nltk.ConditionalProbDist(cfd_tags, nltk.MLEProbDist)
+        self.distwords = cpd_tagwords
+        self.disttags = cpd_tags
+        return super(NTLKSubjectivePhraseMarkovAnnotator, self).execute(path, conn)
