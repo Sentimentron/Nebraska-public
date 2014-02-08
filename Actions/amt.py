@@ -23,6 +23,7 @@ class _AMTImport(object):
         """Initialise"""
         self.file = fname
         self.labeller = Labeller("sentiment")
+        self.srclabeller = Labeller("amt")
 
     @classmethod
     def tweet_exists(cls, tweet, conn):
@@ -101,6 +102,7 @@ class _AMTImport(object):
                 # Insert the sentiment
                 logging.debug("Inserting '%s' label...", sentiment)
                 self.labeller.associate(identifier, sentiment, conn)
+                self.srclabeller.associate(identifier, self.file, conn)
 
 class AMTInputSource(object):
     """
@@ -161,6 +163,7 @@ class AMTInputSource(object):
             Import configured AMT corpus files into database
         """
         db.create_sqlite_label_table("sentiment", conn)
+        db.create_sqlite_label_table("amt", conn)
         self.create_subphrase_table(conn)
 
         for agent in self.import_agents:
