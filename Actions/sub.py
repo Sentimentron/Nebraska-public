@@ -253,9 +253,20 @@ class SubjectiveAnnotationEvaluator(object):
         assert self.bucket is not None
 
     @classmethod
+    def pad_annotation(cls, annotation, length):
+        if len(annotation) >= length:
+            return annotation 
+        annotation.extend([0.0 for _ in range(length - len(annotation))])
+        return annotation
+
+    @classmethod
     def calc_mse(cls, annotation1, annotation2):
         annotation1 = [float(i) for i in annotation1.split(' ')]
         annotation2 = [float(i) for i in annotation2.split(' ')]
+        max_len = max(len(annotation1), len(annotation2))
+        annotation1 = cls.pad_annotation(annotation1, max_len)
+        annotation2 = cls.pad_annotation(annotation2, max_len)
+        assert len(annotation1) == len(annotation2)
         return sum([
             (a1 - a2)*(a1 - a2) 
             for a1, a2 
@@ -291,6 +302,11 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
         )
         self.distwords = None
         self.disttags = None
+        self.use_sw = xml.get("useSentiWordNet")
+        if self.use_sw == "true":
+            self.use_sw = True 
+        else:
+            self.use_sw = False
 
     def get_text_anns(self, conn):
         """
@@ -371,6 +387,8 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
         first = True 
         tweetr = []
         for word in tweet.split(' '):
+            if len(word) == 0:
+                continue
             if word[0].lower() != word[0] and not first:
                 continue
             first = False 
@@ -380,6 +398,10 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
                 continue
             tweetr.append(word)
         tweet = tweetr
+
+        if len(tweet) == 0:
+            logging.error(("Zero length tweet?", tweet))
+            return [0]
 
         viterbi = [ ]
         backpointer = [ ]
@@ -444,6 +466,8 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
             tags.append(("START", "START"))
             first = True
             for ann, word in zip(anns, text):
+                if len(word) == 0:
+                    continue
                 if word[0].lower() != word[0] and not first:
                     continue
                 first = False 
