@@ -251,6 +251,12 @@
                 <Target>Data/MechanicalTurk/batch2.csv</Target>
             </DataFlow>
         </NTLKSubjectivePhraseMarkovAnnotator>
+        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_cross_sw" useSentiWordNet="false">
+            <DataFlow>
+                <Source>Data/MechanicalTurk/batch1.csv</Source>
+                <Target>Data/MechanicalTurk/batch2.csv</Target>
+            </DataFlow>
+        </NTLKSubjectivePhraseMarkovAnnotator>
         <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_both">
             <DataFlow>
                 <Source>Data/MechanicalTurk/batch1.csv</Source>
@@ -266,6 +272,7 @@
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="fixed_cross" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="forwards_cross" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="markov_cross" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="markov_cross_sw" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="fixed_both" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="forwards_both" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="markov_both" sourceTable="observed" />

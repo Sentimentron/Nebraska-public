@@ -11,6 +11,8 @@ from collections import defaultdict
 from results import get_result_bucket
 import nltk
 
+from sentiwordnet import SentiWordNetReader
+
 class SubjectivePhraseAnnotator(object):
     """
         Generates subjective phrase annotations.
@@ -329,6 +331,8 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
         ann -= 0.001
         ann = max(ann, 0)
         ann = int(math.floor(ann*10))
+        if ann >= 4:
+            return "4"
         return str(ann)
 
     @classmethod 
@@ -414,6 +418,8 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
         for tag in distinct_tags:
             if tag == "START": 
                 continue 
+            if tag == "END":
+                continue
             first_tag_seq[tag] = self.disttags["START"].prob(tag)
             first_tag_seq[tag] *= self.distwords[tag].prob(tweet[0])
             first_back_tag[tag] = "START"
@@ -429,12 +435,17 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
             for tag in distinct_tags:
                 if tag == "START":
                     continue 
+                if tag == "END":
+                    continue
                 best_prev = max(prev_viterbi.keys(), 
                     key = lambda x: prev_viterbi[x] * self.disttags[x].prob(tag)
                     * self.distwords[x].prob(word))
+                logging.debug(best_prev)
                 this_viterbi[tag] = prev_viterbi[best_prev] * self.disttags[best_prev].prob(tag) * self.distwords[tag].prob(word)
                 this_backpointer[tag] = best_prev 
 
+            logging.debug(this_viterbi)
+            logging.debug(this_backpointer)
             viterbi.append(this_viterbi)
             backpointer.append(this_backpointer)
 
@@ -478,6 +489,15 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
                 tags.append((ann, word))
             tags.append(("END", "END"))
 
+        if self.use_sw:
+            swr = SentiWordNetReader()
+            for word, subjectivity in swr.get_subjectivities():
+                if '_' in word:
+                    continue
+                subjectivity = self.convert_annotation(subjectivity*0.5)
+                tags.append((subjectivity, word))
+
+        print tags
         cfd_tagwords = nltk.ConditionalFreqDist(tags)
         cpd_tagwords = nltk.ConditionalProbDist(cfd_tagwords, nltk.MLEProbDist)
         cfd_tags = nltk.ConditionalFreqDist(nltk.bigrams([tag for (tag, word) in tags]))
