@@ -22,15 +22,15 @@ class SubjectivePhraseAnnotator(object):
         """
         self.output_table = xml.get("outputTable")
         assert self.output_table is not None
-        self.sources = []
-        self.targets = []
+        self.sources = set([])
+        self.targets = set([])
         for node in xml.iterchildren():
             if node.tag == "DataFlow":
                 for subnode in node.iterchildren():
                     if subnode.tag == "Source":
-                        self.sources.append(subnode.text)
+                        self.sources.add(subnode.text)
                     if subnode.tag == "Target":
-                        self.sources.append(subnode.text)
+                        self.targets.add(subnode.text)
 
 
 
@@ -48,16 +48,16 @@ class SubjectivePhraseAnnotator(object):
             idcursor = conn.cursor()
             sql = """SELECT document_identifier FROM label_amt WHERE label = ?"""
             idcursor.execute(sql, (identifier,))
-            for identifier, in idcursor.fetchall():
-                yield identifier
+            for docid, in idcursor.fetchall():
+                yield docid
 
     def generate_source_identifiers(self, conn):
         """
             Generate identifiers for tweets from files in the <Source /> tags 
         """
+        logging.debug(self.sources)
         if len(self.sources) == 0:
             return self.get_all_identifiers(conn) 
-
         return self.generate_filtered_identifiers(self.sources, conn)
 
     def generate_target_identifiers(self, conn):
