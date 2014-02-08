@@ -16,13 +16,68 @@ class SubjectivePhraseAnnotator(object):
         Generates subjective phrase annotations.
     """
 
-    def __init__(self, output_table):
+    def __init__(self, xml):
         """
             Base constructor
         """
-        self.output_table = output_table
+        self.output_table = xml.get("outputTable")
         assert self.output_table is not None
+        self.sources = []
+        self.targets = []
+        for node in xml.iterchildren():
+            if node.tag == "DataFlow":
+                for subnode in node.iterchildren():
+                    if subnode.tag == "Source":
+                        self.sources.append(subnode.text)
+                    if subnode.tag == "Target":
+                        self.sources.append(subnode.text)
 
+
+
+    @classmethod
+    def generate_filtered_identifiers(cls, sources, conn):
+        """
+            Lookup document source labels and get the identifiers
+        """
+        labcursor = conn.cursor()
+        sql = "SELECT label_identifier, label FROM label_names_amt"
+        labcursor.execute(sql)
+        for identifier, name in labcursor.fetchall():
+            if name not in sources:
+                continue 
+            idcursor = conn.cursor()
+            sql = """SELECT document_identifier FROM label_amt WHERE label = ?"""
+            idcursor.execute(sql, (identifier,))
+            for identifier, in idcursor.fetchall():
+                yield identifier
+
+    def generate_source_identifiers(self, conn):
+        """
+            Generate identifiers for tweets from files in the <Source /> tags 
+        """
+        if len(self.sources) == 0:
+            return self.get_all_identifiers(conn) 
+
+        return self.generate_filtered_identifiers(self.sources, conn)
+
+    def generate_target_identifiers(self, conn):
+        """
+            Generate identifiers for tweets from files in the <Target /> tags 
+        """
+        if len(self.targets) == 0:
+            return self.get_all_identifiers(conn) 
+        return self.generate_filtered_identifiers(self.targets, conn)
+
+    @classmethod
+    def get_all_identifiers(cls, conn):
+        """
+            No filtering in effect: just get everything from input
+        """
+        cursor = conn.cursor()
+        sql = "SELECT identifier FROM input"
+        cursor.execute(sql)
+        for row, in cursor:
+            yield row 
 
     def generate_annotation(self, tweet):
         """Abstract method"""
@@ -59,7 +114,10 @@ class SubjectivePhraseAnnotator(object):
         cursor = conn.cursor()
         sql = """SELECT identifier, document FROM input"""
         cursor.execute(sql)
+        target_identifiers = set(self.generate_target_identifiers(conn))
         for identifier, document in cursor.fetchall():
+            if identifier not in target_identifiers:
+                continue
             annotation = self.generate_annotation(document)
             self.insert_annotation(
                 self.output_table, identifier, annotation, conn
@@ -74,9 +132,7 @@ class EmpiricalSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
         data given by human annotators
     """
     def __init__(self, xml):
-        super(EmpiricalSubjectivePhraseAnnotator, self).__init__(
-            xml.get("outputTable")
-        )
+        super(EmpiricalSubjectivePhraseAnnotator, self).__init__(xml)
 
     def execute(self, _, conn):
         self.generate_output_table(self.output_table, conn)
@@ -145,11 +201,7 @@ class FixedSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
                 <BackwardTransitionNodes />
             </FixedSubjectivePhraseAnnotator>
         """
-        super(FixedSubjectivePhraseAnnotator, self).__init__("")
-        # Where are we outputting to?
-        self.output_table = xml.get("outputTable")
-        if self.output_table is None:
-            raise ValueError((type(self), "outputTable must be specified!"))
+        super(FixedSubjectivePhraseAnnotator, self).__init__(xml)
         # Initialize default items
         self.entries = defaultdict(float)
         self.forward = defaultdict(float)
@@ -168,8 +220,6 @@ class FixedSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
                         self.insert_forward_transition (
                             subnode.get("string"), subnode.get("prob")
                         )
-            else:
-                raise NotImplementedError(node)
 
     def generate_annotation(self, tweet):
         """
@@ -237,53 +287,10 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
 
     def __init__(self, xml):
         super(NTLKSubjectivePhraseMarkovAnnotator, self).__init__(
-            xml.get("outputTable")
+            xml
         )
         self.distwords = None
         self.disttags = None
-        self.sources = []
-        for node in xml.iterchildren():
-            if node.tag == "Sources":
-                for subnode in node.iterchildren():
-                    if subnode.tag == "Source":
-                        self.sources.append(subnode.text)
-
-    @classmethod
-    def get_all_identifiers(cls, conn):
-        """
-            No filtering in effect: just get everything from input
-        """
-        cursor = conn.cursor()
-        sql = "SELECT identifier FROM input"
-        cursor.execute(sql)
-        for row, in cursor:
-            yield row 
-
-
-    def get_sourced_identifiers(self, conn):
-        """
-            Lookup document source labels and get the identifiers
-        """
-        labcursor = conn.cursor()
-        sql = "SELECT label_identifier, label FROM label_names_amt"
-        labcursor.execute(sql)
-        for identifier, name in labcursor.fetchall():
-            if name not in self.sources:
-                continue 
-            idcursor = conn.cursor()
-            sql = """SELECT document_identifier FROM label_amt WHERE label = ?"""
-            idcursor.execute(sql, (identifier,))
-            for identifier, in idcursor.fetchall():
-                yield identifier
-
-    def get_identifiers(self, conn):
-        """
-            Return a list of applicable identifiers for this method
-        """
-        if self.sources == []:
-            return self.get_all_identifiers(conn)
-        else:
-            return self.get_sourced_identifiers(conn)
 
     def get_text_anns(self, conn):
         """
@@ -295,7 +302,7 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
         FROM input JOIN subphrases 
         ON input.identifier = subphrases.document_identifier
         WHERE input.identifier = ?"""
-        for identifier in self.get_identifiers(conn):
+        for identifier in self.generate_source_identifiers(conn):
             cursor.execute(sql, (identifier,))
             for text, anns in cursor.fetchall():
                 ret.append((identifier, text, anns))
@@ -352,16 +359,6 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
             ret.append((text, probs))
 
         return ret
-
-    @classmethod
-    def sanitize_annotation(cls, ann):
-        """
-            Discard sentiment annotation for the subjective phrase
-        """
-        if ann == 'q':
-            return 'q'
-        else:
-            return 's'
 
     def generate_annotation(self, tweet):
         """
