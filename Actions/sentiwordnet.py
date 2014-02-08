@@ -132,3 +132,7 @@ class SentiWordNetReader(object):
             count += 1
 
         return total / max(count, 1)
+
+    def get_subjectivities(self):
+        for word in self.word_synset_map:
+            yield (word, self.get_subjectivity(word))
