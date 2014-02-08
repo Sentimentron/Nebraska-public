@@ -249,6 +249,9 @@ class SubjectiveAnnotationEvaluator(object):
         self.source = xml.get("sourceTable")
         self.predict = xml.get("predictedTable")
         self.bucket = xml.get("bucket")
+        self.metric = xml.get("metric")
+        if self.metric == None:
+            self.metric = "mse"
 
         assert self.source is not None
         assert self.predict is not None
@@ -275,6 +278,20 @@ class SubjectiveAnnotationEvaluator(object):
             in zip(annotation1, annotation2)
         ])
 
+    @classmethod
+    def calc_abs(cls, annotation1, annotation2):
+        """
+            Reports the annotators ability to correctly identify a word 
+            which's been highlighted anywhere.
+        """
+        annotation1 = [float(i) for i in annotation1.split(' ')]
+        annotation2 = [float(i) for i in annotation2.split(' ')]
+        max_len = max(len(annotation1), len(annotation2))
+        annotation1 = cls.pad_annotation(annotation1, max_len)
+        annotation2 = cls.pad_annotation(annotation2, max_len)
+        result = [(i > 0 and j > 0) or (abs(i-0.05) < 0.05 and abs(j-0.05) < 0.05) for i, j in zip(annotation1, annotation2)]
+        return sum([1-int(i) for i in result])
+
     def execute(self, _, conn):
         bucket = get_result_bucket(self.bucket)
 
@@ -289,10 +306,16 @@ class SubjectiveAnnotationEvaluator(object):
         cursor.execute(sql)
 
         for annotation1, annotation2 in cursor.fetchall():
-            bucket.insert({"prediction": self.predict, 
-                "source": self.source,
-                "mse": self.calc_mse(annotation1, annotation2)
-            })
+            if self.metric == "mse":
+                bucket.insert({"prediction": self.predict, 
+                    "source": self.source,
+                    "mse": self.calc_mse(annotation1, annotation2)
+                })
+            else:
+                bucket.insert({"prediction": self.predict, 
+                    "source": self.source,
+                    "abs": self.calc_abs(annotation1, annotation2)
+                })
 
         return True, conn 
 

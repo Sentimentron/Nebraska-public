@@ -251,7 +251,7 @@
                 <Target>Data/MechanicalTurk/batch2.csv</Target>
             </DataFlow>
         </NTLKSubjectivePhraseMarkovAnnotator>
-        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_cross_sw" useSentiWordNet="false">
+        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_cross_sw" useSentiWordNet="true">
             <DataFlow>
                 <Source>Data/MechanicalTurk/batch1.csv</Source>
                 <Target>Data/MechanicalTurk/batch2.csv</Target>
@@ -276,12 +276,26 @@
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="fixed_both" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="forwards_both" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="markov_both" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results_abs" metric="abs" predictedTable="fixed_self" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results_abs" metric="abs" predictedTable="forwards_self" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results_abs" metric="abs" predictedTable="markov_self" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results_abs" metric="abs" predictedTable="fixed_cross" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results_abs" metric="abs" predictedTable="forwards_cross" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results_abs" metric="abs" predictedTable="markov_cross" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results_abs" metric="abs" predictedTable="markov_cross_sw" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results_abs" metric="abs" predictedTable="fixed_both" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results_abs" metric="abs" predictedTable="forwards_both" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results_abs" metric="abs" predictedTable="markov_both" sourceTable="observed" />
         <ResultPivotTableOutput bucket="subjective_phrase_results">
             <Target>mse</Target>
             <GroupOperation operation="sum" />
             <Row>prediction</Row>
         </ResultPivotTableOutput>
-
+        <ResultPivotTableOutput bucket="subjective_phrase_results_abs">
+            <Target>abs</Target>
+            <GroupOperation operation="sum" />
+            <Row>prediction</Row>
+        </ResultPivotTableOutput>
     </WorkflowTasks>
 
 </Workflow>
