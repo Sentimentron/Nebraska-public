@@ -40,7 +40,7 @@ from sentiwordnet import SentiWordNetPositiveOrNegativeStrengthLabeller, SentiWo
 
 from ourinput import OurInputSource
 from results import ResultPivotTableOutput
-from sub import FixedSubjectivePhraseAnnotator, EmpiricalSubjectivePhraseAnnotator, SubjectiveAnnotationEvaluator, NTLKSubjectivePhraseMarkovAnnotator
+from sub import FixedSubjectivePhraseAnnotator, EmpiricalSubjectivePhraseAnnotator, SubjectiveAnnotationEvaluator, NTLKSubjectivePhraseMarkovAnnotator, NLTKSubjectivePhraseBayesianAnnotator
 
 
 from stemmer import Stemmer

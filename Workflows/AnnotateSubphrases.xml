@@ -270,6 +270,19 @@
                 <Target>Data/MechanicalTurk/batch2.csv</Target>
             </DataFlow>
         </NTLKSubjectivePhraseMarkovAnnotator>
+        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_new1">
+            <DataFlow>
+                <Source>Data/MechanicalTurk/batch1.csv</Source>
+                <Target>Data/MechanicalTurk/batch3.csv</Target>
+            </DataFlow>
+        </NTLKSubjectivePhraseMarkovAnnotator>
+        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_new2">
+            <DataFlow>
+                <Source>Data/MechanicalTurk/batch1.csv</Source>
+                <Source>Data/MechanicalTurk/batch2.csv</Source>
+                <Target>Data/MechanicalTurk/batch3.csv</Target>
+            </DataFlow>
+        </NTLKSubjectivePhraseMarkovAnnotator>
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results"
             predictedTable="baseline" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="fixed_self" sourceTable="observed" />
@@ -284,6 +297,8 @@
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="fixed_both" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="forwards_both" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="markov_both" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="markov_new1" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="markov_new2" sourceTable="observed" />
 
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results_abs" metric="abs" predictedTable="fixed_self" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results_abs" metric="abs" predictedTable="forwards_self" sourceTable="observed" />
