@@ -186,15 +186,15 @@ class EmoticonLabeller(LiteralLabeller):
         self.bad = [":(", ":-(", "D:"]
 
     def label(self, document):
-        good, bad = False, False 
+        good, bad = False, False
         for goodterm in self.good:
             if goodterm in document:
-                good = True 
-                break  
+                good = True
+                break
         for badterm in self.bad:
             if badterm in document:
-                bad = True 
-                break 
+                bad = True
+                break
 
         if good and bad:
             # Mixed emoticons cant tell return the answer to everything
@@ -203,24 +203,23 @@ class EmoticonLabeller(LiteralLabeller):
             return 1
         if bad:
             return -1
-        # No empticons present 
+        # No empticons present
 
 class TrainingTestSplitLabeller(LiteralLabeller):
-    
+
     def __init__(self, xml):
         super(TrainingTestSplitLabeller, self).__init__(xml)
         # Percentage of documents assigned the "test" label
         self.proportion = xml.get("testProportion")
-        assert self.proportion is not None 
-        
+        assert self.proportion is not None
+
         self.proportion = float(self.proportion)
         assert self.proportion > 0
         assert self.proportion < 1
-    
+
     def label(self, document):
         if random.random() < self.proportion:
             # This document is a test document
             return 1
         # This document is a training document
         return 0
-        

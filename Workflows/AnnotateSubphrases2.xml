@@ -1,0 +1,137 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>AMT Corpus Subjective Phrase Annotation test</WorkflowName>
+        <WorkflowDescription>Imports a corpus file, generates subjective phrase annotations.</WorkflowDescription>
+        <RetainOutputFile path="amt.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <ResultsTable />
+    </Tables>
+
+    <InputSources>
+        <AMTInputSource dir="Data/MechanicalTurk" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <FixedSubjectivePhraseAnnotator outputTable="baseline" />
+        <FixedSubjectivePhraseAnnotator outputTable="fixed_self">
+            <EntryNodes>
+                <Word string="dont" prob="1.0" />
+                <Word string="rid" prob="1.0" />
+                <Word string="well" prob="1.0" />
+                <Word string="delete" prob="1.0" />
+                <Word string="spam" prob="1.0" />
+                <Word string="useful" prob="1.0" />
+                <Word string="deleted" prob="1.0" />
+                <Word string="fail" prob="1.0" />
+                <Word string="sex" prob="1.0" />
+                <Word string="bad" prob="1.0" />
+                <Word string="working" prob="1.0" />
+                <Word string="good" prob="1.0" />
+                <Word string="idick" prob="1.0" />
+                <Word string="charge" prob="1.0" />
+                <Word string="hate" prob="1.0" />
+            </EntryNodes>
+            <DataFlow>
+                <Target>Data/MechanicalTurk/batch3.csv</Target>
+            </DataFlow>
+        </FixedSubjectivePhraseAnnotator>
+        <FixedSubjectivePhraseAnnotator outputTable="forwards_self">
+            <EntryNodes>
+                <Word string="dont" prob="1.0" />
+                <Word string="rid" prob="1.0" />
+                <Word string="well" prob="1.0" />
+                <Word string="delete" prob="1.0" />
+                <Word string="spam" prob="1.0" />
+                <Word string="useful" prob="1.0" />
+                <Word string="deleted" prob="1.0" />
+                <Word string="fail" prob="1.0" />
+                <Word string="sex" prob="1.0" />
+                <Word string="bad" prob="1.0" />
+                <Word string="working" prob="1.0" />
+                <Word string="good" prob="1.0" />
+                <Word string="idick" prob="1.0" />
+                <Word string="charge" prob="1.0" />
+                <Word string="hate" prob="1.0" />
+            </EntryNodes>
+            <ForwardTransitionNodes>
+                <Word string="dump" prob="1.0" />
+                <Word string="efing" prob="1.0" />
+                <Word string="sex" prob="1.0" />
+                <Word string="doesnt" prob="1.0" />
+                <Word string="go" prob="1.0" />
+                <Word string="public" prob="1.0" />
+                <Word string="even" prob="1.0" />
+                <Word string="lame" prob="1.0" />
+                <Word string="multilayer" prob="1.0" />
+                <Word string="got" prob="1.0" />
+                <Word string="really" prob="1.0" />
+                <Word string="meeting" prob="1.0" />
+                <Word string="public" prob="1.0" />
+                <Word string="match" prob="1.0" />
+                <Word string="very" prob="1.0" />
+                <Word string="brand" prob="1.0" />
+                <Word string="inferiority" prob="1.0" />
+                <Word string="quite" prob="1.0" />
+                <Word string="soooooooo" prob="1.0" />
+                <Word string="ask" prob="1.0" />
+                <Word string="gets" prob="1.0" />
+                <Word string="spam" prob="1.0" />
+                <Word string="accidentally" prob="1.0" />
+                <Word string="hella" prob="1.0" />
+                <Word string="crossed" prob="1.0" />
+            </ForwardTransitionNodes>
+            <DataFlow>
+                <Target>Data/MechanicalTurk/batch3.csv</Target>
+            </DataFlow>
+        </FixedSubjectivePhraseAnnotator>
+        <EmpiricalSubjectivePhraseAnnotator outputTable="observed" />
+        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov">
+            <DataFlow>
+                <Source>Data/MechanicalTurk/batch1.csv</Source>
+                <Source>Data/MechanicalTurk/batch2.csv</Source>
+                <Source>Data/MechanicalTurk/batch3.csv</Source>
+                <Target>Data/MechanicalTurk/batch3.csv</Target>
+            </DataFlow>
+        </NTLKSubjectivePhraseMarkovAnnotator>
+        <NLTKSubjectivePhraseBayesianAnnotator outputTable="bayesian">
+            <DataFlow>
+                <Source>Data/MechanicalTurk/batch1.csv</Source>
+                <Source>Data/MechanicalTurk/batch2.csv</Source>
+                <Source>Data/MechanicalTurk/batch3.csv</Source>
+                <Target>Data/MechanicalTurk/batch3.csv</Target>
+            </DataFlow>
+        </NLTKSubjectivePhraseBayesianAnnotator>
+                <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_batch2">
+            <DataFlow>
+                <Source>Data/MechanicalTurk/batch1.csv</Source>
+                <Target>Data/MechanicalTurk/batch2.csv</Target>
+            </DataFlow>
+        </NTLKSubjectivePhraseMarkovAnnotator>
+        <FixedSubjectivePhraseAnnotator outputTable="baseline_3">
+            <DataFlow>
+                <Source>Data/MechanicalTurk/batch1.csv</Source>
+                <Target>Data/MechanicalTurk/batch3.csv</Target>
+            </DataFlow>
+        </FixedSubjectivePhraseAnnotator>
+
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results"
+            predictedTable="baseline" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="fixed_self" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="forwards_self" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="markov" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="bayesian" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="markov_batch2" sourceTable="observed" />
+        <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="baseline_3" sourceTable="observed" />
+
+        <ResultPivotTableOutput bucket="subjective_phrase_results">
+            <Target>mse</Target>
+            <GroupOperation operation="sum" />
+            <Row>prediction</Row>
+        </ResultPivotTableOutput>
+    </WorkflowTasks>
+
+</Workflow>

@@ -7,7 +7,7 @@
 import math
 import re
 import logging
-from collections import defaultdict
+from collections import defaultdict, Counter
 from results import get_result_bucket
 import nltk
 
@@ -46,7 +46,7 @@ class SubjectivePhraseAnnotator(object):
         labcursor.execute(sql)
         for identifier, name in labcursor.fetchall():
             if name not in sources:
-                continue 
+                continue
             idcursor = conn.cursor()
             sql = """SELECT document_identifier FROM label_amt WHERE label = ?"""
             idcursor.execute(sql, (identifier,))
@@ -55,19 +55,19 @@ class SubjectivePhraseAnnotator(object):
 
     def generate_source_identifiers(self, conn):
         """
-            Generate identifiers for tweets from files in the <Source /> tags 
+            Generate identifiers for tweets from files in the <Source /> tags
         """
         logging.debug(self.sources)
         if len(self.sources) == 0:
-            return self.get_all_identifiers(conn) 
+            return self.get_all_identifiers(conn)
         return self.generate_filtered_identifiers(self.sources, conn)
 
     def generate_target_identifiers(self, conn):
         """
-            Generate identifiers for tweets from files in the <Target /> tags 
+            Generate identifiers for tweets from files in the <Target /> tags
         """
         if len(self.targets) == 0:
-            return self.get_all_identifiers(conn) 
+            return self.get_all_identifiers(conn)
         return self.generate_filtered_identifiers(self.targets, conn)
 
     @classmethod
@@ -79,7 +79,7 @@ class SubjectivePhraseAnnotator(object):
         sql = "SELECT identifier FROM input"
         cursor.execute(sql)
         for row, in cursor:
-            yield row 
+            yield row
 
     def generate_annotation(self, tweet):
         """Abstract method"""
@@ -260,28 +260,35 @@ class SubjectiveAnnotationEvaluator(object):
     @classmethod
     def pad_annotation(cls, annotation, length):
         if len(annotation) >= length:
-            return annotation 
-        annotation.extend([0.0 for _ in range(length - len(annotation))])
+            return annotation
+        annotation.extend(['0.0' for _ in range(length - len(annotation))])
         return annotation
 
     @classmethod
     def calc_mse(cls, annotation1, annotation2):
-        annotation1 = [float(i) for i in annotation1.split(' ')]
-        annotation2 = [float(i) for i in annotation2.split(' ')]
+
+        annotation1 = [i for i in annotation1.split(' ') if len(i) > 0]
+        annotation2 = [i for i in annotation2.split(' ') if len(i) > 0]
         max_len = max(len(annotation1), len(annotation2))
         annotation1 = cls.pad_annotation(annotation1, max_len)
         annotation2 = cls.pad_annotation(annotation2, max_len)
         assert len(annotation1) == len(annotation2)
+        logging.debug(annotation1)
+        logging.debug(annotation2)
+
+        annotation1 = [float(i) for i in annotation1]
+        annotation2 = [float(i) for i in annotation2]
+
         return sum([
-            (a1 - a2)*(a1 - a2) 
-            for a1, a2 
+            (a1 - a2)*(a1 - a2)
+            for a1, a2
             in zip(annotation1, annotation2)
         ])
 
     @classmethod
     def calc_abs(cls, annotation1, annotation2):
         """
-            Reports the annotators ability to correctly identify a word 
+            Reports the annotators ability to correctly identify a word
             which's been highlighted anywhere.
         """
         annotation1 = [float(i) for i in annotation1.split(' ')]
@@ -296,28 +303,28 @@ class SubjectiveAnnotationEvaluator(object):
         bucket = get_result_bucket(self.bucket)
 
         cursor = conn.cursor()
-        
+
         sql = """SELECT subphrases_%s.annotation, subphrases_%s.annotation
-            FROM subphrases_%s JOIN subphrases_%s 
+            FROM subphrases_%s JOIN subphrases_%s
             ON subphrases_%s.document_identifier = subphrases_%s.document_identifier"""
-        sql = sql % (self.source, self.predict, self.source, 
+        sql = sql % (self.source, self.predict, self.source,
             self.predict, self.source, self.predict)
         logging.debug(sql)
         cursor.execute(sql)
 
         for annotation1, annotation2 in cursor.fetchall():
             if self.metric == "mse":
-                bucket.insert({"prediction": self.predict, 
+                bucket.insert({"prediction": self.predict,
                     "source": self.source,
                     "mse": self.calc_mse(annotation1, annotation2)
                 })
             else:
-                bucket.insert({"prediction": self.predict, 
+                bucket.insert({"prediction": self.predict,
                     "source": self.source,
                     "abs": self.calc_abs(annotation1, annotation2)
                 })
 
-        return True, conn 
+        return True, conn
 
 class MQPASubjectivityReader(object):
     def __init__(self, path="Data/subjclueslen1-HLTEMNLP05.tff"):
@@ -328,7 +335,7 @@ class MQPASubjectivityReader(object):
                 atoms = line.split(' ')
                 row = {i:j for i,_,j in [a.partition('=') for a in atoms]}
                 logging.debug(row)
-                self.data[row["word1"]] = row 
+                self.data[row["word1"]] = row
 
     def get_subjectivity_pairs(self, strong_strength, weak_strength):
         for word in self.data:
@@ -337,42 +344,24 @@ class MQPASubjectivityReader(object):
                 strength = strong_strength
             yield (word, strength)
 
-class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator): 
+class HumanBasedSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
 
     def __init__(self, xml):
-        super(NTLKSubjectivePhraseMarkovAnnotator, self).__init__(
+        super(HumanBasedSubjectivePhraseAnnotator, self).__init__(
             xml
         )
-        self.distwords = None
-        self.disttags = None
-        self.use_sw = xml.get("useSentiWordNet")
-        if self.use_sw == "true":
-            self.use_sw = True 
-        else:
-            self.use_sw = False
-        self.use_mqpa = xml.get("useMQPA")
-        if self.use_mqpa == "true":
-            self.use_mqpa = True 
-        else:
-            self.use_mqpa = False
 
-    def get_text_anns(self, conn):
-        """
-            Generate a list of (text, annnotation) pairs
-        """
-        cursor = conn.cursor()
-        ret = []
-        sql = """SELECT input.document, subphrases.annotation
-        FROM input JOIN subphrases 
-        ON input.identifier = subphrases.document_identifier
-        WHERE input.identifier = ?"""
-        for identifier in self.generate_source_identifiers(conn):
-            cursor.execute(sql, (identifier,))
-            for text, anns in cursor.fetchall():
-                ret.append((identifier, text, anns))
-        return ret 
+    def execute(self, path, conn):
+        return super(HumanBasedSubjectivePhraseAnnotator, self).execute (
+            path, conn
+        )
 
-    @classmethod 
+    @classmethod
+    def normalize_probability(cls, freq_dist):
+        total = sum(freq_dist.values())
+        return dict([(i, j / float(total)) for i, j in freq_dist.most_common()])
+
+    @classmethod
     def convert_annotation(cls, ann):
         ann -= 0.001
         ann = max(ann, 0)
@@ -381,13 +370,29 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
             return "4"
         return str(ann)
 
-    @classmethod 
+    @classmethod
     def unconvert_annotation(cls, ann):
         if ann in ["START", "END"]:
-            return 0.0 
+            return 0.0
         ann = int(ann)
-        ann /= 10.0 
-        return ann 
+        ann /= 10.0
+        return ann
+
+    def get_text_anns(self, conn):
+        """
+            Generate a list of (text, annnotation) pairs
+        """
+        cursor = conn.cursor()
+        ret = []
+        sql = """SELECT input.document, subphrases.annotation
+        FROM input JOIN subphrases
+        ON input.identifier = subphrases.document_identifier
+        WHERE input.identifier = ?"""
+        for identifier in self.generate_source_identifiers(conn):
+            cursor.execute(sql, (identifier,))
+            for text, anns in cursor.fetchall():
+                ret.append((identifier, text, anns))
+        return ret
 
     def group_and_convert_text_anns(self, conn):
         data = self.get_text_anns(conn)
@@ -395,8 +400,7 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
         identifier_text = {}
         ret = []
         for identifier, text, ann in data:
-            logging.debug((identifier, text, ann))
-            identifier_text[identifier] = text 
+            identifier_text[identifier] = text
             if identifier not in annotations:
                 annotations[identifier] = []
             annotations[identifier].append(ann)
@@ -411,7 +415,6 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
             probs = [0.0 for _ in range(max_len)]
             print len(probs)
             for annotation in annotations[identifier]:
-                logging.debug((len(annotation), len(probs)))
                 for i, a in enumerate(annotation):
                     if a != 'q':
                         # If this is part of a subjective phrase,
@@ -419,29 +422,129 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
                         probs[i] += 1.0
             # Then normalize so everything's <= 1.0
             probs = [i/len(annotations[identifier]) for i in probs]
-            logging.debug(probs)
             probs = [self.convert_annotation(i) for i in probs]
-            logging.debug((text, probs))
             ret.append((text, probs))
 
         return ret
 
-    def generate_annotation(self, tweet):
-        """
-            Generates a list of probabilities that each word's
-            annotation.
+class NLTKSubjectivePhraseBayesianAnnotator(HumanBasedSubjectivePhraseAnnotator):
 
-            Adapted from: 
-            http://www.katrinerk.com/courses/python-worksheets/hidden-markov-models-for-pos-tagging-in-python
-        """
-        first = True 
+    def __init__(self, xml):
+        super(NLTKSubjectivePhraseBayesianAnnotator, self).__init__(
+            xml
+        )
+        self.subjworddist = None
+        self.subjdist = None
+        self.worddist = None
+
+    def word_subj_probability(self, word, sub):
+        return self.subjworddist[sub].prob(word)
+
+    def annotate_word(self, word):
+        # Looking up which s \in Subjectivity maximizes
+        best_annotation = None
+        best_score = 0
+        for s in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
+            if s not in self.subjdist:
+                continue
+            score = self.word_subj_probability(word, s) / self.subjdist[s]
+            if score > best_score:
+                best_score = score
+                best_annotation = s
+
+        return best_annotation
+
+    def generate_annotation(self, tweet):
+        first = True
         tweetr = []
         for word in tweet.split(' '):
             if len(word) == 0:
                 continue
             if word[0].lower() != word[0] and not first:
                 continue
-            first = False 
+            first = False
+            word = word.lower()
+            word = re.sub('[^a-z]', '', word)
+            if len(word) == 0:
+                continue
+            tweetr.append(word)
+        tweet = tweetr
+
+        if len(tweet) == 0:
+            logging.error(("Zero length tweet?", tweet))
+            return [0]
+
+
+        tweet = [self.annotate_word(t) for t in tweet]
+        tweet = [self.unconvert_annotation(t) for t in tweet]
+        return tweet
+
+    def execute(self, path, conn):
+        documents = self.group_and_convert_text_anns(conn)
+        tags = []
+        logging.info("Building probabilities....")
+        for text, anns in documents:
+            text = text.split(' ')
+            if len(text) != len(anns):
+                logging.error(("Wrong annotation length:", anns, text, len(anns), len(text)))
+            first = True
+            for ann, word in zip(anns, text):
+                if len(word) == 0:
+                    continue
+                if word[0].lower() != word[0] and not first:
+                    continue
+                first = False
+                word = word.lower()
+                word = re.sub('[^a-z]', '', word)
+                if len(word) == 0:
+                    continue
+                tags.append((ann, word))
+
+        cfd_tagwords = nltk.ConditionalFreqDist(tags)
+        cpd_tagwords = nltk.ConditionalProbDist(cfd_tagwords, nltk.MLEProbDist)
+        subj_counter = Counter([tag for tag, word in tags])
+        word_counter = Counter([word for tag, word in tags])
+
+        self.subjdist = self.normalize_probability(subj_counter)
+        self.worddist = self.normalize_probability(word_counter)
+        self.subjworddist = cpd_tagwords
+        return super(NLTKSubjectivePhraseBayesianAnnotator, self).execute(path, conn)
+
+class NTLKSubjectivePhraseMarkovAnnotator(HumanBasedSubjectivePhraseAnnotator):
+
+    def __init__(self, xml):
+        super(NTLKSubjectivePhraseMarkovAnnotator, self).__init__(
+            xml
+        )
+        self.distwords = None
+        self.disttags = None
+        self.use_sw = xml.get("useSentiWordNet")
+        if self.use_sw == "true":
+            self.use_sw = True
+        else:
+            self.use_sw = False
+        self.use_mqpa = xml.get("useMQPA")
+        if self.use_mqpa == "true":
+            self.use_mqpa = True
+        else:
+            self.use_mqpa = False
+
+    def generate_annotation(self, tweet):
+        """
+            Generates a list of probabilities that each word's
+            annotation.
+
+            Adapted from:
+            http://www.katrinerk.com/courses/python-worksheets/hidden-markov-models-for-pos-tagging-in-python
+        """
+        first = True
+        tweetr = []
+        for word in tweet.split(' '):
+            if len(word) == 0:
+                continue
+            if word[0].lower() != word[0] and not first:
+                continue
+            first = False
             word = word.lower()
             word = re.sub('[^a-z]', '', word)
             if len(word) == 0:
@@ -462,15 +565,14 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
         first_tag_seq = {}
         first_back_tag = {}
         for tag in distinct_tags:
-            if tag == "START": 
-                continue 
+            if tag == "START":
+                continue
             if tag == "END":
                 continue
             first_tag_seq[tag] = self.disttags["START"].prob(tag)
             first_tag_seq[tag] *= self.distwords[tag].prob(tweet[0])
             first_back_tag[tag] = "START"
 
-        logging.debug(first_tag_seq)
         viterbi.append(first_tag_seq)
         backpointer.append(first_back_tag)
 
@@ -480,18 +582,15 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
             prev_viterbi = viterbi[-1]
             for tag in distinct_tags:
                 if tag == "START":
-                    continue 
+                    continue
                 if tag == "END":
                     continue
-                best_prev = max(prev_viterbi.keys(), 
+                best_prev = max(prev_viterbi.keys(),
                     key = lambda x: prev_viterbi[x] * self.disttags[x].prob(tag)
                     * self.distwords[x].prob(word))
-                logging.debug(best_prev)
                 this_viterbi[tag] = prev_viterbi[best_prev] * self.disttags[best_prev].prob(tag) * self.distwords[tag].prob(word)
-                this_backpointer[tag] = best_prev 
+                this_backpointer[tag] = best_prev
 
-            logging.debug(this_viterbi)
-            logging.debug(this_backpointer)
             viterbi.append(this_viterbi)
             backpointer.append(this_backpointer)
 
@@ -508,7 +607,6 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
             current_best_tag = bp[current_best_tag]
 
         best_tagsequence.reverse()
-        logging.debug((' '.join(tweet), best_tagsequence, prob_tagsequence))
         #return [0.0 for i in best_tagsequence]
         return [self.unconvert_annotation(i) for i in best_tagsequence]
 
@@ -527,11 +625,11 @@ class NTLKSubjectivePhraseMarkovAnnotator(SubjectivePhraseAnnotator):
                     continue
                 if word[0].lower() != word[0] and not first:
                     continue
-                first = False 
+                first = False
                 word = word.lower()
                 word = re.sub('[^a-z]', '', word)
                 if len(word) == 0:
-                    continue 
+                    continue
                 tags.append((ann, word))
             tags.append(("END", "END"))
 
