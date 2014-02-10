@@ -394,7 +394,7 @@ class HumanBasedSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
                 ret.append((identifier, text, anns))
         return ret
 
-    def group_and_convert_text_anns(self, conn):
+    def group_and_convert_text_anns(self, conn, discretise=True):
         data = self.get_text_anns(conn)
         annotations = {}
         identifier_text = {}
@@ -422,7 +422,8 @@ class HumanBasedSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
                         probs[i] += 1.0
             # Then normalize so everything's <= 1.0
             probs = [i/len(annotations[identifier]) for i in probs]
-            probs = [self.convert_annotation(i) for i in probs]
+            if discretise:
+                probs = [self.convert_annotation(i) for i in probs]
             ret.append((text, probs))
 
         return ret
