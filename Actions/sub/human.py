@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 """
-    Defines a base class for subjective phrase annotators 
+    Defines a base class for subjective phrase annotators
     which rely on human input to work.
 """
 
-from sub import SubjectivePhraseAnnotator
+import math
+
+from Actions.sub.sub import SubjectivePhraseAnnotator
 
 class HumanBasedSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
 

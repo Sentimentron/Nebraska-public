@@ -4,6 +4,8 @@
     Contains classes which don't really fit anywhere else in this module
 """
 
+import logging
+
 class MQPASubjectivityReader(object):
     def __init__(self, path="Data/subjclueslen1-HLTEMNLP05.tff"):
         self.data = {}
@@ -11,7 +13,7 @@ class MQPASubjectivityReader(object):
             for line in src:
                 line = line.strip()
                 atoms = line.split(' ')
-                row = {i:j for i,_,j in [a.partition('=') for a in atoms]}
+                row = {i:j for i, _, j in [a.partition('=') for a in atoms]}
                 logging.debug(row)
                 self.data[row["word1"]] = row
 
