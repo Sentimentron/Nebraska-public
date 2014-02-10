@@ -6,9 +6,9 @@
 """
 
 from sub import SubjectivePhraseAnnotator
-from sub import EmpiricalSubjectivePhraseAnnotator
-from sub import FixedSubjectivePhraseAnnotator
-from sub import SubjectiveAnnotationEvaluator
-from sub import SubjectiveARFFExporter
-from sub import NLTKSubjectivePhraseBayesianAnnotator
-from sub import NTLKSubjectivePhraseMarkovAnnotator
+from evaluation import EmpiricalSubjectivePhraseAnnotator
+from fixed import FixedSubjectivePhraseAnnotator
+from evaluation import SubjectiveAnnotationEvaluator
+from arff import SubjectiveARFFExporter
+from nltkbayesian import NLTKSubjectivePhraseBayesianAnnotator
+from nltkmarkov import NTLKSubjectivePhraseMarkovAnnotator
