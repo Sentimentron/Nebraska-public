@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
-from sub import SubjectivePhraseAnnotator
-
 """
-    Contains classes used for annotation of subjective 
+    Contains classes used for annotation of subjective
     phrases according to fixed rules.
 """
+
+import re
+
+from collections import defaultdict
+from Actions.sub.sub import SubjectivePhraseAnnotator
 
 class FixedSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
     """

@@ -5,7 +5,10 @@
     chains
 """
 
-from human import HuamnBasedSubjectivePhraseAnnotator
+import re
+import nltk
+import logging
+from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 
 class NTLKSubjectivePhraseMarkovAnnotator(HumanBasedSubjectivePhraseAnnotator):
 

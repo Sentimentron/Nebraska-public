@@ -3,8 +3,13 @@
 """
     Contains classes for working with WEKA IO for exploration.
 """
+import re
+import csv
+import logging
 
-from human import HuamnBasedSubjectivePhraseAnnotator
+from collections import defaultdict, Counter
+
+from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 
 class SubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):
 
@@ -16,13 +21,13 @@ class SubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):
         """
             Initialise the exporter: must provide a path attribute.
         """
-        super(HumanBasedSubjectivePhraseAnnotator, self).__init__(
+        super(SubjectiveARFFExporter, self).__init__(
             xml
         )
         self.path = xml.get("path")
-        assert self.path is not None 
+        assert self.path is not None
 
-    def group_and_convert_text_anns(self, conn, discretise=True):
+    def group_and_convert_text_anns(self, conn):
         """
             Modified version of super-classes thing: also returns identifiers
         """
@@ -46,20 +51,19 @@ class SubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):
             probs = [0.0 for _ in range(max_len)]
             print len(probs)
             for annotation in annotations[identifier]:
-                for i, a in enumerate(annotation):
-                    if a != 'q':
+                for i, ann in enumerate(annotation):
+                    if ann != 'q':
                         # If this is part of a subjective phrase,
                         # increment count at this position
                         probs[i] += 1.0
             # Then normalize so everything's <= 1.0
             probs = [i/len(annotations[identifier]) for i in probs]
-            if discretise:
-                probs = [self.convert_annotation(i) for i in probs]
             ret.append((text, probs, identifier))
 
         return ret
 
-    def load_annotations(self, conn):
+    @classmethod
+    def load_annotations(cls, conn):
         """
             Retrieve the majority annotations provided by Turkers
         """
@@ -75,16 +79,16 @@ class SubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):
             entries = tmp[identifier]
             popular = entries.most_common(2)
             label1, pop1 = popular[0]
-            label2, pop2 = popular[1]
+            _, pop2 = popular[1]
             if pop1 == pop2:
                 # No consensus, skip
-                continue 
+                continue
             ret[identifier] = label1
-        return ret 
+        return ret
 
     def execute(self, path, conn):
         """
-            Outputs an ARFF File containing all the word-level subjectivity 
+            Outputs an ARFF File containing all the word-level subjectivity
             scores
         """
         documents = self.group_and_convert_text_anns(conn, discretise=False)
@@ -113,12 +117,13 @@ class SubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):
         with open(self.path, 'w') as output_file:
             print "@relation subjective" >> output_file
             for word in sorted(words):
-                print "@attribute ", word, " numeric" >> output_file 
+                print "@attribute ", word, " numeric" >> output_file
             print "@attribute overall_annotation {positive, negative, neutral}" >> output_file
             print "" >> output_file
             csv_writer = csv.writer(output_file)
             for identifier in output_buf:
                 if identifier not in labels:
                     continue # No consensus for this entry
+                buf = labels[identifier]
                 csv_writer.writerow([buf[word] for word in sorted(words)] ++ [labels[identifier]])
             csv_writer.close()

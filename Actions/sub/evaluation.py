@@ -1,14 +1,20 @@
 #!/usr/bin/env python
 
 """
-    Contains classes used for evaluating subjective phrase 
+    Contains classes used for evaluating subjective phrase
     detection against human input.
 """
 
-from sub import SubjectivePhraseAnnotator
+import logging
+
+from Actions.results import get_result_bucket
+from Actions.sub.sub import SubjectivePhraseAnnotator
 
 class SubjectiveAnnotationEvaluator(object):
-
+    """
+        Abstract class which handles getting the appropriate document
+        identifiers for subjective phrase detection and saving.
+    """
     def __init__(self, xml):
         self.source = xml.get("sourceTable")
         self.predict = xml.get("predictedTable")
@@ -23,6 +29,10 @@ class SubjectiveAnnotationEvaluator(object):
 
     @classmethod
     def pad_annotation(cls, annotation, length):
+        """
+            Add some '0.0' strings to the annotation until it's
+            the right length for the tweet.
+        """
         if len(annotation) >= length:
             return annotation
         annotation.extend(['0.0' for _ in range(length - len(annotation))])
@@ -30,7 +40,9 @@ class SubjectiveAnnotationEvaluator(object):
 
     @classmethod
     def calc_mse(cls, annotation1, annotation2):
-
+        """
+            Calculate the Mean Squared Error for two annotations.
+        """
         annotation1 = [i for i in annotation1.split(' ') if len(i) > 0]
         annotation2 = [i for i in annotation2.split(' ') if len(i) > 0]
         max_len = max(len(annotation1), len(annotation2))
@@ -60,7 +72,10 @@ class SubjectiveAnnotationEvaluator(object):
         max_len = max(len(annotation1), len(annotation2))
         annotation1 = cls.pad_annotation(annotation1, max_len)
         annotation2 = cls.pad_annotation(annotation2, max_len)
-        result = [(i > 0 and j > 0) or (abs(i-0.05) < 0.05 and abs(j-0.05) < 0.05) for i, j in zip(annotation1, annotation2)]
+        result = [
+            (i > 0 and j > 0) or (abs(i-0.05) < 0.05 and abs(j-0.05) < 0.05)
+            for i, j in zip(annotation1, annotation2)
+        ]
         return sum([1-int(i) for i in result])
 
     def execute(self, _, conn):
@@ -70,7 +85,8 @@ class SubjectiveAnnotationEvaluator(object):
 
         sql = """SELECT subphrases_%s.annotation, subphrases_%s.annotation
             FROM subphrases_%s JOIN subphrases_%s
-            ON subphrases_%s.document_identifier = subphrases_%s.document_identifier"""
+            ON subphrases_%s.document_identifier
+                = subphrases_%s.document_identifier"""
         sql = sql % (self.source, self.predict, self.source,
             self.predict, self.source, self.predict)
         logging.debug(sql)

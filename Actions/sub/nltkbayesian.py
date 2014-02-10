@@ -5,7 +5,13 @@
     inference
 """
 
-from human import HuamnBasedSubjectivePhraseAnnotator
+import re
+import logging
+import nltk
+
+from collections import Counter
+
+from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 
 class NLTKSubjectivePhraseBayesianAnnotator(HumanBasedSubjectivePhraseAnnotator):
 
