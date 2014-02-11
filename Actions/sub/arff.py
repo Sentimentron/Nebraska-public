@@ -79,10 +79,11 @@ class SubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):
             entries = tmp[identifier]
             popular = entries.most_common(2)
             label1, pop1 = popular[0]
-            _, pop2 = popular[1]
-            if pop1 == pop2:
-                # No consensus, skip
-                continue
+            if len(popular) > 1:
+                _, pop2 = popular[1]
+                if pop1 == pop2:
+                    # No consensus, skip
+                    continue
             ret[identifier] = label1
         return ret
 
@@ -91,7 +92,7 @@ class SubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):
             Outputs an ARFF File containing all the word-level subjectivity
             scores
         """
-        documents = self.group_and_convert_text_anns(conn, discretise=False)
+        documents = self.group_and_convert_text_anns(conn)
         words = set([])
         output_buf = {}
         labels = self.load_annotations(conn)
@@ -111,19 +112,25 @@ class SubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):
                     continue
                 words.add(word)
                 word_anns[word] = ann
-            output_buf[identifier] = anns
+            output_buf[identifier] = word_anns
 
         # Output the ARFF file
         with open(self.path, 'w') as output_file:
-            print "@relation subjective" >> output_file
+            print >> output_file, "@relation subjective"
             for word in sorted(words):
-                print "@attribute ", word, " numeric" >> output_file
-            print "@attribute overall_annotation {positive, negative, neutral}" >> output_file
-            print "" >> output_file
+                print >> output_file, "@attribute ", word, " numeric"
+            print >> output_file, "@attribute overall_annotation {positive, negative, neutral}"
+            print >> output_file, ""
+            print >> output_file, "@data"
             csv_writer = csv.writer(output_file)
             for identifier in output_buf:
                 if identifier not in labels:
                     continue # No consensus for this entry
-                buf = labels[identifier]
-                csv_writer.writerow([buf[word] for word in sorted(words)] ++ [labels[identifier]])
-            csv_writer.close()
+                buf = output_buf[identifier]
+                print buf
+                row = [buf[word] for word in sorted(words)]
+                row.append(labels[identifier])
+                logging.debug(row)
+                csv_writer.writerow(row)
+
+        return True, conn
