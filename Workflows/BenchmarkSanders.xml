@@ -18,12 +18,12 @@
     </InputSources>
 
     <WorkflowTasks>
-        <WekaBenchmark path="/Users/aaronkalair/Desktop/Nebraska/politics.sqlite" id="SVM" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.LibSVM" />
-        <WekaBenchmark path="/Users/aaronkalair/Desktop/Nebraska/politics.sqlite" id="DecisionTree" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.trees.J48" />
-        <WekaBenchmark path="/Users/aaronkalair/Desktop/Nebraska/politics.sqlite" id="Bayes" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.bayes.NaiveBayes" />
-        <WekaBenchmark path="/Users/aaronkalair/Desktop/Nebraska/politics.sqlite" id="RuleInduction" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.rules.JRip" />
-        <WekaBenchmark path="/Users/aaronkalair/Desktop/Nebraska/politics.sqlite" id="Logistic" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.Logistic" />
-        <WekaBenchmark path="/Users/aaronkalair/Desktop/Nebraska/politics.sqlite" id="KNN" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.lazy.IBk" />
+        <WekaBenchmark id="SVM" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.LibSVM" />
+        <WekaBenchmark id="DecisionTree" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.trees.J48" />
+        <WekaBenchmark id="Bayes" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.bayes.NaiveBayes" />
+        <WekaBenchmark id="RuleInduction" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.rules.JRip" />
+        <WekaBenchmark id="Logistic" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.Logistic" />
+        <WekaBenchmark id="KNN" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.lazy.IBk" />
     </WorkflowTasks>
 
 </Workflow>
