@@ -1,0 +1,25 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>AMT Corpus Subjective Phrase Annotation test</WorkflowName>
+        <WorkflowDescription>Imports a corpus file, generates subjective phrase annotations.</WorkflowDescription>
+        <RetainOutputFile path="amt.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <ResultsTable />
+    </Tables>
+
+    <InputSources>
+        <AMTInputSource dir="Data/MechanicalTurk" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <SubjectiveARFFExporter path="subjective.arff" outputTable=""/>
+        <SubjectiveARFFExporter path="subjective_presence.arff" exportPresence="true" exportSubjectivity="false" outputTable=""/>
+        <SubjectivePhraseARFFExporter path="subjective_phrases.arff" exportLevel="phrases" outputTable = ""/>
+
+    </WorkflowTasks>
+
+</Workflow>
