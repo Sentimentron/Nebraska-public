@@ -80,8 +80,9 @@ public class WekaBenchmark {
 
     // Make a new BagOfWords and let it handle constructing the instances object. (The final parameter turns debugging on, flip it to false to turn it off.)
     SentiAdaptronWordBag wordBag = new SentiAdaptronWordBag(c, labelTable, posTable, false);
-    //wordBag.buildWordBag(documents, "unigrams");
     wordBag.buildWordBag(documents, "bigrams");
+    wordBag.balanceClasses();
+    //wordBag.buildWordBag(documents, "bigrams");
     // Possible options to reduce attribute count
     // wordBag.keepTopN(10);
     // wordBag.keepWithEntropyAbove(0.4);
@@ -142,7 +143,7 @@ public class WekaBenchmark {
     System.out.println();
 
     // Insert the results into the database
-    String results = "INSERT INTO results(classifier, folds, seed, correctly_classified_instances, incorrectly_classified_instances, percent_correctly_classified, percent_incorrectly_classified, mean_absolute_error, root_mean_squared_error, relative_absolute_error, root_relative_squared_error, total_number_of_instances, area_under_curve, false_positive_rate, false_negative_rate, f_measure, precision, recall, true_negative_rate, true_positive_rate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    String results = "INSERT INTO results(classifier, folds, seed, correctly_classified_instances, incorrectly_classified_instances, percent_correctly_classified, percent_incorrectly_classified, mean_absolute_error, root_mean_squared_error, relative_absolute_error, root_relative_squared_error, total_number_of_instances, area_under_curve, false_positive_rate, false_negative_rate, f_measure, precision, recall, true_negative_rate, true_positive_rate, negative_instances, positive_instances, neutral_instances) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     PreparedStatement insertResults = c.prepareStatement(results);
     insertResults.setString(1, cls.getClass().getName() + " " + Utils.joinOptions(cls.getOptions()));
     insertResults.setInt(2, folds);
@@ -164,6 +165,9 @@ public class WekaBenchmark {
     insertResults.setDouble(18, eval.recall(0));
     insertResults.setDouble(19, eval.trueNegativeRate(0));
     insertResults.setDouble(20, eval.truePositiveRate(0));
+    insertResults.setInt(21, wordBag.numNegative());
+    insertResults.setInt(22, wordBag.numPositive());
+    insertResults.setInt(23, wordBag.numNeutral());
     insertResults.executeUpdate();
     insertResults.close();
     c.close();

@@ -16,6 +16,12 @@ $(document).ready(function() {
             console.log(retVal)
             window.location.href = 'next?id='+id+'&accept=false'+'&feedback='+encodeURIComponent(retVal);
         }
+        // C for change feedback
+        if(code == 99) {
+            var retVal = prompt("Enter new feedback : ", "");
+            console.log(retVal)
+            window.location.href = 'next?id='+id+'&change=true'+'&feedback='+encodeURIComponent(retVal);
+        }
 
     });
 });

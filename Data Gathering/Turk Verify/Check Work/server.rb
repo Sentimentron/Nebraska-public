@@ -26,6 +26,9 @@ get '/next' do
             @@csv_file[id][reject_column] = URI.unescape(params[:feedback])
         end
     end
+    if params[:change] == 'true'
+        @@csv_file[id][reject_column] = URI.unescape(params[:feedback])
+    end
     File.open('new_results.csv','w'){ |f| f << @@csv_file.map(&:to_csv).join() }
     @tweet = @@all_tweets.getTweet
     if(@tweet.nil?)

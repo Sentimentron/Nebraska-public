@@ -22,6 +22,7 @@ import weka.attributeSelection.PrincipalComponents;
 import weka.attributeSelection.*;
 import weka.attributeSelection.Ranker;
 import weka.filters.unsupervised.attribute.ReplaceMissingWithUserConstant;
+import weka.filters.supervised.instance.SpreadSubsample;
 
 // Note the Word Bag assumes labels are 0,1,-1 anything else will make it cry.
 public class SentiAdaptronWordBag {
@@ -313,6 +314,20 @@ public class SentiAdaptronWordBag {
         exp = exp + ")";
         filterAllExcept(exp);
     }
+
+    public void balanceClasses() {
+        try {
+            SpreadSubsample filter = new SpreadSubsample();
+            filter.setDistributionSpread(1);
+            filter.setInputFormat(data_set);
+            data_set = Filter.useFilter(data_set, filter);
+        } catch (Exception e) {
+            System.err.println("Error balancing classes");
+            e.printStackTrace();
+        }
+
+    }
+
     // Keeps all the attributes with an entropy below n
     public void keepWithEntropyBelow(double n) {
         // Get all of the values in the hashmap
@@ -536,5 +551,19 @@ public class SentiAdaptronWordBag {
             negative++;
         }
     }
+
+    public int numPositive() {
+        return positive;
+    }
+
+    public int numNegative() {
+        return negative;
+    }
+
+    public int numNeutral() {
+        return neutral;
+    }
+
+
 
 }
