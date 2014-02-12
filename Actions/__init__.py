@@ -41,7 +41,7 @@ from sentiwordnet import SentiWordNetPositiveOrNegativeStrengthLabeller, SentiWo
 from ourinput import OurInputSource
 from results import ResultPivotTableOutput
 from sub import FixedSubjectivePhraseAnnotator, EmpiricalSubjectivePhraseAnnotator, SubjectiveAnnotationEvaluator, NTLKSubjectivePhraseMarkovAnnotator, NLTKSubjectivePhraseBayesianAnnotator, SubjectiveARFFExporter, SubjectivePhraseARFFExporter
-
+from sub import SubjectivePhraseTweetClassificationARFFExporter
 
 from stemmer import Stemmer
 try:
