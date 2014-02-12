@@ -11,5 +11,6 @@ from fixed import FixedSubjectivePhraseAnnotator
 from evaluation import SubjectiveAnnotationEvaluator
 from arff import SubjectiveARFFExporter
 from arff import SubjectivePhraseARFFExporter
+from arff import SubjectivePhraseTweetClassificationARFFExporter
 from nltkbayesian import NLTKSubjectivePhraseBayesianAnnotator
 from nltkmarkov import NTLKSubjectivePhraseMarkovAnnotator

@@ -6,10 +6,229 @@
 import re
 import csv
 import logging
+import pprint
 
-from collections import defaultdict, Counter
+from itertools import groupby
+from collections import defaultdict, Counter, OrderedDict
 
 from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
+
+class ARFFExporter(object):
+
+    def __init__(self, path, name):
+        self.path = path
+        self.attributes = OrderedDict()
+        self.name = name
+
+    def add_attribute(self, name, kind):
+        self.attributes[name] = kind
+
+    def write(self, rows):
+        with open(self.path, 'w') as output_file:
+            print >> output_file, "@relation", self.name
+            print >> output_file, ""
+            for name in self.attributes:
+                print >> output_file, "@attribute", name,
+                kind = self.attributes[name]
+                if type(kind) == type([]):
+                    fmt = "{%s}" % (','.join(kind),)
+                    print >> output_file, fmt
+                else:
+                    print >> output_file, kind
+            print >> output_file, ""
+            print >> output_file, "@data"
+            writer = csv.writer(output_file)
+            for row in rows:
+                writer.writerow(row)
+
+class SubjectivePhraseTweetClassificationARFFExporter(HumanBasedSubjectivePhraseAnnotator):
+    """
+        Create an ARFF file to test feature selection for subjective phrases
+
+            Counts the maximum number of subjective phrases which occur in any annotation
+            of any tweet. [count_subphrases]
+
+            Finds all the regions for every tweet which someone annotated as subjective
+                [collect_membership_annotations]
+
+            For each tweet
+                For each possible subjective region
+                    Computes the proportion of people who highlighted this section
+
+            For each tweet
+                For each possible subjective region
+                    Computes the proportion of people who highlighted any part of the region
+                        Positive, neutral, negative
+    """
+
+    def __init__(self, xml):
+        """
+            Initialise the exporter: must provide a path attribute
+        """
+        super(SubjectivePhraseTweetClassificationARFFExporter, self).__init__(
+            xml
+        )
+
+        self.path = xml.get("path")
+        self.exporter = ARFFExporter(self.path, "tweet_sentiment")
+        assert self.path is not None
+
+    @classmethod
+    def pad_annotation(cls, ann, length):
+        return ann.ljust(length, 'q')
+
+    @classmethod
+    def annotation_is_member(cls, ann):
+        return ann in ['n', 'e', 'p']
+
+    @classmethod
+    def summarize_annotation_info_over_tweet(cls, normalised_annotations):
+        number_of_annotations = len(normalised_annotations)
+        annotation_contribution = 1 / float(number_of_annotations)
+        max_annotation_length = max([len(a) for a in normalised_annotations])
+        ret = [0.0 for _ in range(max_annotation_length)]
+        for annotation in normalised_annotations:
+            for index, subjective in enumerate(annotation):
+                if subjective:
+                    ret[index] += annotation_contribution
+        return ret
+
+
+    @classmethod
+    def process_annotation(cls, annotation, func):
+        return [func(i) for i in annotation]
+
+    @classmethod
+    def load_annotations(cls, conn):
+        """
+            Retrieve the majority annotations provided by Turkers
+        """
+        cursor = conn.cursor()
+        sql = "SELECT document_identifier, sentiment FROM subphrases"
+        tmp = defaultdict(Counter)
+        cursor.execute(sql)
+        for identifier, sentiment in cursor.fetchall():
+            tmp[identifier].update([sentiment])
+            logging.debug((identifier, tmp[identifier]))
+        ret = {}
+        for identifier in tmp:
+            entries = tmp[identifier]
+            popular = entries.most_common(2)
+            label1, pop1 = popular[0]
+            if len(popular) > 1:
+                _, pop2 = popular[1]
+                if pop1 == pop2:
+                    # No consensus, skip
+                    continue
+            ret[identifier] = label1
+        return ret
+
+    @classmethod
+    def produce_tweet_values(cls, annotations):
+
+        # Get annotation vectors
+        membership_annotations = [cls.process_annotation(i, lambda x: x in ['n', 'e', 'q']) for i in annotations]
+        positive_annotations = [cls.process_annotation(i, lambda x: x == 'p') for i in annotations]
+        neutral_annotations = [cls.process_annotation(i, lambda x: x == 'e') for i in annotations]
+        negative_annotations = [cls.process_annotation(i, lambda x: x== 'n') for i in annotations]
+
+        logging.debug((membership_annotations, annotations))
+
+        ret = []
+        buf = defaultdict(list)
+        subphrase_length = 0
+        membership_vector = cls.summarize_annotation_info_over_tweet(membership_annotations)
+        positive_annotations = cls.summarize_annotation_info_over_tweet(positive_annotations)
+        neutral_annotations = cls.summarize_annotation_info_over_tweet(neutral_annotations)
+        negative_annotations = cls.summarize_annotation_info_over_tweet(negative_annotations)
+
+        for index, i in enumerate(membership_vector):
+            if abs(i - 0.0005) < 0.005:
+                if subphrase_length > 0:
+                    appendbuf = {}
+                    for b in ["membership", "positive", "negative", "neutral"]:
+                        logging.debug(("BUF", buf))
+                        appendbuf[b] = sum(buf[b]) / float(subphrase_length)
+                    appendbuf["count"] = subphrase_length
+                    ret.append(appendbuf)
+                    subphrase_length = 0
+                    buf = defaultdict(list)
+                continue
+
+            buf["membership"].append(i)
+            buf["positive"].append(positive_annotations[index])
+            buf["neutral"].append(neutral_annotations[index])
+            buf["negative"].append(negative_annotations[index])
+            subphrase_length += 1
+            buf["count"] = subphrase_length
+
+        if subphrase_length > 0:
+            appendbuf = {}
+            for b in ["membership", "positive", "negative", "neutral"]:
+                logging.debug(("BUF", buf))
+                appendbuf[b] = sum(buf[b]) / float(subphrase_length)
+            appendbuf["count"] = subphrase_length
+            ret.append(appendbuf)
+
+        return ret
+
+    def execute(self, path, conn):
+        data = self.get_text_anns(conn)
+        labels = self.load_annotations(conn)
+
+        identifier_text = {}
+        identifier_anns = defaultdict(list)
+        anns_summary = {}
+        for identifier, text, anns in data:
+            identifier_text[identifier] = text
+            identifier_anns[identifier].append(anns)
+
+        for identifier in identifier_text:
+            if len(identifier_anns[identifier]) == 0:
+                continue
+            summary = self.produce_tweet_values(identifier_anns[identifier])
+            if len(summary) == 0:
+                logging.error(("FAILURE TO GENERATE SUMMARY", identifier_anns[identifier]))
+                continue
+            pprint.pprint(summary)
+            anns_summary[identifier] = summary
+
+        max_subphrases = 0
+        for a in anns_summary:
+            for i in anns_summary[a]:
+                max_subphrases = max(max_subphrases, len(i))
+
+
+        for i in range(max_subphrases):
+            i += 1
+            self.exporter.add_attribute("subjective_%d" % (i,), "numeric")
+            self.exporter.add_attribute("positive_%d" % (i,), "numeric")
+            self.exporter.add_attribute("neutral_%d" % (i,), "numeric")
+            self.exporter.add_attribute("negative_%d" % (i,), "numeric")
+            self.exporter.add_attribute("subjective_%d" % (i,), "numeric")
+
+        self.exporter.add_attribute("overall", ["positive", "negative", "neutral"])
+
+        rows = []
+        for a in anns_summary:
+            row = []
+            for i in range(max_subphrases):
+                if i < len(anns_summary[a]):
+                    row.append(anns_summary[a][i]["membership"])
+                    row.append(anns_summary[a][i]["positive"])
+                    row.append(anns_summary[a][i]["neutral"])
+                    row.append(anns_summary[a][i]["negative"])
+                else:
+                    row.extend([0.0,0.0,0.0,0.0])
+            if a not in labels:
+                continue
+            row.append(labels[a])
+            rows.append(row)
+
+        self.exporter.write(rows)
+
+        return True, conn
+
 
 class SubjectivePhraseARFFExporter(HumanBasedSubjectivePhraseAnnotator):
 
@@ -55,6 +274,20 @@ class SubjectivePhraseARFFExporter(HumanBasedSubjectivePhraseAnnotator):
     @classmethod
     def pad_annotation(cls, ann, length):
         return ann.ljust(length, 'q')
+
+    @classmethod
+    def santize_tweet(cls, tweet):
+        text = text.split(' ')
+        first = True
+        word_anns = {}
+        for ann, word in zip(anns, text):
+            if len(word) == 0:
+                continue
+            if word[0].lower() != word[0] and not first:
+                continue
+            first = False
+            word = word.lower()
+            word = re.sub('[^a-z]', '', word)
 
     @classmethod
     def return_phrase_summary(cls, annotations):

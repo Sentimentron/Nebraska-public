@@ -19,7 +19,7 @@
         <SubjectiveARFFExporter path="subjective.arff" outputTable=""/>
         <SubjectiveARFFExporter path="subjective_presence.arff" exportPresence="true" exportSubjectivity="false" outputTable=""/>
         <SubjectivePhraseARFFExporter path="subjective_phrases.arff" exportLevel="phrases" outputTable = ""/>
-
+        <SubjectivePhraseTweetClassificationARFFExporter path="subjective_phrase_tweet.arff" outputTable="" />
     </WorkflowTasks>
 
 </Workflow>
