@@ -31,8 +31,6 @@ class HumanBasedSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
         ann -= 0.001
         ann = max(ann, 0)
         ann = int(math.floor(ann*10))
-        if ann >= 4:
-            return "4"
         return str(ann)
 
     @classmethod
