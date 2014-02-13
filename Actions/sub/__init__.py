@@ -14,3 +14,5 @@ from arff import SubjectivePhraseARFFExporter
 from arff import SubjectivePhraseTweetClassificationARFFExporter
 from nltkbayesian import NLTKSubjectivePhraseBayesianAnnotator
 from nltkmarkov import NTLKSubjectivePhraseMarkovAnnotator
+from misc import CRFSubjectiveExporter
+from arff import SubjectivePhraseTweetClassficationDiscreteARFFExporter

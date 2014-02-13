@@ -42,6 +42,8 @@ from ourinput import OurInputSource
 from results import ResultPivotTableOutput
 from sub import FixedSubjectivePhraseAnnotator, EmpiricalSubjectivePhraseAnnotator, SubjectiveAnnotationEvaluator, NTLKSubjectivePhraseMarkovAnnotator, NLTKSubjectivePhraseBayesianAnnotator, SubjectiveARFFExporter, SubjectivePhraseARFFExporter
 from sub import SubjectivePhraseTweetClassificationARFFExporter
+from sub import CRFSubjectiveExporter
+from sub import SubjectivePhraseTweetClassficationDiscreteARFFExporter
 
 from stemmer import Stemmer
 try:

@@ -41,6 +41,80 @@ class ARFFExporter(object):
             for row in rows:
                 writer.writerow(row)
 
+class SubjectivePhraseTweetClassficationDiscreteARFFExporter(HumanBasedSubjectivePhraseAnnotator):
+
+    def get_text_anns(self, conn):
+        """
+            Generate a list of (text, annnotation) pairs
+        """
+        cursor = conn.cursor()
+        ret = []
+        sql = """SELECT input.document, subphrases.annotation, subphrases.sentiment
+        FROM input JOIN subphrases
+        ON input.identifier = subphrases.document_identifier
+        WHERE input.identifier = ?"""
+        for identifier in self.generate_source_identifiers(conn):
+            cursor.execute(sql, (identifier,))
+            for text, anns, sentiment in cursor.fetchall():
+                text = re.sub('[^a-zA-Z ]', '', text)
+                ret.append((identifier, text, anns, sentiment))
+        return ret
+
+    def __init__(self, xml):
+        """
+            Initialise the exporter: must provide a path attribute
+        """
+        super(SubjectivePhraseTweetClassficationDiscreteARFFExporter, self).__init__(
+            xml
+        )
+
+        self.path = xml.get("path")
+        self.exporter = ARFFExporter(self.path, "tweet_sentiment")
+        self.use_stop_words = xml.get("useStopWords")
+        if self.use_stop_words != "true":
+            self.use_stop_words = False
+        else:
+            self.use_stop_words = True
+        assert self.path is not None
+
+    def execute(self, path, conn):
+        """
+
+        """
+
+        data = self.get_text_anns(conn)
+        words = set([])
+
+        for identifier, text, anns, sentiment in data:
+            for word in text.split(' '):
+                if len(word) == 0:
+                    continue
+                words.add(word.lower())
+
+        for word in sorted(words):
+            self.exporter.add_attribute(word, ["p", "n", "e", "q"])
+
+        self.exporter.add_attribute("overall", ["positive", "negative", "neutral"])
+
+        word_ids = {w: i for i, w in enumerate(sorted(words))}
+
+        rows = []
+        for identifier, text, anns, sentiment in data:
+            text = text.split(' ')
+            row = ['q' for _ in words]
+            for word, annotation in zip(text, [i for i in anns]):
+                word = word.lower()
+                if len(word) == 0:
+                    continue
+                row[word_ids[word]] = annotation
+            row.append(sentiment)
+            rows.append(row)
+
+        self.exporter.write(rows)
+
+        return True, conn
+
+
 class SubjectivePhraseTweetClassificationARFFExporter(HumanBasedSubjectivePhraseAnnotator):
     """
         Create an ARFF file to test feature selection for subjective phrases
@@ -71,6 +145,11 @@ class SubjectivePhraseTweetClassificationARFFExporter(HumanBasedSubjectivePhrase
 
         self.path = xml.get("path")
         self.exporter = ARFFExporter(self.path, "tweet_sentiment")
+        self.use_stop_words = xml.get("useStopWords")
+        if self.use_stop_words != "true":
+            self.use_stop_words = False
+        else:
+            self.use_stop_words = True
         assert self.path is not None
 
     @classmethod
@@ -124,23 +203,58 @@ class SubjectivePhraseTweetClassificationARFFExporter(HumanBasedSubjectivePhrase
         return ret
 
     @classmethod
-    def produce_tweet_values(cls, annotations):
+    def supress_stop_words(cls, text, annotations):
+        stopwords = """a,able,about,across,after,all,almost,also,am
+        ,among,an,and,any,are,as,at,be,because
+        ,been,but,by,can,cannot,could,dear
+        ,did,do,does,either,else,ever,every
+        ,for,from,get,got,had,has,have,he,her
+        ,hers,him,his,how,however,i,if,in,into
+        ,is,it,its,just,least,let,like,likely,
+        may,me,might,most,must,my,neither,no,nor,
+        not,of,off,often,on,only,or,other,our,own,
+        rather,said,say,says,she,should,since,so,
+        some,than,that,the,their,them,then,there,
+        these,they,this,tis,to,too,twas,us,wants,
+        was,we,were,what,when,where,which,while,
+        who,whom,why,will,with,would,yet,you,your""".split(",")
+        stopwords = [i.strip() for i in stopwords]
+        annotations_ret = []
+        text = [i.trim() for i in text.split(' ')]
+        for word, annotation in zip(text, annotations):
+            if len(word) == 0:
+                annotations_ret.append(0.0)
+                continue
+            word = word.lower()
+            word = re.sub('[^a-z]', '', word)
+            if word in stopwords:
+                annotations_ret.append(0.0)
+            else:
+                annotations_ret.append(annotation)
+        return annotations_ret
+
+
+
+    def produce_tweet_values(self, text, annotations):
 
         # Get annotation vectors
-        membership_annotations = [cls.process_annotation(i, lambda x: x in ['n', 'e', 'q']) for i in annotations]
-        positive_annotations = [cls.process_annotation(i, lambda x: x == 'p') for i in annotations]
-        neutral_annotations = [cls.process_annotation(i, lambda x: x == 'e') for i in annotations]
-        negative_annotations = [cls.process_annotation(i, lambda x: x== 'n') for i in annotations]
+        membership_annotations = [self.process_annotation(i, lambda x: x in ['n', 'e', 'q']) for i in annotations]
+        positive_annotations = [self.process_annotation(i, lambda x: x == 'p') for i in annotations]
+        neutral_annotations = [self.process_annotation(i, lambda x: x == 'e') for i in annotations]
+        negative_annotations = [self.process_annotation(i, lambda x: x== 'n') for i in annotations]
 
         logging.debug((membership_annotations, annotations))
 
         ret = []
         buf = defaultdict(list)
         subphrase_length = 0
-        membership_vector = cls.summarize_annotation_info_over_tweet(membership_annotations)
-        positive_annotations = cls.summarize_annotation_info_over_tweet(positive_annotations)
-        neutral_annotations = cls.summarize_annotation_info_over_tweet(neutral_annotations)
-        negative_annotations = cls.summarize_annotation_info_over_tweet(negative_annotations)
+        membership_vector = self.summarize_annotation_info_over_tweet(membership_annotations)
+        positive_annotations = self.summarize_annotation_info_over_tweet(positive_annotations)
+        neutral_annotations = self.summarize_annotation_info_over_tweet(neutral_annotations)
+        negative_annotations = self.summarize_annotation_info_over_tweet(negative_annotations)
+
+        if self.use_stop_words:
+            membership_vector = self.suppress_stop_words(text, annotations)
 
         for index, i in enumerate(membership_vector):
             if abs(i - 0.0005) < 0.005:
@@ -186,7 +300,7 @@ class SubjectivePhraseTweetClassificationARFFExporter(HumanBasedSubjectivePhrase
         for identifier in identifier_text:
             if len(identifier_anns[identifier]) == 0:
                 continue
-            summary = self.produce_tweet_values(identifier_anns[identifier])
+            summary = self.produce_tweet_values(identifier_text[identifier], identifier_anns[identifier])
             if len(summary) == 0:
                 logging.error(("FAILURE TO GENERATE SUMMARY", identifier_anns[identifier]))
                 continue
@@ -205,9 +319,9 @@ class SubjectivePhraseTweetClassificationARFFExporter(HumanBasedSubjectivePhrase
             self.exporter.add_attribute("positive_%d" % (i,), "numeric")
             self.exporter.add_attribute("neutral_%d" % (i,), "numeric")
             self.exporter.add_attribute("negative_%d" % (i,), "numeric")
-            self.exporter.add_attribute("subjective_%d" % (i,), "numeric")
+            #self.exporter.add_attribute("subjective_%d" % (i,), "numeric")
 
-        self.exporter.add_attribute("overall", ["positive", "negative", "neutral"])
+        self.exporter.add_attribute("overall", ["positive", "negative", "neutral", "noconsensus"])
 
         rows = []
         for a in anns_summary:
@@ -221,8 +335,9 @@ class SubjectivePhraseTweetClassificationARFFExporter(HumanBasedSubjectivePhrase
                 else:
                     row.extend([0.0,0.0,0.0,0.0])
             if a not in labels:
-                continue
-            row.append(labels[a])
+                row.append("noconsensus")
+            else:
+                row.append(labels[a])
             rows.append(row)
 
         self.exporter.write(rows)
