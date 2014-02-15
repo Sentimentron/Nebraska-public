@@ -3,6 +3,7 @@
 """
     Contains classes which don't really fit anywhere else in this module
 """
+import re
 import math
 import logging
 from human import HumanBasedSubjectivePhraseAnnotator
@@ -129,6 +130,36 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
         identifier_anns = {}
         tokens = self.load_pos_tokens(conn)
         anns = self.load_pos_anns(conn)
+
+        def matches(word, pos_tag):
+            _,_,posword = pos_tag.partition('/')
+            word = word.lower()
+            word = re.sub('[^0-9a-z#@]', '', word)
+            posword = posword.lower()
+            logging.debug((word, posword, "MATCHES?"))
+            return word == posword
+
+        def reconstruct(pos_tags):
+            ret = []
+            spaced = "NOS^ZLMVARDP&TXY#@$"
+            for i in pos_tags:
+                pos_tag, _, token = i.partition('/')
+                buf = token
+                if pos_tag in [s for s in spaced]:
+                    ret.append(buf)
+            return ret
+
+        def determine_postag(postags, word):
+            word_to_pos_map = {}
+            for postag in postags:
+                pos_tag, _, token = postag.partition('/')
+                if token in word_to_pos_map:
+                    if word_to_pos_map[token] != pos_tag:
+                        raise ValueError(("Ermm...", token))
+                word_to_pos_map[token] = pos_tag
+
+            return word_to_pos_map[token]
+
         for identifier, text, annotation in annotations:
             documents[identifier] = text
             text = text.split(' ')
@@ -136,9 +167,19 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
             postags_actual = [tokens[i] for i in postags]
             # Need to discard punctuation stuff before zipping with the annotation
             # postags = [i for i in postags_actual if i.partition('/')[0] not in ['$', '!', '$', ',']]
-            for i, j in zip(postags, annotation):
-                possibilities[i].add(j)
-                logging.debug((i, j))
+            # pos_tag_index = 0
+            # logging.debug((reconstruct(postags_actual), text, len(reconstruct(postags_actual)), len(text)))
+            # assert len(reconstruct(postags_actual)) == len(text)
+            for i, j in zip(text, annotation):
+                token = None
+                logging.debug((i, postags_actual))
+               # while not matches(i, postags_actual[pos_tag_index]):
+               #     logging.debug((i, postags_actual, pos_tag_index))
+                #    pos_tag_index += 1
+                #token = postags_actual[pos_tag_index]
+                token = determine_postag(postags_actual, i)
+                possibilities[token].add(j)
+                logging.debug((i, token, j))
             identifier_anns[identifier] = annotation
 
         with open(self.path, 'w') as output_fp:
