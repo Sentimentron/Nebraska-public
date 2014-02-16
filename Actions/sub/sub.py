@@ -49,7 +49,6 @@ class SubjectivePhraseAnnotator(object):
         """
             Generate identifiers for tweets from files in the <Source /> tags
         """
-        logging.debug(self.sources)
         if len(self.sources) == 0:
             return self.get_all_identifiers(conn)
         return self.generate_filtered_identifiers(self.sources, conn)
