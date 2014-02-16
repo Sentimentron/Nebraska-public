@@ -67,7 +67,6 @@ class NLTKSubjectivePhraseBayesianAnnotator(HumanBasedSubjectivePhraseAnnotator)
     def execute(self, path, conn):
         documents = self.group_and_convert_text_anns(conn)
         tags = []
-        logging.info("Building probabilities....")
         for text, anns in documents:
             text = text.split(' ')
             if len(text) != len(anns):

@@ -103,7 +103,6 @@ class NTLKSubjectivePhraseMarkovAnnotator(HumanBasedSubjectivePhraseAnnotator):
     def execute(self, path, conn):
         documents = self.group_and_convert_text_anns(conn)
         tags = []
-        logging.info("Building probabilities....")
         for text, anns in documents:
             text = text.split(' ')
             if len(text) != len(anns):
@@ -123,7 +122,6 @@ class NTLKSubjectivePhraseMarkovAnnotator(HumanBasedSubjectivePhraseAnnotator):
                 tags.append((ann, word))
             tags.append(("END", "END"))
 
-        print tags
         cfd_tagwords = nltk.ConditionalFreqDist(tags)
         cpd_tagwords = nltk.ConditionalProbDist(cfd_tagwords, nltk.MLEProbDist)
         cfd_tags = nltk.ConditionalFreqDist(nltk.bigrams([tag for (tag, word) in tags]))
