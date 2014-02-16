@@ -139,8 +139,16 @@ class AMTInputSource(object):
                 raise IOError(
                     "AMTImport: dir '%s' doesn't exist!" % (self.dir,)
                 )
-            self.files = os.listdir(self.dir)
-            self.import_agents = [_AMTImport(os.path.join(self.dir, f)) for f in self.files]
+            ret = set([])
+            # Get suitable files in the directory
+            for root, _, files in os.walk(self.dir):
+                for filename in files:
+                    extension = os.path.splitext(filename)[1][1:].strip()
+                    if extension != "csv":
+                        continue
+                    ret.add(os.path.join(root, filename))
+            self.files = ret
+            self.import_agents = [_AMTImport(f) for f in self.files]
 
     @classmethod
     def create_subphrase_table(cls, conn):

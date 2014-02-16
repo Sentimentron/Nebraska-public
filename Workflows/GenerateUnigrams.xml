@@ -1,0 +1,22 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>AMT Corpus Anagrams</WorkflowName>
+        <WorkflowDescription>Imports AMT corpus and generates Unigrams.</WorkflowDescription>
+        <RetainOutputFile path="amt.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <ResultsTable />
+    </Tables>
+
+    <InputSources>
+        <AMTInputSource dir="Data/MechanicalTurk" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <SubjectivePhraseTweetClassficationDiscreteARFFExporter outputTable="unigrams" path="unigrams.arff"/>
+    </WorkflowTasks>
+
+</Workflow>
