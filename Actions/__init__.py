@@ -44,6 +44,7 @@ from sub import FixedSubjectivePhraseAnnotator, EmpiricalSubjectivePhraseAnnotat
 from sub import SubjectivePhraseTweetClassificationARFFExporter
 from sub import CRFSubjectiveExporter
 from sub import SubjectivePhraseTweetClassficationDiscreteARFFExporter
+from sub import SubjectiveCrossValidationEnvironment
 
 from stemmer import Stemmer
 try:

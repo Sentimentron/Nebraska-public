@@ -16,3 +16,4 @@ from nltkbayesian import NLTKSubjectivePhraseBayesianAnnotator
 from nltkmarkov import NTLKSubjectivePhraseMarkovAnnotator
 from misc import CRFSubjectiveExporter
 from arff import SubjectivePhraseTweetClassficationDiscreteARFFExporter
+from cross import SubjectiveCrossValidationEnvironment
