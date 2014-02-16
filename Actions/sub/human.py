@@ -35,7 +35,7 @@ class HumanBasedSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
 
     @classmethod
     def unconvert_annotation(cls, ann):
-        if ann in ["START", "END"]:
+        if ann in ["START", "END", None]:
             return 0.0
         ann = int(ann)
         ann /= 10.0
