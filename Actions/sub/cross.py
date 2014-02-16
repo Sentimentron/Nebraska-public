@@ -157,7 +157,7 @@ class SubjectiveCrossValidationEnvironment(object):
             mse_total += mse
 
         print "****CROSS-VALIDATION REPORT****"
-        print "Fold: %d of %d" % (r, self.fold_count)
+        print "Fold: %d of %d" % (r + 1, self.fold_count)
         print "Class: %s" % (type(task), )
         print "MSE: %.4f" % (mse_total,)
         print ""
