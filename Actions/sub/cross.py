@@ -84,6 +84,8 @@ class SubjectiveCrossValidationEnvironment(object):
 
         # Import and construct each element within this class
         for node in xml.iterchildren():
+            if node.tag == etree.Comment:
+                continue
             task = self._get_annotator(node.tag)
             task = task(node)
             self.taggers.append((task, etree.tostring(node)))
