@@ -159,14 +159,14 @@ class SubjectiveCrossValidationEnvironment(object):
             mse = self.calc_mse(predicted_annotation, actual_annotation)
             mse_total += mse
 
-        print >> sys.stderr, "****CROSS-VALIDATION REPORT****"
-        print >> sys.stderr, "Fold: %d of %d" % (r, self.fold_count)
-        print >> sys.stderr, "Class: %s" % (type(task), )
-        print >> sys.stderr, "MSE: %.4f" % (mse_total,)
-        print >> sys.stderr, ""
-        print >> sys.stderr, options
-        print >> sys.stderr, "*******************************"
-        print >> sys.stderr, ""
+        print "****CROSS-VALIDATION REPORT****"
+        print "Fold: %d of %d" % (r, self.fold_count)
+        print "Class: %s" % (type(task), )
+        print "MSE: %.4f" % (mse_total,)
+        print ""
+        print options
+        print "*******************************"
+        print ""
 
         return mse_total
 
@@ -190,7 +190,7 @@ class SubjectiveCrossValidationEnvironment(object):
             for r in range(self.fold_count):
                 averages.append(self.evaluate_fold(task, task_options, r, conn))
 
-            print >> sys.stderr, "Overall: %.2f" % (sum(averages) / len(averages))
+            print "Overall: %.2f" % (sum(averages) / len(averages))
 
         return True, conn
 
