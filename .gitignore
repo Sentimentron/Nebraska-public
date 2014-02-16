@@ -17,3 +17,8 @@ External/WekaClassifier/weka-classifiers/target
 External/GimpelPOSTagger/gimpel-pos-tagger/target
 *.xz
 *.model
+*.arff
+*.txt
+*.exp
+*.build
+*.xcodeproj
