@@ -113,14 +113,12 @@ class SubjectiveCrossValidationEnvironment(object):
                 yield t
 
     def record_annotation(self, fold, identifier, annotation):
-        logging.info((fold, identifier, annotation))
         self.results[fold][identifier] = annotation
 
     def get_target_identifiers(self, current_round, task):
         return self.folds[current_round]
 
     def stub_target_table(self, table):
-        logging.info("Intercepted call to create output_table %s", table)
         self.current_table_name = table
 
     @classmethod
