@@ -60,7 +60,6 @@ class NLTKSubjectivePhraseBayesianAnnotator(HumanBasedSubjectivePhraseAnnotator)
             logging.error(("Zero length tweet?", tweet))
             return [0]
 
-
         tweet = [self.annotate_word(t) for t in tweet]
         tweet = [self.unconvert_annotation(t) for t in tweet]
         return tweet
