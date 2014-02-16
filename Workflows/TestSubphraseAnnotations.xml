@@ -16,8 +16,29 @@
     </InputSources>
 
     <WorkflowTasks>
-        <SubjectiveCrossValidationEnvironment folds="5" bucket="stubbed">
+        <SubjectiveCrossValidationEnvironment folds="10" bucket="stubbed">
             <FixedSubjectivePhraseAnnotator outputTable="baseline" />
+            <FixedSubjectivePhraseAnnotator outputTable="fixed_self">
+            <EntryNodes>
+                <Word string="dont" prob="1.0" />
+                <Word string="rid" prob="1.0" />
+                <Word string="well" prob="1.0" />
+                <Word string="delete" prob="1.0" />
+                <Word string="spam" prob="1.0" />
+                <Word string="useful" prob="1.0" />
+                <Word string="deleted" prob="1.0" />
+                <Word string="fail" prob="1.0" />
+                <Word string="sex" prob="1.0" />
+                <Word string="bad" prob="1.0" />
+                <Word string="working" prob="1.0" />
+                <Word string="good" prob="1.0" />
+                <Word string="idick" prob="1.0" />
+                <Word string="charge" prob="1.0" />
+                <Word string="hate" prob="1.0" />
+            </EntryNodes>
+            </FixedSubjectivePhraseAnnotator>
+            <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_self" />
+            <NLTKSubjectivePhraseBayesianAnnotator outputTable="bayesian" />
         </SubjectiveCrossValidationEnvironment>
     </WorkflowTasks>
 
