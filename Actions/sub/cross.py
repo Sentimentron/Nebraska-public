@@ -100,11 +100,10 @@ class SubjectiveCrossValidationEnvironment(object):
         random.shuffle(self.identifiers)
         self.folds = {i:set([]) for i in range(self.fold_count)}
         fold_counter = 0
-        logging.debug(self.identifiers)
         for i in self.identifiers:
             self.folds[fold_counter].add(i)
             fold_counter += 1
-            fold_counter %= 5
+            fold_counter %= self.fold_count
 
     def get_source_identifiers(self, current_round, task):
         for r in self.folds:
