@@ -192,5 +192,6 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
                             output_fp.write(p)
                             output_fp.write(" ")
                         output_fp.write("\n")
+                    output_fp.write("\n")
 
         return True, conn
