@@ -73,12 +73,11 @@ class HumanBasedSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
             # Initially zero
             text = identifier_text[identifier]
             max_len = len(text.split(' '))
-            for annotation in annotations[identifier]:
-                max_len = max(max_len, len(annotation))
             probs = [0.0 for _ in range(max_len)]
-            print len(probs)
             for annotation in annotations[identifier]:
                 for i, a in enumerate(annotation):
+                    if i >= max_len:
+                        break
                     if a != 'q':
                         # If this is part of a subjective phrase,
                         # increment count at this position
