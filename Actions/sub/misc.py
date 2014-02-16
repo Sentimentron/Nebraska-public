@@ -131,81 +131,66 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
         tokens = self.load_pos_tokens(conn)
         anns = self.load_pos_anns(conn)
 
-        def matches(word, pos_tag):
-            _,_,posword = pos_tag.partition('/')
-            word = word.lower()
-            word = re.sub('[^0-9a-z#@]', '', word)
-            posword = posword.lower()
-            logging.debug((word, posword, "MATCHES?"))
-            return word == posword
-
-        def reconstruct(pos_tags):
-            ret = []
-            spaced = "NOS^ZLMVARDP&TXY#@$"
-            for i in pos_tags:
-                pos_tag, _, token = i.partition('/')
-                buf = token
-                if pos_tag in [s for s in spaced]:
-                    ret.append(buf)
-            return ret
-
-        def determine_postag(postags, word):
-            word_to_pos_map = {}
-            for postag in postags:
-                pos_tag, _, token = postag.partition('/')
-                if token in word_to_pos_map:
-                    if word_to_pos_map[token] != pos_tag:
-                        raise ValueError(("Ermm...", token))
-                word_to_pos_map[token] = pos_tag
-
-            return word_to_pos_map[token]
-
         for identifier, text, annotation in annotations:
             documents[identifier] = text
             text = text.split(' ')
-            postags = anns[identifier]
-            postags_actual = [tokens[i] for i in postags]
-            # Need to discard punctuation stuff before zipping with the annotation
-            # postags = [i for i in postags_actual if i.partition('/')[0] not in ['$', '!', '$', ',']]
-            # pos_tag_index = 0
-            # logging.debug((reconstruct(postags_actual), text, len(reconstruct(postags_actual)), len(text)))
-            # assert len(reconstruct(postags_actual)) == len(text)
             for i, j in zip(text, annotation):
-                token = None
-                logging.debug((i, postags_actual))
-               # while not matches(i, postags_actual[pos_tag_index]):
-               #     logging.debug((i, postags_actual, pos_tag_index))
-                #    pos_tag_index += 1
-                #token = postags_actual[pos_tag_index]
-                token = determine_postag(postags_actual, i)
-                possibilities[token].add(j)
-                logging.debug((i, token, j))
-            identifier_anns[identifier] = annotation
+                possibilities[i].add(j)
 
         with open(self.path, 'w') as output_fp:
-            st = LancasterStemmer()
             for identifier in documents:
                 text = documents[identifier]
                 postokens = anns[identifier]
+                postokens = [tokens[i] for i in postokens]
                 logging.debug(postokens)
                 text = text.split(' ')
-                for pos in postokens:
-                    token = tokens[pos]
-                    logging.debug((token.partition('/'), token))
-                    token, _, t = token.partition('/')
-                    # output_fp.write("%s " % (st.stem(t.lower()),))
-                    output_fp.write("%s " % (t.lower(),))
-                    output_fp.write("%s " % (token,))
-                    if self.is_stop_word(t):
-                        output_fp.write("0")
-                    elif self.is_stopped_pos_tag(token):
-                        output_fp.write("0")
-                    else:
-                        for p in possibilities[pos]:
+                current_pos_tag = 0
+                previous_pos_tag = 0
+                current_word = 0
+                # Step through each word in the tweet
+                for t in text:
+                    pos_word = "ASDFASDFASDF"
+                    start_pos_range = previous_pos_tag
+                    output = True
+
+                    while pos_word not in t:
+                        #logging.debug((pos_word, t, start_pos_range, postokens))
+                        if start_pos_range >= len(postokens):
+                            output = False
+                            break
+                        next_pos_tag = postokens[start_pos_range]
+                        pos,_,pos_word = next_pos_tag.partition('/')
+                        start_pos_range += 1
+
+                    start_pos_range = max(start_pos_range-1, 0)
+                    end_pos_range = start_pos_range
+
+                    while pos_word in t:
+                        #logging.debug((pos_word, t, end_pos_range))
+                        #logging.debug((end_pos_range, len(postokens)))
+                        if end_pos_range >= len(postokens):
+                            end_pos_range = len(postokens) + 1
+                            break
+                        next_pos_tag = postokens[end_pos_range]
+                        pos,_,pos_word = next_pos_tag.partition('/')
+                        end_pos_range += 1
+
+                    end_pos_range = max(end_pos_range-1, 0)
+
+                    if output == False:
+                        logging.warning(("Couldn't match up the POS tokens: %s (%s)", text, postokens))
+                        continue
+
+                    for i in range(start_pos_range, end_pos_range):
+                        previous_pos_tag = i
+                        next_pos_tag = postokens[i]
+                        pos,_,pos_word = next_pos_tag.partition('/')
+                        logging.debug((i, start_pos_range, end_pos_range, pos, pos_word, t))
+                        output_fp.write("%s " % (pos_word.lower(),))
+                        output_fp.write("%s " % (pos, ))
+                        for p in possibilities[t]:
                             output_fp.write(p)
                             output_fp.write(" ")
-                    output_fp.write("\n")
-                output_fp.write("\n")
-
+                        output_fp.write("\n")
 
         return True, conn
