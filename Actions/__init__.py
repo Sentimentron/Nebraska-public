@@ -5,7 +5,7 @@ import logging
 import sys
 
 from amt import AMTInputSource
-from annotations import FinancialDistanceAnnotator
+from annotators import FinancialDistanceAnnotator
 from annotators import SubjectivityAnnotator
 from basic import BasicFilter
 from basic import BasicNotFilter
@@ -19,7 +19,7 @@ from filter import LabelFilter
 from gimpel import GimpelPOSTagger
 from metadata import fetch_metadata
 from metadata import get_git_version
-from metatdata import push_metadata
+from metadata import push_metadata
 from ml import ClusterLabeller
 from ourinput import OurInputSource
 from pos import NLTKPOSTagger
