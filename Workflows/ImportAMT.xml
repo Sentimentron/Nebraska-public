@@ -12,10 +12,12 @@
     </Tables>
 
     <InputSources>
-        <AMTInputSource file="Data/MechanicalTurk/batch1.csv" />
+        <AMTInputSource dir="Data/MechanicalTurk/Tech/" />
+        <!-- <AMTInputSource dir="Data/MechanicalTurk/Politics/" /> -->
     </InputSources>
 
     <WorkflowTasks>
+        <AMTNormalise/>
     </WorkflowTasks>
 
 </Workflow>

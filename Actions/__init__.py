@@ -5,6 +5,7 @@ import logging
 import sys
 
 from amt import AMTInputSource
+from amt import AMTNormalise
 from annotators import FinancialDistanceAnnotator
 from annotators import SubjectivityAnnotator
 from basic import BasicFilter
