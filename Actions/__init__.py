@@ -57,7 +57,6 @@ from templabeller import ProbablySpamUnicodeLabeller
 from templabeller import SpecialCharacterLengthLabeller
 from templabeller import TrainingTestSplitLabeller
 from twitter import TwitterInputSource
-from twitterpos import GimpelPOSTagger
 from unique import UniqueFilter
 from unique import UniqueTextFilter
 from weka import WekaBenchmark
