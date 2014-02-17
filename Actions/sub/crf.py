@@ -7,15 +7,21 @@
 import re
 import math
 import logging
-from human import HumanBasedSubjectivePhraseAnnotator
+from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 from collections import defaultdict
 
 from nltk.stem.lancaster import LancasterStemmer
 
 class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
+    """
+        Exports subjectivity data to a CRF file for processing.
+    """
 
     def __init__(self, xml):
-        super(HumanBasedSubjectivePhraseAnnotator, self).__init__(
+        """
+            Path attribute is mandatory.
+        """
+        super(CRFSubjectiveExporter, self).__init__(
             xml
         )
 
@@ -23,6 +29,9 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
         assert self.path is not None
 
     def group_and_convert_text_anns(self, conn):
+        """
+            Get subjectivity vectors for each document identifier
+        """
         data = self.get_text_anns(conn)
         annotations = {}
         identifier_text = {}
@@ -57,6 +66,9 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
 
     @classmethod
     def load_pos_tokens(self, conn):
+        """
+            Create an token identifier -> token dict from the database
+        """
         cursor = conn.cursor()
         cursor.execute("SELECT identifier, token FROM pos_tokens_gimpel")
         ret = {}
@@ -66,6 +78,10 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
 
     @classmethod
     def load_pos_anns(self, conn):
+        """
+            Load part-of-speech annotations from the database.
+            Only the gimpel POS tagger is supported at present.
+        """
         cursor = conn.cursor()
         cursor.execute("SELECT document_identifier, tokenized_form FROM pos_gimpel")
         ret = {}
@@ -75,6 +91,10 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
 
     @classmethod
     def is_stop_word(self, word):
+        """
+            Checks whether the word is part of a stop word, i.e. it's very common
+            and not particularly meaningful.
+        """
         stopwords = """a,able,about,across,after,all,almost,also,am
         ,among,an,and,any,are,as,at,be,because
         ,been,but,by,can,cannot,could,dear
@@ -94,10 +114,20 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
 
     @classmethod
     def is_stopped_pos_tag(self, tag):
+        """
+            Controls whether the subjectivity tag '0' is output
+        """
         return tag in ["^", "!", "&", "L","P", "O", "D", "$", ","]
 
     @classmethod
     def convert_annotation(cls, ann):
+        """
+            Converts the annotation into a 1 or 0 label,
+
+                1 implies some subjectivity (greater than 10% of people said
+                    it was subjective)
+                0 implies less than 10% of annotations thought it was subjective
+        """
         ann -= 0.001
         ann = max(ann, 0)
         ann = int(math.floor(ann*10))
@@ -107,6 +137,9 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
             return '0'
 
     def execute(self, path, conn):
+        """
+            Write the CRF file
+        """
         annotations = self.group_and_convert_text_anns(conn)
         possibilities = defaultdict(set)
         documents = {}
@@ -114,28 +147,42 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
         tokens = self.load_pos_tokens(conn)
         anns = self.load_pos_anns(conn)
 
+        # Determine the subjectivities applied to agiven
+        # word anywhere.
         for identifier, text, annotation in annotations:
             documents[identifier] = text
             text = text.split(' ')
+            # POS tags are matched up later
             for i, j in zip(text, annotation):
                 possibilities[i].add(j)
 
+        # File output section
         with open(self.path, 'w') as output_fp:
+            # Each tweet gets output as a section of the CRF
+            # file. Sucessive sections get seperated with an
+            # extra line space
             for identifier in documents:
                 text = documents[identifier]
                 postokens = anns[identifier]
+                # Convert the pos token identifiers to the
+                # actual pos strings
                 postokens = [tokens[i] for i in postokens]
-                logging.debug(postokens)
+                # Split the document in the same way as done
+                # for the annotations in the MT form
                 text = text.split(' ')
+                # Match up the POS tags to the annotations
+                # as best we can
                 current_pos_tag = 0
                 previous_pos_tag = 0
                 current_word = 0
                 # Step through each word in the tweet
                 for t in text:
+                    # Set this to something impossible
                     pos_word = "ASDFASDFASDF"
                     start_pos_range = previous_pos_tag
                     output = True
-
+                    # Step through the POS tags until we find the first
+                    # matching word
                     while pos_word not in t:
                         #logging.debug((pos_word, t, start_pos_range, postokens))
                         if start_pos_range >= len(postokens):
@@ -145,12 +192,14 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
                         pos,_,pos_word = next_pos_tag.partition('/')
                         start_pos_range += 1
 
+                    # Correct post-increment
                     start_pos_range = max(start_pos_range-1, 0)
+                    # Start searching for the end POS tag from here
                     end_pos_range = start_pos_range
 
+                    # Step through the tweet until we find the
+                    # last POS tag that end this text unit
                     while pos_word in t:
-                        #logging.debug((pos_word, t, end_pos_range))
-                        #logging.debug((end_pos_range, len(postokens)))
                         if end_pos_range >= len(postokens):
                             end_pos_range = len(postokens) + 1
                             break
@@ -158,23 +207,34 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
                         pos,_,pos_word = next_pos_tag.partition('/')
                         end_pos_range += 1
 
+                    # Correct post-increment
                     end_pos_range = max(end_pos_range-1, 0)
 
+                    # If we didn't find the starting tag, then our
+                    # POS-tag matching will be hopelessly wrong and
+                    # we might as well stop.
                     if output == False:
                         logging.warning(("Couldn't match up the POS tokens: %s (%s)", text, postokens))
                         continue
 
+                    # Otherwise, output each POS-tagged word and the appropriate annotation
                     for i in range(start_pos_range, end_pos_range):
                         previous_pos_tag = i
                         next_pos_tag = postokens[i]
                         pos,_,pos_word = next_pos_tag.partition('/')
-                        logging.debug((i, start_pos_range, end_pos_range, pos, pos_word, t))
+                        # Output the word associated with the POS tag
                         output_fp.write("%s " % (pos_word.lower(),))
+                        # Output the the word associated with this POS tag
                         output_fp.write("%s " % (pos, ))
+                        # Output all the possibile subjective annotations for the
+                        # text unit (approximate word) which contains this POS tag
                         for p in possibilities[t]:
                             output_fp.write(p)
                             output_fp.write(" ")
+                        # End this entry
                         output_fp.write("\n")
+
+                    # Output the document-separating line space
                     output_fp.write("\n")
 
         return True, conn
