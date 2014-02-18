@@ -38,6 +38,7 @@ from sentiwordnet import SentiWordNetPositiveOrNegativeStrengthLabeller
 from sentiwordnet import SentiWordNetPositiveStrengthLabeller
 from stemmer import Stemmer
 from sub import CRFSubjectiveExporter
+from sub import ProduceCRFSTagList
 from sub import EmpiricalSubjectivePhraseAnnotator
 from sub import FixedSubjectivePhraseAnnotator
 from sub import NLTKSubjectivePhraseBayesianAnnotator
