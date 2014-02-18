@@ -1,8 +1,8 @@
 <Workflow>
 
     <WorkflowOptions>
-        <WorkflowName>AMT Corpus Anagrams</WorkflowName>
-        <WorkflowDescription>Imports AMT corpus and generates Unigrams.</WorkflowDescription>
+        <WorkflowName>AMT Corpus Unigrams with Binary Presence</WorkflowName>
+        <WorkflowDescription>Imports AMT corpus and generates Unigrams with binary presence.</WorkflowDescription>
         <RetainOutputFile path="amt.sqlite"/>
         <DisableUntrackedFileCheck />
     </WorkflowOptions>
@@ -12,11 +12,13 @@
     </Tables>
 
     <InputSources>
-        <AMTInputSource dir="Data/MechanicalTurk" />
+        <AMTInputSource dir="Data/MechanicalTurk/Tech" />
     </InputSources>
 
     <WorkflowTasks>
-        <SubjectivePhraseTweetClassficationDiscreteARFFExporter outputTable="unigrams" path="unigrams.arff"/>
+        <AMTNormalise/>
+        <!-- <UnigramBinaryPresenceARFFExporter outputTable="unigrams" path="unigrams.arff"/> -->
+        <UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff"/>
     </WorkflowTasks>
 
 </Workflow>

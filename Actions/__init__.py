@@ -49,6 +49,8 @@ from sub import SubjectiveCrossValidationEnvironment
 from sub import SubjectivePhraseARFFExporter
 from sub import SubjectivePhraseTweetClassficationDiscreteARFFExporter
 from sub import SubjectivePhraseTweetClassificationARFFExporter
+from sub import UnigramBinaryPresenceARFFExporter
+from sub import UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter
 from templabeller import AtMentionLabeller
 from templabeller import BasicWordLabeller
 from templabeller import BigramLabeller
