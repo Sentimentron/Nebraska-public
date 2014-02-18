@@ -9,6 +9,8 @@ from arff import SubjectiveARFFExporter
 from arff import SubjectivePhraseARFFExporter
 from arff import SubjectivePhraseTweetClassficationDiscreteARFFExporter
 from arff import SubjectivePhraseTweetClassificationARFFExporter
+from arff import UnigramBinaryPresenceARFFExporter
+from arff import UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter
 from crf import CRFSubjectiveExporter
 from crf import ProduceCRFSTagList
 from cross import SubjectiveCrossValidationEnvironment
