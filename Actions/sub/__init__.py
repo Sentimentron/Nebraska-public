@@ -10,6 +10,7 @@ from arff import SubjectivePhraseARFFExporter
 from arff import SubjectivePhraseTweetClassficationDiscreteARFFExporter
 from arff import SubjectivePhraseTweetClassificationARFFExporter
 from crf import CRFSubjectiveExporter
+from crf import ProduceCRFSTagList
 from cross import SubjectiveCrossValidationEnvironment
 from evaluation import EmpiricalSubjectivePhraseAnnotator
 from evaluation import SubjectiveAnnotationEvaluator

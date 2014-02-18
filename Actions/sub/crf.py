@@ -9,6 +9,7 @@ import math
 import logging
 from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 from collections import defaultdict
+import subprocess
 
 from nltk.stem.lancaster import LancasterStemmer
 
@@ -237,4 +238,26 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
                     # Output the document-separating line space
                     output_fp.write("\n")
 
+        return True, conn
+
+class ProduceCRFSTagList(object):
+
+    def __init__(self, xml):
+        self.test_path = xml.get("test_path")
+        self.train_path = xml.get("train_path")
+        assert self.test_path is not None
+        assert self.train_path is not None
+
+    def execute(self, path, conn):
+        # Chunk our train and test files
+        args = "cat " + self.train_path + " | python Actions/chunking.py > crf_train2.txt"
+        subprocess.check_call(args, shell=True)
+        args = "cat " + self.test_path + " | python Actions/chunking.py > crf_test2.txt"
+        subprocess.check_call(args, shell=True)
+        # Build a model if you cross validate the CRFS gods deem you unworthy of saving the model
+        args = "crfsuite learn --split=10 -m subj.model crf_train2.txt"
+        subprocess.check_call(args, shell=True)
+        # Finally produce a tag list for all of the tweets in crf_test2.txt
+        args = "crfsuite tag -m subj.model crf_test2.txt > crf_results.txt"
+        subprocess.check_call(args, shell=True)
         return True, conn

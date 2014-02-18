@@ -17,7 +17,7 @@
     </InputSources>
 
     <WorkflowTasks>
-        <AMTNormalise/>
+        <!-- <AMTNormalise/> -->
     </WorkflowTasks>
 
 </Workflow>
