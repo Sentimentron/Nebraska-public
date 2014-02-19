@@ -16,6 +16,7 @@ import weka.core.Attribute;
 import java.util.ArrayList;
 import java.util.*;
 import java.text.SimpleDateFormat;
+import java.io.*;
 
 /**
  * Performs a single run of cross-validation and adds the prediction on the
@@ -63,32 +64,40 @@ public class WekaBenchmark {
       System.exit(1);
     }
 
-    // Parse command line arguments
-    String posTable = Utils.getOption("T", args);
-    String labelTable = Utils.getOption("L", args);
+    // // Parse command line arguments
+    // String posTable = Utils.getOption("T", args);
+    // String labelTable = Utils.getOption("L", args);
 
-    // Get a list of documents to use in the BOW
-    String queryTemplate = "SELECT document_identifier FROM temporary_label_%2$s";
-    String query = String.format(queryTemplate, posTable, labelTable);Statement stmt = c.createStatement();
-    ResultSet rs = stmt.executeQuery(query);
-    LinkedList documents = new LinkedList();
-    while ( rs.next() ) {
-      documents.add(rs.getInt("document_identifier"));
+    // // Get a list of documents to use in the BOW
+    // String queryTemplate = "SELECT document_identifier FROM temporary_label_%2$s";
+    // String query = String.format(queryTemplate, posTable, labelTable);Statement stmt = c.createStatement();
+    // ResultSet rs = stmt.executeQuery(query);
+    // LinkedList documents = new LinkedList();
+    // while ( rs.next() ) {
+    //   documents.add(rs.getInt("document_identifier"));
+    // }
+    // rs.close();
+    // stmt.close();
+
+    // // Make a new BagOfWords and let it handle constructing the instances object. (The final parameter turns debugging on, flip it to false to turn it off.)
+    // SentiAdaptronWordBag wordBag = new SentiAdaptronWordBag(c, labelTable, posTable, false);
+    // wordBag.buildWordBag(documents, "bigrams");
+    // wordBag.balanceClasses();
+    // //wordBag.buildWordBag(documents, "bigrams");
+    // // Possible options to reduce attribute count
+    // // wordBag.keepTopN(10);
+    // // wordBag.keepWithEntropyAbove(0.4);
+    // // wordBag.keepWithEntropyBelow(0.4);
+    // Instances data = wordBag.getData();
+    BufferedReader reader = null;
+    try {
+        reader = new BufferedReader( new FileReader("unigrams.arff"));
+    } catch(Exception e) {
+        e.printStackTrace();
+
     }
-    rs.close();
-    stmt.close();
-
-    // Make a new BagOfWords and let it handle constructing the instances object. (The final parameter turns debugging on, flip it to false to turn it off.)
-    SentiAdaptronWordBag wordBag = new SentiAdaptronWordBag(c, labelTable, posTable, false);
-    wordBag.buildWordBag(documents, "bigrams");
-    wordBag.balanceClasses();
-    //wordBag.buildWordBag(documents, "bigrams");
-    // Possible options to reduce attribute count
-    // wordBag.keepTopN(10);
-    // wordBag.keepWithEntropyAbove(0.4);
-    // wordBag.keepWithEntropyBelow(0.4);
-    Instances data = wordBag.getData();
-
+    Instances data = new Instances(reader);
+    data.setClassIndex(data.numAttributes() - 1);
     // classifier
     String[] tmpOptions;
     String classname;
@@ -165,9 +174,9 @@ public class WekaBenchmark {
     insertResults.setDouble(18, eval.recall(0));
     insertResults.setDouble(19, eval.trueNegativeRate(0));
     insertResults.setDouble(20, eval.truePositiveRate(0));
-    insertResults.setInt(21, wordBag.numNegative());
-    insertResults.setInt(22, wordBag.numPositive());
-    insertResults.setInt(23, wordBag.numNeutral());
+    // insertResults.setInt(21, wordBag.numNegative());
+    // insertResults.setInt(22, wordBag.numPositive());
+    // insertResults.setInt(23, wordBag.numNeutral());
     insertResults.executeUpdate();
     insertResults.close();
     c.close();

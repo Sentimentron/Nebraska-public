@@ -17,8 +17,8 @@
 
     <WorkflowTasks>
         <AMTNormalise/>
-        <!-- <UnigramBinaryPresenceARFFExporter outputTable="unigrams" path="unigrams.arff"/> -->
-        <UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff"/>
+        <UnigramBinaryPresenceARFFExporter outputTable="unigrams" path="unigrams.arff"/>
+        <!-- <UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff"/> -->
     </WorkflowTasks>
 
 </Workflow>
