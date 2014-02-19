@@ -242,11 +242,21 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
 
 class ProduceCRFSTagList(object):
 
-    def __init__(self, xml):
-        self.test_path = xml.get("test_path")
-        self.train_path = xml.get("train_path")
+    def __init__(self, xml, test_path = None, train_path = None, results_path = None):
+        if xml != None:
+            self.test_path = xml.get("test_path")
+            self.train_path = xml.get("train_path")
+            self.results_path = xml.get("results_path")
+        else:
+            self.test_path = test_path
+            self.train_path = train_path
+            self.results_path = results_path
+
         assert self.test_path is not None
         assert self.train_path is not None
+
+        if self.results_path is None:
+            self.results_path = "crf_results.txt"
 
     def execute(self, path, conn):
         with tempfile.NamedTemporaryFile() as model_fp:
