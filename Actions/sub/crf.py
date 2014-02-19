@@ -298,3 +298,46 @@ class ProduceCRFSTagList(object):
                     logging.debug("%s %s %s", train_dest_fp.name, test_dest_fp.name, model_fp.name)
 
         return True, conn
+
+class CRFSubjectiveAnnotator(HumanBasedSubjectivePhraseAnnotator):
+
+    """
+        Annotates subjective phrases using external CRF library
+    """
+
+    def __init__(self, xml):
+        """
+            outputTable: optional parameter
+        """
+        self.output_table = xml.get("outputTable")
+        self.exporter = CRFSubjectiveExporter(xml)
+        self.test_fp = tempfile.NamedTemporaryFile()
+        self.train_fp = tempfile.NamedTemporaryFile()
+        self.results_fp = tempfile.NamedTemporaryFile()
+        logging.debug("CRFSubjectiveAnnotator: %s %s %s",
+            self.test_fp.name, self.train_fp.name, self.results_fp.name
+            )
+        self.worker = ProduceCRFSTagList(
+            None, self.test_fp.name, self.train_fp.name, self.results_fp.name
+        )
+
+    def stub_target_table(self, table):
+        pass
+
+    def execute(self, path, conn):
+
+        # Plug exporter methods with our own
+        self.exporter.generate_output_table = types.MethodType(lambda s, y, z: self.stub_target_table(y), task)
+        self.exporter.generate_source_identifiers = types.MethodType(lambda s, y: self.get_source_identifiers(), task)
+        self.exporter.generate_target_identifiers = types.MethodType(lambda s, y: self.get_target_identifiers(), task)
+
+        # Export the file
+        result, conn = self.exporter.execute(path, conn)
+        assert result
+
+        # Ask the worker to do our work
+        result, conn = self.worker.execute(path, conn)
+        assert result
+
+        return True, conn
+
