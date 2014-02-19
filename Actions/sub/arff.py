@@ -41,6 +41,201 @@ class ARFFExporter(object):
             for row in rows:
                 writer.writerow(row)
 
+class UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter(HumanBasedSubjectivePhraseAnnotator):
+
+    def get_text_anns(self, conn):
+        """
+            Generate a list of (id, text, annnotation) triples
+        """
+        cursor = conn.cursor()
+        ret = []
+        # Get all the tweets from the database
+        sql = """SELECT input.document, subphrases.sentiment FROM input JOIN subphrases ON input.identifier = subphrases.document_identifier WHERE input.identifier = ?"""
+        for identifier in self.generate_source_identifiers(conn):
+            cursor.execute(sql, (identifier,))
+            # For every tweet and its annotation
+            for text, sentiment in cursor.fetchall():
+                # Ditch anything thats not a letter
+                text = re.sub('[^a-zA-Z ]', '', text)
+                # And return the identifier, the tweet and its overall sentiment
+                ret.append((identifier, text, sentiment))
+        return ret
+
+    def __init__(self, xml):
+        """
+            Initialise the exporter: must provide a path attribute
+        """
+        super(UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter, self).__init__(
+            xml
+        )
+
+        self.path = xml.get("path")
+        self.exporter = ARFFExporter(self.path, "tweet_sentiment")
+        self.use_stop_words = xml.get("useStopWords")
+        if self.use_stop_words != "true":
+            self.use_stop_words = False
+        else:
+            self.use_stop_words = True
+        assert self.path is not None
+
+    def getAnnotation(self, conn, identifier):
+        cursor = conn.cursor()
+        result = cursor.execute("SELECT annotation FROM subphrases WHERE document_identifier = ?", (identifier,))
+        result = result.fetchone()
+        return result[0]
+
+    def execute(self, path, conn):
+        # Get all the tweets from the database
+        data = self.get_text_anns(conn)
+        words = set([])
+        # For every tweet we got back
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            for word in text.split(' '):
+                if len(word) == 0:
+                    continue
+                # And add it as an attribute
+                words.add(word.lower())
+
+        # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
+        for word in sorted(words):
+            self.exporter.add_attribute(word, 'numeric')
+        # Add the percentage pos, neg and neutral attributes
+        self.exporter.add_attribute("number_of_subjective_phrases", 'numeric')
+        # Add the overall sentiment of the tweet as a nominal attribute
+        self.exporter.add_attribute("overall", ["positive", "negative", "neutral"])
+
+        # Get a dictionary mapping the words that are our attributes to integers that represent their index in the ARFF file
+        word_ids = {w: i for i, w in enumerate(sorted(words))}
+
+        rows = []
+        # For each tweet in our database
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            text = text.split(' ')
+            # Set every attribute in the row to not present
+            row = [0 for _ in words]
+            # Itterate over each word in the tweet
+            for word in text:
+                word = word.lower()
+                if len(word) == 0:
+                    continue
+                # And set it to present
+                row[word_ids[word]] = 1
+            # Now calculate the percentages of positive negative and neutral
+            annotation = self.getAnnotation(conn, identifier)
+            number_positive = len(re.findall("p+p", annotation))
+            number_negative = len(re.findall("n+n", annotation))
+            number_neutral = len(re.findall("e+e", annotation))
+            total_phrases = number_positive + number_negative + number_neutral
+            row.append(total_phrases)
+
+            row.append(sentiment)
+            rows.append(row)
+
+        self.exporter.write(rows)
+
+        return True, conn
+
+class UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter(HumanBasedSubjectivePhraseAnnotator):
+
+    def get_text_anns(self, conn):
+        """
+            Generate a list of (id, text, annnotation) triples
+        """
+        cursor = conn.cursor()
+        ret = []
+        # Get all the tweets from the database
+        sql = """SELECT input.document, subphrases.sentiment FROM input JOIN subphrases ON input.identifier = subphrases.document_identifier WHERE input.identifier = ?"""
+        for identifier in self.generate_source_identifiers(conn):
+            cursor.execute(sql, (identifier,))
+            # For every tweet and its annotation
+            for text, sentiment in cursor.fetchall():
+                # Ditch anything thats not a letter
+                text = re.sub('[^a-zA-Z ]', '', text)
+                # And return the identifier, the tweet and its overall sentiment
+                ret.append((identifier, text, sentiment))
+        return ret
+
+    def __init__(self, xml):
+        """
+            Initialise the exporter: must provide a path attribute
+        """
+        super(UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter, self).__init__(
+            xml
+        )
+
+        self.path = xml.get("path")
+        self.exporter = ARFFExporter(self.path, "tweet_sentiment")
+        self.use_stop_words = xml.get("useStopWords")
+        if self.use_stop_words != "true":
+            self.use_stop_words = False
+        else:
+            self.use_stop_words = True
+        assert self.path is not None
+
+    def getAnnotation(self, conn, identifier):
+        cursor = conn.cursor()
+        result = cursor.execute("SELECT annotation FROM subphrases WHERE document_identifier = ?", (identifier,))
+        result = result.fetchone()
+        return result[0]
+
+    def execute(self, path, conn):
+        # Get all the tweets from the database
+        data = self.get_text_anns(conn)
+        words = set([])
+        # For every tweet we got back
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            for word in text.split(' '):
+                if len(word) == 0:
+                    continue
+                # And add it as an attribute
+                words.add(word.lower())
+
+        # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
+        for word in sorted(words):
+            self.exporter.add_attribute(word, 'numeric')
+        # Add the percentage pos, neg and neutral attributes
+        self.exporter.add_attribute("number_positive", 'numeric')
+        self.exporter.add_attribute("number_negative", 'numeric')
+        self.exporter.add_attribute("number_neutral", 'numeric')
+        # Add the overall sentiment of the tweet as a nominal attribute
+        self.exporter.add_attribute("overall", ["positive", "negative", "neutral"])
+
+        # Get a dictionary mapping the words that are our attributes to integers that represent their index in the ARFF file
+        word_ids = {w: i for i, w in enumerate(sorted(words))}
+
+        rows = []
+        # For each tweet in our database
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            text = text.split(' ')
+            # Set every attribute in the row to not present
+            row = [0 for _ in words]
+            # Itterate over each word in the tweet
+            for word in text:
+                word = word.lower()
+                if len(word) == 0:
+                    continue
+                # And set it to present
+                row[word_ids[word]] = 1
+            # Now calculate the percentages of positive negative and neutral
+            annotation = self.getAnnotation(conn, identifier)
+            number_positive = len(re.findall("p+p", annotation))
+            number_negative = len(re.findall("n+n", annotation))
+            number_neutral = len(re.findall("e+e", annotation))
+            row.append(number_positive)
+            row.append(number_negative)
+            row.append(number_neutral)
+
+            row.append(sentiment)
+            rows.append(row)
+
+        self.exporter.write(rows)
+
+        return True, conn
+
 class UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):
 
     def get_text_anns(self, conn):
