@@ -100,12 +100,12 @@ class UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter(HumanBasedSubjec
         # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
         for word in sorted(words):
             self.exporter.add_attribute(word, 'numeric')
-        # Add the overall sentiment of the tweet as a nominal attribute
-        self.exporter.add_attribute("overall", ["positive", "negative", "neutral"])
         # Add the percentage pos, neg and neutral attributes
         self.exporter.add_attribute("percent_positive", 'numeric')
         self.exporter.add_attribute("percent_negative", 'numeric')
         self.exporter.add_attribute("percent_neutral", 'numeric')
+        # Add the overall sentiment of the tweet as a nominal attribute
+        self.exporter.add_attribute("overall", ["positive", "negative", "neutral"])
 
         # Get a dictionary mapping the words that are our attributes to integers that represent their index in the ARFF file
         word_ids = {w: i for i, w in enumerate(sorted(words))}
@@ -124,8 +124,6 @@ class UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter(HumanBasedSubjec
                     continue
                 # And set it to present
                 row[word_ids[word]] = 1
-            # Throw this row in the result
-            row.append(sentiment)
             # Now calculate the percentages of positive negative and neutral
             annotation = self.getAnnotation(conn, identifier)
             percent_positive = annotation.count('p') / len(text)
@@ -134,6 +132,8 @@ class UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter(HumanBasedSubjec
             row.append(percent_positive)
             row.append(percent_negative)
             row.append(percent_neutral)
+
+            row.append(sentiment)
             rows.append(row)
 
         self.exporter.write(rows)
