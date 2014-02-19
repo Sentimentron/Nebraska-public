@@ -235,8 +235,8 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
                         # End this entry
                         output_fp.write("\n")
 
-                    # Output the document-separating line space
-                    output_fp.write("\n")
+                # Output the document-separating line space
+                output_fp.write("\n")
 
         return True, conn
 
