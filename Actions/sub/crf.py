@@ -249,15 +249,29 @@ class ProduceCRFSTagList(object):
         assert self.train_path is not None
 
     def execute(self, path, conn):
-        # Chunk our train and test files
-        args = "cat " + self.train_path + " | python Actions/chunking.py > crf_train2.txt"
-        subprocess.check_call(args, shell=True)
-        args = "cat " + self.test_path + " | python Actions/chunking.py > crf_test2.txt"
-        subprocess.check_call(args, shell=True)
-        # Build a model if you cross validate the CRFS gods deem you unworthy of saving the model
-        args = "crfsuite learn --split=10 -m subj.model crf_train2.txt"
-        subprocess.check_call(args, shell=True)
-        # Finally produce a tag list for all of the tweets in crf_test2.txt
-        args = "crfsuite tag -m subj.model crf_test2.txt > crf_results.txt"
-        subprocess.check_call(args, shell=True)
+        with tempfile.NamedTemporaryFile() as model_fp:
+            with tempfile.NamedTemporaryFile() as train_dest_fp:
+                # Chunk the training data
+                with open(self.train_path, 'r') as train_fp:
+                    subprocess.check_call(["python", "Actions/chunking.py"], stdin=train_fp, stdout=train_dest_fp)
+                # Chunk the testing data
+                with tempfile.NamedTemporaryFile() as test_dest_fp:
+                    with open(self.test_path, 'r') as test_fp:
+                            subprocess.check_call(["python", "Actions/chunking.py"], stdin=test_fp, stdout=test_dest_fp)
+
+                    # Train the model
+                    args = "crfsuite learn --split=10 -m %s %s"
+                    subprocess.check_call(args % (model_fp.name, train_dest_fp.name), shell=True)
+
+                    # Test the model
+                    args = "crfsuite tag -qt -m %s %s"
+                    subprocess.check_call (args % (model_fp.name, test_dest_fp.name), shell=True)
+
+                    with open('crf_results.txt', 'w') as out_fp:
+                        # Tag the output
+                        args = "crfsuite tag -m %s %s"
+                        subprocess.check_call(args % (model_fp.name, test_dest_fp.name), shell=True, stdout=out_fp)
+
+                    logging.debug("%s %s %s", train_dest_fp.name, test_dest_fp.name, model_fp.name)
+
         return True, conn
