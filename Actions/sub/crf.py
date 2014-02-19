@@ -241,8 +241,21 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
         return True, conn
 
 class ProduceCRFSTagList(object):
+    """
+        This class takes care of the mechanics of outputting
+        CRF files, training CRFSuite to produce a model and
+        then tagging.
+    """
 
     def __init__(self, xml, test_path = None, train_path = None, results_path = None):
+        """
+            Required:
+                test_path attribute
+                train_path attribute
+            Optional:
+                results_path
+                    If unspecified, "crf_results.txt" gets created in current directory
+        """
         if xml != None:
             self.test_path = xml.get("test_path")
             self.train_path = xml.get("train_path")
