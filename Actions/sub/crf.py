@@ -4,13 +4,13 @@
     Code for interacting with CRFSuite
 """
 
-import re
-import math
 import logging
+import math
+import re
+import subprocess
+import tempfile
 from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 from collections import defaultdict
-import subprocess
-
 from nltk.stem.lancaster import LancasterStemmer
 
 class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
