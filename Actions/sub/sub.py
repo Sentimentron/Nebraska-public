@@ -16,7 +16,6 @@ class SubjectivePhraseAnnotator(object):
             Base constructor
         """
         self.output_table = xml.get("outputTable")
-        assert self.output_table is not None
         self.sources = set([])
         self.targets = set([])
         for node in xml.iterchildren():
@@ -103,7 +102,8 @@ class SubjectivePhraseAnnotator(object):
 
     def execute(self, _, conn):
         """Create and insert annotations."""
-        self.generate_output_table(self.output_table, conn)
+        if self.output_table is not None:
+            self.generate_output_table(self.output_table, conn)
         cursor = conn.cursor()
         sql = """SELECT identifier, document FROM input"""
         cursor.execute(sql)
