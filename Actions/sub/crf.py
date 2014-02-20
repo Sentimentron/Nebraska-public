@@ -9,9 +9,87 @@ import math
 import re
 import subprocess
 import tempfile
+import types
+
 from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 from collections import defaultdict
 from nltk.stem.lancaster import LancasterStemmer
+
+
+def match_pos_tags(text, postokens, possibilities, tokens):
+    """
+        Try to match up the POS tags with the subjectivity nnotations
+    """
+
+    # Convert the pos token identifiers to the
+    # actual pos strings
+    postokens = [tokens[i] for i in postokens]
+
+    # Split the document in the same way as done
+    # for the annotations in the MT form
+    text = [i for i in text.split(' ') if len(i.strip()) > 0]
+
+    # Match up the POS tags to the annotations
+    # as best we can
+    current_pos_tag = 0
+    previous_pos_tag = 0
+    current_word = 0
+
+    # Step through each word in the tweet
+    for t in text:
+        # Set this to something impossible
+        pos_word = "ASDFASDFASDF"
+        start_pos_range = previous_pos_tag
+        output = True
+        # Step through the POS tags until we find the first
+        # matching word
+        while pos_word not in t:
+            #logging.debug((pos_word, t, start_pos_range, postokens))
+            if start_pos_range >= len(postokens):
+                output = False
+                break
+            next_pos_tag = postokens[start_pos_range]
+            pos, _, pos_word = next_pos_tag.partition('/')
+            #logging.debug((pos_word, pos_word not in t, t))
+            start_pos_range += 1
+
+        # Correct post-increment
+        start_pos_range = max(start_pos_range-1, 0)
+        # Start searching for the end POS tag from here
+        end_pos_range = start_pos_range
+
+        # Step through the tweet until we find the
+        # last POS tag that end this text unit
+        while pos_word in t:
+            if end_pos_range >= len(postokens):
+                end_pos_range = len(postokens) + 1
+                break
+            next_pos_tag = postokens[end_pos_range]
+            pos, _, pos_word = next_pos_tag.partition('/')
+            end_pos_range += 1
+
+        # Correct post-increment
+        end_pos_range = max(end_pos_range-1, 0)
+
+        # If we didn't find the starting tag, then our
+        # POS-tag matching will be hopelessly wrong and
+        # we might as well stop.
+        if output == False:
+            logging.warning(("Couldn't match up the POS tokens: %s (%s)", text, postokens))
+            continue
+
+        output = []
+
+        # Otherwise, output each POS-tagged word and the appropriate annotation
+        for i in range(start_pos_range, end_pos_range):
+            previous_pos_tag = i
+            next_pos_tag = postokens[i]
+            pos, _, pos_word = next_pos_tag.partition('/')
+            # Output the word associated with the POS tag
+            # Output the the word associated with this POS tag
+            # Output all the possibile subjective annotations for the
+            # text unit (approximate word) which contains this POS tag
+            yield pos_word, pos, possibilities[t]
 
 class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
     """
@@ -162,78 +240,20 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
             # Each tweet gets output as a section of the CRF
             # file. Sucessive sections get seperated with an
             # extra line space
+
             for identifier in documents:
-                text = documents[identifier]
-                postokens = anns[identifier]
-                # Convert the pos token identifiers to the
-                # actual pos strings
-                postokens = [tokens[i] for i in postokens]
-                # Split the document in the same way as done
-                # for the annotations in the MT form
-                text = text.split(' ')
-                # Match up the POS tags to the annotations
-                # as best we can
-                current_pos_tag = 0
-                previous_pos_tag = 0
-                current_word = 0
-                # Step through each word in the tweet
-                for t in text:
-                    # Set this to something impossible
-                    pos_word = "ASDFASDFASDF"
-                    start_pos_range = previous_pos_tag
-                    output = True
-                    # Step through the POS tags until we find the first
-                    # matching word
-                    while pos_word not in t:
-                        #logging.debug((pos_word, t, start_pos_range, postokens))
-                        if start_pos_range >= len(postokens):
-                            output = False
-                            break
-                        next_pos_tag = postokens[start_pos_range]
-                        pos,_,pos_word = next_pos_tag.partition('/')
-                        start_pos_range += 1
-
-                    # Correct post-increment
-                    start_pos_range = max(start_pos_range-1, 0)
-                    # Start searching for the end POS tag from here
-                    end_pos_range = start_pos_range
-
-                    # Step through the tweet until we find the
-                    # last POS tag that end this text unit
-                    while pos_word in t:
-                        if end_pos_range >= len(postokens):
-                            end_pos_range = len(postokens) + 1
-                            break
-                        next_pos_tag = postokens[end_pos_range]
-                        pos,_,pos_word = next_pos_tag.partition('/')
-                        end_pos_range += 1
-
-                    # Correct post-increment
-                    end_pos_range = max(end_pos_range-1, 0)
-
-                    # If we didn't find the starting tag, then our
-                    # POS-tag matching will be hopelessly wrong and
-                    # we might as well stop.
-                    if output == False:
-                        logging.warning(("Couldn't match up the POS tokens: %s (%s)", text, postokens))
-                        continue
-
-                    # Otherwise, output each POS-tagged word and the appropriate annotation
-                    for i in range(start_pos_range, end_pos_range):
-                        previous_pos_tag = i
-                        next_pos_tag = postokens[i]
-                        pos,_,pos_word = next_pos_tag.partition('/')
-                        # Output the word associated with the POS tag
-                        output_fp.write("%s " % (pos_word.lower(),))
-                        # Output the the word associated with this POS tag
-                        output_fp.write("%s " % (pos, ))
-                        # Output all the possibile subjective annotations for the
-                        # text unit (approximate word) which contains this POS tag
-                        for p in possibilities[t]:
-                            output_fp.write(p)
-                            output_fp.write(" ")
-                        # End this entry
-                        output_fp.write("\n")
+                for pos_word, pos_tag, subjectivity in match_pos_tags(documents[identifier], anns[identifier], possibilities, tokens):
+                    # Output the word associated with the POS tag
+                    output_fp.write("%s " % (pos_word.lower(),))
+                    # Output the the word associated with this POS tag
+                    output_fp.write("%s " % (pos_tag, ))
+                    # Output all the possibile subjective annotations for the
+                    # text unit (approximate word) which contains this POS tag
+                    for s in subjectivity:
+                        output_fp.write(s)
+                        output_fp.write(" ")
+                    # End this entry
+                    output_fp.write("\n")
 
                 # Output the document-separating line space
                 output_fp.write("\n")
