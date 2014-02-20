@@ -100,6 +100,35 @@ class SubjectivePhraseAnnotator(object):
             VALUES (?, ?)""" % (name, )
         cursor.execute(sql, (identifier, annotation))
 
+    @classmethod
+    def get_text(cls, conn, identifier_set):
+        """
+            Return the text of every document in the identifier_set
+            as an identifer-> text dict
+        """
+        cursor = conn.cursor()
+        ret = {}
+        sql = "SELECT identifier, document FROM input"
+        for identifier, document in cursor.execute(sql):
+            if identifier not in identifier_set:
+                continue
+            ret[identifier] = document
+        return ret
+
+    @classmethod
+    def load_pos_anns(self, conn):
+        """
+            Load part-of-speech annotations from the database.
+            Only the gimpel POS tagger is supported at present.
+        """
+        cursor = conn.cursor()
+        cursor.execute("SELECT document_identifier, tokenized_form FROM pos_gimpel")
+        ret = {}
+        for identifier, tokenised in cursor.fetchall():
+            ret[identifier] = [int(i) for i in tokenised.split(' ') if len(i) > 0]
+        return ret
+
+
     def execute(self, _, conn):
         """Create and insert annotations."""
         if self.output_table is not None:

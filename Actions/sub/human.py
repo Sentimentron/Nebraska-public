@@ -41,6 +41,18 @@ class HumanBasedSubjectivePhraseAnnotator(SubjectivePhraseAnnotator):
         ann /= 10.0
         return ann
 
+    @classmethod
+    def load_pos_tokens(self, conn):
+        """
+            Create an token identifier -> token dict from the database
+        """
+        cursor = conn.cursor()
+        cursor.execute("SELECT identifier, token FROM pos_tokens_gimpel")
+        ret = {}
+        for identifier, token in cursor.fetchall():
+            ret[identifier] = token
+        return ret
+
     def get_text_anns(self, conn):
         """
             Generate a list of (text, annnotation) pairs

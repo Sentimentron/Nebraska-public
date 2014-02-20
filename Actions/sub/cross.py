@@ -113,6 +113,7 @@ class SubjectiveCrossValidationEnvironment(object):
                 yield t
 
     def record_annotation(self, fold, identifier, annotation):
+        logging.debug((fold, identifier, annotation))
         self.results[fold][identifier] = annotation
 
     def get_target_identifiers(self, current_round, task):
