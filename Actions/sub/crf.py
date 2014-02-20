@@ -300,7 +300,7 @@ class ProduceCRFSTagList(object):
                 # Chunk the testing data
                 with tempfile.NamedTemporaryFile() as test_dest_fp:
                     with open(self.test_path, 'r') as test_fp:
-                            subprocess.check_call(["python", "Actions/chunking.py"], stdin=test_fp, stdout=test_dest_fp)
+                        subprocess.check_call(["python", "Actions/chunking.py"], stdin=test_fp, stdout=test_dest_fp)
 
                     # Train the model
                     args = "crfsuite learn --split=10 -m %s %s"
