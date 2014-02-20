@@ -347,9 +347,9 @@ class CRFSubjectiveAnnotator(HumanBasedSubjectivePhraseAnnotator):
     def execute(self, path, conn):
 
         # Plug exporter methods with our own
-        self.exporter.generate_output_table = types.MethodType(lambda s, y, z: self.stub_target_table(y), task)
-        self.exporter.generate_source_identifiers = types.MethodType(lambda s, y: self.get_source_identifiers(), task)
-        self.exporter.generate_target_identifiers = types.MethodType(lambda s, y: self.get_target_identifiers(), task)
+        self.exporter.generate_output_table = types.MethodType(lambda s, y, z: self.stub_target_table(y), self.exporter)
+        self.exporter.generate_source_identifiers = types.MethodType(lambda s, y: self.generate_source_identifiers(conn), self.exporter)
+        self.exporter.generate_target_identifiers = types.MethodType(lambda s, y: self.generate_target_identifiers(conn), self.exporter)
 
         # Export the file
         result, conn = self.exporter.execute(path, conn)
