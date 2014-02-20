@@ -37,12 +37,13 @@ from semval import SemvalInputSource
 from sentiwordnet import SentiWordNetPositiveOrNegativeStrengthLabeller
 from sentiwordnet import SentiWordNetPositiveStrengthLabeller
 from stemmer import Stemmer
+from sub import CRFSubjectiveAnnotator
 from sub import CRFSubjectiveExporter
-from sub import ProduceCRFSTagList
 from sub import EmpiricalSubjectivePhraseAnnotator
 from sub import FixedSubjectivePhraseAnnotator
 from sub import NLTKSubjectivePhraseBayesianAnnotator
 from sub import NTLKSubjectivePhraseMarkovAnnotator
+from sub import ProduceCRFSTagList
 from sub import SubjectiveAnnotationEvaluator
 from sub import SubjectiveARFFExporter
 from sub import SubjectiveCrossValidationEnvironment
@@ -50,8 +51,8 @@ from sub import SubjectivePhraseARFFExporter
 from sub import SubjectivePhraseTweetClassficationDiscreteARFFExporter
 from sub import SubjectivePhraseTweetClassificationARFFExporter
 from sub import UnigramBinaryPresenceARFFExporter
-from sub import UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter
 from sub import UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter
+from sub import UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter
 from sub import UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter
 from templabeller import AtMentionLabeller
 from templabeller import BasicWordLabeller
