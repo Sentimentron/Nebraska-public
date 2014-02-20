@@ -152,6 +152,9 @@ class SubjectiveCrossValidationEnvironment(object):
     def evaluate_fold(self, task, options, r, conn):
         mse_total = 0
         for identifier in self.folds[r]:
+            if identifier not in self.results[r]:
+                logging.error("Missing identifier %d for fold %d", identifier, r)
+                continue
             predicted_annotation = self.results[r][identifier]
             actual_annotation = self._get_subjectivity_vector(conn, identifier)
             mse = self.calc_mse(predicted_annotation, actual_annotation)
