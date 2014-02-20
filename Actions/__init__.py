@@ -5,6 +5,7 @@ import logging
 import sys
 
 from amt import AMTInputSource
+from amt import AMTNormalise
 from annotators import FinancialDistanceAnnotator
 from annotators import SubjectivityAnnotator
 from basic import BasicFilter
@@ -37,6 +38,7 @@ from sentiwordnet import SentiWordNetPositiveOrNegativeStrengthLabeller
 from sentiwordnet import SentiWordNetPositiveStrengthLabeller
 from stemmer import Stemmer
 from sub import CRFSubjectiveExporter
+from sub import ProduceCRFSTagList
 from sub import EmpiricalSubjectivePhraseAnnotator
 from sub import FixedSubjectivePhraseAnnotator
 from sub import NLTKSubjectivePhraseBayesianAnnotator
@@ -47,6 +49,10 @@ from sub import SubjectiveCrossValidationEnvironment
 from sub import SubjectivePhraseARFFExporter
 from sub import SubjectivePhraseTweetClassficationDiscreteARFFExporter
 from sub import SubjectivePhraseTweetClassificationARFFExporter
+from sub import UnigramBinaryPresenceARFFExporter
+from sub import UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter
+from sub import UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter
+from sub import UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter
 from templabeller import AtMentionLabeller
 from templabeller import BasicWordLabeller
 from templabeller import BigramLabeller
