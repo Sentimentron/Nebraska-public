@@ -15,6 +15,8 @@ from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 from collections import defaultdict
 from nltk.stem.lancaster import LancasterStemmer
 
+class POSMatchingException(Exception):
+    pass
 
 def match_subjectivity(text, postokens, tokens):
 
@@ -130,7 +132,7 @@ def match_pos_tags(text, postokens, possibilities, tokens):
         # we might as well stop.
         if output == False:
             logging.warning(("Couldn't match up the POS tokens: %s (%s)", text, postokens))
-            continue
+            raise POSMatchingException("POS token matching error")
 
         output = []
 
@@ -143,7 +145,10 @@ def match_pos_tags(text, postokens, possibilities, tokens):
             # Output the the word associated with this POS tag
             # Output all the possibile subjective annotations for the
             # text unit (approximate word) which contains this POS tag
-            yield pos_word, pos, possibilities[t]
+            if possibilities is not None:
+                yield pos_word, pos, possibilities[t]
+            else:
+                yield pos_word, pos
 
 class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
     """
@@ -162,6 +167,8 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
         else:
             self.path = path
         assert self.path is not None
+
+        self.warning_set = set([])
 
     def group_and_convert_text_anns(self, conn):
         """
@@ -272,21 +279,24 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
             # extra line space
 
             for identifier in sorted(documents):
-                for pos_word, pos_tag, subjectivity in match_pos_tags(documents[identifier], anns[identifier], possibilities, tokens):
-                    # Output the word associated with the POS tag
-                    output_fp.write("%s " % (pos_word.lower(),))
-                    # Output the the word associated with this POS tag
-                    output_fp.write("%s " % (pos_tag, ))
-                    # Output all the possibile subjective annotations for the
-                    # text unit (approximate word) which contains this POS tag
-                    for s in subjectivity:
-                        output_fp.write(s)
-                        output_fp.write(" ")
-                    # End this entry
-                    output_fp.write("\n")
+                try:
+                    for pos_word, pos_tag, subjectivity in match_pos_tags(documents[identifier], anns[identifier], possibilities, tokens):
+                        # Output the word associated with the POS tag
+                        output_fp.write("%s " % (pos_word.lower(),))
+                        # Output the the word associated with this POS tag
+                        output_fp.write("%s " % (pos_tag, ))
+                        # Output all the possibile subjective annotations for the
+                        # text unit (approximate word) which contains this POS tag
+                        for s in subjectivity:
+                            output_fp.write(s)
+                            output_fp.write(" ")
+                        # End this entry
+                        output_fp.write("\n")
 
-                # Output the document-separating line space
-                output_fp.write("\n")
+                    # Output the document-separating line space
+                    output_fp.write("\n")
+                except POSMatchingException:
+                    self.warning_set.add(identifier)
 
         return True, conn
 
@@ -410,7 +420,10 @@ class CRFSubjectiveAnnotator(HumanBasedSubjectivePhraseAnnotator):
         subjectivity_vec = self.parse_output()
         #logging.debug([i for i in subjectivity_vec])
 
-        for identifier, subjectivity in zip(sorted(documents), self.parse_output()):
+        identifiers = set(documents)
+        identifiers -= self.test_exporter.warning_set
+
+        for identifier, subjectivity in zip(sorted(identifiers), self.parse_output()):
             text = documents[identifier]
             tags = postags[identifier]
 
@@ -424,7 +437,7 @@ class CRFSubjectiveAnnotator(HumanBasedSubjectivePhraseAnnotator):
                 text_subjectivity[i] = textsubj
 
             self.insert_annotation(
-                self.output_table, identifier, [text_subjectivity[i] for i in sorted(text_subjectivity)], conn
+                self.output_table, identifier, [self.unconvert_annotation(text_subjectivity[i]) for i in sorted(text_subjectivity)], conn
             )
         return True, conn
 

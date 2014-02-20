@@ -8,6 +8,7 @@
     </WorkflowOptions>
 
     <Tables>
+        <PartOfSpeechTable name="gimpel" />
         <ResultsTable />
     </Tables>
 
@@ -16,6 +17,7 @@
     </InputSources>
 
     <WorkflowTasks>
+        <GimpelPOSTagger dest="gimpel" verbose="true" />
         <SubjectiveCrossValidationEnvironment folds="10" bucket="stubbed">
             <FixedSubjectivePhraseAnnotator outputTable="baseline" />
             <FixedSubjectivePhraseAnnotator outputTable="fixed_self">
@@ -39,6 +41,7 @@
             </FixedSubjectivePhraseAnnotator>
             <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_self" />
             <NLTKSubjectivePhraseBayesianAnnotator outputTable="bayesian" />
+            <CRFSubjectiveAnnotator />
         </SubjectiveCrossValidationEnvironment>
     </WorkflowTasks>
 
