@@ -1,0 +1,21 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>AMT Corpus Subjective Phrase Annotation test</WorkflowName>
+        <WorkflowDescription>Imports a corpus file, generates subjective phrase annotations.</WorkflowDescription>
+        <RetainOutputFile path="amt.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+    </Tables>
+
+    <InputSources>
+        <PreviousWorkflow path="Workflows/ExportSubjectiveWords.xml" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <ProduceCRFSTagList test_path="crf_test.txt" train_path="crf_train.txt"/>
+    </WorkflowTasks>
+
+</Workflow>

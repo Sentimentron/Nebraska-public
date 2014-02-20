@@ -4,12 +4,13 @@
     Code for interacting with CRFSuite
 """
 
-import re
-import math
 import logging
+import math
+import re
+import subprocess
+import tempfile
 from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 from collections import defaultdict
-
 from nltk.stem.lancaster import LancasterStemmer
 
 class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
@@ -234,7 +235,109 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
                         # End this entry
                         output_fp.write("\n")
 
-                    # Output the document-separating line space
-                    output_fp.write("\n")
+                # Output the document-separating line space
+                output_fp.write("\n")
 
         return True, conn
+
+class ProduceCRFSTagList(object):
+    """
+        This class takes care of the mechanics of outputting
+        CRF files, training CRFSuite to produce a model and
+        then tagging.
+    """
+
+    def __init__(self, xml, test_path = None, train_path = None, results_path = None):
+        """
+            Required:
+                test_path attribute
+                train_path attribute
+            Optional:
+                results_path
+                    If unspecified, "crf_results.txt" gets created in current directory
+        """
+        if xml != None:
+            self.test_path = xml.get("test_path")
+            self.train_path = xml.get("train_path")
+            self.results_path = xml.get("results_path")
+        else:
+            self.test_path = test_path
+            self.train_path = train_path
+            self.results_path = results_path
+
+        assert self.test_path is not None
+        assert self.train_path is not None
+
+        if self.results_path is None:
+            self.results_path = "crf_results.txt"
+
+    def execute(self, path, conn):
+        with tempfile.NamedTemporaryFile() as model_fp:
+            with tempfile.NamedTemporaryFile() as train_dest_fp:
+                # Chunk the training data
+                with open(self.train_path, 'r') as train_fp:
+                    subprocess.check_call(["python", "Actions/chunking.py"], stdin=train_fp, stdout=train_dest_fp)
+                # Chunk the testing data
+                with tempfile.NamedTemporaryFile() as test_dest_fp:
+                    with open(self.test_path, 'r') as test_fp:
+                            subprocess.check_call(["python", "Actions/chunking.py"], stdin=test_fp, stdout=test_dest_fp)
+
+                    # Train the model
+                    args = "crfsuite learn --split=10 -m %s %s"
+                    subprocess.check_call(args % (model_fp.name, train_dest_fp.name), shell=True)
+
+                    # Test the model
+                    args = "crfsuite tag -qt -m %s %s"
+                    subprocess.check_call (args % (model_fp.name, test_dest_fp.name), shell=True)
+
+                    with open('crf_results.txt', 'w') as out_fp:
+                        # Tag the output
+                        args = "crfsuite tag -m %s %s"
+                        subprocess.check_call(args % (model_fp.name, test_dest_fp.name), shell=True, stdout=out_fp)
+
+                    logging.debug("%s %s %s", train_dest_fp.name, test_dest_fp.name, model_fp.name)
+
+        return True, conn
+
+class CRFSubjectiveAnnotator(HumanBasedSubjectivePhraseAnnotator):
+
+    """
+        Annotates subjective phrases using external CRF library
+    """
+
+    def __init__(self, xml):
+        """
+            outputTable: optional parameter
+        """
+        self.output_table = xml.get("outputTable")
+        self.exporter = CRFSubjectiveExporter(xml)
+        self.test_fp = tempfile.NamedTemporaryFile()
+        self.train_fp = tempfile.NamedTemporaryFile()
+        self.results_fp = tempfile.NamedTemporaryFile()
+        logging.debug("CRFSubjectiveAnnotator: %s %s %s",
+            self.test_fp.name, self.train_fp.name, self.results_fp.name
+            )
+        self.worker = ProduceCRFSTagList(
+            None, self.test_fp.name, self.train_fp.name, self.results_fp.name
+        )
+
+    def stub_target_table(self, table):
+        pass
+
+    def execute(self, path, conn):
+
+        # Plug exporter methods with our own
+        self.exporter.generate_output_table = types.MethodType(lambda s, y, z: self.stub_target_table(y), task)
+        self.exporter.generate_source_identifiers = types.MethodType(lambda s, y: self.get_source_identifiers(), task)
+        self.exporter.generate_target_identifiers = types.MethodType(lambda s, y: self.get_target_identifiers(), task)
+
+        # Export the file
+        result, conn = self.exporter.execute(path, conn)
+        assert result
+
+        # Ask the worker to do our work
+        result, conn = self.worker.execute(path, conn)
+        assert result
+
+        return True, conn
+
