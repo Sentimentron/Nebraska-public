@@ -16,9 +16,63 @@ from collections import defaultdict
 from nltk.stem.lancaster import LancasterStemmer
 
 
+def match_subjectivity(text, postokens, tokens):
+
+    # Convert the pos token identifiers to the
+    # actual pos strings
+    postokens = [tokens[i] for i in postokens]
+
+    # Split the document in the same way as done
+    # for the annotations in the MT form
+    text = [i for i in text.split(' ') if len(i.strip()) > 0]
+
+    # Match up the POS tags to the annotations
+    # as best we can
+    current_pos_tag = 0
+    previous_pos_tag = 0
+    current_word = 0
+
+    # Step through each word in the tweet
+    for text_pos, t in enumerate(text):
+        # Set this to something impossible
+        pos_word = "ASDFASDFASDF"
+        start_pos_range = previous_pos_tag
+        output = True
+        # Step through the POS tags until we find the first
+        # matching word
+        while pos_word not in t:
+            #logging.debug((pos_word, t, start_pos_range, postokens))
+            if start_pos_range >= len(postokens):
+                output = False
+                break
+            next_pos_tag = postokens[start_pos_range]
+            pos, _, pos_word = next_pos_tag.partition('/')
+            #logging.debug((pos_word, pos_word not in t, t))
+            start_pos_range += 1
+
+        # Correct post-increment
+        start_pos_range = max(start_pos_range-1, 0)
+        # Start searching for the end POS tag from here
+        end_pos_range = start_pos_range
+
+        # Step through the tweet until we find the
+        # last POS tag that end this text unit
+        while pos_word in t:
+            if end_pos_range >= len(postokens):
+                end_pos_range = len(postokens) + 1
+                break
+            next_pos_tag = postokens[end_pos_range]
+            pos, _, pos_word = next_pos_tag.partition('/')
+            end_pos_range += 1
+
+        # Correct post-increment
+        end_pos_range = max(end_pos_range-1, 0)
+
+        yield text_pos, start_pos_range, end_pos_range
+
 def match_pos_tags(text, postokens, possibilities, tokens):
     """
-        Try to match up the POS tags with the subjectivity nnotations
+        Try to match up the POS tags with the subjectivity annotations
     """
 
     # Convert the pos token identifiers to the
@@ -131,7 +185,6 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
             for annotation in annotations[identifier]:
                 max_len = max(max_len, len(annotation))
             probs = [0.0 for _ in range(max_len)]
-            print len(probs)
             for annotation in annotations[identifier]:
                 for i, a in enumerate(annotation):
                     if a != 'q':
@@ -143,31 +196,6 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
             probs = [self.convert_annotation(i) for i in probs]
             ret.append((identifier, text, probs))
 
-        return ret
-
-    @classmethod
-    def load_pos_tokens(self, conn):
-        """
-            Create an token identifier -> token dict from the database
-        """
-        cursor = conn.cursor()
-        cursor.execute("SELECT identifier, token FROM pos_tokens_gimpel")
-        ret = {}
-        for identifier, token in cursor.fetchall():
-            ret[identifier] = token
-        return ret
-
-    @classmethod
-    def load_pos_anns(self, conn):
-        """
-            Load part-of-speech annotations from the database.
-            Only the gimpel POS tagger is supported at present.
-        """
-        cursor = conn.cursor()
-        cursor.execute("SELECT document_identifier, tokenized_form FROM pos_gimpel")
-        ret = {}
-        for identifier, tokenised in cursor.fetchall():
-            ret[identifier] = [int(i) for i in tokenised.split(' ') if len(i) > 0]
         return ret
 
     @classmethod
@@ -243,7 +271,7 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
             # file. Sucessive sections get seperated with an
             # extra line space
 
-            for identifier in documents:
+            for identifier in sorted(documents):
                 for pos_word, pos_tag, subjectivity in match_pos_tags(documents[identifier], anns[identifier], possibilities, tokens):
                     # Output the word associated with the POS tag
                     output_fp.write("%s " % (pos_word.lower(),))
@@ -305,14 +333,14 @@ class ProduceCRFSTagList(object):
                         subprocess.check_call(["python", "Actions/chunking.py"], stdin=test_fp, stdout=test_dest_fp)
 
                     # Train the model
-                    args = "crfsuite learn --split=10 -m %s %s"
+                    args = "crfsuite learn -m %s %s"
                     subprocess.check_call(args % (model_fp.name, train_dest_fp.name), shell=True)
 
                     # Test the model
                     args = "crfsuite tag -qt -m %s %s"
                     subprocess.check_call (args % (model_fp.name, test_dest_fp.name), shell=True)
 
-                    with open('crf_results.txt', 'w') as out_fp:
+                    with open(self.results_path, 'w') as out_fp:
                         # Tag the output
                         args = "crfsuite tag -m %s %s"
                         subprocess.check_call(args % (model_fp.name, test_dest_fp.name), shell=True, stdout=out_fp)
@@ -348,6 +376,17 @@ class CRFSubjectiveAnnotator(HumanBasedSubjectivePhraseAnnotator):
     def stub_target_table(self, table):
         pass
 
+    def parse_output(self):
+        self.results_fp.seek(0)
+        buf = []
+        for line in self.results_fp:
+            line = line.strip()
+            if len(line) == 0:
+                yield buf
+                buf = []
+                continue
+            buf.append(int(line))
+
     def execute(self, path, conn):
 
         # Plug exporter methods with our own
@@ -360,9 +399,32 @@ class CRFSubjectiveAnnotator(HumanBasedSubjectivePhraseAnnotator):
         result, conn = self.test_exporter.execute(path, conn)
         assert result
 
-        # Ask the worker to do our work
+        # Ask the worker to train and tag things
         result, conn = self.worker.execute(path, conn)
         assert result
 
+        documents =  self.get_text(conn, self.generate_target_identifiers(conn))
+        tokens = self.load_pos_tokens(conn)
+        postags = self.load_pos_anns(conn)
+
+        subjectivity_vec = self.parse_output()
+        #logging.debug([i for i in subjectivity_vec])
+
+        for identifier, subjectivity in zip(sorted(documents), self.parse_output()):
+            text = documents[identifier]
+            tags = postags[identifier]
+
+            text_subjectivity = {}
+            for i, j, k in match_subjectivity(text, tags, tokens):
+                textsubj = subjectivity[j:k+1]
+                if len(textsubj) == 0:
+                    logging.error((i, j, k, text))
+                textsubj = sum(textsubj) / max(len(textsubj), 1)
+                assert i not in text_subjectivity
+                text_subjectivity[i] = textsubj
+
+            self.insert_annotation(
+                self.output_table, identifier, [text_subjectivity[i] for i in sorted(text_subjectivity)], conn
+            )
         return True, conn
 
