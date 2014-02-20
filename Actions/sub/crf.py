@@ -96,15 +96,17 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
         Exports subjectivity data to a CRF file for processing.
     """
 
-    def __init__(self, xml):
+    def __init__(self, xml, path=None):
         """
             Path attribute is mandatory.
         """
         super(CRFSubjectiveExporter, self).__init__(
             xml
         )
-
-        self.path = xml.get("path")
+        if path is None:
+            self.path = xml.get("path")
+        else:
+            self.path = path
         assert self.path is not None
 
     def group_and_convert_text_anns(self, conn):
@@ -330,13 +332,15 @@ class CRFSubjectiveAnnotator(HumanBasedSubjectivePhraseAnnotator):
             outputTable: optional parameter
         """
         self.output_table = xml.get("outputTable")
-        self.exporter = CRFSubjectiveExporter(xml)
         self.test_fp = tempfile.NamedTemporaryFile()
         self.train_fp = tempfile.NamedTemporaryFile()
         self.results_fp = tempfile.NamedTemporaryFile()
         logging.debug("CRFSubjectiveAnnotator: %s %s %s",
             self.test_fp.name, self.train_fp.name, self.results_fp.name
             )
+        # Create exporter scripts
+        self.test_exporter = CRFSubjectiveExporter(xml, self.test_fp.name)
+        self.train_exporter = CRFSubjectiveExporter(xml, self.train_fp.name)
         self.worker = ProduceCRFSTagList(
             None, self.test_fp.name, self.train_fp.name, self.results_fp.name
         )
@@ -347,12 +351,13 @@ class CRFSubjectiveAnnotator(HumanBasedSubjectivePhraseAnnotator):
     def execute(self, path, conn):
 
         # Plug exporter methods with our own
-        self.exporter.generate_output_table = types.MethodType(lambda s, y, z: self.stub_target_table(y), self.exporter)
-        self.exporter.generate_source_identifiers = types.MethodType(lambda s, y: self.generate_source_identifiers(conn), self.exporter)
-        self.exporter.generate_target_identifiers = types.MethodType(lambda s, y: self.generate_target_identifiers(conn), self.exporter)
+        self.train_exporter.generate_source_identifiers = types.MethodType(lambda s, y: self.generate_source_identifiers(conn), self.train_exporter)
+        self.test_exporter.generate_source_identifiers = types.MethodType(lambda s, y: self.generate_target_identifiers(conn), self.test_exporter)
 
-        # Export the file
-        result, conn = self.exporter.execute(path, conn)
+        # Export the training and test files
+        result, conn = self.train_exporter.execute(path, conn)
+        assert result
+        result, conn = self.test_exporter.execute(path, conn)
         assert result
 
         # Ask the worker to do our work
