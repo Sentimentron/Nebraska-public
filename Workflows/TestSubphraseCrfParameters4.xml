@@ -13,19 +13,16 @@
     </Tables>
 
     <InputSources>
-        <AMTInputSource dir="Data/MechanicalTurk/Tech" />
+        <AMTInputSource dir="Data/MechanicalTurk" />
     </InputSources>
 
     <WorkflowTasks>
         <GimpelPOSTagger dest="gimpel" verbose="true" />
         <SubjectiveCrossValidationEnvironment folds="10" bucket="stubbed">
-            <!--CRFSubjectiveAnnotator />
-            <CRFSubjectiveAnnotator normaliseCase="true" /-->
-            <CRFSubjectiveAnnotator normaliseCase="true" stemmer="lancaster" />
-            <CRFSubjectiveAnnotator normaliseCase="true" stemmer="regexp" />
-            <CRFSubjectiveAnnotator normaliseCase="true" stemmer="porter" />
-            <CRFSubjectiveAnnotator normaliseCase="true" stemmer="snowball" />
-            <CRFSubjectiveAnnotator normaliseCase="true" lemmatise="true" />
+            <CRFSubjectiveAnnotator />
+            <CRFSubjectiveAnnotator stopWords="true" />
+            <CRFSubjectiveAnnotator stopPos="true" />
+            <CRFSubjectiveAnnotator stopWords="true" stopPos="true" />
         </SubjectiveCrossValidationEnvironment>
     </WorkflowTasks>
 

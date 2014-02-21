@@ -19,13 +19,16 @@
     <WorkflowTasks>
         <GimpelPOSTagger dest="gimpel" verbose="true" />
         <SubjectiveCrossValidationEnvironment folds="10" bucket="stubbed">
-            <!--CRFSubjectiveAnnotator />
-            <CRFSubjectiveAnnotator normaliseCase="true" /-->
-            <CRFSubjectiveAnnotator normaliseCase="true" stemmer="lancaster" />
-            <CRFSubjectiveAnnotator normaliseCase="true" stemmer="regexp" />
-            <CRFSubjectiveAnnotator normaliseCase="true" stemmer="porter" />
-            <CRFSubjectiveAnnotator normaliseCase="true" stemmer="snowball" />
-            <CRFSubjectiveAnnotator normaliseCase="true" lemmatise="true" />
+            <CRFSubjectiveAnnotator max="10" />
+            <CRFSubjectiveAnnotator max="9" />
+            <CRFSubjectiveAnnotator max="8" />
+            <CRFSubjectiveAnnotator max="7" />
+            <CRFSubjectiveAnnotator max="6" />
+            <CRFSubjectiveAnnotator max="5" />
+            <CRFSubjectiveAnnotator max="4" />
+            <CRFSubjectiveAnnotator max="3" />
+            <CRFSubjectiveAnnotator max="2" />
+            <CRFSubjectiveAnnotator max="1" />
         </SubjectiveCrossValidationEnvironment>
     </WorkflowTasks>
 

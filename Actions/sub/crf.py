@@ -68,8 +68,9 @@ def match_subjectivity(text, postokens, tokens):
                 end_pos_range = len(postokens) + 1
                 break
             next_pos_tag = postokens[end_pos_range]
-            pos, _, pos_word = next_pos_tag.partition('/')
+            pos, _, next_pos_word = next_pos_tag.partition('/')
             end_pos_range += 1
+            pos_word += next_pos_word
 
         # Correct post-increment
         end_pos_range = max(end_pos_range-1, 0)
@@ -116,7 +117,7 @@ def match_pos_tags(text, postokens, possibilities, tokens):
         # Correct post-increment
         start_pos_range = max(start_pos_range-1, 0)
         # Start searching for the end POS tag from here
-        end_pos_range = start_pos_range
+        end_pos_range = start_pos_range + 1
 
         # Step through the tweet until we find the
         # last POS tag that end this text unit
@@ -125,8 +126,10 @@ def match_pos_tags(text, postokens, possibilities, tokens):
                 end_pos_range = len(postokens) + 1
                 break
             next_pos_tag = postokens[end_pos_range]
-            pos, _, pos_word = next_pos_tag.partition('/')
+            pos, _, next_pos_word = next_pos_tag.partition('/')
             end_pos_range += 1
+            pos_word += next_pos_word
+            logging.debug(pos_word)
 
         # Correct post-increment
         end_pos_range = max(end_pos_range-1, 0)
@@ -211,6 +214,17 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
         else:
             self.lemmatiser = None
 
+        self.min_annotation = xml.get("min")
+        self.max_annotation = xml.get("max")
+        if self.min_annotation is None:
+            self.min_annotation = 0
+        else:
+            self.min_annotation = int(self.min_annotation)
+        if self.max_annotation is None:
+            self.max_annotation = 1
+        else:
+            self.max_annotation = int(self.max_annotation)
+
     def group_and_convert_text_anns(self, conn):
         """
             Get subjectivity vectors for each document identifier
@@ -276,8 +290,7 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
         """
         return tag in ["^", "!", "&", "L","P", "O", "D", "$", ","]
 
-    @classmethod
-    def convert_annotation(cls, ann):
+    def convert_annotation(self, ann):
         """
             Converts the annotation into a 1 or 0 label,
 
@@ -288,8 +301,10 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
         ann -= 0.001
         ann = max(ann, 0)
         ann = int(math.floor(ann*10))
-        if ann >= 1:
-            return '1'
+        if ann > self.max_annotation:
+            return str(self.max_annotation)
+        elif ann < self.min_annotation:
+            return str(self.min_annotation)
         else:
             return '0'
 
@@ -408,12 +423,13 @@ class ProduceCRFSTagList(object):
                         subprocess.check_call(["python", "Actions/chunking.py"], stdin=test_fp, stdout=test_dest_fp)
 
                     # Train the model
-                    args = "crfsuite learn -m %s %s"
+                    args = "crfsuite learn -p max_linesearch=40 -m %s %s"
                     s = subprocess.Popen(args % (model_fp.name, train_dest_fp.name), shell=True, stdout=subprocess.PIPE)
                     while True:
                         line = s.stdout.readline()
                         if not line:
                             break
+                        logging.info(line)
 
                     # Test the model
                     args = "crfsuite tag -qt -m %s %s"
