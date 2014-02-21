@@ -190,7 +190,7 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
         self.stopwords = xml_bool_convert(xml.get("stopWords"))
         self.stoppos = xml_bool_convert(xml.get("stopPos"))
         self.normalise_case = xml_bool_convert(xml.get("normaliseCase"))
-        self.lemmatise = xml_bool_convert(xml.get("lemmatiser"))
+        self.lemmatise = xml_bool_convert(xml.get("lemmatise"))
         if self.stemmer is not None:
             assert self.stemmer in ["lancaster", "regexp", "porter", "snowball"]
             assert self.lemmatise == False
@@ -342,6 +342,7 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
                                 continue
                         # Output the word associated with the POS tag
                         word = self.normalise_output_word(pos_word)
+                        logging.debug((pos_word, word, type(self.stemmer), self.lemmatise))
                         output_fp.write("%s " % (word,))
                         # Output the the word associated with this POS tag
                         output_fp.write("%s " % (pos_tag, ))
@@ -408,11 +409,20 @@ class ProduceCRFSTagList(object):
 
                     # Train the model
                     args = "crfsuite learn -m %s %s"
-                    subprocess.check_call(args % (model_fp.name, train_dest_fp.name), shell=True)
+                    s = subprocess.Popen(args % (model_fp.name, train_dest_fp.name), shell=True, stdout=subprocess.PIPE)
+                    while True:
+                        line = s.stdout.readline()
+                        if not line:
+                            break
 
                     # Test the model
                     args = "crfsuite tag -qt -m %s %s"
-                    subprocess.check_call (args % (model_fp.name, test_dest_fp.name), shell=True)
+                    s = subprocess.Popen (args % (model_fp.name, test_dest_fp.name), shell=True, stdout=subprocess.PIPE)
+                    while True:
+                        line = s.stdout.readline()
+                        if not line:
+                            break
+                        logging.info(line)
 
                     with open(self.results_path, 'w') as out_fp:
                         # Tag the output
