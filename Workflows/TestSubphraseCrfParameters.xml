@@ -1,0 +1,32 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>AMT Corpus Subjective Phrase Annotation test</WorkflowName>
+        <WorkflowDescription>Imports a corpus file, generates subjective phrase annotations.</WorkflowDescription>
+        <RetainOutputFile path="amt.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <PartOfSpeechTable name="gimpel" />
+        <ResultsTable />
+    </Tables>
+
+    <InputSources>
+        <AMTInputSource dir="Data/MechanicalTurk" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <GimpelPOSTagger dest="gimpel" verbose="true" />
+        <SubjectiveCrossValidationEnvironment folds="10" bucket="stubbed">
+            <CRFSubjectiveAnnotator />
+            <CRFSubjectiveAnnotator normaliseCase="true" />
+            <CRFSubjectiveAnnotator stemmer="lancaster" />
+            <CRFSubjectiveAnnotator stemmer="regexp" />
+            <CRFSubjectiveAnnotator stemmer="porter" />
+            <CRFSubjectiveAnnotator stemmer="snowball" />
+            <CRFSubjectiveAnnotator lemmatise="true" />
+        </SubjectiveCrossValidationEnvironment>
+    </WorkflowTasks>
+
+</Workflow>
