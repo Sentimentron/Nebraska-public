@@ -41,7 +41,7 @@
             </FixedSubjectivePhraseAnnotator>
             <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_self" />
             <NLTKSubjectivePhraseBayesianAnnotator outputTable="bayesian" />
-            <CRFSubjectiveAnnotator />
+            <CRFSubjectiveAnnotator normaliseCase="true" />
         </SubjectiveCrossValidationEnvironment>
     </WorkflowTasks>
 
