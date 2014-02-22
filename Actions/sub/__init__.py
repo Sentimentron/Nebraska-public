@@ -25,5 +25,5 @@ from evaluation import EmpiricalSubjectivePhraseAnnotator
 from evaluation import SubjectiveAnnotationEvaluator
 from fixed import FixedSubjectivePhraseAnnotator
 from nltkbayesian import NLTKSubjectivePhraseBayesianAnnotator
-from nltkmarkov import NTLKSubjectivePhraseMarkovAnnotator
+from nltkmarkov import NLTKSubjectivePhraseMarkovAnnotator
 from sub import SubjectivePhraseAnnotator

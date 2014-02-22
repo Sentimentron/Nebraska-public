@@ -239,50 +239,50 @@
             </DataFlow>
         </FixedSubjectivePhraseAnnotator>
         <EmpiricalSubjectivePhraseAnnotator outputTable="observed" />
-        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_self">
+        <NLTKSubjectivePhraseMarkovAnnotator outputTable="markov_self">
             <DataFlow>
                 <Source>Data/MechanicalTurk/batch1.csv</Source>
                 <Target>Data/MechanicalTurk/batch1.csv</Target>
             </DataFlow>
-        </NTLKSubjectivePhraseMarkovAnnotator>
-        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_cross">
+        </NLTKSubjectivePhraseMarkovAnnotator>
+        <NLTKSubjectivePhraseMarkovAnnotator outputTable="markov_cross">
             <DataFlow>
                 <Source>Data/MechanicalTurk/batch1.csv</Source>
                 <Target>Data/MechanicalTurk/batch2.csv</Target>
             </DataFlow>
-        </NTLKSubjectivePhraseMarkovAnnotator>
-        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_cross_sw" useSentiWordNet="true">
+        </NLTKSubjectivePhraseMarkovAnnotator>
+        <NLTKSubjectivePhraseMarkovAnnotator outputTable="markov_cross_sw" useSentiWordNet="true">
             <DataFlow>
                 <Source>Data/MechanicalTurk/batch1.csv</Source>
                 <Target>Data/MechanicalTurk/batch2.csv</Target>
             </DataFlow>
-        </NTLKSubjectivePhraseMarkovAnnotator>
-        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_cross_mqpa" useMQPA="true">
+        </NLTKSubjectivePhraseMarkovAnnotator>
+        <NLTKSubjectivePhraseMarkovAnnotator outputTable="markov_cross_mqpa" useMQPA="true">
             <DataFlow>
                 <Source>Data/MechanicalTurk/batch1.csv</Source>
                 <Target>Data/MechanicalTurk/batch2.csv</Target>
             </DataFlow>
-        </NTLKSubjectivePhraseMarkovAnnotator>
-        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_both">
+        </NLTKSubjectivePhraseMarkovAnnotator>
+        <NLTKSubjectivePhraseMarkovAnnotator outputTable="markov_both">
             <DataFlow>
                 <Source>Data/MechanicalTurk/batch1.csv</Source>
                 <Source>Data/MechanicalTurk/batch2.csv</Source>
                 <Target>Data/MechanicalTurk/batch2.csv</Target>
             </DataFlow>
-        </NTLKSubjectivePhraseMarkovAnnotator>
-        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_new1">
+        </NLTKSubjectivePhraseMarkovAnnotator>
+        <NLTKSubjectivePhraseMarkovAnnotator outputTable="markov_new1">
             <DataFlow>
                 <Source>Data/MechanicalTurk/batch1.csv</Source>
                 <Target>Data/MechanicalTurk/batch3.csv</Target>
             </DataFlow>
-        </NTLKSubjectivePhraseMarkovAnnotator>
-        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_new2">
+        </NLTKSubjectivePhraseMarkovAnnotator>
+        <NLTKSubjectivePhraseMarkovAnnotator outputTable="markov_new2">
             <DataFlow>
                 <Source>Data/MechanicalTurk/batch1.csv</Source>
                 <Source>Data/MechanicalTurk/batch2.csv</Source>
                 <Target>Data/MechanicalTurk/batch3.csv</Target>
             </DataFlow>
-        </NTLKSubjectivePhraseMarkovAnnotator>
+        </NLTKSubjectivePhraseMarkovAnnotator>
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results"
             predictedTable="baseline" sourceTable="observed" />
         <SubjectiveAnnotationEvaluator bucket="subjective_phrase_results" predictedTable="fixed_self" sourceTable="observed" />

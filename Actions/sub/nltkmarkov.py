@@ -10,10 +10,10 @@ import nltk
 import logging
 from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 
-class NTLKSubjectivePhraseMarkovAnnotator(HumanBasedSubjectivePhraseAnnotator):
+class NLTKSubjectivePhraseMarkovAnnotator(HumanBasedSubjectivePhraseAnnotator):
 
     def __init__(self, xml):
-        super(NTLKSubjectivePhraseMarkovAnnotator, self).__init__(
+        super(NLTKSubjectivePhraseMarkovAnnotator, self).__init__(
             xml
         )
         self.distwords = None
@@ -121,4 +121,4 @@ class NTLKSubjectivePhraseMarkovAnnotator(HumanBasedSubjectivePhraseAnnotator):
         cpd_tags = nltk.ConditionalProbDist(cfd_tags, nltk.MLEProbDist)
         self.distwords = cpd_tagwords
         self.disttags = cpd_tags
-        return super(NTLKSubjectivePhraseMarkovAnnotator, self).execute(path, conn)
+        return super(NLTKSubjectivePhraseMarkovAnnotator, self).execute(path, conn)

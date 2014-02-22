@@ -42,7 +42,7 @@ from sub import CRFSubjectiveExporter
 from sub import EmpiricalSubjectivePhraseAnnotator
 from sub import FixedSubjectivePhraseAnnotator
 from sub import NLTKSubjectivePhraseBayesianAnnotator
-from sub import NTLKSubjectivePhraseMarkovAnnotator
+from sub import NLTKSubjectivePhraseMarkovAnnotator
 from sub import ProduceCRFSTagList
 from sub import SubjectiveAnnotationEvaluator
 from sub import SubjectiveARFFExporter
