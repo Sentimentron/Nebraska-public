@@ -9,6 +9,8 @@ import re
 import nltk
 import logging
 from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
+from Actions.sub.word import SubjectiveWordNormaliser
+
 
 class NTLKSubjectivePhraseMarkovAnnotator(HumanBasedSubjectivePhraseAnnotator):
 
@@ -18,6 +20,7 @@ class NTLKSubjectivePhraseMarkovAnnotator(HumanBasedSubjectivePhraseAnnotator):
         )
         self.distwords = None
         self.disttags = None
+        self.normaliser = SubjectiveWordNormaliser(xml)
 
     def generate_annotation(self, tweet):
         """
@@ -30,6 +33,7 @@ class NTLKSubjectivePhraseMarkovAnnotator(HumanBasedSubjectivePhraseAnnotator):
         first = True
         tweetr = []
         for word in tweet.split(' '):
+            word = self.normaliser.normalise_output_word(word)
             if len(word) == 0:
                 continue
             if word[0].lower() != word[0] and not first:
@@ -115,10 +119,7 @@ class NTLKSubjectivePhraseMarkovAnnotator(HumanBasedSubjectivePhraseAnnotator):
                 if word[0].lower() != word[0] and not first:
                     continue
                 first = False
-                word = word.lower()
-                word = re.sub('[^a-z]', '', word)
-                if len(word) == 0:
-                    continue
+                word = self.normaliser.normalise_output_word(word)
                 tags.append((ann, word))
             tags.append(("END", "END"))
 
