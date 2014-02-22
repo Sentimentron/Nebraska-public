@@ -13,11 +13,8 @@ import types
 
 from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 from collections import defaultdict
-from nltk.stem.lancaster import LancasterStemmer
-from nltk.stem.porter import PorterStemmer
-from nltk.stem.regexp import RegexpStemmer
-from nltk.stem.snowball import EnglishStemmer
-from nltk.stem.wordnet import WordNetLemmatizer
+
+from Actions.sub.word import SubjectiveWordNormaliser
 
 class POSMatchingException(Exception):
     pass
@@ -157,16 +154,6 @@ def match_pos_tags(text, postokens, possibilities, tokens):
             else:
                 yield pos_word, pos
 
-def xml_bool_convert(string):
-    if string is None:
-        return False
-    if string == "true":
-        return True
-    elif sting == "false":
-        return False
-    else:
-        raise ValueError(string)
-
 class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
     """
         Exports subjectivity data to a CRF file for processing.
@@ -188,42 +175,22 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
         # Warning_set: those where POS coversion failed
         self.warning_set = set([])
 
-        # Normalisation parameters
-        self.stemmer = xml.get("stemmer")
-        self.stopwords = xml_bool_convert(xml.get("stopWords"))
-        self.stoppos = xml_bool_convert(xml.get("stopPos"))
-        self.normalise_case = xml_bool_convert(xml.get("normaliseCase"))
-        self.lemmatise = xml_bool_convert(xml.get("lemmatise"))
-        if self.stemmer is not None:
-            assert self.stemmer in ["lancaster", "regexp", "porter", "snowball"]
-            assert self.lemmatise == False
-
-        if self.stemmer is not None:
-            if self.stemmer == "lancaster":
-                self.stemmer = LancasterStemmer()
-            elif self.stemmer == "regexp":
-                self.stemmer = RegexpStemmer('ing$|s$|e$', min=4)
-            elif self.stemmer == "porter":
-                self.stemmer = PorterStemmer()
-            elif self.stemmer == "snowball":
-                self.stemmer = EnglishStemmer()
-            else:
-                raise ValueError(("Unsupported stemmer", self.stemmer))
-        if self.lemmatise:
-            self.lemmatiser = WordNetLemmatizer()
-        else:
-            self.lemmatiser = None
-
+        # Maximum and minimum output values
         self.min_annotation = xml.get("min")
         self.max_annotation = xml.get("max")
+
         if self.min_annotation is None:
             self.min_annotation = 0
         else:
             self.min_annotation = int(self.min_annotation)
+
         if self.max_annotation is None:
             self.max_annotation = 1
         else:
             self.max_annotation = int(self.max_annotation)
+
+        # Word normalisation options
+        self.normaliser = SubjectiveWordNormaliser(xml)
 
     def group_and_convert_text_anns(self, conn):
         """
@@ -260,36 +227,6 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
 
         return ret
 
-    @classmethod
-    def is_stop_word(self, word):
-        """
-            Checks whether the word is part of a stop word, i.e. it's very common
-            and not particularly meaningful.
-        """
-        stopwords = """a,able,about,across,after,all,almost,also,am
-        ,among,an,and,any,are,as,at,be,because
-        ,been,but,by,can,cannot,could,dear
-        ,did,do,does,either,else,ever,every
-        ,for,from,get,got,had,has,have,he,her
-        ,hers,him,his,how,however,i,if,in,into
-        ,is,it,its,just,least,let,like,likely,
-        may,me,might,most,must,my,neither,no,nor,
-        not,of,off,often,on,only,or,other,our,own,
-        rather,said,say,says,she,should,since,so,
-        some,than,that,the,their,them,then,there,
-        these,they,this,tis,to,too,twas,us,wants,
-        was,we,were,what,when,where,which,while,
-        who,whom,why,will,with,would,yet,you,your""".split(",")
-        stopwords = [i.strip() for i in stopwords]
-        return word.lower() in stopwords
-
-    @classmethod
-    def is_stopped_pos_tag(self, tag):
-        """
-            Controls whether the subjectivity tag '0' is output
-        """
-        return tag in ["^", "!", "&", "L","P", "O", "D", "$", ","]
-
     def convert_annotation(self, ann):
         """
             Converts the annotation into a 1 or 0 label,
@@ -307,21 +244,6 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
             return str(self.min_annotation)
         else:
             return '0'
-
-    def stem_word(self, word):
-        return self.stemmer.stem(word)
-
-    def lemmatise_word(self, word):
-        return self.lemmatiser.lemmatize(word)
-
-    def normalise_output_word(self, word):
-        if self.stemmer is not None:
-            word = self.stem_word(word)
-        if self.normalise_case:
-            word = word.lower()
-        if self.lemmatise:
-            word = self.lemmatise_word(word)
-        return word
 
     def execute(self, path, conn):
         """
@@ -352,21 +274,18 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
             for identifier in sorted(documents):
                 try:
                     for pos_word, pos_tag, subjectivity in match_pos_tags(documents[identifier], anns[identifier], possibilities, tokens):
-                        if self.stopwords:
-                            if self.is_stop_word(pos_word):
-                                continue
+                        if self.normaliser.is_stop_word(pos_word):
+                            continue
                         # Output the word associated with the POS tag
-                        word = self.normalise_output_word(pos_word)
-                        logging.debug((pos_word, word, type(self.stemmer), self.lemmatise))
+                        word = self.normaliser.normalise_output_word(pos_word)
                         output_fp.write("%s " % (word,))
                         # Output the the word associated with this POS tag
                         output_fp.write("%s " % (pos_tag, ))
                         # Output all the possibile subjective annotations for the
                         # text unit (approximate word) which contains this POS tag
-                        if self.stoppos:
-                            if self.is_stopped_pos_tag(pos_tag):
-                                output_fp.write("0")
-                                continue
+                        if self.normaliser.is_stopped_pos_tag(pos_tag):
+                            output_fp.write("0")
+                            continue
                         for s in subjectivity:
                             output_fp.write(s)
                             output_fp.write(" ")
