@@ -89,14 +89,14 @@
             </DataFlow>
         </FixedSubjectivePhraseAnnotator>
         <EmpiricalSubjectivePhraseAnnotator outputTable="observed" />
-        <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov">
+        <NLTKSubjectivePhraseMarkovAnnotator outputTable="markov">
             <DataFlow>
                 <Source>Data/MechanicalTurk/batch1.csv</Source>
                 <Source>Data/MechanicalTurk/batch2.csv</Source>
                 <Source>Data/MechanicalTurk/batch3.csv</Source>
                 <Target>Data/MechanicalTurk/batch3.csv</Target>
             </DataFlow>
-        </NTLKSubjectivePhraseMarkovAnnotator>
+        </NLTKSubjectivePhraseMarkovAnnotator>
         <NLTKSubjectivePhraseBayesianAnnotator outputTable="bayesian">
             <DataFlow>
                 <Source>Data/MechanicalTurk/batch1.csv</Source>
@@ -105,12 +105,12 @@
                 <Target>Data/MechanicalTurk/batch3.csv</Target>
             </DataFlow>
         </NLTKSubjectivePhraseBayesianAnnotator>
-                <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_batch2">
+                <NLTKSubjectivePhraseMarkovAnnotator outputTable="markov_batch2">
             <DataFlow>
                 <Source>Data/MechanicalTurk/batch1.csv</Source>
                 <Target>Data/MechanicalTurk/batch2.csv</Target>
             </DataFlow>
-        </NTLKSubjectivePhraseMarkovAnnotator>
+        </NLTKSubjectivePhraseMarkovAnnotator>
         <FixedSubjectivePhraseAnnotator outputTable="baseline_3">
             <DataFlow>
                 <Source>Data/MechanicalTurk/batch1.csv</Source>
