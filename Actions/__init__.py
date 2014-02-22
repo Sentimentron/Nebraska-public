@@ -54,6 +54,7 @@ from sub import UnigramBinaryPresenceARFFExporter
 from sub import UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter
 from sub import UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter
 from sub import UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter
+from sub import BigramBinaryPresenceARFFExporter
 from templabeller import AtMentionLabeller
 from templabeller import BasicWordLabeller
 from templabeller import BigramLabeller

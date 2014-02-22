@@ -1,0 +1,23 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>AMT Corpus Bigrams with Binary Presence</WorkflowName>
+        <WorkflowDescription>Imports AMT corpus and generates Bigrams with binary presence.</WorkflowDescription>
+        <RetainOutputFile path="amt.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <ResultsTable />
+    </Tables>
+
+    <InputSources>
+        <AMTInputSource dir="Data/MechanicalTurk/Tech" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <AMTNormalise/>
+        <BigramBinaryPresenceARFFExporter outputTable="bigrams" path="bigrams.arff"/>
+    </WorkflowTasks>
+
+</Workflow>
