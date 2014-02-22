@@ -39,7 +39,7 @@
                 <Word string="hate" prob="1.0" />
             </EntryNodes>
             </FixedSubjectivePhraseAnnotator>
-            <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_self" normalisingRExp="[^a-z]" />
+            <NLTKSubjectivePhraseMarkovAnnotator outputTable="markov_self" normalisingRExp="[^a-z]" />
             <NLTKSubjectivePhraseBayesianAnnotator outputTable="bayesian" />
             <CRFSubjectiveAnnotator normaliseCase="true" />
         </SubjectiveCrossValidationEnvironment>
