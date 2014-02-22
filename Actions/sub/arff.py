@@ -41,6 +41,82 @@ class ARFFExporter(object):
             for row in rows:
                 writer.writerow(row)
 
+class BigramBinaryPresenceARFFExporter(HumanBasedSubjectivePhraseAnnotator):
+
+    def get_text_anns(self, conn):
+        """
+            Generate a list of (id, text, annnotation) triples
+        """
+        cursor = conn.cursor()
+        ret = []
+        # Get all the tweets from the database
+        sql = """SELECT input.document, subphrases.sentiment FROM input JOIN subphrases ON input.identifier = subphrases.document_identifier WHERE input.identifier = ?"""
+        for identifier in self.generate_source_identifiers(conn):
+            cursor.execute(sql, (identifier,))
+            # For every tweet and its annotation
+            for text, sentiment in cursor.fetchall():
+                # Ditch anything thats not a letter
+                text = re.sub('[^a-zA-Z ]', '', text)
+                # And return the identifier, the tweet and its overall sentiment
+                ret.append((identifier, text, sentiment))
+        return ret
+
+    def __init__(self, xml):
+        """
+            Initialise the exporter: must provide a path attribute
+        """
+        super(BigramBinaryPresenceARFFExporter, self).__init__(
+            xml
+        )
+
+        self.path = xml.get("path")
+        self.exporter = ARFFExporter(self.path, "tweet_sentiment")
+        self.use_stop_words = xml.get("useStopWords")
+        if self.use_stop_words != "true":
+            self.use_stop_words = False
+        else:
+            self.use_stop_words = True
+        assert self.path is not None
+
+    def execute(self, path, conn):
+        # Get all the tweets from the database
+        data = self.get_text_anns(conn)
+        words = set([])
+        # For every tweet we got back
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            tweet_split = text.split(' ')
+            for i in range(1,len(tweet_split)-1):
+                words.add(tweet_split[i] + " " + tweet_split[i+1])
+
+        # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
+        for word in sorted(words):
+            self.exporter.add_attribute(word, 'numeric')
+        # Add the overall sentiment of the tweet as a nominal attribute
+        self.exporter.add_attribute("overall", ["positive", "negative", "neutral"])
+
+        # Get a dictionary mapping the words that are our attributes to integers that represent their index in the ARFF file
+        word_ids = {w: i for i, w in enumerate(sorted(words))}
+
+        rows = []
+        # For each tweet in our database
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            text = text.split(' ')
+            # Set every attribute in the row to not present
+            row = [0 for _ in words]
+            # Itterate over each word in the tweet
+            for i in range(1,len(text)-1):
+                # And set it to present
+                row[word_ids[text[i] + " " + text[i+1]]] = 1
+            # Throw this row in the result
+            row.append(sentiment)
+            rows.append(row)
+
+        self.exporter.write(rows)
+
+        return True, conn
+
 class UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter(HumanBasedSubjectivePhraseAnnotator):
 
     def get_text_anns(self, conn):
