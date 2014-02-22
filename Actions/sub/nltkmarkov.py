@@ -36,13 +36,6 @@ class NTLKSubjectivePhraseMarkovAnnotator(HumanBasedSubjectivePhraseAnnotator):
             word = self.normaliser.normalise_output_word(word)
             if len(word) == 0:
                 continue
-            if word[0].lower() != word[0] and not first:
-                continue
-            first = False
-            word = word.lower()
-            word = re.sub('[^a-z]', '', word)
-            if len(word) == 0:
-                continue
             tweetr.append(word)
         tweet = tweetr
 
