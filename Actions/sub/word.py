@@ -2,6 +2,7 @@
 """
     Contains functions for standard word normalisation and stemming
 """
+import re
 
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.stem.porter import PorterStemmer
@@ -38,6 +39,7 @@ class SubjectiveWordNormaliser(object):
             stopPos: Whether is_stopped_pos reports true or false
             normaliseCase: convert everything to lower-case
             lemmatise: use Wordnet's morphy function to lemmatise
+            normalisingRExp: replaces characters in the word according to this
         """
         # Normalisation parameters
         self.stemmer = xml.get("stemmer")
@@ -45,6 +47,7 @@ class SubjectiveWordNormaliser(object):
         self.stoppos = xml_bool_convert(xml.get("stopPos"))
         self.normalise_case = xml_bool_convert(xml.get("normaliseCase"))
         self.lemmatise = xml_bool_convert(xml.get("lemmatise"))
+        self.resub = xml.get("normalisingRExp")
 
         # Construct the right stemmer
         if self.stemmer is not None:
@@ -125,6 +128,9 @@ class SubjectiveWordNormaliser(object):
 
         if self.normalise_case:
             word = word.lower()
+
+        if self.resub is not None:
+            word = re.sub(self.resub, '', word)
 
         return word
 
