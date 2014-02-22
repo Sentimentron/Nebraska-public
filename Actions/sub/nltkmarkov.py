@@ -32,13 +32,6 @@ class NTLKSubjectivePhraseMarkovAnnotator(HumanBasedSubjectivePhraseAnnotator):
         for word in tweet.split(' '):
             if len(word) == 0:
                 continue
-            if word[0].lower() != word[0] and not first:
-                continue
-            first = False
-            word = word.lower()
-            word = re.sub('[^a-z]', '', word)
-            if len(word) == 0:
-                continue
             tweetr.append(word)
         tweet = tweetr
 
