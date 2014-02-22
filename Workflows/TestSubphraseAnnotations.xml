@@ -13,7 +13,7 @@
     </Tables>
 
     <InputSources>
-        <AMTInputSource dir="Data/MechanicalTurk" />
+        <AMTInputSource dir="Data/MechanicalTurk/Tech" />
     </InputSources>
 
     <WorkflowTasks>
@@ -39,7 +39,7 @@
                 <Word string="hate" prob="1.0" />
             </EntryNodes>
             </FixedSubjectivePhraseAnnotator>
-            <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_self" />
+            <NTLKSubjectivePhraseMarkovAnnotator outputTable="markov_self" normalisingRExp="[^a-z]" />
             <NLTKSubjectivePhraseBayesianAnnotator outputTable="bayesian" />
             <CRFSubjectiveAnnotator normaliseCase="true" />
         </SubjectiveCrossValidationEnvironment>
