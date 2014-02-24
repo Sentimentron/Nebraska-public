@@ -47,6 +47,7 @@ from sub import ProduceCRFSTagList
 from sub import SubjectiveAnnotationEvaluator
 from sub import SubjectiveARFFExporter
 from sub import SubjectiveCrossValidationEnvironment
+from sub import SubjectiveEvolution
 from sub import SubjectivePhraseARFFExporter
 from sub import SubjectivePhraseTweetClassficationDiscreteARFFExporter
 from sub import SubjectivePhraseTweetClassificationARFFExporter

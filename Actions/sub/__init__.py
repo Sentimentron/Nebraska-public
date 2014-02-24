@@ -19,6 +19,7 @@ from crf import ProduceCRFSTagList
 from cross import SubjectiveCrossValidationEnvironment
 from evaluation import EmpiricalSubjectivePhraseAnnotator
 from evaluation import SubjectiveAnnotationEvaluator
+from evolve import SubjectiveEvolution
 from fixed import FixedSubjectivePhraseAnnotator
 from nltkbayesian import NLTKSubjectivePhraseBayesianAnnotator
 from nltkmarkov import NLTKSubjectivePhraseMarkovAnnotator
