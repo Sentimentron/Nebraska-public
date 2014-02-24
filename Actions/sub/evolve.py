@@ -114,14 +114,17 @@ class SubjectiveEvolution(HumanBasedSubjectivePhraseAnnotator):
 
         return abs(max_score - min_score) < 0.005
 
+    def evaluate_genome_on_sentence(self, genome, bigrams, anns):
+        score_vector = []
+        for bigram in bigrams:
+            score_vector.append(self.score_bigram(bigram, genome))
+        return self.calc_mse(score_vector, anns)
+
     def evaluate_genome(self, genome, training_set):
         total_score = 0
         limit = 0
         for bigrams, anns in training_set:
-            score_vector = []
-            for bigram in bigrams:
-                score_vector.append(self.score_bigram(bigram, genome))
-            total_score += self.calc_mse(score_vector, anns)
+            total_score += self.evaluate_genome_on_sentence(genome, bigrams, anns)
         return total_score
 
     def train(self, training_set):
@@ -130,6 +133,16 @@ class SubjectiveEvolution(HumanBasedSubjectivePhraseAnnotator):
             genome = self.generate_genome()
             score = self.evaluate_genome(genome, training_set)
             converged = self.push_genome_score(genome, score)
+
+    def get_worst_squared_error(self, genome, training_set):
+        worst_score = 0
+        worst_sentence = None
+        for bigrams, anns in training_set:
+            score = self.evaluate_genome_on_sentence(genome, bigrams, anns)
+            if score > worst_score:
+                worst_score = score
+                worst_sentence = (bigrams, anns)
+        return worst_sentence
 
     def execute(self, path, conn):
 
@@ -212,10 +225,15 @@ class SubjectiveEvolution(HumanBasedSubjectivePhraseAnnotator):
                     buf_anns.append(0.5 * (a1 + a2))
                 training_set.append((buf_text, buf_anns))
 
-        for i in range(1, len(training_set)):
+        subtraining_set = []
+        while len(subtraining_set) < len(training_set):
             self.store = []
-            score = self.evaluate_genome(self.genome, training_set[:i])
+            worst_sentence = self.get_worst_squared_error(self.genome, training_set)
+            logging.debug(worst_sentence)
+            subtraining_set.append(worst_sentence)
+            score = self.evaluate_genome(self.genome, subtraining_set)
             self.push_genome_score(self.genome, score)
-            self.train(training_set[:i])
+            self.train(subtraining_set)
             self.genome, _ = self.store[0]
+
         return True, conn
