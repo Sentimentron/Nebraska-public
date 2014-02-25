@@ -152,13 +152,13 @@ class BigramBinaryPresenceTotalNumberSubjectiveARFFExporter(HumanBasedSubjective
                    continue
                if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
                    continue
-               if self.threshold:
-                   if counts[bigram] < self.threshold:
-                       continue
                if self.stem:
                   bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
                if self.lemmise:
                   bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+               if self.threshold:
+                   if counts[bigram] < self.threshold:
+                       continue
                words.add(bigram)
 
         # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
@@ -186,13 +186,13 @@ class BigramBinaryPresenceTotalNumberSubjectiveARFFExporter(HumanBasedSubjective
                     continue
                 if(self.use_stop_words and (text[i].lower() in stopwords or text[i+1].lower() in stopwords)):
                     continue
-                if self.threshold:
-                    if counts[bigram] < self.threshold:
-                        continue
                 if self.stem:
                     bigram = EnglishStemmer().stem(text[i].lower()) + "-" + EnglishStemmer().stem(text[i+1].lower())
                 if self.lemmise:
                     bigram = WordNetLemmatizer().lemmatize(text[i].lower()) + "-" + WordNetLemmatizer().lemmatize(text[i+1].lower())
+                if self.threshold:
+                    if counts[bigram] < self.threshold:
+                        continue
                 # And set it to present
                 row[word_ids[bigram]] = 1
             # Throw this row in the result
@@ -320,13 +320,13 @@ class BigramBinaryPresenceNumberSubjectiveARFFExporter(HumanBasedSubjectivePhras
                    continue
                if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
                    continue
-               if self.threshold:
-                   if counts[bigram] < self.threshold:
-                       continue
                if self.stem:
                   bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
                if self.lemmise:
                   bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+               if self.threshold:
+                   if counts[bigram] < self.threshold:
+                       continue
                words.add(bigram)
 
         # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
@@ -356,13 +356,13 @@ class BigramBinaryPresenceNumberSubjectiveARFFExporter(HumanBasedSubjectivePhras
                     continue
                 if(self.use_stop_words and (text[i].lower() in stopwords or text[i+1].lower() in stopwords)):
                     continue
-                if self.threshold:
-                    if counts[bigram] < self.threshold:
-                        continue
                 if self.stem:
                     bigram = EnglishStemmer().stem(text[i].lower()) + "-" + EnglishStemmer().stem(text[i+1].lower())
                 if self.lemmise:
                     bigram = WordNetLemmatizer().lemmatize(text[i].lower()) + "-" + WordNetLemmatizer().lemmatize(text[i+1].lower())
+                if self.threshold:
+                    if counts[bigram] < self.threshold:
+                        continue
                 # And set it to present
                 row[word_ids[bigram]] = 1
             # Throw this row in the result
@@ -491,13 +491,13 @@ class BigramBinaryPresencePercentageSubjectiveARFFExporter(HumanBasedSubjectiveP
                    continue
                if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
                    continue
-               if self.threshold:
-                   if counts[bigram] < self.threshold:
-                       continue
                if self.stem:
                   bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
                if self.lemmise:
                   bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+               if self.threshold:
+                   if counts[bigram] < self.threshold:
+                       continue
                words.add(bigram)
 
         # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
@@ -527,13 +527,13 @@ class BigramBinaryPresencePercentageSubjectiveARFFExporter(HumanBasedSubjectiveP
                     continue
                 if(self.use_stop_words and (text[i].lower() in stopwords or text[i+1].lower() in stopwords)):
                     continue
-                if self.threshold:
-                    if counts[bigram] < self.threshold:
-                        continue
                 if self.stem:
                     bigram = EnglishStemmer().stem(text[i].lower()) + "-" + EnglishStemmer().stem(text[i+1].lower())
                 if self.lemmise:
                     bigram = WordNetLemmatizer().lemmatize(text[i].lower()) + "-" + WordNetLemmatizer().lemmatize(text[i+1].lower())
+                if self.threshold:
+                    if counts[bigram] < self.threshold:
+                        continue
                 # And set it to present
                 row[word_ids[bigram]] = 1
             # Throw this row in the result
@@ -651,19 +651,19 @@ class BigramBinaryPresenceARFFExporter(HumanBasedSubjectivePhraseAnnotator):
             # Split it on white space
             tweet_split = text.split(' ')
             for i in range(1,len(tweet_split)-1):
-               bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
-               if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
-                   continue
-               if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
-                   continue
-               if self.threshold:
-                   if counts[bigram] < self.threshold:
-                       continue
-               if self.stem:
-                  bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
-               if self.lemmise:
-                  bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
-               words.add(bigram)
+                bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
+                if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
+                    continue
+                if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
+                    continue
+                if self.stem:
+                    bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
+                if self.lemmise:
+                    bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+                if self.threshold:
+                    if counts[bigram] < self.threshold:
+                        continue
+                words.add(bigram)
 
         # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
         for word in sorted(words):
@@ -688,13 +688,13 @@ class BigramBinaryPresenceARFFExporter(HumanBasedSubjectivePhraseAnnotator):
                     continue
                 if(self.use_stop_words and (text[i].lower() in stopwords or text[i+1].lower() in stopwords)):
                     continue
-                if self.threshold:
-                    if counts[bigram] < self.threshold:
-                        continue
                 if self.stem:
                     bigram = EnglishStemmer().stem(text[i].lower()) + "-" + EnglishStemmer().stem(text[i+1].lower())
                 if self.lemmise:
                     bigram = WordNetLemmatizer().lemmatize(text[i].lower()) + "-" + WordNetLemmatizer().lemmatize(text[i+1].lower())
+                if self.threshold:
+                    if counts[bigram] < self.threshold:
+                        continue
                 # And set it to present
                 row[word_ids[bigram]] = 1
             # Throw this row in the result
