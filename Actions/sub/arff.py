@@ -10,6 +10,8 @@ import logging
 import pprint
 from itertools import groupby
 from collections import defaultdict, Counter, OrderedDict
+from nltk.stem.wordnet import WordNetLemmatizer
+from nltk.stem.snowball import EnglishStemmer
 
 from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 
@@ -78,6 +80,21 @@ class BigramBinaryPresenceTotalNumberSubjectiveARFFExporter(HumanBasedSubjective
         self.path = xml.get("path")
         self.exporter = ARFFExporter(self.path, "tweet_sentiment")
         self.use_stop_words = xml.get("useStopWords")
+        self.threshold = xml.get("threshold")
+        self.stem = xml.get("stem")
+        self.lemmise = xml.get("lemmise")
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
+        if self.stem != "true":
+            self.stem = False
+        else:
+            self.stem = True
+        if self.lemmise != "true":
+            self.lemmise = False
+        else:
+            self.lemmise = True
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
         if self.use_stop_words != "true":
             self.use_stop_words = False
         else:
@@ -85,17 +102,64 @@ class BigramBinaryPresenceTotalNumberSubjectiveARFFExporter(HumanBasedSubjective
         assert self.path is not None
 
     def execute(self, path, conn):
+        stopwords = """a,able,about,across,after,all,almost,also,am
+        ,among,an,and,any,are,as,at,be,because
+        ,been,but,by,can,cannot,could,dear
+        ,did,do,does,either,else,ever,every
+        ,for,from,get,got,had,has,have,he,her
+        ,hers,him,his,how,however,i,if,in,into
+        ,is,it,its,just,least,let,like,likely,
+        may,me,might,most,must,my,neither,no,nor,
+        not,of,off,often,on,only,or,other,our,own,
+        rather,said,say,says,she,should,since,so,
+        some,than,that,the,their,them,then,there,
+        these,they,this,tis,to,too,twas,us,wants,
+        was,we,were,what,when,where,which,while,
+        who,whom,why,will,with,would,yet,you,your""".split(",")
+        stopwords = [i.strip() for i in stopwords]
+
         # Get all the tweets from the database
         data = self.get_text_anns(conn)
         words = set([])
-        # For every tweet we got back
+        counts = {}
+
+        # Count the number of bigram occurences
         for identifier, text, sentiment in data:
             # Split it on white space
             tweet_split = text.split(' ')
             for i in range(1,len(tweet_split)-1):
                 if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
                     continue
-                words.add(tweet_split[i] + "-" + tweet_split[i+1])
+                bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
+                if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
+                    continue
+                if self.stem:
+                    bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
+                if self.lemmise:
+                    bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+                if bigram in counts:
+                    counts[bigram] += 1
+                else:
+                    counts[bigram] = 1
+
+        # For every tweet we got back
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            tweet_split = text.split(' ')
+            for i in range(1,len(tweet_split)-1):
+               bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
+               if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
+                   continue
+               if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
+                   continue
+               if self.threshold:
+                   if counts[bigram] < self.threshold:
+                       continue
+               if self.stem:
+                  bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
+               if self.lemmise:
+                  bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+               words.add(bigram)
 
         # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
         for word in sorted(words):
@@ -117,10 +181,20 @@ class BigramBinaryPresenceTotalNumberSubjectiveARFFExporter(HumanBasedSubjective
             row = [0 for _ in words]
             # Itterate over each word in the tweet
             for i in range(1,len(text)-1):
+                bigram = text[i].lower() + "-" + text[i+1].lower()
                 if len(text[i]) == 0 or len(text[i+1]) == 0 or text[i] == ' ' or text[i+1] == ' ':
                     continue
+                if(self.use_stop_words and (text[i].lower() in stopwords or text[i+1].lower() in stopwords)):
+                    continue
+                if self.threshold:
+                    if counts[bigram] < self.threshold:
+                        continue
+                if self.stem:
+                    bigram = EnglishStemmer().stem(text[i].lower()) + "-" + EnglishStemmer().stem(text[i+1].lower())
+                if self.lemmise:
+                    bigram = WordNetLemmatizer().lemmatize(text[i].lower()) + "-" + WordNetLemmatizer().lemmatize(text[i+1].lower())
                 # And set it to present
-                row[word_ids[text[i] + "-" + text[i+1]]] = 1
+                row[word_ids[bigram]] = 1
             # Throw this row in the result
             # Now calculate the percentages of positive negative and neutral
             annotation = self.getAnnotation(conn, identifier)
@@ -136,6 +210,7 @@ class BigramBinaryPresenceTotalNumberSubjectiveARFFExporter(HumanBasedSubjective
         self.exporter.write(rows)
 
         return True, conn
+
 class BigramBinaryPresenceNumberSubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):
 
     def get_text_anns(self, conn):
@@ -173,6 +248,21 @@ class BigramBinaryPresenceNumberSubjectiveARFFExporter(HumanBasedSubjectivePhras
         self.path = xml.get("path")
         self.exporter = ARFFExporter(self.path, "tweet_sentiment")
         self.use_stop_words = xml.get("useStopWords")
+        self.threshold = xml.get("threshold")
+        self.stem = xml.get("stem")
+        self.lemmise = xml.get("lemmise")
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
+        if self.stem != "true":
+            self.stem = False
+        else:
+            self.stem = True
+        if self.lemmise != "true":
+            self.lemmise = False
+        else:
+            self.lemmise = True
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
         if self.use_stop_words != "true":
             self.use_stop_words = False
         else:
@@ -180,17 +270,64 @@ class BigramBinaryPresenceNumberSubjectiveARFFExporter(HumanBasedSubjectivePhras
         assert self.path is not None
 
     def execute(self, path, conn):
+        stopwords = """a,able,about,across,after,all,almost,also,am
+        ,among,an,and,any,are,as,at,be,because
+        ,been,but,by,can,cannot,could,dear
+        ,did,do,does,either,else,ever,every
+        ,for,from,get,got,had,has,have,he,her
+        ,hers,him,his,how,however,i,if,in,into
+        ,is,it,its,just,least,let,like,likely,
+        may,me,might,most,must,my,neither,no,nor,
+        not,of,off,often,on,only,or,other,our,own,
+        rather,said,say,says,she,should,since,so,
+        some,than,that,the,their,them,then,there,
+        these,they,this,tis,to,too,twas,us,wants,
+        was,we,were,what,when,where,which,while,
+        who,whom,why,will,with,would,yet,you,your""".split(",")
+        stopwords = [i.strip() for i in stopwords]
+
         # Get all the tweets from the database
         data = self.get_text_anns(conn)
         words = set([])
-        # For every tweet we got back
+        counts = {}
+
+        # Count the number of bigram occurences
         for identifier, text, sentiment in data:
             # Split it on white space
             tweet_split = text.split(' ')
             for i in range(1,len(tweet_split)-1):
                 if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
                     continue
-                words.add(tweet_split[i] + "-" + tweet_split[i+1])
+                bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
+                if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
+                    continue
+                if self.stem:
+                    bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
+                if self.lemmise:
+                    bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+                if bigram in counts:
+                    counts[bigram] += 1
+                else:
+                    counts[bigram] = 1
+
+        # For every tweet we got back
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            tweet_split = text.split(' ')
+            for i in range(1,len(tweet_split)-1):
+               bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
+               if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
+                   continue
+               if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
+                   continue
+               if self.threshold:
+                   if counts[bigram] < self.threshold:
+                       continue
+               if self.stem:
+                  bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
+               if self.lemmise:
+                  bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+               words.add(bigram)
 
         # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
         for word in sorted(words):
@@ -214,10 +351,20 @@ class BigramBinaryPresenceNumberSubjectiveARFFExporter(HumanBasedSubjectivePhras
             row = [0 for _ in words]
             # Itterate over each word in the tweet
             for i in range(1,len(text)-1):
+                bigram = text[i].lower() + "-" + text[i+1].lower()
                 if len(text[i]) == 0 or len(text[i+1]) == 0 or text[i] == ' ' or text[i+1] == ' ':
                     continue
+                if(self.use_stop_words and (text[i].lower() in stopwords or text[i+1].lower() in stopwords)):
+                    continue
+                if self.threshold:
+                    if counts[bigram] < self.threshold:
+                        continue
+                if self.stem:
+                    bigram = EnglishStemmer().stem(text[i].lower()) + "-" + EnglishStemmer().stem(text[i+1].lower())
+                if self.lemmise:
+                    bigram = WordNetLemmatizer().lemmatize(text[i].lower()) + "-" + WordNetLemmatizer().lemmatize(text[i+1].lower())
                 # And set it to present
-                row[word_ids[text[i] + "-" + text[i+1]]] = 1
+                row[word_ids[bigram]] = 1
             # Throw this row in the result
             # Now calculate the percentages of positive negative and neutral
             annotation = self.getAnnotation(conn, identifier)
@@ -272,6 +419,21 @@ class BigramBinaryPresencePercentageSubjectiveARFFExporter(HumanBasedSubjectiveP
         self.path = xml.get("path")
         self.exporter = ARFFExporter(self.path, "tweet_sentiment")
         self.use_stop_words = xml.get("useStopWords")
+        self.threshold = xml.get("threshold")
+        self.stem = xml.get("stem")
+        self.lemmise = xml.get("lemmise")
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
+        if self.stem != "true":
+            self.stem = False
+        else:
+            self.stem = True
+        if self.lemmise != "true":
+            self.lemmise = False
+        else:
+            self.lemmise = True
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
         if self.use_stop_words != "true":
             self.use_stop_words = False
         else:
@@ -279,17 +441,64 @@ class BigramBinaryPresencePercentageSubjectiveARFFExporter(HumanBasedSubjectiveP
         assert self.path is not None
 
     def execute(self, path, conn):
+        stopwords = """a,able,about,across,after,all,almost,also,am
+        ,among,an,and,any,are,as,at,be,because
+        ,been,but,by,can,cannot,could,dear
+        ,did,do,does,either,else,ever,every
+        ,for,from,get,got,had,has,have,he,her
+        ,hers,him,his,how,however,i,if,in,into
+        ,is,it,its,just,least,let,like,likely,
+        may,me,might,most,must,my,neither,no,nor,
+        not,of,off,often,on,only,or,other,our,own,
+        rather,said,say,says,she,should,since,so,
+        some,than,that,the,their,them,then,there,
+        these,they,this,tis,to,too,twas,us,wants,
+        was,we,were,what,when,where,which,while,
+        who,whom,why,will,with,would,yet,you,your""".split(",")
+        stopwords = [i.strip() for i in stopwords]
+
         # Get all the tweets from the database
         data = self.get_text_anns(conn)
         words = set([])
-        # For every tweet we got back
+        counts = {}
+
+        # Count the number of bigram occurences
         for identifier, text, sentiment in data:
             # Split it on white space
             tweet_split = text.split(' ')
             for i in range(1,len(tweet_split)-1):
                 if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
                     continue
-                words.add(tweet_split[i] + "-" + tweet_split[i+1])
+                bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
+                if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
+                    continue
+                if self.stem:
+                    bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
+                if self.lemmise:
+                    bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+                if bigram in counts:
+                    counts[bigram] += 1
+                else:
+                    counts[bigram] = 1
+
+        # For every tweet we got back
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            tweet_split = text.split(' ')
+            for i in range(1,len(tweet_split)-1):
+               bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
+               if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
+                   continue
+               if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
+                   continue
+               if self.threshold:
+                   if counts[bigram] < self.threshold:
+                       continue
+               if self.stem:
+                  bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
+               if self.lemmise:
+                  bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+               words.add(bigram)
 
         # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
         for word in sorted(words):
@@ -313,10 +522,20 @@ class BigramBinaryPresencePercentageSubjectiveARFFExporter(HumanBasedSubjectiveP
             row = [0 for _ in words]
             # Itterate over each word in the tweet
             for i in range(1,len(text)-1):
+                bigram = text[i].lower() + "-" + text[i+1].lower()
                 if len(text[i]) == 0 or len(text[i+1]) == 0 or text[i] == ' ' or text[i+1] == ' ':
                     continue
+                if(self.use_stop_words and (text[i].lower() in stopwords or text[i+1].lower() in stopwords)):
+                    continue
+                if self.threshold:
+                    if counts[bigram] < self.threshold:
+                        continue
+                if self.stem:
+                    bigram = EnglishStemmer().stem(text[i].lower()) + "-" + EnglishStemmer().stem(text[i+1].lower())
+                if self.lemmise:
+                    bigram = WordNetLemmatizer().lemmatize(text[i].lower()) + "-" + WordNetLemmatizer().lemmatize(text[i+1].lower())
                 # And set it to present
-                row[word_ids[text[i] + "-" + text[i+1]]] = 1
+                row[word_ids[bigram]] = 1
             # Throw this row in the result
             # Now calculate the percentages of positive negative and neutral
             annotation = self.getAnnotation(conn, identifier)
@@ -365,6 +584,21 @@ class BigramBinaryPresenceARFFExporter(HumanBasedSubjectivePhraseAnnotator):
         self.path = xml.get("path")
         self.exporter = ARFFExporter(self.path, "tweet_sentiment")
         self.use_stop_words = xml.get("useStopWords")
+        self.threshold = xml.get("threshold")
+        self.stem = xml.get("stem")
+        self.lemmise = xml.get("lemmise")
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
+        if self.stem != "true":
+            self.stem = False
+        else:
+            self.stem = True
+        if self.lemmise != "true":
+            self.lemmise = False
+        else:
+            self.lemmise = True
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
         if self.use_stop_words != "true":
             self.use_stop_words = False
         else:
@@ -372,17 +606,64 @@ class BigramBinaryPresenceARFFExporter(HumanBasedSubjectivePhraseAnnotator):
         assert self.path is not None
 
     def execute(self, path, conn):
+        stopwords = """a,able,about,across,after,all,almost,also,am
+        ,among,an,and,any,are,as,at,be,because
+        ,been,but,by,can,cannot,could,dear
+        ,did,do,does,either,else,ever,every
+        ,for,from,get,got,had,has,have,he,her
+        ,hers,him,his,how,however,i,if,in,into
+        ,is,it,its,just,least,let,like,likely,
+        may,me,might,most,must,my,neither,no,nor,
+        not,of,off,often,on,only,or,other,our,own,
+        rather,said,say,says,she,should,since,so,
+        some,than,that,the,their,them,then,there,
+        these,they,this,tis,to,too,twas,us,wants,
+        was,we,were,what,when,where,which,while,
+        who,whom,why,will,with,would,yet,you,your""".split(",")
+        stopwords = [i.strip() for i in stopwords]
+
         # Get all the tweets from the database
         data = self.get_text_anns(conn)
         words = set([])
-        # For every tweet we got back
+        counts = {}
+
+        # Count the number of bigram occurences
         for identifier, text, sentiment in data:
             # Split it on white space
             tweet_split = text.split(' ')
             for i in range(1,len(tweet_split)-1):
                 if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
                     continue
-                words.add(tweet_split[i] + "-" + tweet_split[i+1])
+                bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
+                if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
+                    continue
+                if self.stem:
+                    bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
+                if self.lemmise:
+                    bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+                if bigram in counts:
+                    counts[bigram] += 1
+                else:
+                    counts[bigram] = 1
+
+        # For every tweet we got back
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            tweet_split = text.split(' ')
+            for i in range(1,len(tweet_split)-1):
+               bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
+               if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
+                   continue
+               if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
+                   continue
+               if self.threshold:
+                   if counts[bigram] < self.threshold:
+                       continue
+               if self.stem:
+                  bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
+               if self.lemmise:
+                  bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+               words.add(bigram)
 
         # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
         for word in sorted(words):
@@ -402,10 +683,20 @@ class BigramBinaryPresenceARFFExporter(HumanBasedSubjectivePhraseAnnotator):
             row = [0 for _ in words]
             # Itterate over each word in the tweet
             for i in range(1,len(text)-1):
+                bigram = text[i].lower() + "-" + text[i+1].lower()
                 if len(text[i]) == 0 or len(text[i+1]) == 0 or text[i] == ' ' or text[i+1] == ' ':
                     continue
+                if(self.use_stop_words and (text[i].lower() in stopwords or text[i+1].lower() in stopwords)):
+                    continue
+                if self.threshold:
+                    if counts[bigram] < self.threshold:
+                        continue
+                if self.stem:
+                    bigram = EnglishStemmer().stem(text[i].lower()) + "-" + EnglishStemmer().stem(text[i+1].lower())
+                if self.lemmise:
+                    bigram = WordNetLemmatizer().lemmatize(text[i].lower()) + "-" + WordNetLemmatizer().lemmatize(text[i+1].lower())
                 # And set it to present
-                row[word_ids[text[i] + "-" + text[i+1]]] = 1
+                row[word_ids[bigram]] = 1
             # Throw this row in the result
             row.append(sentiment)
             rows.append(row)
@@ -434,6 +725,12 @@ class UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter(HumanB
                 ret.append((identifier, text, sentiment))
         return ret
 
+    def getAnnotation(self, conn, identifier):
+        cursor = conn.cursor()
+        result = cursor.execute("SELECT annotation FROM subphrases WHERE document_identifier = ?", (identifier,))
+        result = result.fetchone()
+        return result[0]
+
     def __init__(self, xml):
         """
             Initialise the exporter: must provide a path attribute
@@ -445,28 +742,78 @@ class UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter(HumanB
         self.path = xml.get("path")
         self.exporter = ARFFExporter(self.path, "tweet_sentiment")
         self.use_stop_words = xml.get("useStopWords")
+        self.threshold = xml.get("threshold")
+        self.stem = xml.get("stem")
+        self.lemmise = xml.get("lemmise")
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
+        if self.stem != "true":
+            self.stem = False
+        else:
+            self.stem = True
+        if self.lemmise != "true":
+            self.lemmise = False
+        else:
+            self.lemmise = True
         if self.use_stop_words != "true":
             self.use_stop_words = False
         else:
             self.use_stop_words = True
         assert self.path is not None
 
-    def getAnnotation(self, conn, identifier):
-        cursor = conn.cursor()
-        result = cursor.execute("SELECT annotation FROM subphrases WHERE document_identifier = ?", (identifier,))
-        result = result.fetchone()
-        return result[0]
-
     def execute(self, path, conn):
+        stopwords = """a,able,about,across,after,all,almost,also,am
+        ,among,an,and,any,are,as,at,be,because
+        ,been,but,by,can,cannot,could,dear
+        ,did,do,does,either,else,ever,every
+        ,for,from,get,got,had,has,have,he,her
+        ,hers,him,his,how,however,i,if,in,into
+        ,is,it,its,just,least,let,like,likely,
+        may,me,might,most,must,my,neither,no,nor,
+        not,of,off,often,on,only,or,other,our,own,
+        rather,said,say,says,she,should,since,so,
+        some,than,that,the,their,them,then,there,
+        these,they,this,tis,to,too,twas,us,wants,
+        was,we,were,what,when,where,which,while,
+        who,whom,why,will,with,would,yet,you,your""".split(",")
+        stopwords = [i.strip() for i in stopwords]
+
         # Get all the tweets from the database
         data = self.get_text_anns(conn)
         words = set([])
+        counts = {}
+
+        # Count the number of occurences of each unigram
         # For every tweet we got back
         for identifier, text, sentiment in data:
             # Split it on white space
             for word in text.split(' '):
-                if len(word) == 0:
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
                     continue
+                elif len(word) == 0:
+                    continue
+                elif word in counts:
+                    counts[word] += 1
+                else:
+                    counts[word] = 1
+
+        # For every tweet we got back
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            for word in text.split(' '):
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
+                elif len(word) == 0:
+                    continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
                 # And add it as an attribute
                 words.add(word.lower())
 
@@ -491,8 +838,17 @@ class UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter(HumanB
             # Itterate over each word in the tweet
             for word in text:
                 word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
                 if len(word) == 0:
                     continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
                 # And set it to present
                 row[word_ids[word]] = 1
             # Now calculate the percentages of positive negative and neutral
@@ -503,6 +859,7 @@ class UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter(HumanB
             total_phrases = number_positive + number_negative + number_neutral
             row.append(total_phrases)
 
+            # Throw this row in the result
             row.append(sentiment)
             rows.append(row)
 
@@ -530,6 +887,12 @@ class UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter(HumanBasedS
                 ret.append((identifier, text, sentiment))
         return ret
 
+    def getAnnotation(self, conn, identifier):
+        cursor = conn.cursor()
+        result = cursor.execute("SELECT annotation FROM subphrases WHERE document_identifier = ?", (identifier,))
+        result = result.fetchone()
+        return result[0]
+
     def __init__(self, xml):
         """
             Initialise the exporter: must provide a path attribute
@@ -541,28 +904,78 @@ class UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter(HumanBasedS
         self.path = xml.get("path")
         self.exporter = ARFFExporter(self.path, "tweet_sentiment")
         self.use_stop_words = xml.get("useStopWords")
+        self.threshold = xml.get("threshold")
+        self.stem = xml.get("stem")
+        self.lemmise = xml.get("lemmise")
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
+        if self.stem != "true":
+            self.stem = False
+        else:
+            self.stem = True
+        if self.lemmise != "true":
+            self.lemmise = False
+        else:
+            self.lemmise = True
         if self.use_stop_words != "true":
             self.use_stop_words = False
         else:
             self.use_stop_words = True
         assert self.path is not None
 
-    def getAnnotation(self, conn, identifier):
-        cursor = conn.cursor()
-        result = cursor.execute("SELECT annotation FROM subphrases WHERE document_identifier = ?", (identifier,))
-        result = result.fetchone()
-        return result[0]
-
     def execute(self, path, conn):
+        stopwords = """a,able,about,across,after,all,almost,also,am
+        ,among,an,and,any,are,as,at,be,because
+        ,been,but,by,can,cannot,could,dear
+        ,did,do,does,either,else,ever,every
+        ,for,from,get,got,had,has,have,he,her
+        ,hers,him,his,how,however,i,if,in,into
+        ,is,it,its,just,least,let,like,likely,
+        may,me,might,most,must,my,neither,no,nor,
+        not,of,off,often,on,only,or,other,our,own,
+        rather,said,say,says,she,should,since,so,
+        some,than,that,the,their,them,then,there,
+        these,they,this,tis,to,too,twas,us,wants,
+        was,we,were,what,when,where,which,while,
+        who,whom,why,will,with,would,yet,you,your""".split(",")
+        stopwords = [i.strip() for i in stopwords]
+
         # Get all the tweets from the database
         data = self.get_text_anns(conn)
         words = set([])
+        counts = {}
+
+        # Count the number of occurences of each unigram
         # For every tweet we got back
         for identifier, text, sentiment in data:
             # Split it on white space
             for word in text.split(' '):
-                if len(word) == 0:
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
                     continue
+                elif len(word) == 0:
+                    continue
+                elif word in counts:
+                    counts[word] += 1
+                else:
+                    counts[word] = 1
+
+        # For every tweet we got back
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            for word in text.split(' '):
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
+                elif len(word) == 0:
+                    continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
                 # And add it as an attribute
                 words.add(word.lower())
 
@@ -589,8 +1002,17 @@ class UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter(HumanBasedS
             # Itterate over each word in the tweet
             for word in text:
                 word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
                 if len(word) == 0:
                     continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
                 # And set it to present
                 row[word_ids[word]] = 1
             # Now calculate the percentages of positive negative and neutral
@@ -602,6 +1024,7 @@ class UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter(HumanBasedS
             row.append(number_negative)
             row.append(number_neutral)
 
+            # Throw this row in the result
             row.append(sentiment)
             rows.append(row)
 
@@ -629,6 +1052,12 @@ class UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter(HumanBasedSubjec
                 ret.append((identifier, text, sentiment))
         return ret
 
+    def getAnnotation(self, conn, identifier):
+        cursor = conn.cursor()
+        result = cursor.execute("SELECT annotation FROM subphrases WHERE document_identifier = ?", (identifier,))
+        result = result.fetchone()
+        return result[0]
+
     def __init__(self, xml):
         """
             Initialise the exporter: must provide a path attribute
@@ -640,28 +1069,78 @@ class UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter(HumanBasedSubjec
         self.path = xml.get("path")
         self.exporter = ARFFExporter(self.path, "tweet_sentiment")
         self.use_stop_words = xml.get("useStopWords")
+        self.threshold = xml.get("threshold")
+        self.stem = xml.get("stem")
+        self.lemmise = xml.get("lemmise")
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
+        if self.stem != "true":
+            self.stem = False
+        else:
+            self.stem = True
+        if self.lemmise != "true":
+            self.lemmise = False
+        else:
+            self.lemmise = True
         if self.use_stop_words != "true":
             self.use_stop_words = False
         else:
             self.use_stop_words = True
         assert self.path is not None
 
-    def getAnnotation(self, conn, identifier):
-        cursor = conn.cursor()
-        result = cursor.execute("SELECT annotation FROM subphrases WHERE document_identifier = ?", (identifier,))
-        result = result.fetchone()
-        return result[0]
-
     def execute(self, path, conn):
+        stopwords = """a,able,about,across,after,all,almost,also,am
+        ,among,an,and,any,are,as,at,be,because
+        ,been,but,by,can,cannot,could,dear
+        ,did,do,does,either,else,ever,every
+        ,for,from,get,got,had,has,have,he,her
+        ,hers,him,his,how,however,i,if,in,into
+        ,is,it,its,just,least,let,like,likely,
+        may,me,might,most,must,my,neither,no,nor,
+        not,of,off,often,on,only,or,other,our,own,
+        rather,said,say,says,she,should,since,so,
+        some,than,that,the,their,them,then,there,
+        these,they,this,tis,to,too,twas,us,wants,
+        was,we,were,what,when,where,which,while,
+        who,whom,why,will,with,would,yet,you,your""".split(",")
+        stopwords = [i.strip() for i in stopwords]
+
         # Get all the tweets from the database
         data = self.get_text_anns(conn)
         words = set([])
+        counts = {}
+
+        # Count the number of occurences of each unigram
         # For every tweet we got back
         for identifier, text, sentiment in data:
             # Split it on white space
             for word in text.split(' '):
-                if len(word) == 0:
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
                     continue
+                elif len(word) == 0:
+                    continue
+                elif word in counts:
+                    counts[word] += 1
+                else:
+                    counts[word] = 1
+
+        # For every tweet we got back
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            for word in text.split(' '):
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
+                elif len(word) == 0:
+                    continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
                 # And add it as an attribute
                 words.add(word.lower())
 
@@ -688,8 +1167,17 @@ class UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter(HumanBasedSubjec
             # Itterate over each word in the tweet
             for word in text:
                 word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
                 if len(word) == 0:
                     continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
                 # And set it to present
                 row[word_ids[word]] = 1
             # Now calculate the percentages of positive negative and neutral
@@ -701,6 +1189,7 @@ class UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter(HumanBasedSubjec
             row.append(percent_negative)
             row.append(percent_neutral)
 
+            # Throw this row in the result
             row.append(sentiment)
             rows.append(row)
 
@@ -739,6 +1228,19 @@ class UnigramBinaryPresenceARFFExporter(HumanBasedSubjectivePhraseAnnotator):
         self.path = xml.get("path")
         self.exporter = ARFFExporter(self.path, "tweet_sentiment")
         self.use_stop_words = xml.get("useStopWords")
+        self.threshold = xml.get("threshold")
+        self.stem = xml.get("stem")
+        self.lemmise = xml.get("lemmise")
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
+        if self.stem != "true":
+            self.stem = False
+        else:
+            self.stem = True
+        if self.lemmise != "true":
+            self.lemmise = False
+        else:
+            self.lemmise = True
         if self.use_stop_words != "true":
             self.use_stop_words = False
         else:
@@ -746,20 +1248,58 @@ class UnigramBinaryPresenceARFFExporter(HumanBasedSubjectivePhraseAnnotator):
         assert self.path is not None
 
     def execute(self, path, conn):
+        stopwords = """a,able,about,across,after,all,almost,also,am
+        ,among,an,and,any,are,as,at,be,because
+        ,been,but,by,can,cannot,could,dear
+        ,did,do,does,either,else,ever,every
+        ,for,from,get,got,had,has,have,he,her
+        ,hers,him,his,how,however,i,if,in,into
+        ,is,it,its,just,least,let,like,likely,
+        may,me,might,most,must,my,neither,no,nor,
+        not,of,off,often,on,only,or,other,our,own,
+        rather,said,say,says,she,should,since,so,
+        some,than,that,the,their,them,then,there,
+        these,they,this,tis,to,too,twas,us,wants,
+        was,we,were,what,when,where,which,while,
+        who,whom,why,will,with,would,yet,you,your""".split(",")
+        stopwords = [i.strip() for i in stopwords]
+
         # Get all the tweets from the database
         data = self.get_text_anns(conn)
         words = set([])
         counts = {}
+
+        # Count the number of occurences of each unigram
         # For every tweet we got back
         for identifier, text, sentiment in data:
             # Split it on white space
             for word in text.split(' '):
-                if len(word) == 0:
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
                     continue
-                if word in counts:
+                elif len(word) == 0:
+                    continue
+                elif word in counts:
                     counts[word] += 1
                 else:
                     counts[word] = 1
+
+        # For every tweet we got back
+        for identifier, text, sentiment in data:
+            # Split it on white space
+            for word in text.split(' '):
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
+                elif len(word) == 0:
+                    continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
                 # And add it as an attribute
                 words.add(word.lower())
 
@@ -782,8 +1322,17 @@ class UnigramBinaryPresenceARFFExporter(HumanBasedSubjectivePhraseAnnotator):
             # Itterate over each word in the tweet
             for word in text:
                 word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
                 if len(word) == 0:
                     continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
                 # And set it to present
                 row[word_ids[word]] = 1
             # Throw this row in the result

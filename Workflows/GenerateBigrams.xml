@@ -17,10 +17,10 @@
 
     <WorkflowTasks>
         <AMTNormalise/>
-        <!-- <BigramBinaryPresenceARFFExporter outputTable="bigrams" path="bigrams.arff"/> -->
-        <!-- <BigramBinaryPresencePercentageSubjectiveARFFExporter outputTable="bigrams" path="bigrams.arff"/> -->
-        <BigramBinaryPresenceNumberSubjectiveARFFExporter outputTable="bigrams" path="bigrams.arff"/>
-        <!-- <BigramBinaryPresenceTotalNumberSubjectiveARFFExporter outputTable="bigrams" path="bigrams.arff"/> -->
+        <!-- <BigramBinaryPresenceARFFExporter outputTable="bigrams" path="bigrams.arff" useStopWords="true" stem="true"/> -->
+        <BigramBinaryPresencePercentageSubjectiveARFFExporter outputTable="bigrams" path="bigrams.arff" lemmise="true"/>
+        <!-- <BigramBinaryPresenceNumberSubjectiveARFFExporter outputTable="bigrams" path="bigrams.arff" useStopWords="true"/> -->
+        <!-- <BigramBinaryPresenceTotalNumberSubjectiveARFFExporter outputTable="bigrams" path="bigrams.arff" lemmise="true"/> -->
     </WorkflowTasks>
 
 </Workflow>
