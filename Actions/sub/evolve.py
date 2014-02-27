@@ -35,13 +35,12 @@ class SubjectiveEvolution(HumanBasedSubjectivePhraseAnnotator):
             for i, j in itertools.izip_longest(vector1, vector2, fillvalue=0.0)
         ])
 
-    def generate_genome(self):
+    def generate_genome(self, mutation_set):
         # Copy the genome
 
         # Select two genomes from the store
         genome1,_ = random.choice(self.store)
         genome2,_ = random.choice(self.store)
-
 
         # Copy the genome
         genome = copy.deepcopy(genome1)
@@ -52,10 +51,12 @@ class SubjectiveEvolution(HumanBasedSubjectivePhraseAnnotator):
         # Mutate the scores
         for i in genome:
             r = random.random()
+            if i not in mutation_set:
+                continue
             if r > 0.05:
                 continue
-            a = random.random() * 0.02
-            a -= 0.01
+            a = random.random() * 0.4
+            a -= 0.2
             genome[i] += a
         return genome
 
@@ -109,8 +110,10 @@ class SubjectiveEvolution(HumanBasedSubjectivePhraseAnnotator):
 
         # Find the new minimum score
         min_score = 999999
+        max_score = 0
         for index, (genome, score) in enumerate(self.store):
             min_score = min(min_score, score)
+            max_score = max(max_score, score)
 
         return abs(max_score - min_score) < 0.005
 
@@ -129,17 +132,23 @@ class SubjectiveEvolution(HumanBasedSubjectivePhraseAnnotator):
 
     def train(self, training_set):
         converged = False
+        # Generate mutation set
+        mutation_set = set(itertools.chain.from_iterable([i for i,j in training_set]))
+        mutation_set2 = copy.copy(mutation_set)
+        for bigram in mutation_set2:
+            for word in bigram:
+                mutation_set.add(word)
         while not converged:
-            genome = self.generate_genome()
+            genome = self.generate_genome(mutation_set)
             score = self.evaluate_genome(genome, training_set)
             converged = self.push_genome_score(genome, score)
 
-    def get_worst_squared_error(self, genome, training_set):
+    def get_worst_squared_error(self, genome, training_set, subtraining_set):
         worst_score = 0
         worst_sentence = None
         for bigrams, anns in training_set:
             score = self.evaluate_genome_on_sentence(genome, bigrams, anns)
-            if score > worst_score:
+            if score > worst_score and worst_sentence not in subtraining_set:
                 worst_score = score
                 worst_sentence = (bigrams, anns)
         return worst_sentence
@@ -228,7 +237,7 @@ class SubjectiveEvolution(HumanBasedSubjectivePhraseAnnotator):
         subtraining_set = []
         while len(subtraining_set) < len(training_set):
             self.store = []
-            worst_sentence = self.get_worst_squared_error(self.genome, training_set)
+            worst_sentence = self.get_worst_squared_error(self.genome, training_set, subtraining_set)
             logging.debug(worst_sentence)
             subtraining_set.append(worst_sentence)
             score = self.evaluate_genome(self.genome, subtraining_set)
