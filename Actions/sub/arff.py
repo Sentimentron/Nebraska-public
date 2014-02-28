@@ -8,8 +8,9 @@ import re
 import csv
 import logging
 import pprint
-from itertools import groupby
+from itertools import groupby, chain
 from collections import defaultdict, Counter, OrderedDict
+from Actions.sub.word import SubjectiveWordNormaliser
 
 from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 
@@ -39,6 +40,8 @@ class ARFFExporter(object):
             print >> output_file, "@data"
             writer = csv.writer(output_file)
             for row in rows:
+                if len(row) != len(self.attributes):
+                    logging.error((len(row), len(self.attributes)))
                 writer.writerow(row)
 
 class UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter(HumanBasedSubjectivePhraseAnnotator):
@@ -849,6 +852,122 @@ class SubjectivePhraseARFFExporter(HumanBasedSubjectivePhraseAnnotator):
     def execute(self, path, conn):
         self.convert_group_annotations(conn)
         return True, conn
+
+class SubjectiveWordARFFExporter(HumanBasedSubjectivePhraseAnnotator):
+
+    def __init__(self, xml):
+        super(SubjectiveWordARFFExporter, self).__init__(xml)
+        self.normaliser = SubjectiveWordNormaliser(xml)
+        self.path = xml.get("path")
+        assert self.path is not None
+
+    @classmethod
+    def load_annotations(cls, conn):
+        """
+            Retrieve the majority annotations provided by Turkers
+        """
+        cursor = conn.cursor()
+        sql = "SELECT document_identifier, sentiment FROM subphrases"
+        tmp = defaultdict(Counter)
+        cursor.execute(sql)
+        for identifier, sentiment in cursor.fetchall():
+            tmp[identifier].update([sentiment])
+            logging.debug((identifier, tmp[identifier]))
+        ret = {}
+        for identifier in tmp:
+            entries = tmp[identifier]
+            popular = entries.most_common(2)
+            label1, pop1 = popular[0]
+            if len(popular) > 1:
+                _, pop2 = popular[1]
+                if pop1 == pop2:
+                    # No consensus, skip
+                    continue
+            ret[identifier] = label1
+        return ret
+
+    def group_and_convert_text_anns(self, conn):
+        """
+            Modified version of super-classes thing: also returns identifiers
+        """
+        data = self.get_text_anns(conn)
+        annotations = {}
+        identifier_text = {}
+        ret = []
+        for identifier, text, ann in data:
+            identifier_text[identifier] = text
+            if identifier not in annotations:
+                annotations[identifier] = []
+            annotations[identifier].append(ann)
+
+        # Compute annotation strings
+        for identifier in annotations:
+            # Initially zero
+            text = identifier_text[identifier]
+            max_len = len(text.split(' '))
+            for annotation in annotations[identifier]:
+                max_len = max(max_len, len(annotation))
+            probs_pos = [0.0 for _ in range(max_len)]
+            probs_neg = [0.0 for _ in range(max_len)]
+            probs_neu = [0.0 for _ in range(max_len)]
+            for annotation in annotations[identifier]:
+                for i, ann in enumerate(annotation):
+                    if ann == "p":
+                        probs_pos[i] += 1.0
+                    elif ann == "n":
+                        probs_neg[i] += 1.0
+                    elif ann == "e":
+                        probs_neu += 1.0
+            # Then normalize so everything's <= 1.0
+            probs_pos = [i/len(annotations[identifier]) for i in probs_pos]
+            probs_neu = [i/len(annotations[identifier]) for i in probs_neu]
+            probs_neg = [i/len(annotations[identifier]) for i in probs_neg]
+            ret.append((text, probs_pos, probs_neu, probs_neg, identifier))
+
+        return ret
+
+    def execute(self, path, conn):
+        documents = self.group_and_convert_text_anns(conn)
+        annotations = self.load_annotations(conn)
+        exporter = ARFFExporter(self.path, "word_sub")
+        word_indices = {}
+        for text, pos, neu, neg, identifier in documents:
+            for word in text.split(' '):
+                word = self.normaliser.normalise_output_word(word)
+                if self.normaliser.is_stop_word(word):
+                    word = "STOPPED"
+                exporter.add_attribute("%s_pos" % (word,), "numeric")
+                exporter.add_attribute("%s_neu" % (word,), "numeric")
+                exporter.add_attribute("%s_neg" % (word,), "numeric")
+                if word not in word_indices:
+                    word_indices[word] = len(word_indices)
+
+        exporter.add_attribute("overall", ["positive", "negative", "neutral"])
+
+        row_buf = []
+
+        for text, pos, neu, neg, identifier in documents:
+            row_pos = [0.0 for i in range(len(word_indices))]
+            row_neg = [0.0 for i in range(len(word_indices))]
+            row_neu = [0.0 for i in range(len(word_indices))]
+            for word, p, e, n in zip(text.split(' '), pos, neu, neg):
+                word = self.normaliser.normalise_output_word(word)
+                if self.normaliser.is_stop_word(word):
+                    word = "STOPPED"
+                row_pos[word_indices[word]] += p
+                row_neg[word_indices[word]] += n
+                row_neu[word_indices[word]] += e
+
+            row = list(chain.from_iterable([(i, j, k) for i, j, k in zip(row_pos, row_neu, row_neg)]))
+            if identifier not in annotations:
+                continue
+            row.append(annotations[identifier])
+            row_buf.append(row)
+
+        exporter.write(row_buf)
+
+        return True, conn
+
 
 class SubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):
 

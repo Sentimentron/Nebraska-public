@@ -3,6 +3,7 @@
     Contains functions for standard word normalisation and stemming
 """
 import re
+import logging
 
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.stem.porter import PorterStemmer
@@ -10,7 +11,10 @@ from nltk.stem.regexp import RegexpStemmer
 from nltk.stem.snowball import EnglishStemmer
 from nltk.stem.wordnet import WordNetLemmatizer
 
-def xml_bool_convert(string):    
+from nltk.corpus import wordnet as wn
+from itertools import chain
+
+def xml_bool_convert(string):
     """
         Convert a standard XML "true" "false" value into
         a Python bool
@@ -23,6 +27,49 @@ def xml_bool_convert(string):
         return False
     else:
         raise ValueError(string)
+
+class LeskStemmer(object):
+
+    def __init__(self):
+        self.ps = PorterStemmer()
+
+    def lesk(self, context_sentence, ambiguous_word, pos, stem=True, hyperhypo=True):
+        max_overlaps = 0
+        lesk_sense = None
+
+        if pos not in ["n", "z", "v", "a", "r"]:
+            return pos
+
+        for ss in wn.synsets(ambiguous_word):
+            if ss.pos != pos:
+                continue
+
+            lesk_dictionary = []
+
+            # Includes definition.
+            lesk_dictionary+= ss.definition.split()
+            # Includes lemma_names.
+            lesk_dictionary+= ss.lemma_names
+
+            # Optional: includes lemma_names of hypernyms and hyponyms.
+            if hyperhypo == True:
+                lesk_dictionary+= list(chain(*[i.lemma_names for i in ss.hypernyms()+ss.hyponyms()]))
+
+            if stem == True: # Matching exact words causes sparsity, so lets match stems.
+                lesk_dictionary = [self.ps.stem(i) for i in lesk_dictionary]
+                context_sentence = [self.ps.stem(i) for i in context_sentence]
+
+            overlaps = set(lesk_dictionary).intersection(context_sentence)
+
+            if len(overlaps) > max_overlaps:
+                lesk_sense = ss
+                max_overlaps = len(overlaps)
+
+        if lesk_sense is not None:
+            lesk_sense = lesk_sense.name
+
+        return lesk_sense
+
 
 class SubjectiveWordNormaliser(object):
     """
@@ -61,6 +108,8 @@ class SubjectiveWordNormaliser(object):
                 self.stemmer = PorterStemmer()
             elif self.stemmer == "snowball":
                 self.stemmer = EnglishStemmer()
+            elif self.stemmer == "lesk":
+                self.stemmer = LeskStemmer()
             else:
                 raise ValueError(("Unsupported stemmer", self.stemmer))
 
@@ -77,7 +126,7 @@ class SubjectiveWordNormaliser(object):
         """
         # If we're not reporting stop words...
         if not self.stopwords:
-            return False 
+            return False
 
         stopwords = """a,able,about,across,after,all,almost,also,am
         ,among,an,and,any,are,as,at,be,because
@@ -102,7 +151,7 @@ class SubjectiveWordNormaliser(object):
             Outputs True if the pos tag is stopped
         """
         if not self.stoppos:
-            return False 
+            return False
         return tag in ["^", "!", "&", "L", "P", "O", "D", "$", ","]
 
     def stem_word(self, word):
@@ -117,20 +166,23 @@ class SubjectiveWordNormaliser(object):
         """
         return self.lemmatiser.lemmatize(word)
 
-    def normalise_output_word(self, word):
+    def normalise_output_word(self, word, sentence=None):
         """
             Apply transformations to the word, output result
         """
+        if self.stopwords:
+            if self.is_stop_word(word):
+                return "STOPPED"
         if self.stemmer is not None:
             word = self.stem_word(word)
         elif self.lemmatise:
             word = self.lemmatise_word(word)
-
         if self.normalise_case:
             word = word.lower()
-
         if self.resub is not None:
             word = re.sub(self.resub, '', word)
+            if len(word) == 0:
+                word = "FILTERED"
 
         return word
 

@@ -54,7 +54,9 @@ from sub import SubjectivePhraseTweetClassificationARFFExporter
 from sub import UnigramBinaryPresenceARFFExporter
 from sub import UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter
 from sub import UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter
-from sub import UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter
+#from sub import UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrases
+#from sub import ARFFExporter
+from sub import SubjectiveWordARFFExporter
 from templabeller import AtMentionLabeller
 from templabeller import BasicWordLabeller
 from templabeller import BigramLabeller
