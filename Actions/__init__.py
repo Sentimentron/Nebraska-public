@@ -4,6 +4,8 @@
 import logging
 import sys
 
+#from sub import ARFFExporter
+#from sub import UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrases
 from amt import AMTInputSource
 from amt import AMTNormalise
 from annotators import FinancialDistanceAnnotator
@@ -37,6 +39,10 @@ from semval import SemvalInputSource
 from sentiwordnet import SentiWordNetPositiveOrNegativeStrengthLabeller
 from sentiwordnet import SentiWordNetPositiveStrengthLabeller
 from stemmer import Stemmer
+from sub import BigramBinaryPresenceARFFExporter
+from sub import BigramBinaryPresenceNumberSubjectiveARFFExporter
+from sub import BigramBinaryPresencePercentageSubjectiveARFFExporter
+from sub import BigramBinaryPresenceTotalNumberSubjectiveARFFExporter
 from sub import CRFSubjectiveAnnotator
 from sub import CRFSubjectiveExporter
 from sub import EmpiricalSubjectivePhraseAnnotator
@@ -47,17 +53,15 @@ from sub import ProduceCRFSTagList
 from sub import SubjectiveAnnotationEvaluator
 from sub import SubjectiveARFFExporter
 from sub import SubjectiveCrossValidationEnvironment
+from sub import SubjectiveEvolution
 from sub import SubjectivePhraseARFFExporter
 from sub import SubjectivePhraseTweetClassficationDiscreteARFFExporter
 from sub import SubjectivePhraseTweetClassificationARFFExporter
+from sub import SubjectiveWordARFFExporter
 from sub import UnigramBinaryPresenceARFFExporter
 from sub import UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter
 from sub import UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter
 from sub import UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter
-from sub import BigramBinaryPresenceARFFExporter
-from sub import BigramBinaryPresencePercentageSubjectiveARFFExporter
-from sub import BigramBinaryPresenceNumberSubjectiveARFFExporter
-from sub import BigramBinaryPresenceTotalNumberSubjectiveARFFExporter
 from templabeller import AtMentionLabeller
 from templabeller import BasicWordLabeller
 from templabeller import BigramLabeller
