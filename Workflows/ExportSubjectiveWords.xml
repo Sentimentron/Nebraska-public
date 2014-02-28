@@ -18,12 +18,13 @@
 
     <WorkflowTasks>
         <GimpelPOSTagger dest="gimpel" verbose="true" />
-        <!--SubjectiveARFFExporter path="subjective.arff" outputTable=""/>
-        <SubjectiveARFFExporter path="subjective_presence.arff" exportPresence="true" exportSubjectivity="false" outputTable=""/>
-        <SubjectivePhraseARFFExporter path="subjective_phrases.arff" exportLevel="phrases" outputTable = ""/-->
-        <!--SubjectivePhraseTweetClassificationARFFExporter path="subjective_phrase_tweet.arff" outputTable="" /-->
-        <!--SubjectivePhraseTweetClassificationARFFExporter path="subjective_phrase_tweet_stopped.arff" useStopWords="True" outputTable = "" /-->
-        <!--SubjectivePhraseTweetClassficationDiscreteARFFExporter path="subjective_discrete.arff" outputTable="" /-->
+        <!--SubjectiveARFFExporter path="subjective.arff" outputTable=""/-->
+        <!--SubjectiveARFFExporter path="subjective_presence.arff" exportPresence="true" exportSubjectivity="false" outputTable=""/>
+        <SubjectivePhraseARFFExporter path="subjective_phrases.arff" exportLevel="phrases" outputTable = ""/>
+        <SubjectivePhraseTweetClassificationARFFExporter path="subjective_phrase_tweet.arff" outputTable="" /-->
+        <SubjectiveWordARFFExporter path="subjective_words.arff" normaliseCase="true" stemmer="porter" normalisingRExp="[^a-zA-Z]" stopWords="true"/>
+        <!--SubjectivePhraseTweetClassificationARFFExporter path="subjective_phrase_tweet_stopped.arff" useStopWords="True" outputTable = "" />
+        <SubjectivePhraseTweetClassficationDiscreteARFFExporter path="subjective_discrete.arff" outputTable="" /-->
         <CRFSubjectiveExporter outputTable="" path="crf_train.txt">
             <DataFlow>
                 <Source>Data/MechanicalTurk/Tech/batch1.csv</Source>
