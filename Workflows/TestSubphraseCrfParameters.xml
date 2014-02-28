@@ -21,11 +21,13 @@
         <SubjectiveCrossValidationEnvironment folds="10" bucket="stubbed">
             <!--CRFSubjectiveAnnotator />
             <CRFSubjectiveAnnotator normaliseCase="true" /-->
-            <CRFSubjectiveAnnotator normaliseCase="true" stemmer="lancaster" />
+            <CRFSubjectiveAnnotator normaliseCase="true" lesk="true" trainPath="train.crf" testPath="test.crf"/>
+            <!--CRFSubjectiveAnnotator normaliseCase="true" stemmer="lancaster" />
             <CRFSubjectiveAnnotator normaliseCase="true" stemmer="regexp" />
             <CRFSubjectiveAnnotator normaliseCase="true" stemmer="porter" />
             <CRFSubjectiveAnnotator normaliseCase="true" stemmer="snowball" />
             <CRFSubjectiveAnnotator normaliseCase="true" lemmatise="true" />
+            <CRFSubjectiveAnnotator normaliseCase="true" lesk="true" /-->
         </SubjectiveCrossValidationEnvironment>
     </WorkflowTasks>
 

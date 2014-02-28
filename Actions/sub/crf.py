@@ -14,7 +14,7 @@ import types
 from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
 from collections import defaultdict
 
-from Actions.sub.word import SubjectiveWordNormaliser
+from Actions.sub.word import SubjectiveWordNormaliser, LeskStemmer
 
 class POSMatchingException(Exception):
     pass
@@ -126,7 +126,6 @@ def match_pos_tags(text, postokens, possibilities, tokens):
             pos, _, next_pos_word = next_pos_tag.partition('/')
             end_pos_range += 1
             pos_word += next_pos_word
-            logging.debug(pos_word)
 
         # Correct post-increment
         end_pos_range = max(end_pos_range-1, 0)
@@ -185,9 +184,15 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
             self.min_annotation = int(self.min_annotation)
 
         if self.max_annotation is None:
-            self.max_annotation = 1
+            self.max_annotation = 4
         else:
             self.max_annotation = int(self.max_annotation)
+
+        if xml.get("lesk") == "true":
+            self.lesker = LeskStemmer()
+            logging.debug("Lesking...")
+        else:
+            self.lesker = None
 
         # Word normalisation options
         self.normaliser = SubjectiveWordNormaliser(xml)
@@ -273,14 +278,26 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
 
             for identifier in sorted(documents):
                 try:
-                    for pos_word, pos_tag, subjectivity in match_pos_tags(documents[identifier], anns[identifier], possibilities, tokens):
+                    matched_tags = list(match_pos_tags(documents[identifier], anns[identifier], possibilities, tokens))
+                    for pos_word, pos_tag, subjectivity in matched_tags:
+
                         if self.normaliser.is_stop_word(pos_word):
-                            continue
-                        # Output the word associated with the POS tag
-                        word = self.normaliser.normalise_output_word(pos_word)
+                            word = "STOPPED"
+                            pos_tag = "S"
+                        else:
+                            if self.lesker != None:
+                                word = self.lesker.lesk([i for i,j,k in matched_tags], pos_word, pos_tag.lower())
+                                #logging.debug((word, pos_word, pos_tag))
+                                if word is None:
+                                    word = self.normaliser.normalise_output_word(pos_word)
+                            else:
+                                # Output the word associated with the POS tag
+                                word = self.normaliser.normalise_output_word(pos_word)
+
                         output_fp.write("%s " % (word,))
                         # Output the the word associated with this POS tag
                         output_fp.write("%s " % (pos_tag, ))
+
                         # Output all the possibile subjective annotations for the
                         # text unit (approximate word) which contains this POS tag
                         if self.normaliser.is_stopped_pos_tag(pos_tag):
@@ -289,6 +306,7 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
                         for s in subjectivity:
                             output_fp.write(s)
                             output_fp.write(" ")
+
                         # End this entry
                         output_fp.write("\n")
 
@@ -374,14 +392,22 @@ class CRFSubjectiveAnnotator(HumanBasedSubjectivePhraseAnnotator):
         Annotates subjective phrases using external CRF library
     """
 
+    @classmethod
+    def get_path(cls, xml, path_name):
+        if xml.get(path_name) is None:
+            return tempfile.NamedTemporaryFile()
+        else:
+            return open(xml.get(path_name), 'w')
+
     def __init__(self, xml):
         """
             outputTable: optional parameter
         """
         self.output_table = xml.get("outputTable")
-        self.test_fp = tempfile.NamedTemporaryFile()
-        self.train_fp = tempfile.NamedTemporaryFile()
-        self.results_fp = tempfile.NamedTemporaryFile()
+        #
+        self.test_fp = self.get_path(xml, "testPath")
+        self.train_fp = self.get_path(xml, "trainPath")
+        self.results_fp = self.get_path(xml, "resultsPath")
         logging.debug("CRFSubjectiveAnnotator: %s %s %s",
             self.test_fp.name, self.train_fp.name, self.results_fp.name
             )
