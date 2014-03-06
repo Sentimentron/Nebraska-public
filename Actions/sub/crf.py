@@ -190,15 +190,15 @@ class CRFSubjectiveExporter(HumanBasedSubjectivePhraseAnnotator):
         else:
             self.max_annotation = int(self.max_annotation)
 
-<<<<<<< HEAD
-=======
-        if xml.get("lesk") == "true":
-            self.lesker = LeskStemmer()
-            logging.debug("Lesking...")
-        else:
-            self.lesker = None
+# <<<<<<< HEAD
+# =======
+#         if xml.get("lesk") == "true":
+#             self.lesker = LeskStemmer()
+#             logging.debug("Lesking...")
+#         else:
+#             self.lesker = None
 
->>>>>>> lesk
+# >>>>>>> lesk
         # Word normalisation options
         self.normaliser = SubjectiveWordNormaliser(xml)
 

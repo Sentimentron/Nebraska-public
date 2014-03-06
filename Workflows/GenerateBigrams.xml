@@ -17,6 +17,13 @@
 
     <WorkflowTasks>
         <AMTNormalise/>
+
+        <BigramBinaryPresenceARFFExporter outputTable="bigrams" path="unigrams.arff" />
+        <!-- <BigramBinaryPresencePercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" /> -->
+        <!-- <BigramBinaryPresenceNumberSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" /> -->
+        <!-- <BigramBinaryPresenceTotalNumberSubjectiveARFFExporter outputTable="bigrams" path="unigrams.arff" /> -->
+
+
         <!-- <BigramBinaryPresenceARFFExporter outputTable="bigrams" path="unigrams.arff" useStopWords="true" stem="true" threshold="2"/> -->
         <!-- <BigramBinaryPresencePercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" stem="true" threshold="2"/> -->
         <!-- <BigramBinaryPresenceNumberSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" stem="true" threshold="2"/> -->

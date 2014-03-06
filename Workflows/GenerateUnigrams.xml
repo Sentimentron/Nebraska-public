@@ -12,11 +12,16 @@
     </Tables>
 
     <InputSources>
-        <AMTInputSource dir="Data/MechanicalTurk/Tech" />
+        <AMTInputSource dir="Data/MechanicalTurk/Politics" />
     </InputSources>
 
     <WorkflowTasks>
         <AMTNormalise/>
+        <UnigramBinaryPresenceARFFExporter outputTable="unigrams" path="unigrams.arff" />
+        <!-- <UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" /> -->
+        <!-- <UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter outputTable="unigrams" path="unigrams.arff" /> -->
+        <!-- <UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter outputTable="unigrams" path="unigrams.arff" /> -->
+
         <!-- <UnigramBinaryPresenceARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" lemmise="true" threshold="2"/> -->
         <!-- <UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" lemmise="true" threshold="2"/> -->
         <!-- <UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" lemmise="true" threshold="2"/> -->
@@ -25,7 +30,7 @@
         <!-- <UnigramBinaryPresenceARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" stem="true" threshold="2"/> -->
         <!-- <UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" stem="true" threshold="2"/> -->
         <!-- <UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" stem="true" threshold="2"/> -->
-        <UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" stem="true" threshold="2"/>
+        <!-- <UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" stem="true" threshold="2"/> -->
     </WorkflowTasks>
 
 </Workflow>
