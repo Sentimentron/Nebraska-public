@@ -1,7 +1,7 @@
 import java.util.List;
 import java.util.ArrayList;
 import java.util.*;
-import cmu.arktweetnlp.Tagger;
+import cmu.arktweetnlp.RawTagger;
 import java.sql.*;
 import java.lang.StringBuffer;
 import java.util.Hashtable;
@@ -41,7 +41,7 @@ public class GimpelTagger {
     }
 
     public void tokenise() {
-        Tagger tokeniser = loadTagger("model.20120919");
+        RawTagger tokeniser = loadTagger("model.20120919");
         Connection conn = connectToDatabase(path);
         // Hashtable for storing string -> row id mappings
         Hashtable<String, Integer> stored_tokens = new Hashtable<String, Integer>();
@@ -64,14 +64,14 @@ public class GimpelTagger {
                 if ((done_so_far % 5) == 0) System.err.printf("POS Tagging... (%.2f%% done)\r", done_so_far * 100.f / total_results);
                 done_so_far++;
                 // POS tag this document
-                List<cmu.arktweetnlp.Tagger.TaggedToken> tokens = new ArrayList<cmu.arktweetnlp.Tagger.TaggedToken>();
+                List<cmu.arktweetnlp.RawTagger.TaggedToken> tokens = new ArrayList<cmu.arktweetnlp.RawTagger.TaggedToken>();
                 tokens = tokeniser.tokenizeAndTag(rs.getString("document"));
                 StringBuffer tagged_string = new StringBuffer();
                 // For each token we got store it in the DB and build up the tokenised version of the document
                 Iterator itt = tokens.iterator();
                 while(itt.hasNext()) {
                     // Retrieve the next token from the iterator 
-                    cmu.arktweetnlp.Tagger.TaggedToken temp = (cmu.arktweetnlp.Tagger.TaggedToken)itt.next();
+                    cmu.arktweetnlp.RawTagger.TaggedToken temp = (cmu.arktweetnlp.RawTagger.TaggedToken)itt.next();
                     String taggedToken = String.format("%1$s/%2$s", temp.tag, temp.token);
                     // Stored tokens contains the tokens already stored 
                     Integer index = stored_tokens.get(taggedToken);
@@ -123,8 +123,8 @@ public class GimpelTagger {
         return c;
     }
 
-    private Tagger loadTagger(String model) {
-        Tagger tokeniser = new Tagger();
+    private RawTagger loadTagger(String model) {
+        RawTagger tokeniser = new RawTagger();
         try {
             tokeniser.loadModel(model);
         } catch(Exception e) {
