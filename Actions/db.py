@@ -14,9 +14,6 @@ import tempfile
 def create_sqlite_temp_path():
     """
         Generates a temporary path to the database file.
-
-        If we're on a Linux system, there's usually a RAM-disk at /dev/shm
-        which we use to make database operations as fast as possible.
     """
     hnd, tmp = tempfile.mkstemp(suffix='.sqlite', prefix=os.getcwd()+"/")
     os.close(hnd)
