@@ -145,11 +145,13 @@ def create_sqlite_postables(name, conn):
 
     logging.info("Creating pos_off_%s table...", name) 
     sql = """CREATE TABLE pos_off_%s (
+      identifier          INTEGER PRIMARY KEY,
       document_identifier INTEGER,
       start               INTEGER,
       end                 INTEGER,
       word                TEXT,
       tag                 TEXT,
+      synset              TEXT,
       confidence          FLOAT,
       FOREIGN KEY (document_identifier)
         REFERENCES input(identifier)
