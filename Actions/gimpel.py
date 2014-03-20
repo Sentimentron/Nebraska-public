@@ -38,6 +38,6 @@ class GimpelPOSTagger(object):
                 raise ValueError(self.verbose)
 
     def execute(self, path, conn):
-        args = "Gimpel %s input pos_tokens_%s pos_%s" % (path, self.dest, self.dest)
+        args = "Gimpel %s input pos_tokens_%s pos_%s pos_off_%s pos_norm_%s" % (path, self.dest, self.dest, self.dest, self.dest)
         subprocess.check_call(args, shell=True)
         return True, conn
