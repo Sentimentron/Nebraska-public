@@ -74,6 +74,7 @@ public class GimpelTagger {
                 tokens = tokeniser.tokenizeAndTag(rs.getString("document"));
                 // Insert normalised database form
                 String normalisedDocumentText = RawTwokenize.normalizeTextForTagger(rs.getString("document"));
+                normalisedDocumentText = RawTwokenize.splitEdgePunct(normalisedDocumentText);
                 String insertDocStmt = "INSERT INTO %1$s(document_identifier, document) VALUES (%2$s, ?)";
                 String insertDocFmt  = String.format(insertDocStmt, this.norm_table, rs.getString("identifier"));
                 PreparedStatement normStmt = conn.prepareStatement(insertDocFmt);
@@ -84,10 +85,10 @@ public class GimpelTagger {
                 // For each token we got store it in the DB and build up the tokenised version of the document
                 Iterator itt = tokens.iterator();
                 while(itt.hasNext()) {
-                    // Retrieve the next token from the iterator 
+                    // Retrieve the next token from the iterator
                     cmu.arktweetnlp.RawTagger.TaggedToken temp = (cmu.arktweetnlp.RawTagger.TaggedToken)itt.next();
                     String taggedToken = String.format("%1$s/%2$s", temp.tag, temp.token);
-                    // Stored tokens contains the tokens already stored 
+                    // Stored tokens contains the tokens already stored
                     Integer index = stored_tokens.get(taggedToken);
                     if( index == null) {
                         // We dont already have this token so throw it in the database
@@ -107,7 +108,7 @@ public class GimpelTagger {
                         tagged_string.append(index);
                         tagged_string.append(" ");
                     }
-                    // Insert TaggedToken information into the database 
+                    // Insert TaggedToken information into the database
                     String insertTknStmt = "INSERT INTO %1$s(document_identifier, start, end, word, tag, confidence) VALUES (%2$s, ?, ?, ?, ?, ?)";
                     String insertTknStmtQ = String.format(insertTknStmt, offset_table, rs.getString("identifier"));
                     PreparedStatement tknStmt = conn.prepareStatement(insertTknStmtQ);
