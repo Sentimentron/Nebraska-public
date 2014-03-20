@@ -105,4 +105,4 @@ class WordSenseDisambiguate(object):
             subcur.execute(sql, (synset.name, identifier))
 
         conn.commit()
-        return conn, True
+        return True, conn
