@@ -2,6 +2,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.*;
 import cmu.arktweetnlp.RawTagger;
+import cmu.arktweetnlp.RawTwokenize;
 import java.sql.*;
 import java.lang.StringBuffer;
 import java.util.Hashtable;
@@ -16,11 +17,15 @@ public class GimpelTagger {
     public String token_table;
     // Name of the table to insert POS tagged documents into
     public String string_table;
+    public String offset_table;
+    public String norm_table;
     /*
         0 Path to SQlite database file
         1 Name of the table to read the input from
         2 Name of the table to store the tokens in
         3 Name of the table to store the POS tagged document in
+        4 name of the table used to store token offset and confidence info
+        5 name of the table used to store normalised document format
      */
     public static void main(String args[]) {
         for (String s : args) {
@@ -36,6 +41,8 @@ public class GimpelTagger {
         tagger.input_table = args[1];
         tagger.token_table = args[2];
         tagger.string_table = args[3];
+        tagger.offset_table  = args[4];
+        tagger.norm_table   = args[5];
         tagger.tokenise();
 
     }
@@ -49,7 +56,6 @@ public class GimpelTagger {
         // Itterate over each document in the input database and tag it
         String query = "SELECT * FROM " + input_table;
         try {
-
             conn.setAutoCommit(false);
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -66,6 +72,14 @@ public class GimpelTagger {
                 // POS tag this document
                 List<cmu.arktweetnlp.RawTagger.TaggedToken> tokens = new ArrayList<cmu.arktweetnlp.RawTagger.TaggedToken>();
                 tokens = tokeniser.tokenizeAndTag(rs.getString("document"));
+                // Insert normalised database form
+                String normalisedDocumentText = RawTwokenize.normalizeTextForTagger(rs.getString("document"));
+                String insertDocStmt = "INSERT INTO %1$s(document_identifier, document) VALUES (%2$s, ?)";
+                String insertDocFmt  = String.format(insertDocStmt, this.norm_table, rs.getString("identifier"));
+                PreparedStatement normStmt = conn.prepareStatement(insertDocFmt);
+                normStmt.setString(1, normalisedDocumentText);
+                normStmt.execute();
+                // Build up the tagged string
                 StringBuffer tagged_string = new StringBuffer();
                 // For each token we got store it in the DB and build up the tokenised version of the document
                 Iterator itt = tokens.iterator();
@@ -93,7 +107,16 @@ public class GimpelTagger {
                         tagged_string.append(index);
                         tagged_string.append(" ");
                     }
-
+                    // Insert TaggedToken information into the database 
+                    String insertTknStmt = "INSERT INTO %1$s(document_identifier, start, end, word, tag, confidence) VALUES (%2$s, ?, ?, ?, ?, ?)";
+                    String insertTknStmtQ = String.format(insertTknStmt, offset_table, rs.getString("identifier"));
+                    PreparedStatement tknStmt = conn.prepareStatement(insertTknStmtQ);
+                    tknStmt.setInt(1, temp.span.first);
+                    tknStmt.setInt(2, temp.span.second);
+                    tknStmt.setString(3, temp.token);
+                    tknStmt.setString(4, temp.tag);
+                    tknStmt.setDouble(5, temp.confidence);
+                    tknStmt.execute();
                 }
                 // We've now inserted all the tokens and built up the tokenised string so insert the tokenised string
                 String insert_pos_tagged_document = "INSERT INTO %1$s (document_identifier, tokenized_form) VALUES(%2$s, \"%3$s\")";
