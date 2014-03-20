@@ -148,6 +148,7 @@ def create_sqlite_postables(name, conn):
       document_identifier INTEGER,
       start               INTEGER,
       end                 INTEGER,
+      word                TEXT,
       tag                 TEXT,
       confidence          FLOAT,
       FOREIGN KEY (document_identifier)
