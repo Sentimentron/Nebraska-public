@@ -1,0 +1,24 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>Subjective POS Tagging</WorkflowName>
+        <WorkflowDescription>Checks that everything is working correctly</WorkflowDescription>
+        <RetainOutputFile path="amt.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <ResultsTable />
+        <PartOfSpeechTable name="gimpel" />
+    </Tables>
+
+    <InputSources>
+        <AMTInputSource dir="Data/MechanicalTurk/Tech/" />
+    </InputSources>
+
+    <WorkflowTasks>
+      <GimpelPOSTagger dest="gimpel" verbose="true" />
+      <WordSenseDisambiguate table="gimpel" />
+    </WorkflowTasks>
+
+</Workflow>
