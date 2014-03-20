@@ -138,12 +138,12 @@ def create_sqlite_postables(name, conn):
     sql = """CREATE TABLE pos_norm_%s (
       document_identifier INTEGER PRIMARY KEY,
       document TEXT,
-      FOREIGN KEY (document_identifier) 
-        REFERENCES input(identifier) 
+      FOREIGN KEY (document_identifier)
+        REFERENCES input(identifier)
           ON DELETE CASCADE)""" % (name, )
     c.execute(sql);
 
-    logging.info("Creating pos_off_%s table...", name) 
+    logging.info("Creating pos_off_%s table...", name)
     sql = """CREATE TABLE pos_off_%s (
       identifier          INTEGER PRIMARY KEY,
       document_identifier INTEGER,
@@ -152,6 +152,9 @@ def create_sqlite_postables(name, conn):
       word                TEXT,
       tag                 TEXT,
       synset              TEXT,
+      pos                 INTEGER,
+      neg                 INTEGER,
+      neu                 INTEGER,
       confidence          FLOAT,
       FOREIGN KEY (document_identifier)
         REFERENCES input(identifier)

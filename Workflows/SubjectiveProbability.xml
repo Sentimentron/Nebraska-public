@@ -19,6 +19,7 @@
     <WorkflowTasks>
       <GimpelPOSTagger dest="gimpel" verbose="true" />
       <WordSenseDisambiguate table="gimpel" />
+      <MatchSubjectiveAnnotations subphrases_table="subphrases" table="gimpel" src_table="gimpel" />
     </WorkflowTasks>
 
 </Workflow>

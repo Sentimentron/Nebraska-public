@@ -5,6 +5,7 @@ import logging
 import sys
 
 from wsd import WordSenseDisambiguate
+from submatch import MatchSubjectiveAnnotations
 #from sub import ARFFExporter
 #from sub import UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrases
 from amt import AMTInputSource
