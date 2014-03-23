@@ -152,9 +152,10 @@ def create_sqlite_postables(name, conn):
       word                TEXT,
       tag                 TEXT,
       synset              TEXT,
-      pos                 INTEGER,
-      neg                 INTEGER,
-      neu                 INTEGER,
+      pos                 INTEGER DEFAULT 0,
+      neg                 INTEGER DEFAULT 0,
+      neu                 INTEGER DEFAULT 0,
+      total               INTEGER DEFAULT 0,
       confidence          FLOAT,
       FOREIGN KEY (document_identifier)
         REFERENCES input(identifier)
