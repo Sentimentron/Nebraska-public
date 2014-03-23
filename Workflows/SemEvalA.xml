@@ -1,0 +1,22 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>SEMEVAL A</WorkflowName>
+        <WorkflowDescription>Imports a corpus file, generates subjective phrase annotations.</WorkflowDescription>
+        <RetainOutputFile path="semeval.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <PartOfSpeechTable name="gimpel" />
+        <ResultsTable />
+    </Tables>
+
+    <InputSources>
+        <SemEvalTaskAImport key="train" path="Data/SemEval/tweeter-dev-full-A-tweets.tsv" />
+    </InputSources>
+
+    <WorkflowTasks>
+    </WorkflowTasks>
+
+</Workflow>
