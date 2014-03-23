@@ -17,6 +17,8 @@
     </InputSources>
 
     <WorkflowTasks>
+        <GimpelPOSTagger dest="gimpel" verbose="true" />
+        <MatchSubjectiveAnnotations subphrases_table="subphrases" table="gimpel" src_table="gimpel" />
     </WorkflowTasks>
 
 </Workflow>
