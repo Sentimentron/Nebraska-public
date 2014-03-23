@@ -4,6 +4,7 @@
 import logging
 import sys
 
+from semeval import SemEvalTaskAImport
 from wsd import WordSenseDisambiguate
 from submatch import MatchSubjectiveAnnotations
 #from sub import ARFFExporter
