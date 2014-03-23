@@ -154,18 +154,8 @@ class AMTInputSource(object):
     @classmethod
     def create_subphrase_table(cls, conn):
         """Create a table for subjective phrase annotations"""
-        cursor = conn.cursor()
-        sql = r"""CREATE TABLE subphrases (
-                identifier          INTEGER PRIMARY KEY,
-                document_identifier INTEGER NOT NULL,
-                annotation          TEXT NOT NULL,
-                sentiment           TEXT NOT NULL,
-                FOREIGN KEY (document_identifier)
-                REFERENCES input(identifier)
-                ON DELETE CASCADE
-            )"""
-        logging.info("Creating subphrase annotations table...")
-        cursor.execute(sql)
+        from Actions import db as db
+        db.create_subphrase_table(conn)
 
     def execute(self, path, conn):
         """
