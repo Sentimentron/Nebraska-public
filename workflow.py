@@ -479,7 +479,7 @@ def main():
 
     # Check the tree is up to date, things are in the path
     setup_environment()
-    check_versions()
+    #check_versions()
 
     # Parse command line arguments
     action, workflow_file = parse_arguments()
