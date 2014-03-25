@@ -4,7 +4,7 @@
 import logging
 import sys
 
-from crf import CRFNativeExporter
+from crf import CRFNativeExporter, CRFSubjectivityTagger
 from semeval import SemEvalTaskAImport
 from wsd import WordSenseDisambiguate
 from submatch import MatchSubjectiveAnnotations
