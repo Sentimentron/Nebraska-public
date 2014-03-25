@@ -57,6 +57,8 @@ class CRFSubjectivityTagger(object):
             xseq = crfsuite.ItemSequence()
             if yield_yseq:
                 yseq = crfsuite.StringList()
+            old_word = "START"
+            old_pos = "START"
             for identifier, word, pos, subj in instance:
                 word = unicodedata.normalize('NFKD',word).encode('ascii','ignore')
                 pos = unicodedata.normalize('NFKD',pos).encode('ascii','ignore')
@@ -71,6 +73,7 @@ class CRFSubjectivityTagger(object):
                     traceback.print_exc()
                     pdb.post_mortem(tb)
 
+                old_word, old_pos = word, pos
                 xseq.append(item)
                 if yield_yseq:
                     weight = 1
@@ -90,8 +93,12 @@ class CRFSubjectivityTagger(object):
         for _, xseq, yseq in cls.convert_to_crfsuite_instances(instances):
             trainer.append(xseq, yseq, 0)
 
-        trainer.select("l2sgd", "crf1d")
-        trainer.train(model_path, -1)
+        trainer.select("arow", "crf1d")
+        trainer.set("variance", "0.1")
+        trainer.set("max_iterations", "300");
+        trainer.set("gamma", "0.5")
+
+        trainer.train(model_path,-1)
 
     @classmethod
     def tag_instances_from_model(cls, instances, model_path):
