@@ -53,7 +53,6 @@ class Labeller(object):
         cursor = db_conn.cursor()
         sql = "INSERT INTO %s (label) VALUES (?)" % (self.names_table)
         cursor.execute(sql, (label_name,))
-        db_conn.commit()
 
     def __get_label_id(self, label_name, db_conn):
         """

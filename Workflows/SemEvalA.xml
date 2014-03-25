@@ -18,8 +18,7 @@
 
     <WorkflowTasks>
         <GimpelPOSTagger dest="gimpel" verbose="true" />
-        <MatchSubjectiveAnnotations subphrases_table="subphrases" table="gimpel" src_table="gimpel" />
-        <CRFNativeExporter />
+        <CRFSubjectivityTagger mode="evaluate" resultsPath="crflog.txt" modelPath="semeval.model" />
     </WorkflowTasks>
 
 </Workflow>

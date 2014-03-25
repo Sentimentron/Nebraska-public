@@ -23,7 +23,6 @@ class MatchSubjectiveAnnotations(object):
         self.src_table = "pos_norm_%s" % (self.src_table,)
 
     def execute(self, path, conn):
-        pdb.set_trace()
         cur = conn.cursor()
         subcur = conn.cursor()
         subsubcur = conn.cursor()
@@ -37,7 +36,7 @@ class MatchSubjectiveAnnotations(object):
         count_sql = "SELECT COUNT(*) FROM (%s)" % (sql,)
         cur.execute(count_sql)
         for count, in cur.fetchall():
-            pass 
+            pass
         counter = 0
         cur.execute(sql)
         for identifier, text in cur.fetchall():
