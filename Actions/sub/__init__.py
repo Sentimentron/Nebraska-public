@@ -5,6 +5,7 @@
     subjective phrase information.
 """
 
+from arff import ARFFExporter
 from arff import BigramBinaryPresenceARFFExporter
 from arff import BigramBinaryPresenceNumberSubjectiveARFFExporter
 from arff import BigramBinaryPresencePercentageSubjectiveARFFExporter

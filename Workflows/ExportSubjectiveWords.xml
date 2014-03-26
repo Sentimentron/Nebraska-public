@@ -14,10 +14,14 @@
 
     <InputSources>
         <AMTInputSource dir="Data/MechanicalTurk/Tech" />
+        <AMTInputSource dir="Data/MechanicalTurk/Politics"/>
     </InputSources>
 
     <WorkflowTasks>
         <GimpelPOSTagger dest="gimpel" verbose="true" />
+                <SubjectivePhraseARFFExporter path="subjective_phrases.arff" exportLevel="phrases" outputTable = ""/>
+                <SubjectivePhraseTweetClassificationARFFExporter path="subjective_phrase_tweet.arff" outputTable="" />
+                <BigramBinaryPresencePercentageSubjectiveARFFExporter path="bigram_percent_subject.arff" outputTable="" stem="true" useStopWords="true" />
         <!--SubjectiveARFFExporter path="subjective.arff" outputTable=""/-->
         <!--SubjectiveARFFExporter path="subjective_presence.arff" exportPresence="true" exportSubjectivity="false" outputTable=""/>
         <SubjectivePhraseARFFExporter path="subjective_phrases.arff" exportLevel="phrases" outputTable = ""/>
@@ -25,19 +29,7 @@
         <SubjectiveWordARFFExporter path="subjective_words.arff" normaliseCase="true" stemmer="porter" normalisingRExp="[^a-zA-Z]" stopWords="true"/>
         <!--SubjectivePhraseTweetClassificationARFFExporter path="subjective_phrase_tweet_stopped.arff" useStopWords="True" outputTable = "" />
         <SubjectivePhraseTweetClassficationDiscreteARFFExporter path="subjective_discrete.arff" outputTable="" /-->
-        <CRFSubjectiveExporter outputTable="" path="crf_train.txt">
-            <DataFlow>
-                <Source>Data/MechanicalTurk/Tech/batch1.csv</Source>
-                <Source>Data/MechanicalTurk/Tech/batch2.csv</Source>
-                <Source>Data/MechanicalTurk/Texg/batch3.csv</Source>
 
-            </DataFlow>
-        </CRFSubjectiveExporter>
-        <CRFSubjectiveExporter outputTable="" path="crf_test.txt">
-            <DataFlow>
-                <Source>Data/MechanicalTurk/Tech/batch4.csv</Source>
-            </DataFlow>
-        </CRFSubjectiveExporter>
     </WorkflowTasks>
 
 </Workflow>

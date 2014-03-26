@@ -24,7 +24,10 @@ def create_subphrase_table(conn):
             ON DELETE CASCADE
         )"""
     logging.info("Creating subphrase annotations table...")
-    cursor.execute(sql)
+    try:
+        cursor.execute(sql)
+    except:
+        pass # GULP
 
 def create_sqlite_temp_path():
     """
@@ -75,10 +78,13 @@ def create_sqlite_temporary_label_table(postfix, conn):
     c = conn.cursor()
     # Create the table
     logging.info("Creating temporary label table %s", postfix)
-    c.execute(r"""CREATE TABLE temporary_label_%s (
-        document_identifier INTEGER NOT NULL,
-        label INTEGER NOT NULL
-    )""" % (postfix, ))
+    try:
+        c.execute(r"""CREATE TABLE temporary_label_%s (
+            document_identifier INTEGER NOT NULL,
+            label INTEGER NOT NULL
+        )""" % (postfix, ))
+    except:
+        return
     logging.debug("Committing temporary table...")
     conn.commit()
 
@@ -90,10 +96,14 @@ def create_sqlite_label_table(name, conn):
     c = conn.cursor()
     # Create the table which holds the label names
     logging.info("Creating label names table %s...", name)
-    c.execute(r"""CREATE TABLE label_names_%s (
-    label_identifier INTEGER PRIMARY KEY,
-    label TEXT NOT NULL
-    )""" % (name, ))
+    try:
+        c.execute(r"""CREATE TABLE label_names_%s (
+        label_identifier INTEGER PRIMARY KEY,
+        label TEXT NOT NULL
+        )""" % (name, ))
+    except sqlite3.OperationalError:
+        logging.error("Table might already exist")
+        return
     # Create the table which holds the label names
     logging.info("Creating label table %s...", name)
     c.execute(r"""CREATE TABLE label_%s (

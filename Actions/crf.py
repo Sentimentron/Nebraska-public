@@ -7,14 +7,17 @@ import logging
 import crfsuite
 import tempfile
 import traceback
+import csv
 
 from time import gmtime, strftime
 from collections import defaultdict, Counter
 
 import pdb
 
+import nltk
 from nltk.corpus import wordnet as wn
 import unicodedata
+import nltk.stem
 
 """
     My vision:
@@ -59,15 +62,24 @@ class CRFSubjectivityTagger(object):
                 yseq = crfsuite.StringList()
             old_word = "START"
             old_pos = "START"
-            for identifier, word, pos, subj in instance:
+            for identifier, word, synset, certainty, pos, subj in instance:
                 word = unicodedata.normalize('NFKD',word).encode('ascii','ignore')
                 pos = unicodedata.normalize('NFKD',pos).encode('ascii','ignore')
                 if subj is not None:
                     subj = unicodedata.normalize('NFKD',subj).encode('ascii','ignore')
+                if synset is not None:
+                    synset = unicodedata.normalize('NFKD',synset).encode('ascii','ignore')
+                certainty = int(certainty * 4)
                 item = crfsuite.Item()
                 try:
-                    item.append(crfsuite.Attribute(word))
-                    item.append(crfsuite.Attribute(pos))
+                    item.append(crfsuite.Attribute("WORD:" + word.strip()))
+                    item.append(crfsuite.Attribute("WORD_norm: "+ word.lower().strip()))
+                    item.append(crfsuite.Attribute("POS:" +pos))
+                    item.append(crfsuite.Attribute("CERTAIN: "+str(certainty)))
+                    if synset is None:
+                        item.append(crfsuite.Attribute("SYNSET: NO_SYNSET"))
+                    else:
+                        item.append(crfsuite.Attribute("SYNSET: " + synset))
                 except:
                     type, value, tb = sys.exc_info()
                     traceback.print_exc()
@@ -90,12 +102,69 @@ class CRFSubjectivityTagger(object):
     def train_and_output_model(cls, instances, model_path):
         trainer = CRFStubTrainer()
 
+        from sub import ARFFExporter
+
+        a = ARFFExporter("test.arff", "subj")
+        a.add_attribute("word1", "string")
+        a.add_attribute("word2", "string")
+        a.add_attribute("word3", "string")
+        a.add_attribute("synset1", "string")
+        a.add_attribute("synset2", "string")
+        a.add_attribute("synset3", "string")
+        a.add_attribute("certainty1", "numeric")
+        a.add_attribute("certainty2", "numeric")
+        a.add_attribute("certainty3", "numeric")
+        a.add_attribute("pos1", "string")
+        a.add_attribute("pos2", "string")
+        a.add_attribute("pos3", "string")
+        a.add_attribute("subj", ["s","q"]) # This should be for feat2
+
+        ps = nltk.stem.PorterStemmer()
+
+        rows = []
+        for instance in instances:
+            for feat1, feat2, feat3 in nltk.trigrams(instance):
+                row = [
+                    ps.stem(feat1[1]).lower(),
+                    ps.stem(feat2[1]).lower(),
+                    ps.stem(feat3[1]).lower(),
+                    feat1[2],
+                    feat2[2],
+                    feat3[2],
+                    str(feat1[3]),
+                    str(feat2[3]),
+                    str(feat3[3]),
+                    feat1[4],
+                    feat2[4],
+                    feat3[4],
+                    feat2[5]
+                ]
+                tmp = []
+                append = True
+                for r in row:
+                    if r is None or len(r) == 0:
+                        r = "?"
+                    if type(r) == type(u''):
+                        r = unicodedata.normalize('NFKD',r).encode('ascii','ignore')
+                    if '"' in r:
+                        append = False
+                    if "'" in r:
+                        append = False
+                    r = r.strip()
+                    if len(r) == 0:
+                        r = "?"
+                    tmp.append(r)
+                if append:
+                    rows.append(tmp)
+        a.write(rows)
+
         for _, xseq, yseq in cls.convert_to_crfsuite_instances(instances):
             trainer.append(xseq, yseq, 0)
 
+        #trainer.select("passive-aggressive", "crf1d")
         trainer.select("arow", "crf1d")
-        trainer.set("variance", "0.1")
-        trainer.set("max_iterations", "300");
+        #trainer.set("variance", "0.1")
+        trainer.set("max_iterations", "3000");
         trainer.set("gamma", "0.5")
 
         trainer.train(model_path,-1)
@@ -121,11 +190,10 @@ class CRFSubjectivityTagger(object):
 
         consensus_data = defaultdict(list)
         for instance in training_data:
-            for counter, (identifier, word, pos, subj) in enumerate(instance):
+            for counter, (identifier, word, synset, certainty, pos, subj) in enumerate(instance):
                 consensus_data[identifier].append((counter, subj))
 
         aggregated_consensus_data = defaultdict(list)
-        pdb.set_trace()
         for identifier in consensus_data:
             if identifier == 692:
                 pdb.set_trace()
@@ -195,9 +263,6 @@ class CRFSubjectivityTagger(object):
 
             for identifier, start, word, tag, synset, pos, neu, neg, total in cursor.fetchall():
                 output = word
-                if synset is not None:
-                    root, pos, sense = synset.split('.')
-                    output = "%s.%s" % (root, sense)
 
                 # Fetch subphrases
                 cursor.execute("""SELECT annotation FROM subphrases WHERE document_identifier = ?""", (identifier,))
@@ -215,8 +280,6 @@ class CRFSubjectivityTagger(object):
                     if annotation in ['p','n','e']:
                         annotation = u's'
                     buf.append((counter, annotation, word))
-                    if counter >= start:
-                        break
                     counter += len(word) + 1
 
                 if identifier == 28:
@@ -224,16 +287,24 @@ class CRFSubjectivityTagger(object):
                     pprint.pprint(buf)
                     pprint.pprint(min(buf, key=lambda x: abs(x[0]-start)))
                     print counter, start, abs(counter-start)
+                if len(buf) == 0:
+                    continue
                 position, annotation, word = min(buf, key=lambda x: abs(x[0]-start))
 
-                training_data[identifier].append((output, tag, annotation))
+                training_data[identifier].append((output, synset, tag, annotation))
+
+            subjective_counter = Counter()
+            total_counter      = Counter()
+            for i in training_data:
+                subjective_counter.update([x[0] for x in training_data[i] if x[3] == 's'])
+                total_counter.update([x[0] for x in training_data[i]])
 
 
             training_buf = []
             for identifier in training_data:
                 tmp = []
-                for output, tag, annotation in training_data[identifier]:
-                    tmp.append((identifier, output, tag, annotation))
+                for output, synset, tag, annotation in training_data[identifier]:
+                    tmp.append((identifier, output, synset, subjective_counter[output]/(total_counter[output]*1.0), tag, annotation))
                 training_buf.append(tmp)
 
             # TODO: parameters
@@ -253,20 +324,20 @@ class CRFSubjectivityTagger(object):
         if self.mode in ["tag", "evaluate"]:
             cursor = conn.cursor()
             cursor.execute("""SELECT document_identifier,word,tag,synset FROM pos_off_gimpel
-                ORDER BY start DESC""")
+                ORDER BY start ASC""")
             testing_data = defaultdict(list)
             for identifier, word, tag, synset in cursor.fetchall():
                 output = word
                 if synset is not None:
                     root, pos, sense = synset.split('.')
                     output = "%s.%s" % (root, sense)
-                testing_data[identifier].append((word, tag))
+                testing_data[identifier].append((word, synset, tag))
 
             testing_buf = []
             for identifier in testing_data:
                 tmp = []
-                for word, tag in testing_data[identifier]:
-                    tmp.append((identifier, word, tag, None))
+                for word, synset, tag in testing_data[identifier]:
+                    tmp.append((identifier, word, synset, subjective_counter[output]/(total_counter[output]*1.0), tag, None))
                 testing_buf.append(tmp)
 
             tags = self.tag_instances_from_model(testing_buf, self.model_path)
@@ -333,7 +404,7 @@ class CRFNativeExporter(object):
                 counter += len(t) + 1 # For the space
 
             # Retrieve the output tokens
-            sql = """SELECT start,word,tag,synset FROM %s WHERE document_identifier = ? ORDER BY start""" % (self.tags_src,)
+            sql = """SELECT start,word,tag,synset FROM %s WHERE document_identifier = ? ORDER BY start ASC""" % (self.tags_src,)
             cursor.execute(sql, (identifier,))
             for start, word, tag, synset in cursor.fetchall():
                 # Step through the annotation dict until we get to the start
@@ -380,7 +451,7 @@ class CRFNativeExporter(object):
                 counter += len(t) + 1 # For the space
 
             # Retrieve the output tokens
-            sql = """SELECT start,word,tag,synset FROM %s WHERE document_identifier = ? ORDER BY start""" % (self.tags_src,)
+            sql = """SELECT start,word,tag,synset FROM %s WHERE document_identifier = ? ORDER BY start ASC""" % (self.tags_src,)
             cursor.execute(sql)
             for start, word, tag, synset in cursor.fetchall():
                 # Step through the annotation dict until we get to the start
