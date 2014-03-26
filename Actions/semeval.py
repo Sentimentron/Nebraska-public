@@ -6,6 +6,7 @@
 
 import csv
 import pdb
+import logging
 
 import Actions.db as db
 from Actions.label import Labeller
@@ -21,7 +22,6 @@ class SemEvalTaskAImport(object):
             Required: path - path to the SemEval input
             key = "training" or "test"
         """
-
         self.path = xml.get("path")
         self.key  = xml.get("key")
 
@@ -49,7 +49,16 @@ class SemEvalTaskAImport(object):
         counter = 0
         with open(self.path, 'rU') as csv_fp:
             reader = csv.reader(csv_fp, delimiter='\t')
-            for uid, sid, start, end, polarity, text in reader:
+
+            for line in reader:
+                try:
+                    uid, sid, start, end, polarity = line[:5]
+                    text = '\t'.join(line[5:])
+                except ValueError as ex:
+                    logging.error(line)
+                    raise ex
+                if text == "Not Available":
+                    continue # Tweet's been removed from Twitter
                 identifier = (int(uid), int(sid))
                 start = int(start)
                 end   = int(end)

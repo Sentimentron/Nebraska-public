@@ -43,6 +43,7 @@ class ARFFExporter(object):
             for row in rows:
                 if len(row) != len(self.attributes):
                     logging.error((len(row), len(self.attributes)))
+                    continue
                 writer.writerow(row)
 
 class BigramBinaryPresenceTotalNumberSubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):

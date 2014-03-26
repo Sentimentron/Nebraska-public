@@ -13,12 +13,18 @@
     </Tables>
 
     <InputSources>
+        <!--SemEvalTaskAImport key="train" path="Data/SemEval/twitter-test-gold-A.tsv" /-->
         <SemEvalTaskAImport key="train" path="Data/SemEval/tweeter-dev-full-A-tweets.tsv" />
+        <!--AMTInputSource dir="Data/MechanicalTurk/Tech/" />
+        <AMTInputSource dir="Data/MechanicalTurk/Finance/" />
+        <AMTInputSource dir="Data/MechanicalTurk/Politics/" /-->
     </InputSources>
 
     <WorkflowTasks>
         <GimpelPOSTagger dest="gimpel" verbose="true" />
+        <WordSenseDisambiguate table="gimpel" />
         <CRFSubjectivityTagger mode="evaluate" resultsPath="crflog.txt" modelPath="semeval.model" />
+        <!--MatchSubjectiveAnnotations subphrases_table="subphrases" table="gimpel" src_table="gimpel" /-->
     </WorkflowTasks>
 
 </Workflow>
