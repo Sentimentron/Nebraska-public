@@ -1,0 +1,194 @@
+<Workflow>
+
+    <WorkflowOptions>
+        <WorkflowName>AMT Corpus Unigrams with Binary Presence</WorkflowName>
+        <WorkflowDescription>Imports AMT corpus and generates Unigrams with binary presence.</WorkflowDescription>
+        <RetainOutputFile path="amt.sqlite"/>
+        <DisableUntrackedFileCheck />
+    </WorkflowOptions>
+
+    <Tables>
+        <ResultsTable />
+    </Tables>
+
+    <InputSources>
+        <AMTInputSource dir="Data/MechanicalTurk/Politics" />
+    </InputSources>
+
+    <WorkflowTasks>
+        <AMTNormalise/>
+                <DomainLabeller>
+                    <Domain name="tech">
+                        <Domain name="techstocks">
+                            <Domain name="Microsoft">
+                                <DomainTerm>Microsoft</DomainTerm>
+                                <DomainTerm>Xbox</DomainTerm>
+                                <DomainTerm>Windows</DomainTerm>
+                                <DomainTerm>Bing</DomainTerm>
+                                <DomainTerm>Kinect</DomainTerm>
+                            </Domain>
+                            <Domain name="Google">
+                                <DomainTerm>Google</DomainTerm>
+                                <DomainTerm>YouTube</DomainTerm>
+                                <DomainTerm>gmail</DomainTerm>
+                            </Domain>
+                            <DomainTerm>Twitter</DomainTerm>
+                            <DomainTerm>Facebook</DomainTerm>
+                            <Domain name="Apple">
+                                <DomainTerm>Apple</DomainTerm> <!--Documents containing Apple will be tagged with both the domain Apple, techstocks, and technology-->
+                                <DomainTerm>iPad</DomainTerm>
+                                <DomainTerm>iPad mini</DomainTerm>
+                                <DomainTerm>iPhone</DomainTerm>
+                                <DomainTerm>iPod</DomainTerm>
+                                <DomainTerm>iTunes</DomainTerm>
+                            </Domain>
+                        </Domain>
+                        <DomainTerm>Zynga</DomainTerm>
+                        <Domain name="Yahoo">
+                            <DomainTerm>Yahoo</DomainTerm>
+                            <DomainTerm>Flickr</DomainTerm>
+                        </Domain>
+                        <DomainTerm>Wikipedia</DomainTerm>
+                        <DomainTerm>Tumblr</DomainTerm>
+                        <DomainTerm>Symbian</DomainTerm>
+                        <DomainTerm>Oracle</DomainTerm>
+                        <DomainTerm>Spotify</DomainTerm>
+                        <DomainTerm>Nokia</DomainTerm>
+                        <DomainTerm>Nintendo</DomainTerm>
+                        <DomainTerm>Acer</DomainTerm>
+                        <DomainTerm>Acta</DomainTerm>
+                        <DomainTerm>Activision</DomainTerm>
+                        <DomainTerm>Blizzard</DomainTerm>
+                        <DomainTerm>Adobe</DomainTerm>
+                        <DomainTerm>Amazon</DomainTerm>
+                        <DomainTerm>Android</DomainTerm>
+                        <DomainTerm>AOL</DomainTerm>
+                        <DomainTerm>Asus</DomainTerm>
+                        <DomainTerm>BitCoin</DomainTerm>
+                        <DomainTerm>BitTorrent</DomainTerm>
+                        <DomainTerm>BlackBerry</DomainTerm>
+                        <DomainTerm>Chatroulette</DomainTerm>
+                        <DomainTerm>Snapchat</DomainTerm>
+                        <DomainTerm>Craigslist</DomainTerm>
+                        <DomainTerm>Dell</DomainTerm>
+                        <DomainTerm>Digg</DomainTerm>
+                        <DomainTerm>eBay</DomainTerm>
+                        <DomainTerm>Firefox</DomainTerm>
+                        <DomainTerm>Foursquare</DomainTerm>
+                        <DomainTerm>Groupon</DomainTerm>
+                        <DomainTerm>HTC</DomainTerm>
+                        <DomainTerm>IBM</DomainTerm>
+                        <DomainTerm>Instagram</DomainTerm>
+                        <DomainTerm>Intel</DomainTerm>
+                        <DomainTerm>KickStarter</DomainTerm>
+                        <DomainTerm>Kindle</DomainTerm>
+                        <DomainTerm>Kindle Fire</DomainTerm>
+                        <DomainTerm>LinkedIn</DomainTerm>
+                        <DomainTerm>Linux</DomainTerm>
+                        <DomainTerm>MacWorld</DomainTerm>
+                        <DomainTerm>MegaUpload</DomainTerm>
+                        <DomainTerm>Mozilla</DomainTerm>
+                        <DomainTerm>Myspace</DomainTerm>
+                    </Domain>
+
+                    <Domain name="politics">
+                        <Domain name="american_politics">
+                            <DomainTerm>Congress</DomainTerm>
+                            <DomainTerm>Constitution</DomainTerm>
+                            <DomainTerm>Federal</DomainTerm>
+                            <DomainTerm>Legislature</DomainTerm>
+                            <DomainTerm>Senate</DomainTerm>
+                            <DomainTerm>ObamaCare</DomainTerm>
+                            <Domain name="democrats">
+                                <DomainTerm>Pelosi</DomainTerm>
+                                <DomainTerm>Democrats</DomainTerm>
+                                <Domain name="obama">
+                                    <DomainTerm>Obama</DomainTerm>
+                                    <DomainTerm>Biden</DomainTerm>
+                                </Domain>
+                            </Domain>
+                            <Domain name="republicans">
+                                <DomainTerm>Republicans</DomainTerm>
+                                <DomainTerm>Cruz</DomainTerm>
+                                <DomainTerm>Boehner</DomainTerm>
+                                <DomainTerm>Eric Cantor</DomainTerm>
+                            </Domain>
+                        </Domain>
+                        <Domain name="scottish_politics">
+                            <DomainTerm>Scotland</DomainTerm>
+                            <DomainTerm>Scottish</DomainTerm>
+                            <DomainTerm>Referendum</DomainTerm>
+                        </Domain>
+                    </Domain>
+
+                    <Domain name="finance">
+                        <DomainTerm>Acquisition</DomainTerm>
+                        <DomainTerm>AMEX</DomainTerm>
+                        <DomainTerm>Amortization</DomainTerm>
+                        <DomainTerm>Arbitrage</DomainTerm>
+                        <DomainTerm>Bank</DomainTerm>
+                        <DomainTerm>Bankrupt</DomainTerm>
+                        <DomainTerm>Barter</DomainTerm>
+                        <DomainTerm>Bear</DomainTerm>
+                        <DomainTerm>Beneficiary</DomainTerm>
+                        <DomainTerm>Bond</DomainTerm>
+                        <DomainTerm>Broker</DomainTerm>
+                        <DomainTerm>Brokerage</DomainTerm>
+                        <DomainTerm>Buying</DomainTerm>
+                        <DomainTerm>Buyout</DomainTerm>
+                        <DomainTerm>Collateral</DomainTerm>
+                        <DomainTerm>Commodity</DomainTerm>
+                        <DomainTerm>Credit</DomainTerm>
+                        <DomainTerm>Debenture</DomainTerm>
+                        <DomainTerm>Debit</DomainTerm>
+                        <DomainTerm>Debt</DomainTerm>
+                        <DomainTerm>Default</DomainTerm>
+                        <DomainTerm>Delinquency</DomainTerm>
+                        <DomainTerm>Demand</DomainTerm>
+                        <DomainTerm>Depository</DomainTerm>
+                        <DomainTerm>Depreciation</DomainTerm>
+                        <DomainTerm>Depression</DomainTerm>
+                        <DomainTerm>Deregulation</DomainTerm>
+                        <DomainTerm>Embezzlement</DomainTerm>
+                        <DomainTerm>Federal</DomainTerm>
+                        <DomainTerm>Fees</DomainTerm>
+                        <DomainTerm>Fiscal</DomainTerm>
+                        <DomainTerm>Foreclosure</DomainTerm>
+                        <DomainTerm>Lending rate</DomainTerm>
+                        <DomainTerm>Leverage</DomainTerm>
+                        <DomainTerm>Liability</DomainTerm>
+                        <DomainTerm>Lien</DomainTerm>
+                        <DomainTerm>Liquidity</DomainTerm>
+                        <DomainTerm>Long-term</DomainTerm>
+                        <DomainTerm>Low risk</DomainTerm>
+                        <DomainTerm>Merger</DomainTerm>
+                        <DomainTerm>NYSE</DomainTerm>
+                        <DomainTerm>OTC</DomainTerm>
+                        <DomainTerm>Recession</DomainTerm>
+                        <DomainTerm>Regulation</DomainTerm>
+                        <DomainTerm>Securities</DomainTerm>
+                        <DomainTerm>Takeover</DomainTerm>
+                        <DomainTerm>Underwriter</DomainTerm>
+                        <DomainTerm>btc</DomainTerm>
+                        <DomainTerm>Natwest</DomainTerm>
+                        <DomainTerm>RBS</DomainTerm>
+                        <DomainTerm>Halifax</DomainTerm>
+                        <DomainTerm>Goldmans</DomainTerm>
+                        <DomainTerm>Goldman Sachs</DomainTerm>
+                        <DomainTerm>Barclays</DomainTerm>
+                        <DomainTerm>HSBC</DomainTerm>
+                    </Domain>
+
+                </DomainLabeller>
+
+        <!-- Build our data to train on -->
+        <CrossDomainUnigramDataExporter outputTable="unigrams" path="tech_training.arff" domain="tech"/>
+        <!-- Build our data to test on -->
+        <CrossDomainUnigramDataExporter outputTable="unigrams" path="politics_training.arff" domain="politics"/>
+        <!-- Build our data from the domain were testing on with pivot features -->
+        <CrossDomainUnigramPivotDataExporter outputTable="unigrams" path="politics_test.arff" pivots="intersection.csv" test_domain="politics"/>
+
+
+    </WorkflowTasks>
+
+</Workflow>

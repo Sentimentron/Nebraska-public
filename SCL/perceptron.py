@@ -1,7 +1,7 @@
 import numpy
 max_itterations = 100
 learning_rate = 0.1
-pivots_to_keep = 10
+pivots_to_keep = 500
 
 # sentiment_input is a matrix of columns containing unigrams and rows containing instances. The final column is the class label
 def learnPerceptron(sentiment_input, learning_rate):
@@ -113,7 +113,7 @@ def learnSCLPerceptron(sentiment_weights, sentiment_input, thi, learning_rate):
     number_of_pivots = thi.shape[0]
     # The weights for v have number_of_pivot columns
     v_weights = numpy.zeros(number_of_pivots)
-
+    print(thi.shape)
     converged = False
     number_itterations = 0
     while converged == False and number_itterations < max_itterations:
@@ -127,13 +127,13 @@ def learnSCLPerceptron(sentiment_weights, sentiment_input, thi, learning_rate):
             class_label = sentiment_input[instance][class_label_index]
             # Train the v weights
             # Rule for checking the output is: sentiment_weights * input + v * thi(x)
-            intermediate_result = numpy.dot(thi, instance_without_label)
-            second_intermediate_result = numpy.dot(sentiment_weights, instance_without_label)
-            actual_result = intermediate_result + second_intermediate_result
+            intermediate_result = numpy.dot(sentiment_weights, instance_without_label)
+            second_intermediate_result = numpy.dot(thi, instance_without_label)
+            actual_result = class_label * (intermediate_result + numpy.dot(v_weights,second_intermediate_result))
 
             # If this was misclassified then update the weights
             if actual_result <= 0:
-                v_weights = v_weights + class_label * learning_rate * instance_without_label
+                v_weights = v_weights + class_label * learning_rate * second_intermediate_result
                 converged = False
         number_itterations = number_itterations +1
     return v_weights
@@ -150,55 +150,66 @@ def testSCLPerceptron(sentiment_weights, test_input, v_weights, thi):
     incorrect = 0
     # For every test example
     for instance in range(0,number_instances):
-        if sentiment_input[instance][class_label_index] == 0:
+        if test_input[instance][class_label_index] == 0:
             continue
 
         instance_without_label = test_input[instance,0:number_features]
         class_label = test_input[instance][class_label_index]
         # Rule to check the output is sentiment_weights * input + v * thi(x)
-        intermediate_result = numpy.dot(thi, instance_without_label)
-        second_intermediate_result = numpy.dot(sentiment_weights, instance_without_label)
-        actual_result = intermediate_result + second_intermediate_result
-
-        if actual_result<= 0:
-            incorrect = incorrect +1
+        intermediate_result = numpy.dot(sentiment_weights, instance_without_label)
+        second_intermediate_result = numpy.dot(thi, instance_without_label)
+        actual_result = intermediate_result + numpy.dot(v_weights,second_intermediate_result)
+        if actual_result > 0:
+            classification = 1
         else:
+            classification = -1
+
+        if classification == test_input[instance][class_label_index]:
             correct = correct +1
+        else:
+            incorrect = incorrect +1
+
+    print(correct / (incorrect + correct) )
     print(incorrect)
     print(correct)
 
 ## Perform SCL
 print("Reading data")
 # Standard sentiment training data from a single domain with the class label of -1,0,1 in the final column
-sentiment_data = numpy.genfromtxt(open("unigrams.arff","rb"),delimiter=",",skiprows=0)
+sentiment_data = numpy.genfromtxt(open("tech_training.arff","rb"),delimiter=",",skiprows=0)
 # Pivot training data which contains the unigrams followed by a binary value for each pivot indicating if the pivot appears in the tweet or not
-pivot_data = numpy.genfromtxt(open("intersection.arff","rb"),delimiter=",",skiprows=0)
+pivot_data = numpy.genfromtxt(open("politics_test.arff","rb"),delimiter=",",skiprows=0)
 number_unigrams = sentiment_data.shape[1] -1
 # Learn the Sentiment Weights
 print("Learning Sentiment Weights")
 sentiment_weights = learnPerceptron(sentiment_data, learning_rate)
 # Convinence methods for saving / loading the weights for faster testing
 # sentiment_weights = numpy.load("sentiment_weights.npy")
-# numpy.save("sentiment_weights", sentiment_weights)
+print(sentiment_weights)
+numpy.save("sentiment_weights", sentiment_weights)
 # Now learn the Thi Matrix
 print("Learning Thi Weights")
 thi_weights = learnPivotPerceptron(pivot_data, learning_rate, number_unigrams)
 # Convinence methods for saving / loading the weights for faster testing
-# numpy.save("thi_weights", thi_weights)
+numpy.save("thi_weights", thi_weights)
 # thi_weights = numpy.load("thi_weights.npy")
+
 # Now we have to perform SVD on Thi as we don't need all of the pivots as many are likely synomns
 print("Performing SVD")
 u, s, v = numpy.linalg.svd(thi_weights)
+
 u = numpy.transpose(u)
 # Now keep the top pivots
-u = u[pivots_to_keep,:]
+u = u[0:pivots_to_keep][:]
 # Finally we can train the final classifier
 print("Training Final Classifier")
 v_weights = learnSCLPerceptron(sentiment_weights, sentiment_data, u, learning_rate)
 # Convinence methods for saving / loading the weights for faster testing
-# numpy.save("v_weights", v_weights)
+numpy.save("v_weights", v_weights)
 # v_weights = numpy.load("v_weights.npy")
+print(v_weights)
+# print(v_weights)
 # Now we can test the classifiers performance on the test domain
 print("Testing Final Classifier")
-test_data = numpy.genfromtxt(open("unigrams_test.arff","rb"),delimiter=",",skiprows=0)
+test_data = numpy.genfromtxt(open("politics_training.arff","rb"),delimiter=",",skiprows=0)
 testSCLPerceptron(sentiment_weights, test_data, v_weights, u)
