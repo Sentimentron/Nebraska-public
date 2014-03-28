@@ -520,11 +520,6 @@ class BigramBinaryPresenceTotalNumberSubjectiveARFFExporter(HumanBasedSubjective
                 else:
                     counts[bigram] = 1
 
-        with open('mycsvfile.csv', 'wb') as f:  # Just use 'w' mode in 3.x
-            w = csv.DictWriter(f, counts.keys())
-            w.writeheader()
-            w.writerow(counts)
-
         # For every tweet we got back
         for identifier, text, sentiment in data:
             # Split it on white space
@@ -1180,6 +1175,11 @@ class UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter(HumanB
                     counts[word] += 1
                 else:
                     counts[word] = 1
+
+        with open('mycsvfile.csv', 'wb') as f:  # Just use 'w' mode in 3.x
+            w = csv.DictWriter(f, counts.keys())
+            w.writeheader()
+            w.writerow(counts)
 
         # For every tweet we got back
         for identifier, text, sentiment in data:

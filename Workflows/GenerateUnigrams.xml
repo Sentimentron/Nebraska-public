@@ -17,10 +17,13 @@
 
     <WorkflowTasks>
         <AMTNormalise/>
-        <UnigramBinaryPresenceARFFExporter outputTable="unigrams" path="unigrams.arff" />
-        <!-- <UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" /> -->
+
+        <!-- <UnigramBinaryPresenceARFFExporter outputTable="unigrams" path="unigrams.arff"/> -->
+
+        <!-- <UnigramBinaryPresenceARFFExporter outputTable="unigrams" path="unigrams.arff" /> -->
+        <!-- <UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" /> -->
         <!-- <UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter outputTable="unigrams" path="unigrams.arff" /> -->
-        <!-- <UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter outputTable="unigrams" path="unigrams.arff" /> -->
+        <UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter outputTable="unigrams" path="unigrams.arff" />
 
         <!-- <UnigramBinaryPresenceARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" lemmise="true" threshold="2"/> -->
         <!-- <UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" lemmise="true" threshold="2"/> -->
