@@ -1,7 +1,7 @@
 import numpy
-max_itterations = 100
+max_itterations = 1
 learning_rate = 0.1
-pivots_to_keep = 500
+pivots_to_keep = 800
 
 # sentiment_input is a matrix of columns containing unigrams and rows containing instances. The final column is the class label
 def learnPerceptron(sentiment_input, learning_rate):

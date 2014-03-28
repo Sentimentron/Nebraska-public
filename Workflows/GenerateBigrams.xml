@@ -17,11 +17,12 @@
 
     <WorkflowTasks>
         <AMTNormalise/>
+        <GimpelPOSTagger dest="gimpel" verbose="true" />
 
-        <BigramBinaryPresenceARFFExporter outputTable="bigrams" path="unigrams.arff" />
+        <!-- <BigramBinaryPresenceARFFExporter outputTable="bigrams" path="unigrams.arff" /> -->
         <!-- <BigramBinaryPresencePercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" /> -->
         <!-- <BigramBinaryPresenceNumberSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" /> -->
-        <!-- <BigramBinaryPresenceTotalNumberSubjectiveARFFExporter outputTable="bigrams" path="unigrams.arff" /> -->
+        <BigramBinaryPresenceTotalNumberSubjectiveARFFExporter outputTable="bigrams" path="unigrams.arff" />
 
 
         <!-- <BigramBinaryPresenceARFFExporter outputTable="bigrams" path="unigrams.arff" useStopWords="true" stem="true" threshold="2"/> -->
@@ -32,7 +33,7 @@
         <!-- <BigramBinaryPresenceARFFExporter outputTable="bigrams" path="unigrams.arff" useStopWords="true" lemmise="true" threshold="2"/> -->
         <!-- <BigramBinaryPresencePercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" lemmise="true" threshold="2"/> -->
         <!-- <BigramBinaryPresenceNumberSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" lemmise="true" threshold="2"/> -->
-        <BigramBinaryPresenceTotalNumberSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" lemmise="true" threshold="2"/>
+        <!-- <BigramBinaryPresenceTotalNumberSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" useStopWords="true" lemmise="true" /> -->
     </WorkflowTasks>
 
 </Workflow>

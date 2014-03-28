@@ -1,0 +1,17 @@
+# Generate the Unigrams
+python workflow.py Workflows/GenerateBigrams.xml
+# Move them to the weka folder
+mv unigrams.arff External/WekaClassifier/unigrams.arff
+# Run the benchmarks
+python workflow.py Workflows/BenchmarkTech.xml
+# Export the results to the clipboard
+sqlite3 benchmarks.sqlite <<!
+.mode csv
+.output out.csv
+SELECT * FROM results;
+!
+cat out.csv | pbcopy
+# Remove the old unigram files
+rm External/WekaClassifier/unigrams.arff
+# Remove the DB file
+rm benchmarks.sqlite
