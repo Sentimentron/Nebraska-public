@@ -4,7 +4,7 @@
 import logging
 import sys
 
-from crf import CRFNativeExporter, CRFSubjectivityTagger
+# from crf import CRFNativeExporter, CRFSubjectivityTagger
 from semeval import SemEvalTaskAImport
 from wsd import WordSenseDisambiguate
 from submatch import MatchSubjectiveAnnotations
@@ -66,6 +66,8 @@ from sub import UnigramBinaryPresenceARFFExporter
 from sub import UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter
 from sub import UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter
 from sub import UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter
+from sub import CrossDomainUnigramDataExporter
+from sub import CrossDomainUnigramPivotDataExporter
 from templabeller import AtMentionLabeller
 from templabeller import BasicWordLabeller
 from templabeller import BigramLabeller

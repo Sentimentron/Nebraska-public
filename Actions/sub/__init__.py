@@ -19,6 +19,8 @@ from arff import UnigramBinaryPresenceARFFExporter
 from arff import UnigramBinaryPresenceWithNumberOfSubjectivePhrasesARFFExporter
 from arff import UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter
 from arff import UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter
+from arff import CrossDomainUnigramDataExporter
+from arff import CrossDomainUnigramPivotDataExporter
 from crf import CRFSubjectiveAnnotator
 from crf import CRFSubjectiveExporter
 from crf import ProduceCRFSTagList

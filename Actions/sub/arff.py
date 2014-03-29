@@ -14,37 +14,413 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.stem.snowball import EnglishStemmer
 from Actions.sub.word import SubjectiveWordNormaliser
 from Actions.sub.human import HumanBasedSubjectivePhraseAnnotator
+from operator import itemgetter
 
 class ARFFExporter(object):
 
-    def __init__(self, path, name):
+    def __init__(self, path, name, header=True):
         self.path = path
         self.attributes = OrderedDict()
         self.name = name
+        self.header = header
 
     def add_attribute(self, name, kind):
         self.attributes[name] = kind
 
     def write(self, rows):
         with open(self.path, 'w') as output_file:
-            print >> output_file, "@relation", self.name
-            print >> output_file, ""
-            for name in self.attributes:
-                print >> output_file, "@attribute", name,
-                kind = self.attributes[name]
-                if type(kind) == type([]):
-                    fmt = "{%s}" % (','.join(kind),)
-                    print >> output_file, fmt
-                else:
-                    print >> output_file, kind
-            print >> output_file, ""
-            print >> output_file, "@data"
+            if self.header:
+                print >> output_file, "@relation", self.name
+                print >> output_file, ""
+                for name in self.attributes:
+                    print >> output_file, "@attribute", name,
+                    kind = self.attributes[name]
+                    if type(kind) == type([]):
+                        fmt = "{%s}" % (','.join(kind),)
+                        print >> output_file, fmt
+                    else:
+                        print >> output_file, kind
+                print >> output_file, ""
+                print >> output_file, "@data"
             writer = csv.writer(output_file)
             for row in rows:
                 if len(row) != len(self.attributes):
                     logging.error((len(row), len(self.attributes)))
                     continue
                 writer.writerow(row)
+
+# This class produces a CSV file without a header of training data for the SCL tests.
+# This is similar to the standard ARFF exporters except the training data contains slots for unigrams from both domains. Before this class is run the database needs to contain tweets from the test and train domains
+class CrossDomainUnigramDataExporter(HumanBasedSubjectivePhraseAnnotator):
+
+    # Get all of the tweets from the train domain so we can set the unigrams to present or not in the results file
+    def get_text_anns_with_domain(self, conn):
+        """
+            Generate a list of (id, text, annnotation) triples
+        """
+        cursor = conn.cursor()
+        ret = []
+        # Get all the tweets from the database
+        sql = """SELECT document, subphrases.sentiment, label_names_domains.label FROM input JOIN label_domains ON input.identifier = label_domains.document_identifier  JOIN label_names_domains ON label_domains.label = label_names_domains.label_identifier JOIN subphrases ON input.identifier = subphrases.document_identifier WHERE input.identifier = ? AND label_names_domains.label = ?"""
+        for identifier in self.generate_source_identifiers(conn):
+            cursor.execute(sql, (identifier,self.domain))
+            # For every tweet and its annotation
+            for text, sentiment, _ in cursor.fetchall():
+                if sentiment == 'positive':
+                    sentiment = 1
+                elif sentiment == 'negative':
+                    sentiment = -1
+                else:
+                    sentiment = 0
+                # Ditch anything thats not a letter
+                text = re.sub('[^a-zA-Z ]', '', text)
+                # And return the identifier, the tweet and its overall sentiment
+                ret.append((identifier, text, sentiment))
+        return ret
+
+    # Get all of the tweets in the database so we get a complete set of attributes
+    def get_text_anns(self, conn):
+        """
+            Generate a list of (id, text, annnotation) triples
+        """
+        cursor = conn.cursor()
+        ret = []
+        # Get all the tweets from the database
+        sql = """SELECT input.document FROM input WHERE input.identifier = ?"""
+        for identifier in self.generate_source_identifiers(conn):
+            cursor.execute(sql, (identifier,))
+            # For every tweet and its annotation
+            for text in cursor.fetchall():
+                # Ditch anything thats not a letter
+                text = re.sub('[^a-zA-Z ]', '', text[0])
+                # And return the identifier, the tweet and its overall sentiment
+                ret.append((identifier, text))
+        return ret
+
+    def __init__(self, xml):
+        """
+            Initialise the exporter: must provide a path attribute
+        """
+        super(CrossDomainUnigramDataExporter, self).__init__(
+            xml
+        )
+
+        self.path = xml.get("path")
+        self.exporter = ARFFExporter(self.path, "tweet_sentiment", False)
+        self.use_stop_words = xml.get("useStopWords")
+        self.threshold = xml.get("threshold")
+        self.stem = xml.get("stem")
+        self.lemmise = xml.get("lemmise")
+        self.domain = xml.get("domain")
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
+        if self.stem != "true":
+            self.stem = False
+        else:
+            self.stem = True
+        if self.lemmise != "true":
+            self.lemmise = False
+        else:
+            self.lemmise = True
+        if self.use_stop_words != "true":
+            self.use_stop_words = False
+        else:
+            self.use_stop_words = True
+        assert self.path is not None
+
+    def execute(self, path, conn):
+        stopwords = """a,able,about,across,after,all,almost,also,am
+        ,among,an,and,any,are,as,at,be,because
+        ,been,but,by,can,cannot,could,dear
+        ,did,do,does,either,else,ever,every
+        ,for,from,get,got,had,has,have,he,her
+        ,hers,him,his,how,however,i,if,in,into
+        ,is,it,its,just,least,let,like,likely,
+        may,me,might,most,must,my,neither,no,nor,
+        not,of,off,often,on,only,or,other,our,own,
+        rather,said,say,says,she,should,since,so,
+        some,than,that,the,their,them,then,there,
+        these,they,this,tis,to,too,twas,us,wants,
+        was,we,were,what,when,where,which,while,
+        who,whom,why,will,with,would,yet,you,your""".split(",")
+        stopwords = [i.strip() for i in stopwords]
+
+        # Get all the tweets from the database
+        data = self.get_text_anns(conn)
+        # Get just the tweets from the test domain
+        test_data = self.get_text_anns_with_domain(conn)
+        # Will contain all the unigrams from the test and train domains
+        words = set([])
+        counts = {}
+
+        # Count the number of occurences of each unigram
+        # For every tweet we got back
+        for identifier, text in data:
+            # Split it on white space
+            for word in text.split(' '):
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
+                elif len(word) == 0:
+                    continue
+                elif word in counts:
+                    counts[word] += 1
+                else:
+                    counts[word] = 1
+
+        # For every tweet we got back
+        for identifier, text in data:
+            # Split it on white space
+            for word in text.split(' '):
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
+                elif len(word) == 0:
+                    continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
+                # And add it as an attribute
+                words.add(word.lower())
+
+        # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
+        for word in sorted(words):
+            self.exporter.add_attribute(word, 'numeric')
+        self.exporter.add_attribute('sentiment', 'numeric')
+
+        # Get a dictionary mapping the words that are our attributes to integers that represent their index in the ARFF file
+        word_ids = {w: i for i, w in enumerate(sorted(words))}
+
+        rows = []
+        # For each tweet in our database
+        for identifier, text, sentiment in test_data:
+            # Split it on white space
+            text = text.split(' ')
+            # Set every attribute in the row to not present
+            row = [0 for _ in words]
+            # Itterate over each word in the tweet
+            for word in text:
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
+                if len(word) == 0:
+                    continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
+                # And set it to present
+                row[word_ids[word]] = 1
+            # And add the class label
+            row.append(sentiment)
+            # Add this row to our complete set of rowS
+            rows.append(row)
+
+        self.exporter.write(rows)
+
+        return True, conn
+
+# This class produces a CSV file without a header of test data for the SCL tests.
+# The input to it needs to specifiy what the test domain is and before this class is run the database needs to contain the tweets from both the test and training domains
+class CrossDomainUnigramPivotDataExporter(HumanBasedSubjectivePhraseAnnotator):
+
+    # Get all of the tweets from the test domain so we can set the unigrams to present or not in the results file
+    def get_text_anns_with_domain(self, conn):
+        """
+            Generate a list of (id, text, annnotation) triples
+        """
+        cursor = conn.cursor()
+        ret = []
+        # Get all the tweets from the database
+        sql = """SELECT document, label_names_domains.label FROM input JOIN label_domains ON input.identifier = label_domains.document_identifier  JOIN label_names_domains ON label_domains.label = label_names_domains.label_identifier WHERE input.identifier = ? AND label_names_domains.label = ?"""
+        for identifier in self.generate_source_identifiers(conn):
+            cursor.execute(sql, (identifier,self.test_domain))
+            # For every tweet and its annotation
+            for text in cursor.fetchall():
+                # Ditch anything thats not a letter
+                text = re.sub('[^a-zA-Z ]', '', text[0])
+                # And return the identifier, the tweet and its overall sentiment
+                ret.append((identifier, text))
+        return ret
+
+    # Get all of the tweets in the database so we get a complete set of attributes
+    def get_text_anns(self, conn):
+        """
+            Generate a list of (id, text, annnotation) triples
+        """
+        cursor = conn.cursor()
+        ret = []
+        # Get all the tweets from the database
+        sql = """SELECT input.document FROM input WHERE input.identifier = ?"""
+        for identifier in self.generate_source_identifiers(conn):
+            cursor.execute(sql, (identifier,))
+            # For every tweet and its annotation
+            for text in cursor.fetchall():
+                # Ditch anything thats not a letter
+                text = re.sub('[^a-zA-Z ]', '', text[0])
+                # And return the identifier, the tweet and its overall sentiment
+                ret.append((identifier, text))
+        return ret
+
+    # Loads in the pivot words which are stored as one word per line in the CSV file specified in the workflow file
+    def load_pivots(self, pivot_words):
+        ret = set([])
+        # Read in the pivot words from the csv file, one pivot per line
+        with open(pivot_words, 'rU') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                ret.add(row[0]+"_pivot")
+        return ret
+
+    def __init__(self, xml):
+        """
+            Initialise the exporter: must provide a path attribute
+        """
+        super(CrossDomainUnigramPivotDataExporter, self).__init__(
+            xml
+        )
+
+        self.path = xml.get("path")
+        self.exporter = ARFFExporter(self.path, "tweet_sentiment", False)
+        self.use_stop_words = xml.get("useStopWords")
+        self.threshold = xml.get("threshold")
+        self.stem = xml.get("stem")
+        self.lemmise = xml.get("lemmise")
+        self.pivot_words = xml.get("pivots")
+        self.test_domain = xml.get("test_domain")
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
+        if self.stem != "true":
+            self.stem = False
+        else:
+            self.stem = True
+        if self.lemmise != "true":
+            self.lemmise = False
+        else:
+            self.lemmise = True
+        if self.use_stop_words != "true":
+            self.use_stop_words = False
+        else:
+            self.use_stop_words = True
+        assert self.path is not None
+
+    def execute(self, path, conn):
+        stopwords = """a,able,about,across,after,all,almost,also,am
+        ,among,an,and,any,are,as,at,be,because
+        ,been,but,by,can,cannot,could,dear
+        ,did,do,does,either,else,ever,every
+        ,for,from,get,got,had,has,have,he,her
+        ,hers,him,his,how,however,i,if,in,into
+        ,is,it,its,just,least,let,like,likely,
+        may,me,might,most,must,my,neither,no,nor,
+        not,of,off,often,on,only,or,other,our,own,
+        rather,said,say,says,she,should,since,so,
+        some,than,that,the,their,them,then,there,
+        these,they,this,tis,to,too,twas,us,wants,
+        was,we,were,what,when,where,which,while,
+        who,whom,why,will,with,would,yet,you,your""".split(",")
+        stopwords = [i.strip() for i in stopwords]
+
+        # Get all the tweets from the database
+        data = self.get_text_anns(conn)
+        # Get just the tweets from the test domain
+        test_data = self.get_text_anns_with_domain(conn)
+        # Will contain all the unigrams from the test and train domains
+        words = set([])
+        counts = {}
+        # What are the pivot words that we hope will map the two domains together ?
+        pivot_words = self.load_pivots(self.pivot_words)
+
+        # Count the number of occurences of each unigram
+        # For every tweet we got back
+        for identifier, text in data:
+            # Split it on white space
+            for word in text.split(' '):
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
+                elif len(word) == 0:
+                    continue
+                elif word in counts:
+                    counts[word] += 1
+                else:
+                    counts[word] = 1
+
+        # For every tweet we got back
+        for identifier, text in data:
+            # Split it on white space
+            for word in text.split(' '):
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
+                elif len(word) == 0:
+                    continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
+                # And add it as an attribute
+                words.add(word.lower())
+
+        # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
+        for word in sorted(words):
+            self.exporter.add_attribute(word, 'numeric')
+        # Add the pivot features as attributes at the end
+        for pivot in sorted(pivot_words):
+            self.exporter.add_attribute(pivot, 'numeric')
+
+        # Get a dictionary mapping the words that are our attributes to integers that represent their index in the ARFF file
+        word_ids = {w: i for i, w in enumerate(sorted(words))}
+        max_word_index =  max(word_ids.iteritems(), key=itemgetter(1))
+        # Get a dictionary mapping pivot words to their index in the arff file, the index will be the index of the pivot in the sorted set offset by the number of unigram
+        pivot_ids = {w: i for i, w in enumerate(sorted(pivot_words))}
+
+        rows = []
+        # For each tweet in our database
+        for identifier, text in test_data:
+            # Split it on white space
+            text = text.split(' ')
+            # Set every attribute in the row to not present
+            row = [0 for _ in words.union(pivot_words)]
+            # Itterate over each word in the tweet
+            for word in text:
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
+                if len(word) == 0:
+                    continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
+                # And set it to present
+                row[word_ids[word]] = 1
+
+            # Now we need to check if the pivot features exist in this tweet and set the value to 1 if so
+            for pivot in pivot_words:
+                pivot = pivot[:-6]
+                #If this pivot is in the tweet
+                if row[word_ids[pivot]] == 1:
+                    row[pivot_ids[pivot+"_pivot"]+max_word_index[1]] = 1
+            # Add this row to our complete set of rowS
+            rows.append(row)
+
+        self.exporter.write(rows)
+
+        return True, conn
 
 class BigramBinaryPresenceTotalNumberSubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):
 
@@ -801,6 +1177,11 @@ class UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter(HumanB
                 else:
                     counts[word] = 1
 
+        with open('mycsvfile.csv', 'wb') as f:  # Just use 'w' mode in 3.x
+            w = csv.DictWriter(f, counts.keys())
+            w.writeheader()
+            w.writerow(counts)
+
         # For every tweet we got back
         for identifier, text, sentiment in data:
             # Split it on white space
@@ -1127,6 +1508,11 @@ class UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter(HumanBasedSubjec
                     counts[word] += 1
                 else:
                     counts[word] = 1
+
+        with open('mycsvfile.csv', 'wb') as f:  # Just use 'w' mode in 3.x
+            w = csv.DictWriter(f, counts.keys())
+            w.writeheader()
+            w.writerow(counts)
 
         # For every tweet we got back
         for identifier, text, sentiment in data:
