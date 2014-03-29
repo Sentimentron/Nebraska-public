@@ -1,5 +1,5 @@
 import numpy
-max_itterations = 5
+max_itterations = 100
 learning_rate = 0.1
 pivots_to_keep = 800
 
