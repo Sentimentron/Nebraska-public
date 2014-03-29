@@ -1,8 +1,9 @@
 import numpy
+import pdb
 import cProfile
-max_itterations = 5
+max_itterations = 1000
 learning_rate = 0.1
-pivots_to_keep = 800
+pivots_to_keep = 20
 
 # sentiment_input is a matrix of columns containing unigrams and rows containing instances. The final column is the class label
 def learnPerceptron(sentiment_input, learning_rate):
@@ -118,25 +119,28 @@ def learnPivotPerceptron(pivot_input, learning_rate, number_unigrams):
     # For each pivot feature we need to learn the weights
     for pivot in range(0, number_pivot_features):
         converged = False
-        number_itterations = 0
-        while converged == False and number_itterations < max_itterations:
+        iterations = 0
+        while converged == False and iterations < max_itterations:
             converged = True
             # For every training example for our pivot predictors
             for instance in range(0,number_pivot_instances):
-                # The instance is the unigrams in the tweet
-                instance_without_label = pivot_input[instance,0:number_unigrams]
                 # The label for whether or not this pivot appears in the tweet appears after the unigrams
                 class_label = pivot_input[instance][number_unigrams+pivot]
+                if class_label < 0.0005:
+                    continue
+                # The instance is the unigrams in the tweet
+                instance_without_label = pivot_input[instance,0:number_unigrams]
+
                 # Train the pivot weights
                 # Rule for checking the output is: class_label * weight_vector . instance
                 # The pivot weights matrix is large and contains a column for each pivot so we just select the appropriate column
                 actual_result = numpy.dot(pivot_weights[:,pivot], instance_without_label) * class_label
 
                 # If this was misclassified then update the weights
-                if actual_result<= 0:
+                if actual_result <= 0:
                     pivot_weights[:,pivot] = pivot_weights[:,pivot] + class_label * learning_rate * instance_without_label
                     converged = False
-            number_itterations = number_itterations + 1
+            iterations = iterations + 1
     return pivot_weights
 
 # Learns the final perceptron for SCL
@@ -158,7 +162,6 @@ def learnSCLPerceptron(sentiment_input, positive_weights, negative_weights, neut
     positive_bias = 0
     negative_bias = 0
     neutral_bias = 0
-
     converged = False
     number_itterations = 0
     while converged == False and number_itterations < max_itterations:
@@ -190,6 +193,7 @@ def learnSCLPerceptron(sentiment_input, positive_weights, negative_weights, neut
                 label = 0
             else:
                 label = -1
+
 
             # If this was misclassified then update the weights
             if class_label != label:
@@ -305,4 +309,4 @@ def main():
     testSCLPerceptron(positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias, positive_v_weights, negative_v_weights, neutral_v_weights, positive_v_bias, negative_v_bias, neutral_v_bias, test_data, u)
 
 if __name__ == "__main__":
-    cProfile.run("main()")
+    main()
