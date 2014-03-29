@@ -1,4 +1,5 @@
 import numpy
+import cProfile
 max_itterations = 5
 learning_rate = 0.1
 pivots_to_keep = 800
@@ -261,43 +262,47 @@ def testSCLPerceptron(positive_sentiment_weights, negative_sentiment_weights, ne
     print(incorrect)
     print(correct)
 
+def main():
 ## Perform SCL
-print("Reading data")
+    print("Reading data")
 # Standard sentiment training data from a single domain with the class label of -1,0,1 in the final column
-sentiment_data = numpy.genfromtxt(open("tech_training.arff","rb"),delimiter=",",skiprows=0)
+    sentiment_data = numpy.genfromtxt(open("tech_training.arff","rb"),delimiter=",",skiprows=0)
 # Pivot training data which contains the unigrams followed by a binary value for each pivot indicating if the pivot appears in the tweet or not
-pivot_data = numpy.genfromtxt(open("politics_test.arff","rb"),delimiter=",",skiprows=0)
-number_unigrams = sentiment_data.shape[1] -1
+    pivot_data = numpy.genfromtxt(open("politics_test.arff","rb"),delimiter=",",skiprows=0)
+    number_unigrams = sentiment_data.shape[1] -1
 # Learn the Sentiment Weights
-print("Learning Sentiment Weights")
-positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias  = learnPerceptron(sentiment_data, learning_rate)
+    print("Learning Sentiment Weights")
+    positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias  = learnPerceptron(sentiment_data, learning_rate)
 # Convinence methods for saving / loading the weights for faster testing
 # sentiment_weights = numpy.load("sentiment_weights.npy")
 # print(sentiment_weights)
 # numpy.save("sentiment_weights", sentiment_weights)
 # Now learn the Thi Matrix
-print("Learning Thi Weights")
-thi_weights = learnPivotPerceptron(pivot_data, learning_rate, number_unigrams)
+    print("Learning Thi Weights")
+    thi_weights = learnPivotPerceptron(pivot_data, learning_rate, number_unigrams)
 # Convinence methods for saving / loading the weights for faster testing
 # numpy.save("thi_weights", thi_weights)
 # thi_weights = numpy.load("thi_weights.npy")
 
 # Now we have to perform SVD on Thi as we don't need all of the pivots as many are likely synomns
-print("Performing SVD")
-u, s, v = numpy.linalg.svd(thi_weights)
+    print("Performing SVD")
+    u, s, v = numpy.linalg.svd(thi_weights)
 
-u = numpy.transpose(u)
+    u = numpy.transpose(u)
 # Now keep the top pivots
-u = u[0:pivots_to_keep][:]
+    u = u[0:pivots_to_keep][:]
 # Finally we can train the final classifier
-print("Training Final Classifier")
-positive_v_weights, negative_v_weights, neutral_v_weights, positive_v_bias, negative_v_bias, neutral_v_bias = learnSCLPerceptron(sentiment_data, positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias, u, learning_rate)
+    print("Training Final Classifier")
+    positive_v_weights, negative_v_weights, neutral_v_weights, positive_v_bias, negative_v_bias, neutral_v_bias = learnSCLPerceptron(sentiment_data, positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias, u, learning_rate)
 # Convinence methods for saving / loading the weights for faster testing
 # numpy.save("v_weights", v_weights)
 # v_weights = numpy.load("v_weights.npy")
 # print(v_weights)
 # print(v_weights)
 # Now we can test the classifiers performance on the test domain
-print("Testing Final Classifier")
-test_data = numpy.genfromtxt(open("politics_training.arff","rb"),delimiter=",",skiprows=0)
-testSCLPerceptron(positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias, positive_v_weights, negative_v_weights, neutral_v_weights, positive_v_bias, negative_v_bias, neutral_v_bias, test_data, u)
+    print("Testing Final Classifier")
+    test_data = numpy.genfromtxt(open("politics_training.arff","rb"),delimiter=",",skiprows=0)
+    testSCLPerceptron(positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias, positive_v_weights, negative_v_weights, neutral_v_weights, positive_v_bias, negative_v_bias, neutral_v_bias, test_data, u)
+
+if __name__ == "__main__":
+    cProfile.run("main()")
