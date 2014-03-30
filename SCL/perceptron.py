@@ -1,6 +1,8 @@
 import numpy
 import pdb
 import cProfile
+import math
+
 max_itterations = 5000
 learning_rate = 0.1
 pivots_to_keep = 50
@@ -14,15 +16,10 @@ def learnPerceptron(sentiment_input, learning_rate):
     # The last column of the input contains the label and the columns are indexed from 0
     class_label_index = number_features
     # The standard set of weights for sentiment classification has 1 column and number_unigram rows
-    positive_weights = numpy.zeros(number_features)
-    negative_weights = numpy.zeros(number_features)
-    neutral_weights = numpy.zeros(number_features)
+    weights = numpy.zeros(number_features)
     # numpy.zeroes takes the number of rows then the number of columns
     # 3 Constants
-    positive_bias = 0
-    negative_bias = 0
-    neutral_bias = 0
-
+    bias = 0
     converged = False
     number_itterations = 0
     while converged == False and number_itterations < max_itterations:
@@ -34,42 +31,54 @@ def learnPerceptron(sentiment_input, learning_rate):
             class_label = sentiment_input[instance][class_label_index]
             # Train the sentiment weights
             # Rule for checking the output is: class_label * weight_vector . instance
-            positive_result = numpy.dot(positive_weights, instance_without_label) + positive_bias
-            negative_result = numpy.dot(negative_weights, instance_without_label) + negative_bias
-            neutral_result = numpy.dot(neutral_weights, instance_without_label) + neutral_bias
-            prediction = max(positive_result,negative_result,neutral_result)
 
-            if prediction == positive_result:
-                label = 1
-            elif prediction == neutral_result:
-                label = 0
-            else:
-                label = -1
+            result = numpy.dot(weights,instance_without_label) + bias
 
-            # If this was misclassified then update the weights
-            if class_label != label:
-                if class_label == 1:
-                    positive_weights = positive_weights + learning_rate * instance_without_label
-                    positive_bias = positive_bias + learning_rate
-                elif class_label == 0:
-                    neutral_weights = neutral_weights + learning_rate * instance_without_label
-                    neutral_bias = neutral_bias + learning_rate
-                else:
-                    negative_weights = negative_weights + learning_rate * instance_without_label
-                    negative_bias = negative_bias + learning_rate
+            test = class_label*result
+            if test <= 0: 
+                weights = weights+(class_label*learning_rate*instance_without_label)
+                bias = bias+learning_rate
+                converged=False
 
-                if label == 1:
-                    positive_weights = positive_weights - learning_rate * instance_without_label
-                elif label == 0:
-                    neutral_weights = neutral_weights - learning_rate * instance_without_label
-                else:
-                    negative_weights = negative_weights - learning_rate * instance_without_label
 
-                converged = False
+            # positive_result = numpy.dot(positive_weights, instance_without_label) + positive_bias
+            # negative_result = numpy.dot(negative_weights, instance_without_label) + negative_bias
+            # neutral_result = numpy.dot(neutral_weights, instance_without_label) + neutral_bias
+            # prediction = max(positive_result,negative_result,neutral_result)
+
+            # if prediction == positive_result:
+            #     label = 1
+            # elif prediction == neutral_result:
+            #     label = 0
+            # else:
+            #     label = -1
+
+            # # If this was misclassified then update the weights
+            # if class_label != label:
+            #     if class_label == 1:
+            #         positive_weights = positive_weights + learning_rate * instance_without_label
+            #         positive_bias = positive_bias + learning_rate
+            #     elif class_label == 0:
+            #         neutral_weights = neutral_weights + learning_rate * instance_without_label
+            #         neutral_bias = neutral_bias + learning_rate
+            #     else:
+            #         negative_weights = negative_weights + learning_rate * instance_without_label
+            #         negative_bias = negative_bias + learning_rate
+
+            #     if label == 1:
+            #         positive_weights = positive_weights - learning_rate * instance_without_label
+            #     elif label == 0:
+            #         neutral_weights = neutral_weights - learning_rate * instance_without_label
+            #     else:
+            #         negative_weights = negative_weights - learning_rate * instance_without_label
+
+            #     converged = False
 
         number_itterations = number_itterations+1
 
-    return (positive_weights, negative_weights, neutral_weights, positive_bias, negative_bias, neutral_bias)
+    #return (positive_weights, negative_weights, neutral_weights, positive_bias, negative_bias, neutral_bias)
+    return (weights,bias)
+
 
 # Runs sentiment_input through the perceptron and reports the accuracy
 def  testPerceptron(sentiment_input, positive_weights, negative_weights, neutral_weights):
@@ -87,22 +96,36 @@ def  testPerceptron(sentiment_input, positive_weights, negative_weights, neutral
         instance_without_label = sentiment_input[instance,0:number_features]
         class_label = sentiment_input[instance][class_label_index]
         # Rule for checking the output is: class_label * weight_vector . instance
-        positive_result = numpy.dot(positive_weights, instance_without_label) + positive_bias
-        negative_result = numpy.dot(negative_weights, instance_without_label) + negative_bias
-        neutral_result = numpy.dot(neutral_weights, instance_without_label) + neutral_bias
-        prediction = max(positive_result,negative_result,neutral_result)
+        positive_result = math.sign(numpy.dot(positive_weights, instance_without_label) + positive_bias)
+        negative_result = math.sign(numpy.dot(negative_weights, instance_without_label) + negative_bias)
+        neutral_result = math.sign(numpy.dot(neutral_weights, instance_without_label) + neutral_bias)
+       
 
-        if prediction == positive_result:
-            label = 1
-        elif prediction == neutral_result:
-            label = 0
-        else:
-            label = -1
+        if positive_result==1:
+           prediction = 1
+        elif negative_result==1:
+            if positive_result == -1 & neutral_result==-1:
+                prediction = 0
+            elif positive_result == 1:
+                prediction = 1
+            elif positive_result == 0 & neutral_result == 0:
+                prediction = -1
+            else:
+                prediction = 0
+        elif neutral_result == 1:
+            if positive_result == 1:
+                prediction = 1
+            elif positive_result==-1 & negative_result == 1:
+                prediction = 0
+            else:
+                prediction = 0
 
-        if class_label != 1:
-            incorrect = incorrect +1
+
+        if prediction==class_label:
+            correct = correct+1
         else:
-            correct = correct +1
+            incorrect = incorrect+1
+
     print(incorrect)
     print(correct)
 
@@ -145,7 +168,7 @@ def learnPivotPerceptron(pivot_input, learning_rate, number_unigrams):
 
 # Learns the final perceptron for SCL
 # Needs the weights for the sentiment classification, the training examples, the weights for the pivot predictors and a learning rate
-def learnSCLPerceptron(sentiment_input, thi, learning_rate, sentiment_weights, sentiment_bias):
+def learnSCLPerceptron(sentiment_input, learning_rate):
     # Number of rows in sentiment_input
     number_instances = sentiment_input.shape[0]
     # Number of columns in sentiment_input minus the classlabel
@@ -188,7 +211,7 @@ def learnSCLPerceptron(sentiment_input, thi, learning_rate, sentiment_weights, s
 
 # Learns the final perceptron for SCL
 # Needs the weights for the sentiment classification, the training examples, the weights for the pivot predictors and a learning rate
-def testSCLPerceptron(sentiment_input, thi, positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias, positive_v_weights, negative_v_weights, neutral_v_weights, positive_v_bias, negative_v_bias, neutral_v_bias):
+def testSCLPerceptron(sentiment_input, positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias):
     # Number of rows in sentiment_input
     number_instances = sentiment_input.shape[0]
     # Number of columns in sentiment_input minus the classlabel
@@ -210,6 +233,7 @@ def testSCLPerceptron(sentiment_input, thi, positive_sentiment_weights, negative
         class_label = sentiment_input[instance][class_label_index]
         # Train the v weights
         # Rule for checking the output is: sentiment_weights * input + v * thi(x)
+
         if class_label == 1:
             intermediate_result = numpy.dot(positive_sentiment_weights, instance_without_label)+positive_sentiment_bias
         elif class_label == 0:
@@ -218,9 +242,9 @@ def testSCLPerceptron(sentiment_input, thi, positive_sentiment_weights, negative
             intermediate_result = numpy.dot(negative_sentiment_weights, instance_without_label)+negative_sentiment_bias
 
         second_intermediate_result = numpy.dot(thi, instance_without_label)
-        positive_prediction = intermediate_result+numpy.dot(positive_v_weights, second_intermediate_result) + positive_v_bias * class_label
-        negative_prediction = intermediate_result+numpy.dot(negative_v_weights, second_intermediate_result) + negative_v_bias * class_label
-        neutral_prediction = intermediate_result+numpy.dot(neutral_v_weights, second_intermediate_result) + neutral_v_bias * class_label
+        positive_prediction = numpy.dot(positive_v_weights, instance_without_label) 
+        negative_prediction = numpy.dot(negative_v_weights, instance_without_label) 
+        neutral_prediction = numpy.dot(neutral_v_weights, instance_without_label) 
 
         prediction = max(positive_prediction, negative_prediction, neutral_prediction)
 
@@ -243,44 +267,44 @@ def testSCLPerceptron(sentiment_input, thi, positive_sentiment_weights, negative
 
 def main():
 ## Perform SCL
-    print("Reading data")
-# Standard sentiment training data from a single domain with the class label of -1,0,1 in the final column
-    sentiment_data = numpy.genfromtxt(open("tech_training.arff","rb") , invalid_raise=False, delimiter=",",skiprows=0)
-    print(sentiment_data.shape)
-# Pivot training data which contains the unigrams followed by a binary value for each pivot indicating if the pivot appears in the tweet or not
-    pivot_data = numpy.genfromtxt(open("politics_test.arff","rb"),delimiter=",",skiprows=0)
-    number_unigrams = sentiment_data.shape[1] -1
+#     print("Reading data")
+# # Standard sentiment training data from a single domain with the class label of -1,0,1 in the final column
+#     sentiment_data = numpy.genfromtxt(open("tech_training.arff","rb") , invalid_raise=False, delimiter=",",skiprows=0)
+#     print(sentiment_data.shape)
+# # Pivot training data which contains the unigrams followed by a binary value for each pivot indicating if the pivot appears in the tweet or not
+#     pivot_data = numpy.genfromtxt(open("politics_test.arff","rb"),delimiter=",",skiprows=0)
+#     number_unigrams = sentiment_data.shape[1] -1
 
-# Learn the Sentiment Weights
-    print("Learning Sentiment Weights")
-    positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias  = learnPerceptron(sentiment_data, learning_rate)
-# Convinence methods for saving / loading the weights for faster testing
-# sentiment_weights = numpy.load("sentiment_weights.npy")
-# print(sentiment_weights)
-# numpy.save("sentiment_weights", sentiment_weights)
-# Now learn the Thi Matrix
-    print("Learning Thi Weights")
-    thi_weights = learnPivotPerceptron(pivot_data, learning_rate, number_unigrams)
-    print thi_weights
+# # Learn the Sentiment Weights
+#     print("Learning Sentiment Weights")
+#     positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias  = learnPerceptron(sentiment_data, learning_rate)
+# # Convinence methods for saving / loading the weights for faster testing
+# # sentiment_weights = numpy.load("sentiment_weights.npy")
+# # print(sentiment_weights)
+# # numpy.save("sentiment_weights", sentiment_weights)
+# # Now learn the Thi Matrix
+#     print("Learning Thi Weights")
+#     thi_weights = learnPivotPerceptron(pivot_data, learning_rate, number_unigrams)
+#     print thi_weights
 # Convinence methods for saving / loading the weights for faster testing
 # numpy.save("thi_weights", thi_weights)
 # thi_weights = numpy.load("thi_weights.npy")
 
 # Now we have to perform SVD on Thi as we don't need all of the pivots as many are likely synomns
-    print("Performing SVD")
-    u, s, v = numpy.linalg.svd(thi_weights)
+#     print("Performing SVD")
+#     u, s, v = numpy.linalg.svd(thi_weights)
 
-    u = numpy.transpose(u)
-# Now keep the top pivots
-    u = u[0:pivots_to_keep][:]
+#     u = numpy.transpose(u)
+# # Now keep the top pivots
+#     u = u[0:pivots_to_keep][:]
 # Finally we can train the final classifier
     print("Training Final Classifier")
     positive_or_not = numpy.genfromtxt(open("positive_tech.arff","rb") , invalid_raise=False, delimiter=",",skiprows=0)
     negative_or_not = numpy.genfromtxt(open("negative_tech.arff","rb") , invalid_raise=False, delimiter=",",skiprows=0)
     neutral_or_not = numpy.genfromtxt(open("neutral_tech.arff","rb") , invalid_raise=False, delimiter=",",skiprows=0)
-    positive_v_weights, positive_v_bias = learnSCLPerceptron(positive_or_not, u, learning_rate, positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias)
-    negative_v_weights, negative_v_bias = learnSCLPerceptron(negative_or_not, u, learning_rate, positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias)
-    neutral_v_weights, neutral_v_bias = learnSCLPerceptron(neutral_or_not, u, learning_rate, positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias)
+    positive_v_weights, positive_v_bias = learnPerceptron(positive_or_not, learning_rate)
+    negative_v_weights, negative_v_bias = learnPerceptron(negative_or_not, learning_rate)
+    neutral_v_weights, neutral_v_bias = learnPerceptron(neutral_or_not, learning_rate)
     print positive_v_weights
     print negative_v_weights
     print neutral_v_weights
@@ -293,7 +317,7 @@ def main():
 
     print("Testing Final Classifier")
     test_data = numpy.genfromtxt(open("politics_training.arff","rb"),delimiter=",",skiprows=0)
-    testSCLPerceptron(test_data, u, positive_sentiment_weights, negative_sentiment_weights, neutral_sentiment_weights, positive_sentiment_bias, negative_sentiment_bias, neutral_sentiment_bias, positive_v_weights, negative_v_weights, neutral_v_weights, positive_v_bias, negative_v_bias, neutral_v_bias)
+    testPerceptron(test_data, positive_v_weights, negative_v_weights, neutral_v_weights, positive_v_bias, negative_v_bias, neutral_v_bias)
 
 if __name__ == "__main__":
     main()
