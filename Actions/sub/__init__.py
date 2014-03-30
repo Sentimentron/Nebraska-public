@@ -21,6 +21,9 @@ from arff import UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter
 from arff import UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter
 from arff import CrossDomainUnigramDataExporter
 from arff import CrossDomainUnigramPivotDataExporter
+from arff import BigramBinaryPresencePercentageSubjectiveGimpelTaggedARFFExporter
+from arff import SemEvalBigramDataExporter
+from arff import SemEvalUnigramDataExporter
 from crf import CRFSubjectiveAnnotator
 from crf import CRFSubjectiveExporter
 from crf import ProduceCRFSTagList

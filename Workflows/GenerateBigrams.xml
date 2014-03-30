@@ -9,20 +9,31 @@
 
     <Tables>
         <ResultsTable />
+         <PartOfSpeechTable name="gimpel"/>
     </Tables>
 
     <InputSources>
-        <AMTInputSource dir="Data/MechanicalTurk/Tech" />
+        <SemvalInputSource dir="Data/SemEval/Train"  source="train_semval"/>
+        <SemvalInputSource dir="Data/SemEval/Test"  source="train" create="false"/>
+        <AMTInputSource dir="Data/MechanicalTurk/TechPolitics" />
     </InputSources>
 
     <WorkflowTasks>
-        <AMTNormalise/>
-        <GimpelPOSTagger dest="gimpel" verbose="true" />
+        <!-- <AMTNormalise/> -->
+        <!-- <SemEvalBigramDataExporter outputTable="bigrams" path="unigrams_test.arff" source="test" useStopWords="true" /> -->
+        <!-- <SemEvalBigramDataExporter outputTable="bigrams" path="unigrams_train.arff" source="train" useStopWords="true" /> -->
+
+        <SemEvalUnigramDataExporter outputTable="bigrams" path="unigrams_test.arff" source="train" useStopWords="true" />
+        <!-- <CrossDomainUnigramPivotDataExporter outputTable="unigrams" path="development_test.arff" pivots="intersection.csv" test_domain="politics"/> -->
+
+        <!-- <SemEvalUnigramDataExporter outputTable="bigrams" path="unigrams_train.arff" source="train" useStopWords="true" /> -->
+        <!-- <GimpelPOSTagger dest="gimpel" verbose="true" /> -->
 
         <!-- <BigramBinaryPresenceARFFExporter outputTable="bigrams" path="unigrams.arff" /> -->
         <!-- <BigramBinaryPresencePercentageSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" /> -->
         <!-- <BigramBinaryPresenceNumberSubjectiveARFFExporter outputTable="unigrams" path="unigrams.arff" /> -->
-        <BigramBinaryPresenceTotalNumberSubjectiveARFFExporter outputTable="bigrams" path="unigrams.arff" />
+        <!-- <BigramBinaryPresenceTotalNumberSubjectiveARFFExporter outputTable="bigrams" path="unigrams.arff" /> -->
+        <!-- <BigramBinaryPresencePercentageSubjectiveGimpelTaggedARFFExporter outputTable="bigrams" path="unigrams.arff" threshold="2"/> -->
 
 
         <!-- <BigramBinaryPresenceARFFExporter outputTable="bigrams" path="unigrams.arff" useStopWords="true" stem="true" threshold="2"/> -->

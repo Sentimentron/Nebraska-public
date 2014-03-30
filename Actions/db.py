@@ -127,7 +127,7 @@ def create_sqlite_input_tables(conn):
 
     # Create the input table
     logging.info("Creating input table")
-    sql = "CREATE TABLE input (identifier INTEGER PRIMARY KEY, document TEXT NOT NULL, date DATETIME)"
+    sql = "CREATE TABLE input (identifier INTEGER PRIMARY KEY, document TEXT NOT NULL, date DATETIME, source TEXT)"
     c.execute(sql)
 
     logging.info("Creating metadata table...")

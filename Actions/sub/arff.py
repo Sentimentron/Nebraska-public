@@ -49,6 +49,404 @@ class ARFFExporter(object):
                     continue
                 writer.writerow(row)
 
+# If source is set to train combines SemEvals training data with ours if source is set to test exports SemEvals development data
+class SemEvalUnigramDataExporter(HumanBasedSubjectivePhraseAnnotator):
+
+    # Get all of the tweets from the given domain so we can set the unigrams to present or not in the results file
+    def get_text_anns_with_domain(self, conn):
+        """
+            Generate a list of (id, text, annnotation) triples
+        """
+        cursor = conn.cursor()
+        ret = []
+        if self.source == "train":
+            sql = """SELECT document, label_names_sentiment.label FROM input JOIN label_sentiment on input.identifier = label_sentiment.document_identifier JOIN label_names_sentiment on label_names_sentiment.label_identifier = label_sentiment.label WHERE input.identifier = ? AND source = "train" UNION SELECT document, label_names_semval.label FROM input JOIN label_semval on input.identifier = label_semval.label JOIN label_names_semval on label_names_semval.label_identifier = label_semval.label WHERE input.identifier = ? AND input.source = "train_semval" """
+            for identifier in self.generate_source_identifiers(conn):
+                cursor.execute(sql, (identifier, identifier))
+                # For every tweet and its annotation
+                for text, sentiment in cursor.fetchall():
+                    if sentiment == 'positive':
+                        sentiment = 1
+                    elif sentiment == 'negative':
+                        sentiment = -1
+                    else:
+                        sentiment = 0
+                    # Ditch anything thats not a letter
+                    text = re.sub('[^a-zA-Z ]', '', text)
+                    # And return the identifier, the tweet and its overall sentiment
+                    ret.append((identifier, text, sentiment))
+        else:
+            # Get all the tweets from the database
+            sql = """SELECT document, label_names_semval.label FROM input JOIN label_semval on input.identifier = label_semval.document_identifier JOIN label_names_semval on label_names_semval.label_identifier = label_semval.label WHERE input.identifier = ? AND source = "test" """
+            for identifier in self.generate_source_identifiers(conn):
+                cursor.execute(sql, (identifier,))
+                # For every tweet and its annotation
+                for text, sentiment in cursor.fetchall():
+                    if sentiment == 'positive':
+                        sentiment = 1
+                    elif sentiment == 'negative':
+                        sentiment = -1
+                    else:
+                        sentiment = 0
+                    # Ditch anything thats not a letter
+                    text = re.sub('[^a-zA-Z ]', '', text)
+                    # And return the identifier, the tweet and its overall sentiment
+                    ret.append((identifier, text, sentiment))
+        return ret
+
+    # Get all of the tweets in the database so we get a complete set of attributes
+    def get_text_anns(self, conn):
+        """
+            Generate a list of (id, text, annnotation) triples
+        """
+        cursor = conn.cursor()
+        ret = []
+        # Get all the tweets from the database
+        sql = """SELECT input.document FROM input WHERE input.identifier = ?"""
+        for identifier in self.generate_source_identifiers(conn):
+            cursor.execute(sql, (identifier,))
+            # For every tweet and its annotation
+            for text in cursor.fetchall():
+                # Ditch anything thats not a letter
+                text = re.sub('[^a-zA-Z ]', '', text[0])
+                # And return the identifier, the tweet and its overall sentiment
+                ret.append((identifier, text))
+        return ret
+
+    def __init__(self, xml):
+        """
+            Initialise the exporter: must provide a path attribute
+        """
+        super(SemEvalUnigramDataExporter, self).__init__(
+            xml
+        )
+
+        self.path = xml.get("path")
+        self.exporter = ARFFExporter(self.path, "tweet_sentiment")
+        self.use_stop_words = xml.get("useStopWords")
+        self.threshold = xml.get("threshold")
+        self.stem = xml.get("stem")
+        self.lemmise = xml.get("lemmise")
+        self.source = xml.get("source")
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
+        if self.stem != "true":
+            self.stem = False
+        else:
+            self.stem = True
+        if self.lemmise != "true":
+            self.lemmise = False
+        else:
+            self.lemmise = True
+        if self.use_stop_words != "true":
+            self.use_stop_words = False
+        else:
+            self.use_stop_words = True
+        assert self.path is not None
+
+    def execute(self, path, conn):
+        stopwords = """a,able,about,across,after,all,almost,also,am
+        ,among,an,and,any,are,as,at,be,because
+        ,been,but,by,can,cannot,could,dear
+        ,did,do,does,either,else,ever,every
+        ,for,from,get,got,had,has,have,he,her
+        ,hers,him,his,how,however,i,if,in,into
+        ,is,it,its,just,least,let,like,likely,
+        may,me,might,most,must,my,neither,no,nor,
+        not,of,off,often,on,only,or,other,our,own,
+        rather,said,say,says,she,should,since,so,
+        some,than,that,the,their,them,then,there,
+        these,they,this,tis,to,too,twas,us,wants,
+        was,we,were,what,when,where,which,while,
+        who,whom,why,will,with,would,yet,you,your""".split(",")
+        stopwords = [i.strip() for i in stopwords]
+
+        # Get all the tweets from the database
+        data = self.get_text_anns(conn)
+        # Get just the tweets from the test domain
+        test_data = self.get_text_anns_with_domain(conn)
+        # Will contain all the unigrams from the test and train domains
+        words = set([])
+        counts = {}
+
+        # Count the number of occurences of each unigram
+        # For every tweet we got back
+        for identifier, text in data:
+            # Split it on white space
+            for word in text.split(' '):
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
+                elif len(word) == 0:
+                    continue
+                elif word in counts:
+                    counts[word] += 1
+                else:
+                    counts[word] = 1
+
+        with open('mycsvfile.csv', 'wb') as f:  # Just use 'w' mode in 3.x
+            w = csv.DictWriter(f, counts.keys())
+            w.writeheader()
+            w.writerow(counts)
+
+        # For every tweet we got back
+        for identifier, text in data:
+            # Split it on white space
+            for word in text.split(' '):
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
+                elif len(word) == 0:
+                    continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
+                # And add it as an attribute
+                words.add(word.lower())
+
+        # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
+        for word in sorted(words):
+            self.exporter.add_attribute(word, 'numeric')
+        self.exporter.add_attribute('sentiment_label', ["1", "0", "-1"])
+
+        # Get a dictionary mapping the words that are our attributes to integers that represent their index in the ARFF file
+        word_ids = {w: i for i, w in enumerate(sorted(words))}
+
+        rows = []
+        # For each tweet in our database
+        for identifier, text, sentiment in test_data:
+            # Split it on white space
+            text = text.split(' ')
+            # Set every attribute in the row to not present
+            row = [0 for _ in words]
+            # Itterate over each word in the tweet
+            for word in text:
+                word = word.lower()
+                if self.use_stop_words and word in stopwords:
+                    continue
+                if len(word) == 0:
+                    continue
+                if self.threshold:
+                    if counts[word] < self.threshold:
+                        continue
+                if self.stem:
+                    word = EnglishStemmer().stem(word)
+                if self.lemmise:
+                    word = WordNetLemmatizer().lemmatize(word)
+                # And set it to present
+                row[word_ids[word]] = 1
+            # And add the class label
+            row.append(sentiment)
+            # Add this row to our complete set of rowS
+            rows.append(row)
+
+        self.exporter.write(rows)
+
+        return True, conn
+
+# If source is set to train combines SemEvals training data with ours if source is set to test exports SemEvals development data
+class SemEvalBigramDataExporter(HumanBasedSubjectivePhraseAnnotator):
+
+    # Get all of the tweets from the given domain so we can set the unigrams to present or not in the results file
+    def get_text_anns_with_domain(self, conn):
+        """
+            Generate a list of (id, text, annnotation) triples
+        """
+        cursor = conn.cursor()
+        ret = []
+        if self.source == "train":
+            sql = """SELECT document, label_names_sentiment.label FROM input JOIN label_sentiment on input.identifier = label_sentiment.document_identifier JOIN label_names_sentiment on label_names_sentiment.label_identifier = label_sentiment.label WHERE input.identifier = ? AND source = "train" UNION SELECT document, label_names_semval.label FROM input JOIN label_semval on input.identifier = label_semval.label JOIN label_names_semval on label_names_semval.label_identifier = label_semval.label WHERE input.identifier = ? AND input.source = "train_semval" """
+            for identifier in self.generate_source_identifiers(conn):
+                cursor.execute(sql, (identifier, identifier))
+                # For every tweet and its annotation
+                for text, sentiment in cursor.fetchall():
+                    if sentiment == 'positive':
+                        sentiment = 1
+                    elif sentiment == 'negative':
+                        sentiment = -1
+                    else:
+                        sentiment = 0
+                    # Ditch anything thats not a letter
+                    text = re.sub('[^a-zA-Z ]', '', text)
+                    # And return the identifier, the tweet and its overall sentiment
+                    ret.append((identifier, text, sentiment))
+        else:
+            # Get all the tweets from the database
+            sql = """SELECT document, label_names_semval.label FROM input JOIN label_semval on input.identifier = label_semval.document_identifier JOIN label_names_semval on label_names_semval.label_identifier = label_semval.label WHERE input.identifier = ? AND source = "test" """
+            for identifier in self.generate_source_identifiers(conn):
+                cursor.execute(sql, (identifier,))
+                # For every tweet and its annotation
+                for text, sentiment in cursor.fetchall():
+                    if sentiment == 'positive':
+                        sentiment = 1
+                    elif sentiment == 'negative':
+                        sentiment = -1
+                    else:
+                        sentiment = 0
+                    # Ditch anything thats not a letter
+                    text = re.sub('[^a-zA-Z ]', '', text)
+                    # And return the identifier, the tweet and its overall sentiment
+                    ret.append((identifier, text, sentiment))
+        return ret
+
+    # Get all of the tweets in the database so we get a complete set of attributes
+    def get_text_anns(self, conn):
+        """
+            Generate a list of (id, text, annnotation) triples
+        """
+        cursor = conn.cursor()
+        ret = []
+        # Get all the tweets from the database
+        sql = """SELECT input.document FROM input WHERE input.identifier = ?"""
+        for identifier in self.generate_source_identifiers(conn):
+            cursor.execute(sql, (identifier,))
+            # For every tweet and its annotation
+            for text in cursor.fetchall():
+                # Ditch anything thats not a letter
+                text = re.sub('[^a-zA-Z ]', '', text[0])
+                # And return the identifier, the tweet and its overall sentiment
+                ret.append((identifier, text))
+        return ret
+
+    def __init__(self, xml):
+        """
+            Initialise the exporter: must provide a path attribute
+        """
+        super(SemEvalBigramDataExporter, self).__init__(
+            xml
+        )
+
+        self.path = xml.get("path")
+        self.exporter = ARFFExporter(self.path, "tweet_sentiment")
+        self.use_stop_words = xml.get("useStopWords")
+        self.threshold = xml.get("threshold")
+        self.stem = xml.get("stem")
+        self.lemmise = xml.get("lemmise")
+        self.source = xml.get("source")
+        if self.threshold is not None:
+            self.threshold = int(self.threshold)
+        if self.stem != "true":
+            self.stem = False
+        else:
+            self.stem = True
+        if self.lemmise != "true":
+            self.lemmise = False
+        else:
+            self.lemmise = True
+        if self.use_stop_words != "true":
+            self.use_stop_words = False
+        else:
+            self.use_stop_words = True
+        assert self.path is not None
+
+    def execute(self, path, conn):
+        stopwords = """a,able,about,across,after,all,almost,also,am
+        ,among,an,and,any,are,as,at,be,because
+        ,been,but,by,can,cannot,could,dear
+        ,did,do,does,either,else,ever,every
+        ,for,from,get,got,had,has,have,he,her
+        ,hers,him,his,how,however,i,if,in,into
+        ,is,it,its,just,least,let,like,likely,
+        may,me,might,most,must,my,neither,no,nor,
+        not,of,off,often,on,only,or,other,our,own,
+        rather,said,say,says,she,should,since,so,
+        some,than,that,the,their,them,then,there,
+        these,they,this,tis,to,too,twas,us,wants,
+        was,we,were,what,when,where,which,while,
+        who,whom,why,will,with,would,yet,you,your""".split(",")
+        stopwords = [i.strip() for i in stopwords]
+
+        # Get all the tweets from the database
+        data = self.get_text_anns(conn)
+        # Get just the tweets from the test domain
+        test_data = self.get_text_anns_with_domain(conn)
+        # Will contain all the unigrams from the test and train domains
+        words = set([])
+        counts = {}
+
+        # Count the number of bigram occurences
+        for identifier, text in data:
+            # Split it on white space
+            tweet_split = text.split(' ')
+            for i in range(0,len(tweet_split)-1):
+                if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
+                    continue
+                bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
+                if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
+                    continue
+                if self.stem:
+                    bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
+                if self.lemmise:
+                    bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+                if bigram in counts:
+                    counts[bigram] += 1
+                else:
+                    counts[bigram] = 1
+
+        # For every tweet we got back
+        for identifier, text in data:
+            # Split it on white space
+            tweet_split = text.split(' ')
+            for i in range(0,len(tweet_split)-1):
+               bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
+               if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
+                   continue
+               if(self.use_stop_words and (tweet_split[i].lower() in stopwords or tweet_split[i+1].lower() in stopwords)):
+                   continue
+               if self.stem:
+                  bigram = EnglishStemmer().stem(tweet_split[i].lower()) + "-" + EnglishStemmer().stem(tweet_split[i+1].lower())
+               if self.lemmise:
+                  bigram = WordNetLemmatizer().lemmatize(tweet_split[i].lower()) + "-" + WordNetLemmatizer().lemmatize(tweet_split[i+1].lower())
+               if self.threshold:
+                   if counts[bigram] < self.threshold:
+                       continue
+               words.add(bigram)
+
+        # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
+        for word in sorted(words):
+            self.exporter.add_attribute(word, 'numeric')
+        self.exporter.add_attribute('sentiment', ["1", "0", "-1"])
+
+        # Get a dictionary mapping the words that are our attributes to integers that represent their index in the ARFF file
+        word_ids = {w: i for i, w in enumerate(sorted(words))}
+
+        rows = []
+        # For each tweet in our database
+        for identifier, text, sentiment in test_data:
+            # Split it on white space
+            text = text.split(' ')
+            # Set every attribute in the row to not present
+            row = [0 for _ in words]
+            # Itterate over each word in the tweet
+            for i in range(0,len(text)-1):
+                bigram = text[i].lower() + "-" + text[i+1].lower()
+                if len(text[i]) == 0 or len(text[i+1]) == 0 or text[i] == ' ' or text[i+1] == ' ':
+                    continue
+                if(self.use_stop_words and (text[i].lower() in stopwords or text[i+1].lower() in stopwords)):
+                    continue
+                if self.stem:
+                    bigram = EnglishStemmer().stem(text[i].lower()) + "-" + EnglishStemmer().stem(text[i+1].lower())
+                if self.lemmise:
+                    bigram = WordNetLemmatizer().lemmatize(text[i].lower()) + "-" + WordNetLemmatizer().lemmatize(text[i+1].lower())
+                if self.threshold:
+                    if counts[bigram] < self.threshold:
+                        continue
+                # And set it to present
+                row[word_ids[bigram]] = 1
+            # Throw this row in the result
+            # Now calculate the percentages of positive negative and neutral
+            row.append(sentiment)
+            rows.append(row)
+
+        self.exporter.write(rows)
+
+        return True, conn
+
+
 # This class produces a CSV file without a header of training data for the SCL tests.
 # This is similar to the standard ARFF exporters except the training data contains slots for unigrams from both domains. Before this class is run the database needs to contain tweets from the test and train domains
 class CrossDomainUnigramDataExporter(HumanBasedSubjectivePhraseAnnotator):
@@ -239,9 +637,11 @@ class CrossDomainUnigramPivotDataExporter(HumanBasedSubjectivePhraseAnnotator):
         cursor = conn.cursor()
         ret = []
         # Get all the tweets from the database
-        sql = """SELECT document, label_names_domains.label FROM input JOIN label_domains ON input.identifier = label_domains.document_identifier  JOIN label_names_domains ON label_domains.label = label_names_domains.label_identifier WHERE input.identifier = ? AND label_names_domains.label = ?"""
+        # sql = """SELECT document, label_names_domains.label FROM input JOIN label_domains ON input.identifier = label_domains.document_identifier  JOIN label_names_domains ON label_domains.label = label_names_domains.label_identifier WHERE input.identifier = ? AND label_names_domains.label = ?"""
+        sql = """SELECT document, label_names_sentiment.label FROM input JOIN label_sentiment on input.identifier = label_sentiment.document_identifier JOIN label_names_sentiment on label_names_sentiment.label_identifier = label_sentiment.label WHERE input.identifier = ? AND source = "train" UNION SELECT document, label_names_semval.label FROM input JOIN label_semval on input.identifier = label_semval.label JOIN label_names_semval on label_names_semval.label_identifier = label_semval.label WHERE input.identifier = ? AND input.source = "train_semval" """
         for identifier in self.generate_source_identifiers(conn):
-            cursor.execute(sql, (identifier,self.test_domain))
+            # cursor.execute(sql, (identifier,self.test_domain))
+            cursor.execute(sql, (identifier,identifier))
             # For every tweet and its annotation
             for text in cursor.fetchall():
                 # Ditch anything thats not a letter
@@ -391,7 +791,7 @@ class CrossDomainUnigramPivotDataExporter(HumanBasedSubjectivePhraseAnnotator):
             # Split it on white space
             text = text.split(' ')
             # Set every attribute in the row to not present
-            row = [0 for _ in words.union(pivot_words)]
+            row = [-1 for _ in words.union(pivot_words)]
             # Itterate over each word in the tweet
             for word in text:
                 word = word.lower()
@@ -845,7 +1245,7 @@ class BigramBinaryPresencePercentageSubjectiveARFFExporter(HumanBasedSubjectiveP
         for identifier, text, sentiment in data:
             # Split it on white space
             tweet_split = text.split(' ')
-            for i in range(1,len(tweet_split)-1):
+            for i in range(0,len(tweet_split)-1):
                 if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
                     continue
                 bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
@@ -864,7 +1264,7 @@ class BigramBinaryPresencePercentageSubjectiveARFFExporter(HumanBasedSubjectiveP
         for identifier, text, sentiment in data:
             # Split it on white space
             tweet_split = text.split(' ')
-            for i in range(1,len(tweet_split)-1):
+            for i in range(0,len(tweet_split)-1):
                bigram = tweet_split[i].lower() + "-" + tweet_split[i+1].lower()
                if len(tweet_split[i]) == 0 or len(tweet_split[i+1]) == 0 or tweet_split[i] == ' ' or tweet_split[i+1] == ' ':
                    continue
@@ -881,6 +1281,7 @@ class BigramBinaryPresencePercentageSubjectiveARFFExporter(HumanBasedSubjectiveP
 
         # Add all these unigrams as attributes in the arff file with possible values of 0 and 1
         for word in sorted(words):
+            print word
             self.exporter.add_attribute(word, 'numeric')
         # Add the percentage pos, neg and neutral attributes
         self.exporter.add_attribute("percent_positive", 'numeric')
@@ -900,7 +1301,7 @@ class BigramBinaryPresencePercentageSubjectiveARFFExporter(HumanBasedSubjectiveP
             # Set every attribute in the row to not present
             row = [0 for _ in words]
             # Itterate over each word in the tweet
-            for i in range(1,len(text)-1):
+            for i in range(0,len(text)-1):
                 bigram = text[i].lower() + "-" + text[i+1].lower()
                 if len(text[i]) == 0 or len(text[i+1]) == 0 or text[i] == ' ' or text[i+1] == ' ':
                     continue
@@ -2431,3 +2832,27 @@ class SubjectiveARFFExporter(HumanBasedSubjectivePhraseAnnotator):
                 csv_writer.writerow(row)
 
         return True, conn
+
+class BigramBinaryPresencePercentageSubjectiveGimpelTaggedARFFExporter(BigramBinaryPresencePercentageSubjectiveARFFExporter):
+
+    def get_text_anns(self, conn):
+        """
+            Generate a list of (id, text, annnotation) triples
+        """
+        cursor = conn.cursor()
+        ret = []
+        # Get all the tweets from the database
+        sql = """SELECT tokenized_form, subphrases.sentiment FROM pos_gimpel JOIN subphrases ON pos_gimpel.document_identifier = subphrases.document_identifier WHERE pos_gimpel.document_identifier = ?"""
+        for identifier in self.generate_source_identifiers(conn):
+            cursor.execute(sql, (identifier,))
+            # For every tweet and its annotation
+            for text, sentiment in cursor.fetchall():
+                # And return the identifier, the tweet and its overall sentiment
+                ret.append((identifier, text, sentiment))
+        return ret
+
+    def __init__(self, xml):
+        """
+            Initialise the exporter: must provide a path attribute
+        """
+        super(BigramBinaryPresencePercentageSubjectiveGimpelTaggedARFFExporter, self).__init__( xml )

@@ -17,12 +17,12 @@
     </InputSources>
 
     <WorkflowTasks>
-        <WekaBenchmark id="SVM" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.LibSVM" />
-        <WekaBenchmark id="DecisionTree" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.trees.J48" />
+        <!-- <WekaBenchmark id="SVM" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.LibSVM" /> -->
+        <!-- <WekaBenchmark id="DecisionTree" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.trees.J48" /> -->
         <WekaBenchmark id="Bayes" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.bayes.NaiveBayes" />
-        <WekaBenchmark id="RuleInduction" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.rules.JRip" />
+        <!-- <WekaBenchmark id="RuleInduction" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.rules.JRip" /> -->
         <!-- <WekaBenchmark id="Logistic" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.functions.Logistic" /> -->
-        <WekaBenchmark id="KNN" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.lazy.IBk" />
+        <!-- <WekaBenchmark id="KNN" posSrc="gimpel" labelSrc="sanders" folds="4" classifier="weka.classifiers.lazy.IBk" /> -->
     </WorkflowTasks>
 
 </Workflow>

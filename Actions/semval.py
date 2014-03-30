@@ -16,6 +16,8 @@ class SemvalInputSource(object):
     def __init__(self, xml):
         self.xml = xml
         self.directory = xml.get("dir")
+        self.source = xml.get("source")
+        self.create = xml.get("create")
         self.__assert_directory_exists()
 
     def __assert_directory_exists(self):
@@ -37,7 +39,8 @@ class SemvalInputSource(object):
         return ret
 
     def execute(self, path, conn):
-        create_sqlite_label_table("semval", conn)
+        if(self.create != "false"):
+            create_sqlite_label_table("semval", conn)
         labeller = Labeller("semval")
         input_sources = self.get_import_files()
         conn.text_factory = str
@@ -50,8 +53,8 @@ class SemvalInputSource(object):
                     document = row[3]
                     label = row[2]
                     c.execute(
-                        "INSERT INTO input(document) VALUES(?)",
-                        (document,)
+                        "INSERT INTO input(document, source) VALUES(?,?)",
+                        (document, self.source)
                     )
                     inserted = c.lastrowid;
                     labeller.associate(inserted, label, conn)

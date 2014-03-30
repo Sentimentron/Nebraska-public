@@ -68,6 +68,9 @@ from sub import UnigramBinaryPresenceWithPercentageSubjectiveARFFExporter
 from sub import UnigramBinaryPresenceWithTotalNumberOfSubjectivePhrasesARFFExporter
 from sub import CrossDomainUnigramDataExporter
 from sub import CrossDomainUnigramPivotDataExporter
+from sub import BigramBinaryPresencePercentageSubjectiveGimpelTaggedARFFExporter
+from sub import SemEvalBigramDataExporter
+from sub import SemEvalUnigramDataExporter
 from templabeller import AtMentionLabeller
 from templabeller import BasicWordLabeller
 from templabeller import BigramLabeller
