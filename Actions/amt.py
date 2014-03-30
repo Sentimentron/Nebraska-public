@@ -49,8 +49,8 @@ class _AMTImport(object):
         """
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO input (document, date) VALUES (?, datetime())",
-            (tweet,)
+            "INSERT INTO input (document, date, source) VALUES (?, datetime(), ?)",
+            (tweet, "train")
         )
         return cursor.lastrowid
 
@@ -186,6 +186,12 @@ class AMTNormalise(object):
         # Then pull the four subphrase annotations and the four overall annotations
         for identifier in identifiers:
             cursor2 = conn.cursor()
+            # Check if this is from the AMT corpus and if not move on
+            # Will be in the subphrases table if it is from the AMT corpus
+            check_query = "SELECT COUNT(*) FROM subphrases WHERE document_identifier = ?"
+            if cursor2.execute(check_query, (identifier[0],)).fetchone()[0] == 0:
+                continue
+
             query = "SELECT label_names_sentiment.label FROM label_sentiment JOIN label_names_sentiment ON label_sentiment.label = label_names_sentiment.label_identifier WHERE document_identifier = %s" % (identifier)
             sentiments = cursor2.execute(query)
             # Check we got four back and this code assumes four annotations per tweet and if not cry about it. This commented out until I can figure out how to roll the cursor back to the start
