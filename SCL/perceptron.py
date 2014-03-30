@@ -96,10 +96,24 @@ def  testPerceptron(sentiment_input, positive_weights, negative_weights, neutral
         instance_without_label = sentiment_input[instance,0:number_features]
         class_label = sentiment_input[instance][class_label_index]
         # Rule for checking the output is: class_label * weight_vector . instance
-        positive_result = math.sign(numpy.dot(positive_weights, instance_without_label) + positive_bias)
-        negative_result = math.sign(numpy.dot(negative_weights, instance_without_label) + negative_bias)
-        neutral_result = math.sign(numpy.dot(neutral_weights, instance_without_label) + neutral_bias)
-       
+        positive_result = numpy.dot(positive_weights, instance_without_label + positive_bias)
+        negative_result = numpy.dot(negative_weights, instance_without_label + negative_bias)
+        neutral_result = numpy.dot(neutral_weights, instance_without_label + neutral_bias)
+
+        if positive_result < 0:
+            positive_result = -1
+        else:
+            positive_result = 1
+
+        if negative_result < 0:
+            negative_result = -1
+        else:
+            negative_result = 1
+
+        if neutral_result < 0:
+            neutral_result = -1
+        else:
+            neutral_result = 1
 
         if positive_result==1:
            prediction = 1
