@@ -81,7 +81,7 @@ def learnPerceptron(sentiment_input, learning_rate):
 
 
 # Runs sentiment_input through the perceptron and reports the accuracy
-def  testPerceptron(sentiment_input, positive_weights, negative_weights, neutral_weights):
+def  testPerceptron(sentiment_input, positive_weights, negative_weights, neutral_weights, positive_bias, negative_bias, neutral_bias):
     # Number of rows in sentiment_input
     number_instances = sentiment_input.shape[0]
     # Number of columns in sentiment_input minus the classlabel
@@ -104,8 +104,8 @@ def  testPerceptron(sentiment_input, positive_weights, negative_weights, neutral
         if positive_result==1:
            prediction = 1
         elif negative_result==1:
-            if positive_result == -1 & neutral_result==-1:
-                prediction = 0
+            if positive_result == -1 & neutral_result == -1:
+                prediction = -1
             elif positive_result == 1:
                 prediction = 1
             elif positive_result == 0 & neutral_result == 0:
