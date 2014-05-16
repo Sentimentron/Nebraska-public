@@ -96,7 +96,7 @@ class _AMTImport(object):
                 # Clean an insert subjective phrase annotations
                 anns = anns.replace("|", "")
                 anns = anns.replace(" ", "")
-                anns = re.sub("[^p|^q|^n]", "q", anns)
+                anns = re.sub("[^p|^e|^q|^n]", "q", anns)
                 logging.debug(anns)
                 self.insert_anns(identifier, anns, sentiment, conn)
                 # Insert the sentiment
